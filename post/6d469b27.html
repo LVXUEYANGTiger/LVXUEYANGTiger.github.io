@@ -1,0 +1,639 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JVM监控及诊断工具-命令行篇 | 牧马人的忧伤</title><meta name="keywords" content="jvm"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="2.1. 概述性能诊断是软件工程师在日常工作中需要经常面对和解决的问题，在用户体验至上的今天，解决好应用的性能问题能带来非常大的收益。 Java 作为最流行的编程语言之一，其应用性能诊断一直受到业界广泛关注。可能造成 Java 应用出现性能问题的因素非常多，例如线程控制、磁盘读写、数据库访问、网络I&#x2F;O、垃圾收集等。想要定位这些问题，一款优秀的性能诊断工具必不可少。 体会1：使用数据说明问题，使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM监控及诊断工具-命令行篇">
+<meta property="og:url" content="http://www.lvxueyang.vip/post/6d469b27.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="2.1. 概述性能诊断是软件工程师在日常工作中需要经常面对和解决的问题，在用户体验至上的今天，解决好应用的性能问题能带来非常大的收益。 Java 作为最流行的编程语言之一，其应用性能诊断一直受到业界广泛关注。可能造成 Java 应用出现性能问题的因素非常多，例如线程控制、磁盘读写、数据库访问、网络I&#x2F;O、垃圾收集等。想要定位这些问题，一款优秀的性能诊断工具必不可少。 体会1：使用数据说明问题，使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165212.jpg">
+<meta property="article:published_time" content="2021-08-06T09:12:00.000Z">
+<meta property="article:modified_time" content="2021-08-06T09:21:23.167Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="jvm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165212.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/6d469b27"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'JVM监控及诊断工具-命令行篇',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-08-06 17:21:23'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">1</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165212.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">JVM监控及诊断工具-命令行篇</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-06T09:12:00.000Z" title="发表于 2021-08-06 17:12:00">2021-08-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-08-06T09:21:23.167Z" title="更新于 2021-08-06 17:21:23">2021-08-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/jvm/">jvm</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>14分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="JVM监控及诊断工具-命令行篇"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="2-1-概述"><a href="#2-1-概述" class="headerlink" title="2.1. 概述"></a>2.1. 概述</h2><p>性能诊断是软件工程师在日常工作中需要经常面对和解决的问题，在用户体验至上的今天，解决好应用的性能问题能带来非常大的收益。</p>
+<p>Java 作为最流行的编程语言之一，其应用性能诊断一直受到业界广泛关注。可能造成 Java 应用出现性能问题的因素非常多，例如线程控制、磁盘读写、数据库访问、网络I/O、垃圾收集等。想要定位这些问题，一款优秀的性能诊断工具必不可少。</p>
+<p>体会1：使用数据说明问题，使用知识分析问题，使用工具处理问题。</p>
+<p>体会2：无监控、不调优！</p>
+<p><strong>简单命令行工具</strong></p>
+<p>在我们刚接触java学习的时候，大家肯定最先了解的两个命令就是javac，java，那么除此之外，还有没有其他的命令可以供我们使用呢？</p>
+<p>我们进入到安装jdk的bin目录，发现还有一系列辅助工具。这些辅助工具用来获取目标 JVM 不同方面、不同层次的信息，帮助开发人员很好地解决Java应用程序的一些疑难杂症。</p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215807.png" alt="image"></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215811.png" alt="image"></p>
+<p>官方源码地址：<a target="_blank" rel="noopener" href="http://hg.openjdk.java.net/jdk/jdk11/file/1ddf9a99e4ad/src/jdk.jcmd/share/classes/sun/tools">http://hg.openjdk.java.net/jdk/jdk11/file/1ddf9a99e4ad/src/jdk.jcmd/share/classes/sun/tools</a></p>
+<h2 id="2-2-jps：查看正在运行的Java进程"><a href="#2-2-jps：查看正在运行的Java进程" class="headerlink" title="2.2. jps：查看正在运行的Java进程"></a>2.2. jps：查看正在运行的Java进程</h2><p>jps(Java Process Status)：显示指定系统内所有的HotSpot虚拟机进程（查看虚拟机进程信息），可用于查询正在运行的虚拟机进程。</p>
+<p>说明：对于本地虚拟机进程来说，进程的本地虚拟机ID与操作系统的进程ID是一致的，是唯一的。</p>
+<p>基本使用语法为：jps [options] [hostid]</p>
+<p>我们还可以通过追加参数，来打印额外的信息。</p>
+<p><strong>options参数</strong></p>
+<ul>
+<li><p>-q：仅仅显示LVMID（local virtual machine id），即本地虚拟机唯一id。不显示主类的名称等</p>
+</li>
+<li><p>-l：输出应用程序主类的全类名 或 如果进程执行的是jar包，则输出jar完整路径</p>
+</li>
+<li><p>-m：输出虚拟机进程启动时传递给主类main()的参数</p>
+</li>
+<li><p>-v：列出虚拟机进程启动时的JVM参数。比如：-Xms20m -Xmx50m是启动程序指定的jvm参数。</p>
+</li>
+</ul>
+<p>说明：以上参数可以综合使用。</p>
+<p>补充：如果某 Java 进程关闭了默认开启的UsePerfData参数（即使用参数-XX：-UsePerfData），那么jps命令（以及下面介绍的jstat）将无法探知该Java 进程。</p>
+<p><strong>hostid参数</strong></p>
+<p>RMI注册表中注册的主机名。如果想要远程监控主机上的 java 程序，需要安装 jstatd。</p>
+<p>对于具有更严格的安全实践的网络场所而言，可能使用一个自定义的策略文件来显示对特定的可信主机或网络的访问，尽管这种技术容易受到IP地址欺诈攻击。</p>
+<p>如果安全问题无法使用一个定制的策略文件来处理，那么最安全的操作是不运行jstatd服务器，而是在本地使用jstat和jps工具。</p>
+<h2 id="2-3-jstat：查看JVM统计信息"><a href="#2-3-jstat：查看JVM统计信息" class="headerlink" title="2.3. jstat：查看JVM统计信息"></a>2.3. jstat：查看JVM统计信息</h2><p>jstat（JVM Statistics Monitoring Tool）：用于监视虚拟机各种运行状态信息的命令行工具。它可以显示本地或者远程虚拟机进程中的类装载、内存、垃圾收集、JIT编译等运行数据。在没有GUI图形界面，只提供了纯文本控制台环境的服务器上，它将是运行期定位虚拟机性能问题的首选工具。常用于检测垃圾回收问题以及内存泄漏问题。</p>
+<p>官方文档：<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstat.html">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstat.html</a></p>
+<p>基本使用语法为：jstat -<option> [-t] [-h<lines>] <vmid> [<interval> [<count>]]</p>
+<p>查看命令相关参数：jstat-h 或 jstat-help</p>
+<p>其中vmid是进程id号，也就是jps之后看到的前面的号码，如下：</p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215816.png" alt="image"></p>
+<p><strong>option参数</strong></p>
+<p>选项option可以由以下值构成。</p>
+<p>类装载相关的：</p>
+<ul>
+<li>-class：显示ClassLoader的相关信息：类的装载、卸载数量、总空间、类装载所消耗的时间等</li>
+</ul>
+<p>垃圾回收相关的：</p>
+<ul>
+<li><p>-gc：显示与GC相关的堆信息。包括Eden区、两个Survivor区、老年代、永久代等的容量、已用空间、GC时间合计等信息。</p>
+</li>
+<li><p>-gccapacity：显示内容与-gc基本相同，但输出主要关注Java堆各个区域使用到的最大、最小空间。</p>
+</li>
+<li><p>-gcutil：显示内容与-gc基本相同，但输出主要关注已使用空间占总空间的百分比。</p>
+</li>
+<li><p>-gccause：与-gcutil功能一样，但是会额外输出导致最后一次或当前正在发生的GC产生的原因。</p>
+</li>
+<li><p>-gcnew：显示新生代GC状况</p>
+</li>
+<li><p>-gcnewcapacity：显示内容与-gcnew基本相同，输出主要关注使用到的最大、最小空间</p>
+</li>
+<li><p>-geold：显示老年代GC状况</p>
+</li>
+<li><p>-gcoldcapacity：显示内容与-gcold基本相同，输出主要关注使用到的最大、最小空间</p>
+</li>
+<li><p>-gcpermcapacity：显示永久代使用到的最大、最小空间。</p>
+</li>
+</ul>
+<p>JIT相关的：</p>
+<ul>
+<li><p>-compiler：显示JIT编译器编译过的方法、耗时等信息</p>
+</li>
+<li><p>-printcompilation：输出已经被JIT编译的方法</p>
+</li>
+</ul>
+<p><strong>jstat -class</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215820.png" alt="image"></p>
+<p><strong>jstat -compiler</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215825.png" alt="image"></p>
+<p><strong>jstat -printcompilation</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215829.png" alt="image"></p>
+<p><strong>jstat -gc</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215836.png" alt="image"></p>
+<p><strong>jstat -gccapacity</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215831.png" alt="image"></p>
+<p><strong>jstat -gcutil</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215843.png" alt="image"></p>
+<p><strong>jstat -gccause</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215847.png" alt="image"></p>
+<p><strong>jstat -gcnew</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215849.png" alt="image"></p>
+<p><strong>jstat -gcnewcapacity</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215851.png" alt="image"></p>
+<p><strong>jstat -gcold</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215712.png" alt="image"></p>
+<p><strong>jstat -gcoldcapacity</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215710.png" alt="image"></p>
+<p><strong>jstat -t</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215704.png" alt="image"></p>
+<p><strong>jstat -t -h</strong></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215707.png" alt="image"></p>
+<table>
+<thead>
+<tr>
+<th>表头</th>
+<th>含义（字节）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EC</td>
+<td>Eden区的大小</td>
+</tr>
+<tr>
+<td>EU</td>
+<td>Eden区已使用的大小</td>
+</tr>
+<tr>
+<td>S0C</td>
+<td>幸存者0区的大小</td>
+</tr>
+<tr>
+<td>S1C</td>
+<td>幸存者1区的大小</td>
+</tr>
+<tr>
+<td>S0U</td>
+<td>幸存者0区已使用的大小</td>
+</tr>
+<tr>
+<td>S1U</td>
+<td>幸存者1区已使用的大小</td>
+</tr>
+<tr>
+<td>MC</td>
+<td>元空间的大小</td>
+</tr>
+<tr>
+<td>MU</td>
+<td>元空间已使用的大小</td>
+</tr>
+<tr>
+<td>OC</td>
+<td>老年代的大小</td>
+</tr>
+<tr>
+<td>OU</td>
+<td>老年代已使用的大小</td>
+</tr>
+<tr>
+<td>CCSC</td>
+<td>压缩类空间的大小</td>
+</tr>
+<tr>
+<td>CCSU</td>
+<td>压缩类空间已使用的大小</td>
+</tr>
+<tr>
+<td>YGC</td>
+<td>从应用程序启动到采样时young gc的次数</td>
+</tr>
+<tr>
+<td>YGCT</td>
+<td>从应用程序启动到采样时young gc消耗时间（秒）</td>
+</tr>
+<tr>
+<td>FGC</td>
+<td>从应用程序启动到采样时full gc的次数</td>
+</tr>
+<tr>
+<td>FGCT</td>
+<td>从应用程序启动到采样时的full gc的消耗时间（秒）</td>
+</tr>
+<tr>
+<td>GCT</td>
+<td>从应用程序启动到采样时gc的总时间</td>
+</tr>
+</tbody></table>
+<p><strong>interval参数：</strong> 用于指定输出统计数据的周期，单位为毫秒。即：查询间隔</p>
+<p><strong>count参数：</strong> 用于指定查询的总次数</p>
+<p><strong>-t参数：</strong> 可以在输出信息前加上一个Timestamp列，显示程序的运行时间。单位：秒</p>
+<p><strong>-h参数：</strong> 可以在周期性数据输出时，输出多少行数据后输出一个表头信息</p>
+<p><strong>补充：</strong> jstat还可以用来判断是否出现内存泄漏。</p>
+<p>第1步：在长时间运行的 Java 程序中，我们可以运行jstat命令连续获取多行性能数据，并取这几行数据中 OU 列（即已占用的老年代内存）的最小值。</p>
+<p>第2步：然后，我们每隔一段较长的时间重复一次上述操作，来获得多组 OU 最小值。如果这些值呈上涨趋势，则说明该 Java 程序的老年代内存已使用量在不断上涨，这意味着无法回收的对象在不断增加，因此很有可能存在内存泄漏。</p>
+<h2 id="2-4-jinfo：实时查看和修改JVM配置参数"><a href="#2-4-jinfo：实时查看和修改JVM配置参数" class="headerlink" title="2.4. jinfo：实时查看和修改JVM配置参数"></a>2.4. jinfo：实时查看和修改JVM配置参数</h2><p>jinfo(Configuration Info for Java)：查看虚拟机配置参数信息，也可用于调整虚拟机的配置参数。在很多情况卡，Java应用程序不会指定所有的Java虚拟机参数。而此时，开发人员可能不知道某一个具体的Java虚拟机参数的默认值。在这种情况下，可能需要通过查找文档获取某个参数的默认值。这个查找过程可能是非常艰难的。但有了jinfo工具，开发人员可以很方便地找到Java虚拟机参数的当前值。</p>
+<p>基本使用语法为：jinfo [options] pid</p>
+<p>说明：java 进程ID必须要加上</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>选项说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>no option</td>
+<td>输出全部的参数和系统属性</td>
+</tr>
+<tr>
+<td>-flag name</td>
+<td>输出对应名称的参数</td>
+</tr>
+<tr>
+<td>-flag [+-]name</td>
+<td>开启或者关闭对应名称的参数 只有被标记为manageable的参数才可以被动态修改</td>
+</tr>
+<tr>
+<td>-flag name=value</td>
+<td>设定对应名称的参数</td>
+</tr>
+<tr>
+<td>-flags</td>
+<td>输出全部的参数</td>
+</tr>
+<tr>
+<td>-sysprops</td>
+<td>输出系统属性</td>
+</tr>
+</tbody></table>
+<p><strong>jinfo -sysprops</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; jinfo -sysprops</span><br><span class="line">jboss.modules.system.pkgs = com.intellij.rt</span><br><span class="line">java.vendor = Oracle Corporation</span><br><span class="line">sun.java.launcher = SUN_STANDARD</span><br><span class="line">sun.management.compiler = HotSpot 64-Bit Tiered Compilers</span><br><span class="line">catalina.useNaming = true</span><br><span class="line">os.name = Windows 10</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><strong>jinfo -flags</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; jinfo -flags 25592</span><br><span class="line">Non-default VM flags: -XX:CICompilerCount=4 -XX:InitialHeapSize=333447168 -XX:MaxHeapSize=5324668928 -XX:MaxNewSize=1774714880 -XX:MinHeapDeltaBytes=524288 -XX:NewSize=111149056 -XX:OldSize=222298112 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseFastUnorderedTimeStamps -XX:-UseLargePagesIndividualAllocation -XX:+UseParallelGC</span><br><span class="line">Command line:  -agentlib:jdwp=transport=dt_socket,address=127.0.0.1:8040,suspend=y,server=n -Drebel.base=C:\Users\Vector\.jrebel -Drebel.env.ide.plugin.version=2021.1.2 -Drebel.env.ide.version=2020.3.3 -Drebel.env.ide.product=IU -Drebel.env.ide=intellij -Drebel.notification.url=http://localhost:7976 -agentpath:C:\Users\Vector\AppData\Roaming\JetBrains\IntelliJIdea2020.3\plugins\jr-ide-idea\lib\jrebel6\lib\jrebel64.dll -Dmaven.home=D:\eclipse\env\maven -Didea.modules.paths.file=C:\Users\Vector\AppData\Local\JetBrains\IntelliJIdea2020.3\Maven\idea-projects-state-596682c7.properties -Dclassworlds.conf=C:\Users\Vector\AppData\Local\Temp\idea-6755-mvn.conf -Dmaven.ext.class.path=D:\IDEA\plugins\maven\lib\maven-event-listener.jar -javaagent:D:\IDEA\plugins\java\lib\rt\debugger-agent.jar -Dfile.encoding=UTF-8</span><br></pre></td></tr></table></figure>
+
+<p><strong>jinfo -flag</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; jinfo -flag UseParallelGC 25592</span><br><span class="line">-XX:+UseParallelGC</span><br><span class="line"></span><br><span class="line">&gt; jinfo -flag UseG1GC 25592</span><br><span class="line">-XX:-UseG1GC</span><br></pre></td></tr></table></figure>
+
+<p><strong>jinfo -flag name</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; jinfo -flag UseParallelGC 25592</span><br><span class="line">-XX:+UseParallelGC</span><br><span class="line"></span><br><span class="line">&gt; jinfo -flag UseG1GC 25592</span><br><span class="line">-XX:-UseG1GC</span><br></pre></td></tr></table></figure>
+
+<p><strong>jinfo -flag [+-]name</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; jinfo -flag +PrintGCDetails 25592</span><br><span class="line">&gt; jinfo -flag PrintGCDetails 25592</span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line"></span><br><span class="line">&gt; jinfo -flag -PrintGCDetails 25592</span><br><span class="line">&gt; jinfo -flag PrintGCDetails 25592</span><br><span class="line">-XX:-PrintGCDetails</span><br></pre></td></tr></table></figure>
+
+<p>拓展：</p>
+<ul>
+<li>java -XX:+PrintFlagsInitial 查看所有JVM参数启动的初始值</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[Global flags]</span><br><span class="line">     intx ActiveProcessorCount                      = -1                                  &#123;product&#125;</span><br><span class="line">    uintx AdaptiveSizeDecrementScaleFactor          = 4                                   &#123;product&#125;</span><br><span class="line">    uintx AdaptiveSizeMajorGCDecayTimeScale         = 10                                  &#123;product&#125;</span><br><span class="line">    uintx AdaptiveSizePausePolicy                   = 0                                   &#123;product&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>java -XX:+PrintFlagsFinal 查看所有JVM参数的最终值</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[Global flags]</span><br><span class="line">     intx ActiveProcessorCount                      = -1                                  &#123;product&#125;</span><br><span class="line">...</span><br><span class="line">     intx CICompilerCount                          := 4                                   &#123;product&#125;</span><br><span class="line">    uintx InitialHeapSize                          := 333447168                           &#123;product&#125;</span><br><span class="line">    uintx MaxHeapSize                              := 1029701632                          &#123;product&#125;</span><br><span class="line">    uintx MaxNewSize                               := 1774714880                          &#123;product&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>java -XX:+PrintCommandLineFlags 查看哪些已经被用户或者JVM设置过的详细的XX参数的名称和值</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-XX:InitialHeapSize=332790016 -XX:MaxHeapSize=5324640256 -XX:+PrintCommandLineFlags -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:-UseLargePagesIndividualAllocation -XX:+UseParallelGC</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-5-jmap：导出内存映像文件-amp-内存使用情况"><a href="#2-5-jmap：导出内存映像文件-amp-内存使用情况" class="headerlink" title="2.5. jmap：导出内存映像文件&amp;内存使用情况"></a>2.5. jmap：导出内存映像文件&amp;内存使用情况</h2><p>jmap（JVM Memory Map）：作用一方面是获取dump文件（堆转储快照文件，二进制文件），它还可以获取目标Java进程的内存相关信息，包括Java堆各区域的使用情况、堆中对象的统计信息、类加载信息等。开发人员可以在控制台中输入命令“jmap -help”查阅jmap工具的具体使用方式和一些标准选项配置。</p>
+<p>官方帮助文档：<a target="_blank" rel="noopener" href="https://docs.oracle.com/en/java/javase/11/tools/jmap.html">https://docs.oracle.com/en/java/javase/11/tools/jmap.html</a></p>
+<p>基本使用语法为：</p>
+<ul>
+<li><p>jmap [option] <pid></p>
+</li>
+<li><p>jmap [option] &lt;executable <core></p>
+</li>
+<li><p>jmap [option] [server_id@] <remote server IP or hostname></p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-dump</td>
+<td>生成dump文件（Java堆转储快照），-dump:live只保存堆中的存活对象</td>
+</tr>
+<tr>
+<td>-heap</td>
+<td>输出整个堆空间的详细信息，包括GC的使用、堆配置信息，以及内存的使用信息等</td>
+</tr>
+<tr>
+<td>-histo</td>
+<td>输出堆空间中对象的统计信息，包括类、实例数量和合计容量，-histo:live只统计堆中的存活对象</td>
+</tr>
+<tr>
+<td>-J <flag></td>
+<td>传递参数给jmap启动的jvm</td>
+</tr>
+<tr>
+<td>-finalizerinfo</td>
+<td>显示在F-Queue中等待Finalizer线程执行finalize方法的对象，仅linux/solaris平台有效</td>
+</tr>
+<tr>
+<td>-permstat</td>
+<td>以ClassLoader为统计口径输出永久代的内存状态信息，仅linux/solaris平台有效</td>
+</tr>
+<tr>
+<td>-F</td>
+<td>当虚拟机进程对-dump选项没有任何响应时，强制执行生成dump文件，仅linux/solaris平台有效</td>
+</tr>
+</tbody></table>
+<p>说明：这些参数和linux下输入显示的命令多少会有不同，包括也受jdk版本的影响。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; jmap -dump:format=b,file=&lt;filename.hprof&gt; &lt;pid&gt;</span><br><span class="line">&gt; jmap -dump:live,format=b,file=&lt;filename.hprof&gt; &lt;pid&gt;</span><br></pre></td></tr></table></figure>
+
+<p>由于jmap将访问堆中的所有对象，为了保证在此过程中不被应用线程干扰，jmap需要借助安全点机制，让所有线程停留在不改变堆中数据的状态。也就是说，由jmap导出的堆快照必定是安全点位置的。这可能导致基于该堆快照的分析结果存在偏差。</p>
+<p>举个例子，假设在编译生成的机器码中，某些对象的生命周期在两个安全点之间，那么:live选项将无法探知到这些对象。</p>
+<p>另外，如果某个线程长时间无法跑到安全点，jmap将一直等下去。与前面讲的jstat则不同，垃圾回收器会主动将jstat所需要的摘要数据保存至固定位置之中，而jstat只需直接读取即可。</p>
+<h2 id="2-6-jhat：JDK自带堆分析工具"><a href="#2-6-jhat：JDK自带堆分析工具" class="headerlink" title="2.6. jhat：JDK自带堆分析工具"></a>2.6. jhat：JDK自带堆分析工具</h2><p>jhat(JVM Heap Analysis Tool)：Sun JDK提供的jhat命令与jmap命令搭配使用，用于分析jmap生成的heap dump文件（堆转储快照）。jhat内置了一个微型的HTTP/HTML服务器，生成dump文件的分析结果后，用户可以在浏览器中查看分析结果（分析虚拟机转储快照信息）。</p>
+<p>使用了jhat命令，就启动了一个http服务，端口是7000，即<a target="_blank" rel="noopener" href="http://localhost:7000/%EF%BC%8C%E5%B0%B1%E5%8F%AF%E4%BB%A5%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E9%87%8C%E5%88%86%E6%9E%90%E3%80%82">http://localhost:7000/，就可以在浏览器里分析。</a></p>
+<p>说明：jhat命令在JDK9、JDK10中已经被删除，官方建议用VisualVM代替。</p>
+<p>基本适用语法：jhat <option> <dumpfile></p>
+<table>
+<thead>
+<tr>
+<th>option参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-stack false｜true</td>
+<td>关闭｜打开对象分配调用栈跟踪</td>
+</tr>
+<tr>
+<td>-refs false｜true</td>
+<td>关闭｜打开对象引用跟踪</td>
+</tr>
+<tr>
+<td>-port port-number</td>
+<td>设置jhat HTTP Server的端口号，默认7000</td>
+</tr>
+<tr>
+<td>-exclude exclude-file</td>
+<td>执行对象查询时需要排除的数据成员</td>
+</tr>
+<tr>
+<td>-baseline exclude-file</td>
+<td>指定一个基准堆转储</td>
+</tr>
+<tr>
+<td>-debug int</td>
+<td>设置debug级别</td>
+</tr>
+<tr>
+<td>-version</td>
+<td>启动后显示版本信息就退出</td>
+</tr>
+<tr>
+<td>-J <flag></td>
+<td>传入启动参数，比如-J-Xmx512m</td>
+</tr>
+</tbody></table>
+<h2 id="2-7-jstack：打印JVM中线程快照"><a href="#2-7-jstack：打印JVM中线程快照" class="headerlink" title="2.7. jstack：打印JVM中线程快照"></a>2.7. jstack：打印JVM中线程快照</h2><p>jstack（JVM Stack Trace）：用于生成虚拟机指定进程当前时刻的线程快照（虚拟机堆栈跟踪）。线程快照就是当前虚拟机内指定进程的每一条线程正在执行的方法堆栈的集合。</p>
+<p>生成线程快照的作用：可用于定位线程出现长时间停顿的原因，如线程间死锁、死循环、请求外部资源导致的长时间等待等问题。这些都是导致线程长时间停顿的常见原因。当线程出现停顿时，就可以用jstack显示各个线程调用的堆栈情况。</p>
+<p>官方帮助文档：<a target="_blank" rel="noopener" href="https://docs.oracle.com/en/java/javase/11/tools/jstack.html">https://docs.oracle.com/en/java/javase/11/tools/jstack.html</a></p>
+<p>在thread dump中，要留意下面几种状态</p>
+<ul>
+<li><p>死锁，Deadlock（重点关注）</p>
+</li>
+<li><p>等待资源，Waiting on condition（重点关注）</p>
+</li>
+<li><p>等待获取监视器，Waiting on monitor entry（重点关注）</p>
+</li>
+<li><p>阻塞，Blocked（重点关注）</p>
+</li>
+<li><p>执行中，Runnable</p>
+</li>
+<li><p>暂停，Suspended</p>
+</li>
+<li><p>对象等待中，Object.wait() 或 TIMED＿WAITING</p>
+</li>
+<li><p>停止，Parked</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>option参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-F</td>
+<td>当正常输出的请求不被响应时，强制输出线程堆栈</td>
+</tr>
+<tr>
+<td>-l</td>
+<td>除堆栈外，显示关于锁的附加信息</td>
+</tr>
+<tr>
+<td>-m</td>
+<td>如果调用本地方法的话，可以显示C/C++的堆栈</td>
+</tr>
+</tbody></table>
+<h2 id="2-8-jcmd：多功能命令行"><a href="#2-8-jcmd：多功能命令行" class="headerlink" title="2.8. jcmd：多功能命令行"></a>2.8. jcmd：多功能命令行</h2><p>在JDK 1.7以后，新增了一个命令行工具jcmd。它是一个多功能的工具，可以用来实现前面除了jstat之外所有命令的功能。比如：用它来导出堆、内存使用、查看Java进程、导出线程信息、执行GC、JVM运行时间等。</p>
+<p>官方帮助文档：<a target="_blank" rel="noopener" href="https://docs.oracle.com/en/java/javase/11/tools/jcmd.html">https://docs.oracle.com/en/java/javase/11/tools/jcmd.html</a></p>
+<p>jcmd拥有jmap的大部分功能，并且在Oracle的官方网站上也推荐使用jcmd命令代jmap命令</p>
+<p><strong>jcmd -l：</strong>列出所有的JVM进程</p>
+<p><strong>jcmd 进程号 help：</strong>针对指定的进程，列出支持的所有具体命令</p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215657.png" alt="image"></p>
+<p><strong>jcmd 进程号 具体命令：</strong>显示指定进程的指令命令的数据</p>
+<ul>
+<li><p>Thread.print 可以替换 jstack指令</p>
+</li>
+<li><p>GC.class_histogram 可以替换 jmap中的-histo操作</p>
+</li>
+<li><p>GC.heap_dump 可以替换 jmap中的-dump操作</p>
+</li>
+<li><p>GC.run 可以查看GC的执行情况</p>
+</li>
+<li><p>VM.uptime 可以查看程序的总执行时间，可以替换jstat指令中的-t操作</p>
+</li>
+<li><p>VM.system_properties 可以替换 jinfo -sysprops 进程id</p>
+</li>
+<li><p>VM.flags 可以获取JVM的配置参数信息</p>
+</li>
+</ul>
+<h2 id="2-9-jstatd：远程主机信息收集"><a href="#2-9-jstatd：远程主机信息收集" class="headerlink" title="2.9. jstatd：远程主机信息收集"></a>2.9. jstatd：远程主机信息收集</h2><p>之前的指令只涉及到监控本机的Java应用程序，而在这些工具中，一些监控工具也支持对远程计算机的监控（如jps、jstat）。为了启用远程监控，则需要配合使用jstatd 工具。命令jstatd是一个RMI服务端程序，它的作用相当于代理服务器，建立本地计算机与远程监控工具的通信。jstatd服务器将本机的Java应用程序信息传递到远程计算机。</p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210531215650.png&sign=02492ef4cb28c09d9e31474dd6c219776ec9fd63c995653f689df00ec05b531d" alt="img"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/6d469b27.html">http://www.lvxueyang.vip/post/6d469b27.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/jvm/">jvm</a></div><div class="post_share"><div class="social-share" data-image="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165212.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/59a01433.html"><img class="prev-cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165211.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">JVM运行时参数</div></div></a></div><div class="next-post pull-right"><a href="/post/6fd038bc.html"><img class="next-cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165213.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">JVM监控及诊断工具-GUI篇</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/4a17b156.html" title="类加载子系统"><img class="cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165215.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">类加载子系统</div></div></a></div><div><a href="/post/55bc3795.html" title="JVM和Java体系架构"><img class="cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165215.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">JVM和Java体系架构</div></div></a></div><div><a href="/post/11595de.html" title="运行时数据区"><img class="cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165215.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">运行时数据区</div></div></a></div><div><a href="/post/594d8429.html" title="虚拟机栈"><img class="cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165215.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">虚拟机栈</div></div></a></div><div><a href="/post/fab451a5.html" title="堆"><img class="cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165210.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">堆</div></div></a></div><div><a href="/post/fd685f99.html" title="方法区"><img class="cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165210.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">方法区</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">2.1. 概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-jps%EF%BC%9A%E6%9F%A5%E7%9C%8B%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E7%9A%84Java%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">2.2. jps：查看正在运行的Java进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-jstat%EF%BC%9A%E6%9F%A5%E7%9C%8BJVM%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF"><span class="toc-number">3.</span> <span class="toc-text">2.3. jstat：查看JVM统计信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-jinfo%EF%BC%9A%E5%AE%9E%E6%97%B6%E6%9F%A5%E7%9C%8B%E5%92%8C%E4%BF%AE%E6%94%B9JVM%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0"><span class="toc-number">4.</span> <span class="toc-text">2.4. jinfo：实时查看和修改JVM配置参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-jmap%EF%BC%9A%E5%AF%BC%E5%87%BA%E5%86%85%E5%AD%98%E6%98%A0%E5%83%8F%E6%96%87%E4%BB%B6-amp-%E5%86%85%E5%AD%98%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5"><span class="toc-number">5.</span> <span class="toc-text">2.5. jmap：导出内存映像文件&amp;内存使用情况</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-6-jhat%EF%BC%9AJDK%E8%87%AA%E5%B8%A6%E5%A0%86%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7"><span class="toc-number">6.</span> <span class="toc-text">2.6. jhat：JDK自带堆分析工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-7-jstack%EF%BC%9A%E6%89%93%E5%8D%B0JVM%E4%B8%AD%E7%BA%BF%E7%A8%8B%E5%BF%AB%E7%85%A7"><span class="toc-number">7.</span> <span class="toc-text">2.7. jstack：打印JVM中线程快照</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-8-jcmd%EF%BC%9A%E5%A4%9A%E5%8A%9F%E8%83%BD%E5%91%BD%E4%BB%A4%E8%A1%8C"><span class="toc-number">8.</span> <span class="toc-text">2.8. jcmd：多功能命令行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-9-jstatd%EF%BC%9A%E8%BF%9C%E7%A8%8B%E4%B8%BB%E6%9C%BA%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">9.</span> <span class="toc-text">2.9. jstatd：远程主机信息收集</span></a></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><p><a style="margin-inline:5px"target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://img.shields.io/badge/CDN-%E5%8F%88%E6%8B%8D%E4%BA%91-blue" title="又拍云提供CDN加速" alt="又拍云"></a><a style="margin-inline:5px"target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为 Hexo" alt="HEXO"></a><a style="margin-inline:5px"target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用 Butterfly" alt="Butterfly"></a><a style="margin-inline:5px"target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用 Jsdelivr 为静态资源提供CDN加速" alt="Jsdelivr"></a><a style="margin-inline:5px"target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由 GitHub 托管" alt="GitHub"></a><a style="margin-inline:5px"target="_blank"href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" alt="img" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
