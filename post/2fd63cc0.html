@@ -1,0 +1,683 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MySQL集群架构设计 | 牧马人的忧伤</title><meta name="keywords" content="msyql"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="集群架构设计架构设计理念在集群架构设计时，主要遵从下面三个维度：  可用性  扩展性  一致性   可用性设计 站点高可用，冗余站点   服务高可用，冗余服务  数据高可用，冗余数据   保证高可用的方法是冗余。但是数据冗余带来的问题是数据一致性问题。实现高可用的方案有以下几种架构模式：  主从模式  简单灵活，能满足多种需求。比较主流的用法，但是写操作高可用需要自行处理。 双主模式  互为主从，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL集群架构设计">
+<meta property="og:url" content="http://www.lvxueyang.vip/post/2fd63cc0.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="集群架构设计架构设计理念在集群架构设计时，主要遵从下面三个维度：  可用性  扩展性  一致性   可用性设计 站点高可用，冗余站点   服务高可用，冗余服务  数据高可用，冗余数据   保证高可用的方法是冗余。但是数据冗余带来的问题是数据一致性问题。实现高可用的方案有以下几种架构模式：  主从模式  简单灵活，能满足多种需求。比较主流的用法，但是写操作高可用需要自行处理。 双主模式  互为主从，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165211.jpg">
+<meta property="article:published_time" content="2021-08-06T10:08:00.000Z">
+<meta property="article:modified_time" content="2021-08-06T10:52:13.387Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="msyql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165211.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/2fd63cc0"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MySQL集群架构设计',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-08-06 18:52:13'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">47</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165211.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">MySQL集群架构设计</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-06T10:08:00.000Z" title="发表于 2021-08-06 18:08:00">2021-08-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-08-06T10:52:13.387Z" title="更新于 2021-08-06 18:52:13">2021-08-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/mysql/">mysql</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">10.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>32分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="MySQL集群架构设计"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="集群架构设计"><a href="#集群架构设计" class="headerlink" title="集群架构设计"></a>集群架构设计</h2><h3 id="架构设计理念"><a href="#架构设计理念" class="headerlink" title="架构设计理念"></a>架构设计理念</h3><p>在集群架构设计时，主要遵从下面三个维度：</p>
+<ul>
+<li><p>可用性</p>
+</li>
+<li><p>扩展性</p>
+</li>
+<li><p>一致性</p>
+</li>
+</ul>
+<h3 id="可用性设计"><a href="#可用性设计" class="headerlink" title="可用性设计"></a>可用性设计</h3><ul>
+<li><p>站点高可用，冗余站点 </p>
+</li>
+<li><p>服务高可用，冗余服务</p>
+</li>
+<li><p>数据高可用，冗余数据</p>
+</li>
+</ul>
+<p><strong>保证高可用的方法是冗余。</strong>但是数据冗余带来的问题是数据一致性问题。<br>实现高可用的方案有以下几种架构模式：</p>
+<ul>
+<li>主从模式<br>  简单灵活，能满足多种需求。比较主流的用法，但是写操作高可用需要自行处理。</li>
+<li>双主模式<br>  互为主从，有双主双写、双主单写两种方式，建议使用双主单写</li>
+</ul>
+<h3 id="扩展性设计"><a href="#扩展性设计" class="headerlink" title="扩展性设计"></a>扩展性设计</h3><p>扩展性主要围绕着读操作扩展和写操作扩展展开。</p>
+<ul>
+<li><p>如何扩展以提高读性能</p>
+</li>
+<li><p>加从库<br>  简单易操作，方案成熟。<br>  从库过多会引发主库性能损耗。建议不要作为长期的扩充方案，应该设法用良好的设计避免<br>  持续加从库来缓解读性能问题。</p>
+</li>
+<li><p>分库分表<br>  可以分为垂直拆分和水平拆分，垂直拆分可以缓解部分压力，水平拆分理论上可以无限扩<br>  展。</p>
+</li>
+<li><p>如何扩展以提高写性能</p>
+</li>
+<li><p>分库分表</p>
+</li>
+</ul>
+<h3 id="一致性设计"><a href="#一致性设计" class="headerlink" title="一致性设计"></a>一致性设计</h3><p>一致性主要考虑集群中各数据库数据同步以及同步延迟问题。可以采用的方案如下：</p>
+<ul>
+<li>不使用从库<br>  扩展读性能问题需要单独考虑，否则容易出现系统瓶颈。</li>
+<li>增加访问路由层<br>  可以先得到主从同步最长时间t，在数据发生修改后的t时间内，先访问主库。</li>
+</ul>
+<h2 id="主从模式"><a href="#主从模式" class="headerlink" title="主从模式"></a>主从模式</h2><h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><p>MySQL主从模式是指数据可以从一个MySQL数据库服务器主节点复制到一个或多个从节点。MySQL 默<br>认采用异步复制方式，这样从节点不用一直访问主服务器来更新自己的数据，从节点可以复制主数据库<br>中的所有数据库，或者特定的数据库，或者特定的表。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212731.png" alt="img"></p>
+<p>mysql主从复制用途：</p>
+<ul>
+<li><p>实时灾备，用于故障切换（高可用）</p>
+</li>
+<li><p>读写分离，提供查询服务（读扩展）</p>
+</li>
+<li><p>数据备份，避免影响业务（高可用）</p>
+</li>
+</ul>
+<p>主从部署必要条件：</p>
+<ul>
+<li><p>从库服务器能连通主库</p>
+</li>
+<li><p>主库开启binlog日志（设置log-bin参数）</p>
+</li>
+<li><p>主从server-id不同</p>
+</li>
+</ul>
+<h3 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h3><h4 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h4><p>下图是主从复制的原理图。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212734.png" alt="img"><br> 主从复制整体分为以下三个步骤：</p>
+<ul>
+<li><p>主库将数据库的变更操作记录到Binlog日志文件中</p>
+</li>
+<li><p>从库读取主库中的Binlog日志文件信息写入到从库的Relay Log中继日志中</p>
+</li>
+<li><p>从库读取中继日志信息在从库中进行Replay,更新从库数据信息<br>  在上述三个过程中，涉及了Master的BinlogDump Thread和Slave的I/O Thread、SQL Thread，它们<br>  的作用如下：</p>
+</li>
+<li><p>Master服务器对数据库更改操作记录在Binlog中，BinlogDump Thread接到写入请求后，读取<br>  Binlog信息推送给Slave的I/O Thread。</p>
+</li>
+<li><p>Slave的I/O Thread将读取到的Binlog信息写入到本地Relay Log中。</p>
+</li>
+<li><p>Slave的SQL Thread检测到Relay Log的变更请求，解析relay log中内容在从库上执行。<br>  上述过程都是异步操作，俗称异步复制，存在数据延迟现象。<br>  下图是异步复制的时序图。<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212737.png" alt="img"></p>
+</li>
+</ul>
+<p>mysql主从复制存在的问题：</p>
+<ul>
+<li>主库宕机后，数据可能丢失</li>
+<li>从库只有一个SQL Thread，主库写压力大，复制很可能延时</li>
+</ul>
+<p>解决方法：</p>
+<ul>
+<li>半同步复制—解决数据丢失的问题</li>
+<li>并行复制—-解决从库复制延迟的问题</li>
+</ul>
+<h4 id="半同步复制"><a href="#半同步复制" class="headerlink" title="半同步复制"></a>半同步复制</h4><p>为了提升数据安全，MySQL让Master在某一个时间点等待Slave节点的 ACK（Acknowledge<br>character）消息，接收到ACK消息后才进行事务提交，这也是半同步复制的基础，MySQL从5.5版本开<br>始引入了半同步复制机制来降低数据丢失的概率。<br>介绍半同步复制之前先快速过一下 MySQL 事务写入碰到主从复制时的完整过程，主库事务写入分为 4<br>个步骤：</p>
+<ul>
+<li><p>InnoDB Redo File Write (Prepare Write)</p>
+</li>
+<li><p>Binlog File Flush &amp; Sync to Binlog File</p>
+</li>
+<li><p>InnoDB Redo File Commit（Commit Write）</p>
+</li>
+<li><p>Send Binlog to Slave</p>
+</li>
+</ul>
+<p>当Master不需要关注Slave是否接受到Binlog Event时，即为传统的主从复制。<br>当Master需要在第三步等待Slave返回ACK时，即为 after-commit，半同步复制（MySQL 5.5引入）。<br>当Master需要在第二步等待 Slave 返回 ACK 时，即为 after-sync，增强半同步（MySQL 5.7引入）。<br>下图是 MySQL 官方对于半同步复制的时序图，主库等待从库写入 relay log 并返回 ACK 后才进行<br>Engine Commit。<br><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212741.png" alt="img"></p>
+<h3 id="并行复制"><a href="#并行复制" class="headerlink" title="并行复制"></a>并行复制</h3><p>MySQL的主从复制延迟一直是受开发者最为关注的问题之一，MySQL从5.6版本开始追加了并行复制功<br>能，目的就是为了改善复制延迟问题，并行复制称为enhanced multi-threaded slave（简称MTS）。<br>在从库中有两个线程IO Thread和SQL Thread，都是单线程模式工作，因此有了延迟问题，我们可以采<br>用多线程机制来加强，减少从库复制延迟。（IO Thread多线程意义不大，主要指的是SQL Thread多线<br>程）<br>在MySQL的5.6、5.7、8.0版本上，都是基于上述SQL Thread多线程思想，不断优化，减少复制延迟。</p>
+<h4 id="MySQL-5-6并行复制原理"><a href="#MySQL-5-6并行复制原理" class="headerlink" title="MySQL 5.6并行复制原理"></a>MySQL 5.6并行复制原理</h4><p>MySQL 5.6版本也支持所谓的并行复制，但是其并行只是基于库的。如果用户的MySQL数据库中是多个<br>库，对于从库复制的速度的确可以有比较大的帮助。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212745.png" alt="img"></p>
+<p><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212748.png" alt="img"></p>
+<p>基于库的并行复制，实现相对简单，使用也相对简单些。基于库的并行复制遇到单库多表使用场景就发<br>挥不出优势了，另外对事务并行处理的执行顺序也是个大问题。</p>
+<h4 id="MySQL-5-7并行复制原理"><a href="#MySQL-5-7并行复制原理" class="headerlink" title="MySQL 5.7并行复制原理"></a>MySQL 5.7并行复制原理</h4><p>MySQL 5.7是基于组提交的并行复制，MySQL 5.7才可称为真正的并行复制，这其中最为主要的原因就<br>是slave服务器的回放与master服务器是一致的，即master服务器上是怎么并行执行的slave上就怎样进<br>行并行回放。不再有库的并行复制限制。<br><strong>MySQL 5.7中组提交的并行复制究竟是如何实现的？</strong><br>MySQL 5.7是通过对事务进行分组，当事务提交时，它们将在单个操作中写入到二进制日志中。如果多<br>个事务能同时提交成功，那么它们意味着没有冲突，因此可以在Slave上并行执行，所以通过在主库上<br>的二进制日志中添加组提交信息。<br>MySQL 5.7的并行复制基于一个前提，即所有已经处于prepare阶段的事务，都是可以并行提交的。这<br>些当然也可以在从库中并行提交，因为处理这个阶段的事务都是没有冲突的。在一个组里提交的事务，<br>一定不会修改同一行。这是一种新的并行复制思路，完全摆脱了原来一直致力于为了防止冲突而做的分<br>发算法，等待策略等复杂的而又效率底下的工作。<br>InnoDB事务提交采用的是两阶段提交模式。一个阶段是prepare，另一个是commit。<br>为了兼容MySQL 5.6基于库的并行复制，5.7引入了新的变量slave-parallel-type，其可以配置的值有：<br>DATABASE（默认值，基于库的并行复制方式）、LOGICAL_CLOCK（基于组提交的并行复制方式）。<br><strong>那么如何知道事务是否在同一组中，生成的Binlog内容如何告诉Slave哪些事务是可以并行复制的？</strong><br>在MySQL 5.7版本中，其设计方式是将组提交的信息存放在GTID中。为了避免用户没有开启GTID功能<br>（gtid_mode=OFF），MySQL 5.7又引入了称之为Anonymous_Gtid的二进制日志event类型<br>ANONYMOUS_GTID_LOG_EVENT。<br>通过mysqlbinlog工具分析binlog日志，就可以发现组提交的内部信息。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212753.png" alt="img"></p>
+<p>可以发现MySQL 5.7二进制日志较之原来的二进制日志内容多了last_committed和<br>sequence_number，last_committed表示事务提交的时候，上次事务提交的编号，如果事务具有相同<br>的last_committed，表示这些事务都在一组内，可以进行并行的回放。</p>
+<h4 id="MySQL8-0-并行复制"><a href="#MySQL8-0-并行复制" class="headerlink" title="MySQL8.0 并行复制"></a>MySQL8.0 并行复制</h4><p>MySQL8.0 是基于write-set的并行复制。MySQL会有一个集合变量来存储事务修改的记录信息（主键哈<br>希值），所有已经提交的事务所修改的主键值经过hash后都会与那个变量的集合进行对比，来判断改行<br>是否与其冲突，并以此来确定依赖关系，没有冲突即可并行。这样的粒度，就到了 row级别了，此时并<br>行的粒度更加精细，并行的速度会更快。</p>
+<h4 id="并行复制配置与调优"><a href="#并行复制配置与调优" class="headerlink" title="并行复制配置与调优"></a>并行复制配置与调优</h4><ul>
+<li><p>binlog_transaction_dependency_history_size<br>   用于控制集合变量的大小。</p>
+</li>
+<li><p>binlog_transaction_depandency_tracking<br>  用于控制binlog文件中事务之间的依赖关系，即last_committed值。</p>
+</li>
+<li><p>COMMIT_ORDERE: 基于组提交机制</p>
+</li>
+<li><p>WRITESET: 基于写集合机制</p>
+</li>
+<li><p>WRITESET_SESSION: 基于写集合，比writeset多了一个约束，同一个session中的事务<br>  last_committed按先后顺序递增</p>
+</li>
+<li><p>transaction_write_set_extraction<br>  用于控制事务的检测算法，参数值为：OFF、 XXHASH64、MURMUR32</p>
+</li>
+<li><p>master_info_repository<br>  开启MTS功能后，务必将参数master_info_repostitory设置为TABLE，这样性能可以有50%~80%<br>  的提升。这是因为并行复制开启后对于元master.info这个文件的更新将会大幅提升，资源的竞争<br>  也会变大。</p>
+</li>
+<li><p>slave_parallel_workers<br>  若将slave_parallel_workers设置为0，则MySQL 5.7退化为原单线程复制，但将<br>  slave_parallel_workers设置为1，则SQL线程功能转化为coordinator线程，但是只有1个worker<br>  线程进行回放，也是单线程复制。然而，这两种性能却又有一些的区别，因为多了一次<br>  coordinator线程的转发，因此slave_parallel_workers=1的性能反而比0还要差。</p>
+</li>
+<li><p>slave_preserve_commit_order<br>  MySQL 5.7后的MTS可以实现更小粒度的并行复制，但需要将slave_parallel_type设置为<br>  LOGICAL_CLOCK，但仅仅设置为LOGICAL_CLOCK也会存在问题，因为此时在slave上应用事务的<br>  顺序是无序的，和relay log中记录的事务顺序不一样，这样数据一致性是无法保证的，为了保证事<br>  务是按照relay log中记录的顺序来回放，就需要开启参数slave_preserve_commit_order。<br>  要开启enhanced multi-threaded slave其实很简单，只需根据如下设置： </p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">slave-parallel-type=LOGICAL_CLOCK</span><br><span class="line">slave-parallel-workers=16</span><br><span class="line">slave_pending_jobs_size_max = 2147483648</span><br><span class="line">slave_preserve_commit_order=1</span><br><span class="line">master_info_repository=TABLE</span><br><span class="line">relay_log_info_repository=TABLE</span><br><span class="line">relay_log_recovery=ON</span><br></pre></td></tr></table></figure>
+
+<h4 id="并行复制监控"><a href="#并行复制监控" class="headerlink" title="并行复制监控"></a>并行复制监控</h4><p>在使用了MTS后，复制的监控依旧可以通过SHOW SLAVE STATUS\G，但是MySQL 5.7在<br>performance_schema库中提供了很多元数据表，可以更详细的监控并行复制过程。 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show tables like &#x27;replication%&#x27;;</span><br><span class="line">+---------------------------------------------+</span><br><span class="line">| Tables_in_performance_schema (replication%) |</span><br><span class="line">+---------------------------------------------+</span><br><span class="line">| replication_applier_configuration |</span><br><span class="line">| replication_applier_status |</span><br><span class="line">| replication_applier_status_by_coordinator |</span><br><span class="line">| replication_applier_status_by_worker |</span><br><span class="line">| replication_connection_configuration |</span><br><span class="line">| replication_connection_status |</span><br><span class="line">| replication_group_member_stats |</span><br><span class="line">| replication_group_members |</span><br><span class="line">+---------------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>通过replication_applier_status_by_worker可以看到worker进程的工作情况： </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; select * from replication_applier_status_by_worker;</span><br><span class="line">+--------------+-----------+-----------+---------------+------------------------</span><br><span class="line">--------------------+-------------------+--------------------+------------------</span><br><span class="line">----+</span><br><span class="line">| CHANNEL_NAME | WORKER_ID | THREAD_ID | SERVICE_STATE | LAST_SEEN_TRANSACTION</span><br><span class="line">| LAST_ERROR_NUMBER | LAST_ERROR_MESSAGE |</span><br><span class="line">LAST_ERROR_TIMESTAMP |</span><br><span class="line">+--------------+-----------+-----------+---------------+------------------------</span><br><span class="line">--------------------+-------------------+--------------------+------------------</span><br><span class="line">----+</span><br><span class="line">| | 1 | 32 | ON | 0d8513d8-00a4-11e6-</span><br><span class="line">a510-f4ce46861268:96604 | 0 | | 0000-00-00</span><br><span class="line">00:00:00 |</span><br><span class="line">| | 2 | 33 | ON | 0d8513d8-00a4-11e6-</span><br><span class="line">a510-f4ce46861268:97760 | 0 | | 0000-00-00</span><br><span class="line">00:00:00 |</span><br><span class="line">+--------------+-----------+-----------+---------------+------------------------</span><br><span class="line">--------------------+-------------------+--------------------+------------------</span><br><span class="line">----+</span><br><span class="line">2 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<p>最后，如果MySQL 5.7要使用MTS功能，建议使用新版本，最少升级到5.7.19版本，修复了很多Bug。</p>
+<h3 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h3><h3 id="读写分离引入时机"><a href="#读写分离引入时机" class="headerlink" title="读写分离引入时机"></a>读写分离引入时机</h3><p>大多数互联网业务中，往往读多写少，这时候数据库的读会首先成为数据库的瓶颈。如果我们已经优化<br>了SQL，但是读依旧还是瓶颈时，这时就可以选择“读写分离”架构了。<br>读写分离首先需要将数据库分为主从库，一个主库用于写数据，多个从库完成读数据的操作，主从库之<br>间通过主从复制机制进行数据的同步，如图所示。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212627.png" alt="img"></p>
+<p>在应用中可以在从库追加多个索引来优化查询，主库这些索引可以不加，用于提升写效率。<br>读写分离架构也能够消除读写锁冲突从而提升数据库的读写性能。使用读写分离架构需要注意：<strong>主从同<br>步延迟和读写分配机制</strong>问题</p>
+<h4 id="主从同步延迟"><a href="#主从同步延迟" class="headerlink" title="主从同步延迟"></a>主从同步延迟</h4><p>使用读写分离架构时，数据库主从同步具有延迟性，数据一致性会有影响，对于一些实时性要求比较高<br>的操作，可以采用以下解决方案。</p>
+<ul>
+<li><p>写后立刻读<br>  在写入数据库后，某个时间段内读操作就去主库，之后读操作访问从库。</p>
+</li>
+<li><p>二次查询<br>  先去从库读取数据，找不到时就去主库进行数据读取。该操作容易将读压力返还给主库，为了避免<br>  恶意攻击，建议对数据库访问API操作进行封装，有利于安全和低耦合。</p>
+</li>
+<li><p>根据业务特殊处理<br>  根据业务特点和重要程度进行调整，比如重要的，实时性要求高的业务数据读写可以放在主库。对<br>  于次要的业务，实时性要求不高可以进行读写分离，查询时去从库查询。</p>
+</li>
+</ul>
+<h4 id="读写分离落地"><a href="#读写分离落地" class="headerlink" title="读写分离落地"></a>读写分离落地</h4><p>读写路由分配机制是实现读写分离架构最关键的一个环节，就是控制何时去主库写，何时去从库读。目<br>前较为常见的实现方案分为以下两种：</p>
+<ul>
+<li>基于编程和配置实现（应用端）<br>  程序员在代码中封装数据库的操作，代码中可以根据操作类型进行路由分配，增删改时操作主库，<br>  查询时操作从库。这类方法也是目前生产环境下应用最广泛的。优点是实现简单，因为程序在代码<br>  中实现，不需要增加额外的硬件开支，缺点是需要开发人员来实现，运维人员无从下手，如果其中<br>  一个数据库宕机了，就需要修改配置重启项目。</li>
+<li>基于服务器端代理实现（服务器端）<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212628.png" alt="img"></li>
+</ul>
+<p>中间件代理一般介于应用服务器和数据库服务器之间，从图中可以看到，应用服务器并不直接进入<br>到master数据库或者slave数据库，而是进入MySQL proxy代理服务器。代理服务器接收到应用服<br>务器的请求后，先进行判断然后转发到后端master和slave数据库。<br>目前有很多性能不错的数据库中间件，常用的有MySQL Proxy、MyCat以及Shardingsphere等等。</p>
+<ul>
+<li><p>MySQL Proxy：是官方提供的MySQL中间件产品可以实现负载平衡、读写分离等。</p>
+</li>
+<li><p>MyCat：MyCat是一款基于阿里开源产品Cobar而研发的，基于 Java 语言编写的开源数据库中间<br>  件。</p>
+</li>
+<li><p>ShardingSphere：ShardingSphere是一套开源的分布式数据库中间件解决方案，它由ShardingJDBC、Sharding-Proxy和Sharding-Sidecar（计划中）这3款相互独立的产品组成。已经在2020<br>  年4月16日从Apache孵化器毕业，成为Apache顶级项目。</p>
+</li>
+<li><p>Atlas：Atlas是由 Qihoo 360公司Web平台部基础架构团队开发维护的一个数据库中间件。</p>
+</li>
+<li><p>Amoeba：变形虫，该开源框架于2008年开始发布一款 Amoeba for MySQL软件。</p>
+</li>
+</ul>
+<h2 id="双主模式"><a href="#双主模式" class="headerlink" title="双主模式"></a>双主模式</h2><h3 id="适用场景-1"><a href="#适用场景-1" class="headerlink" title="适用场景"></a>适用场景</h3><p>很多企业刚开始都是使用MySQL主从模式，一主多从、读写分离等。但是单主如果发生单点故障，从库<br>切换成主库还需要作改动。因此，如果是双主或者多主，就会增加MySQL入口，提升了主库的可用性。<br>因此随着业务的发展，数据库架构可以由主从模式演变为双主模式。双主模式是指两台服务器互为主<br>从，任何一台服务器数据变更，都会通过复制应用到另外一方的数据库中。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212629.png" alt="img"></p>
+<p>使用<strong>双主双写</strong>还是<strong>双主单写</strong>？<br>建议大家使用双主单写，因为双主双写存在以下问题：</p>
+<ul>
+<li>ID冲突<br>  在A主库写入，当A数据未同步到B主库时，对B主库写入，如果采用自动递增容易发生ID主键的冲<br>  突。<br>  可以采用MySQL自身的自动增长步长来解决，例如A的主键为1,3,5,7…，B的主键为2,4,6,8… ，但<br>  是对数据库运维、扩展都不友好。</li>
+<li>更新丢失<br>  同一条记录在两个主库中进行更新，会发生前面覆盖后面的更新丢失。</li>
+</ul>
+<p>高可用架构如下图所示，其中一个Master提供线上服务，另一个Master作为备胎供高可用切换，<br>Master下游挂载Slave承担读请求。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212629.png" alt="img"></p>
+<p>随着业务发展，架构会从主从模式演变为双主模式，建议用双主单写，再引入高可用组件，例如<br>Keepalived和MMM等工具，实现主库故障自动切换。</p>
+<h3 id="MMM架构"><a href="#MMM架构" class="headerlink" title="MMM架构"></a>MMM架构</h3><p>MMM（Master-Master Replication Manager for MySQL）是一套用来管理和监控双主复制，支持双<br>主故障切换 的第三方软件。MMM 使用Perl语言开发，虽然是双主架构，但是业务上同一时间只允许一<br>个节点进行写入操作。下图是基于MMM实现的双主高可用架构。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212855.png" alt="img"></p>
+<ul>
+<li><p>MMM故障处理机制<br>  MMM 包含writer和reader两类角色，分别对应写节点和读节点。</p>
+</li>
+<li><p>当 writer节点出现故障，程序会自动移除该节点上的VIP</p>
+</li>
+<li><p>写操作切换到 Master2，并将Master2设置为writer</p>
+</li>
+<li><p>将所有Slave节点会指向Master2</p>
+</li>
+</ul>
+<p>除了管理双主节点，MMM 也会管理 Slave 节点，在出现宕机、复制延迟或复制错误，MMM 会移<br>除该节点的 VIP，直到节点恢复正常。</p>
+<ul>
+<li><p>MMM监控机制<br>  MMM 包含monitor和agent两类程序，功能如下：</p>
+</li>
+<li><p>monitor：监控集群内数据库的状态，在出现异常时发布切换命令，一般和数据库分开部<br>  署。</p>
+</li>
+<li><p>agent：运行在每个 MySQL 服务器上的代理进程，monitor 命令的执行者，完成监控的探针<br>  工作和具体服务设置，例如设置 VIP（虚拟IP）、指向新同步节点。</p>
+</li>
+</ul>
+<h3 id="MHA架构"><a href="#MHA架构" class="headerlink" title="MHA架构"></a>MHA架构</h3><p>MHA（Master High Availability）是一套比较成熟的 MySQL 高可用方案，也是一款优秀的故障切换和<br>主从提升的高可用软件。在MySQL故障切换过程中，MHA能做到在30秒之内自动完成数据库的故障切<br>换操作，并且在进行故障切换的过程中，MHA能在最大程度上保证数据的一致性，以达到真正意义上的<br>高可用。MHA还支持在线快速将Master切换到其他主机，通常只需0.5－2秒。<br>目前MHA主要支持一主多从的架构，要搭建MHA，要求一个复制集群中必须最少有三台数据库服务<br>器。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212851.png" alt="img"></p>
+<p>MHA由两部分组成：MHA Manager（管理节点）和MHA Node（数据节点）。</p>
+<ul>
+<li>MHA Manager可以单独部署在一台独立的机器上管理多个master-slave集群，也可以部署在一台<br>  slave节点上。负责检测master是否宕机、控制故障转移、检查MySQL复制状况等。</li>
+<li>MHA Node运行在每台MySQL服务器上，不管是Master角色，还是Slave角色，都称为Node，是<br>  被监控管理的对象节点，负责保存和复制master的二进制日志、识别差异的中继日志事件并将其<br>  差异的事件应用于其他的slave、清除中继日志。</li>
+</ul>
+<p>MHA Manager会定时探测集群中的master节点，当master出现故障时，它可以自动将最新数据的<br>slave提升为新的master，然后将所有其他的slave重新指向新的master，整个故障转移过程对应用程序<br>完全透明。<br>MHA故障处理机制：</p>
+<ul>
+<li><p>把宕机master的binlog保存下来</p>
+</li>
+<li><p>根据binlog位置点找到最新的slave</p>
+</li>
+<li><p>用最新slave的relay log修复其它slave</p>
+</li>
+<li><p>将保存下来的binlog在最新的slave上恢复</p>
+</li>
+<li><p>将最新的slave提升为master</p>
+</li>
+<li><p>将其它slave重新指向新提升的master，并开启主从复制</p>
+</li>
+</ul>
+<p>MHA优点：</p>
+<ul>
+<li><p>自动故障转移快</p>
+</li>
+<li><p>主库崩溃不存在数据一致性问题</p>
+</li>
+<li><p>性能优秀，支持半同步复制和异步复制</p>
+</li>
+<li><p>一个Manager监控节点可以监控多个集群</p>
+</li>
+</ul>
+<h3 id="主备切换"><a href="#主备切换" class="headerlink" title="主备切换"></a>主备切换</h3><p>主备切换是指将备库变为主库，主库变为备库，有可靠性优先和可用性优先两种策略。</p>
+<ul>
+<li><p>主备延迟问题<br>  主备延迟是由主从数据同步延迟导致的，与数据同步有关的时间点主要包括以下三个：</p>
+</li>
+<li><p>主库 A 执行完成一个事务，写入 binlog，我们把这个时刻记为 T1;</p>
+</li>
+<li><p>之后将binlog传给备库 B，我们把备库 B 接收完 binlog 的时刻记为 T2;</p>
+</li>
+<li><p>备库 B 执行完成这个binlog复制，我们把这个时刻记为 T3。</p>
+</li>
+</ul>
+<p>所谓主备延迟，就是同一个事务，在备库执行完成的时间和主库执行完成的时间之间的差值，也就<br>是 T3-T1。<br>在备库上执行show slave status命令，它可以返回结果信息，seconds_behind_master表示当前<br>备库延迟了多少秒。<br>同步延迟主要原因如下：</p>
+<ul>
+<li><p>备库机器性能问题<br>  机器性能差，甚至一台机器充当多个主库的备库。</p>
+</li>
+<li><p>分工问题<br>  备库提供了读操作，或者执行一些后台分析处理的操作，消耗大量的CPU资源。<br>  大事务操作</p>
+</li>
+<li><p>大事务耗费的时间比较长，导致主备复制时间长。比如一些大量数据的delete或大表DDL操<br>  作都可能会引发大事务。</p>
+</li>
+<li><p>可靠性优先<br>  主备切换过程一般由专门的HA高可用组件完成，但是切换过程中会存在短时间不可用，因为在切<br>  换过程中某一时刻主库A和从库B都处于只读状态。如下图所示：<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212847.png" alt="img"></p>
+</li>
+</ul>
+<p>主库由A切换到B，切换的具体流程如下：</p>
+<ul>
+<li><p>判断从库B的Seconds_Behind_Master值，当小于某个值才继续下一步</p>
+</li>
+<li><p>把主库A改为只读状态（readonly=true）</p>
+</li>
+<li><p>等待从库B的Seconds_Behind_Master值降为 0</p>
+</li>
+<li><p>把从库B改为可读写状态（readonly=false）</p>
+</li>
+<li><p>把业务请求切换至从库B</p>
+</li>
+<li><p>可用性优先<br>  不等主从同步完成， 直接把业务请求切换至从库B ，并且让 从库B可读写 ，这样几乎不存在不可<br>  用时间，但可能会数据不一致。<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212843.png" alt="img"></p>
+</li>
+</ul>
+<p>如上图所示，在A切换到B过程中，执行两个INSERT操作，过程如下：</p>
+<ul>
+<li><p>主库A执行完 INSERT c=4 ，得到 (4,4) ，然后开始执行 主从切换</p>
+</li>
+<li><p>主从之间有5S的同步延迟，从库B会先执行 INSERT c=5 ，得到 (4,5)</p>
+</li>
+<li><p>从库B执行主库A传过来的binlog日志 INSERT c=4 ，得到 (5,4)</p>
+</li>
+<li><p>主库A执行从库B传过来的binlog日志 INSERT c=5 ，得到 (5,5)</p>
+</li>
+<li><p>此时主库A和从库B会有 两行 不一致的数据</p>
+</li>
+</ul>
+<p>通过上面介绍了解到，主备切换采用可用性优先策略，由于可能会导致数据不一致，所以大多数情<br>况下，优先选择可靠性优先策略。在满足数据可靠性的前提下，MySQL的可用性依赖于同步延时<br>的大小，同步延时越小，可用性就越高。 </p>
+<h2 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h2><p>互联网系统需要处理大量用户的请求。比如微信日活用户破10亿，海量的用户每天产生海量的数量；美<br>团外卖，每天都是几千万的订单，那这些系统的用户表、订单表、交易流水表等是如何处理呢？<br>数据量只增不减，历史数据又必须要留存，非常容易成为性能的瓶颈，而要解决这样的数据库瓶颈问<br>题，“读写分离”和缓存往往都不合适，目前比较普遍的方案就是使用NoSQL/NewSQL或者采用分库分<br>表。<br>使用分库分表时，主要有垂直拆分和水平拆分两种拆分模式，都属于物理空间的拆分。<br>分库分表方案：只分库、只分表、分库又分表。<br>垂直拆分：由于表数量多导致的单个库大。将表拆分到多个库中。<br>水平拆分：由于表记录多导致的单个库大。将表记录拆分到多个表中。</p>
+<h3 id="拆分方式"><a href="#拆分方式" class="headerlink" title="拆分方式"></a>拆分方式</h3><ul>
+<li>垂直拆分<br>  垂直拆分又称为纵向拆分，垂直拆分是将表按库进行分离，或者修改表结构按照访问的差异将某些<br>  列拆分出去。应用时有垂直分库和垂直分表两种方式，一般谈到的垂直拆分主要指的是垂直分库。<br>  如下图所示，采用垂直分库，将用户表和订单表拆分到不同的数据库中。<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212840.png" alt="img"></li>
+</ul>
+<p>垂直分表就是将一张表中不常用的字段拆分到另一张表中，从而保证第一张表中的字段较少，避免<br>出现数据库跨页存储的问题，从而提升查询效率。<br>解决：一个表中字段过多，还有有些字段经常使用，有些字段不经常使用，或者还有text等字段信<br>息。可以考虑使用垂直分表方案。<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212838.png" alt="img"></p>
+<p>按列进行垂直拆分，即把一条记录分开多个地方保存，每个子表的行数相同。把主键和一些列放到<br>一个表，然后把主键和另外的列放到另一个表中。<br><strong>垂直拆分优点：</strong></p>
+<ul>
+<li><p>拆分后业务清晰，拆分规则明确；</p>
+</li>
+<li><p>易于数据的维护和扩展；</p>
+</li>
+<li><p>可以使得行数据变小，一个数据块 (Block) 就能存放更多的数据，在查询时就会减少 I/O 次<br>  数；</p>
+</li>
+<li><p>可以达到最大化利用 Cache 的目的，具体在垂直拆分的时候可以将不常变的字段放一起，将<br>  经常改变的放一起；</p>
+</li>
+<li><p>便于实现冷热分离的数据表设计模式。</p>
+</li>
+</ul>
+<p><strong>垂直拆分缺点：</strong></p>
+<ul>
+<li><p>主键出现冗余，需要管理冗余列；</p>
+</li>
+<li><p>会引起表连接 JOIN 操作，可以通过在业务服务器上进行 join 来减少数据库压力，提高了系<br>  统的复杂度；</p>
+</li>
+<li><p>依然存在单表数据量过大的问题；</p>
+</li>
+<li><p>事务处理复杂。</p>
+</li>
+<li><p>水平拆分<br>  水平拆分又称为横向拆分。 相对于垂直拆分，它不再将数据根据业务逻辑分类，而是通过某个字<br>  段（或某几个字段），根据某种规则将数据分散至多个库或表中，每个表仅包含数据的一部分，如<br>  下图所示。<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212834.png" alt="img"></p>
+</li>
+</ul>
+<p>水平分表是将一张含有很多记录数的表水平切分，不同的记录可以分开保存，拆分成几张结构相同<br>的表。如果一张表中的记录数过多，那么会对数据库的读写性能产生较大的影响，虽然此时仍然能<br>够正确地读写，但读写的速度已经到了业务无法忍受的地步，此时就需要使用水平分表来解决这个<br>问题。<br>水平拆分：解决表中记录过多问题。<br>垂直拆分：解决表过多或者是表字段过多问题。<br> 水平拆分重点考虑拆分规则：例如范围、时间或Hash算法等。<br><strong>水平拆分优点：</strong></p>
+<ul>
+<li><p>拆分规则设计好，join 操作基本可以数据库做；</p>
+</li>
+<li><p>不存在单库大数据，高并发的性能瓶颈；</p>
+</li>
+<li><p>切分的表的结构相同，应用层改造较少，只需要增加路由规则即可；</p>
+</li>
+<li><p>提高了系统的稳定性和负载能力。</p>
+</li>
+</ul>
+<p><strong>水平拆分缺点：</strong></p>
+<ul>
+<li><p>拆分规则难以抽象；</p>
+</li>
+<li><p>跨库Join性能较差；</p>
+</li>
+<li><p>分片事务的一致性难以解决；</p>
+</li>
+<li><p>数据扩容的难度和维护量极大。</p>
+</li>
+</ul>
+<p>日常工作中，我们通常会同时使用两种拆分方式，垂直拆分更偏向于产品/业务/功能拆分的过程，在技<br>术上我们更关注水平拆分的方案。</p>
+<h3 id="主键策略"><a href="#主键策略" class="headerlink" title="主键策略"></a>主键策略</h3><p>在很多中小项目中，我们往往直接使用数据库自增特性来生成主键ID，这样确实比较简单。而在分库分<br>表的环境中，数据分布在不同的数据表中，不能再借助数据库自增长特性直接生成，否则会造成不同数<br>据表主键重复。下面介绍几种ID生成算法。</p>
+<ul>
+<li>UUID<br>  UUID是通用唯一识别码（Universally Unique Identifier）的缩写，长度是16个字节，被表示为<br>  32个十六进制数字，以“ - ”分隔的五组来显示，格式为8-4-4-4-12，共36个字符，例如：<br>  550e8400-e29b-41d4-a716-446655440000。UUID在生成时使用到了以太网卡地址、纳秒级时<br>  间、芯片ID码和随机数等信息，目的是让分布式系统中的所有元素都能有唯一的识别信息。<br>  使用UUID做主键，可以在本地生成，没有网络消耗，所以生成性能高。但是UUID比较长，没有规<br>  律性，耗费存储空间。 </li>
+</ul>
+<p>All indexes other than the clustered index are known as secondary indexes. In InnoDB,<br>each record in a secondary index contains the primary key columns for the row, as well<br>as the columns specified for the secondary index. InnoDB uses this primary key value<br>to search for the row in the clustered index. If the primary key is long, the secondary<br>indexes use more space, so it is advantageous to have a short primary key. </p>
+<p>除聚集索引以外的所有索引都称为辅助索引。在InnoDB中，二级索引中的每条记录都包含行的主<br>键列，以及为二级索引指定的列。InnoDB使用这个主键值来搜索聚集索引中的行。如果主键是长<br>的，则次索引使用更多的空间，因此主键短是有利的。 </p>
+<p>如果UUID作为数据库主键，在InnoDB引擎下，UUID的无序性可能会引起数据位置频繁变动，影响性<br>能。</p>
+<ul>
+<li>COMB（UUID变种）<br>  COMB（combine）型是数据库特有的一种设计思想，可以理解为一种改进的GUID，它通过组合<br>  GUID和系统时间，以使其在索引和检索事有更优的性能。数据库中没有COMB类型，它是Jimmy<br>  Nilsson在他的“The Cost of GUIDs as Primary Keys”一文中设计出来的。<br>  COMB设计思路是这样的：既然UniqueIdentifier数据因毫无规律可言造成索引效率低下，影响了<br>  系统的性能，那么我们能不能通过组合的方式，保留UniqueIdentifier的前10个字节，用后6个字<br>  节表示GUID生成的时间（DateTime），这样我们将时间信息与UniqueIdentifier组合起来，在保<br>  留UniqueIdentifier的唯一性的同时增加了有序性，以此来提高索引效率。解决UUID无序的问<br>  题，性能优于UUID。</li>
+<li>SNOWFLAKE<br>  有些时候我们希望能使用一种简单一些的ID，并且希望ID能够按照时间有序生成，SnowFlake解决<br>  了这种需求。SnowFlake是Twitter开源的分布式ID生成算法，结果是一个long型的ID，long型是8<br>  个字节，64-bit。其核心思想是：使用41bit作为毫秒数，10bit作为机器的ID（5个bit是数据中<br>  心，5个bit的机器ID），12bit作为毫秒内的流水号，最后还有一个符号位，永远是0。如下图所<br>  示：<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212830.png" alt="img"></li>
+</ul>
+<p>SnowFlake生成的ID整体上按照时间自增排序，并且整个分布式系统内不会产生ID重复，并且效率<br>较高。经测试SnowFlake每秒能够产生26万个ID。缺点是强依赖机器时钟，如果多台机器环境时<br>钟没同步，或时钟回拨，会导致发号重复或者服务会处于不可用状态。因此一些互联网公司也基于<br>上述的方案做了封装，例如百度的uidgenerator（基于SnowFlake）和美团的leaf（基于数据库和<br>SnowFlake）等。</p>
+<ul>
+<li>数据库ID表<br>  比如A表分表为A1表和A2表，我们可以单独的创建一个MySQL数据库，在这个数据库中创建一张<br>  表，这张表的ID设置为自动递增，其他地方需要全局唯一ID的时候，就先向这个这张表中模拟插<br>  入一条记录，此时ID就会自动递增，然后我们获取刚生成的ID后再进行A1和A2表的插入。<br>  例如，下面DISTRIBUTE_ID就是我们创建要负责ID生成的表，结构如下： </li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CREATE TABLE DISTRIBUTE_ID (</span><br><span class="line">id bigint(32) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键&#x27;,</span><br><span class="line">createtime datetime DEFAULT NULL,</span><br><span class="line">PRIMARY KEY (id)</span><br><span class="line">) ENGINE=InnoDB DEFAULT CHARSET=utf8;</span><br></pre></td></tr></table></figure>
+
+<p>当分布式集群环境中哪个应用需要获取一个全局唯一的分布式ID的时候，就可以使用代码连接这<br>个数据库实例，执行如下SQL语句即可。 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">insert into DISTRIBUTE_ID(createtime) values(NOW());</span><br><span class="line">select LAST_INSERT_ID()；</span><br></pre></td></tr></table></figure>
+
+<p>注意：</p>
+<ul>
+<li><p>这里的createtime字段无实际意义，是为了随便插入一条数据以至于能够自动递增ID。</p>
+</li>
+<li><p>使用独立的MySQL实例生成分布式ID，虽然可行，但是性能和可靠性都不够好，因为你需要<br>  代码连接到数据库才能获取到ID，性能无法保障，另外mysql数据库实例挂掉了，那么就无法</p>
+</li>
+<li><p>获取分布式ID了。<br>  Redis生成ID<br>  当使用数据库来生成ID性能不够要求的时候，我们可以尝试使用Redis来生成ID。这主要依赖于<br>  Redis是单线程的，所以也可以用生成全局唯一的ID。可以用Redis的原子操作 INCR和INCRBY来<br>  实现。<br>  也可以使用Redis集群来获取更高的吞吐量。假如一个集群中有5台Redis。可以初始化每台Redis<br>  的值分别是1,2,3,4,5，然后步长都是5。各个Redis生成的ID为： </p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A：1,6,11,16,21</span><br><span class="line">B：2,7,12,17,22</span><br><span class="line">C：3,8,13,18,23</span><br><span class="line">D：4,9,14,19,24</span><br><span class="line">E：5,10,15,20,25</span><br></pre></td></tr></table></figure>
+
+<h3 id="分片策略"><a href="#分片策略" class="headerlink" title="分片策略"></a>分片策略</h3><h4 id="分片概念"><a href="#分片概念" class="headerlink" title="分片概念"></a>分片概念</h4><p>分片（Sharding）就是用来确定数据在多台存储设备上分布的技术。Shard这个词的意思是“碎片”，如<br>果将一个数据库当作一块大玻璃，将这块玻璃打碎，那么每一小块都称为数据库的碎片（Database<br>Sharding）。将一个数据库打碎成多个的过程就叫做分片，分片是属于横向扩展方案。<br>分片：表示分配过程，是一个逻辑上概念，表示如何实现<br>分库分表：表示分配结果，是一个物理上概念，表示最终实现的结果<br>数据库扩展方案：</p>
+<ul>
+<li>横向扩展：一个库变多个库，加机器数量</li>
+<li>纵向扩展：一个库还是一个库，优化机器性能，加高配CPU或内存</li>
+</ul>
+<p>在分布式存储系统中，数据需要分散存储在多台设备上，分片就是把数据库横向扩展到多个数据库服务<br>器上的一种有效的方式，其主要目的就是为突破单节点数据库服务器的 I/O 能力限制，解决数据库扩展<br>性问题。</p>
+<h4 id="分片策略-1"><a href="#分片策略-1" class="headerlink" title="分片策略"></a>分片策略</h4><p>数据分片是根据指定的分片键和分片策略将数据水平拆分，拆分成多个数据片后分散到多个数据存储节<br>点中。分片键是用于划分和定位表的字段，一般使用ID或者时间字段。而分片策略是指分片的规则，常<br>用规则有以下几种。</p>
+<ul>
+<li><p>基于范围分片<br>  根据特定字段的范围进行拆分，比如用户ID、订单时间、产品价格等。例如：<br>  {[1 - 100] =&gt; Cluster A, [101 - 199] =&gt; Cluster B}<br>  优点：新的数据可以落在新的存储节点上，如果集群扩容，数据无需迁移。<br>  缺点：数据热点分布不均，数据冷热不均匀，导致节点负荷不均。</p>
+</li>
+<li><p>哈希取模分片<br>  整型的Key可直接对设备数量取模，其他类型的字段可以先计算Key的哈希值，然后再对设备数量<br>  取模。假设有n台设备，编号为0 ~ n-1，通过Hash(Key) % n就可以确定数据所在的设备编号。该<br>  模式也称为离散分片。<br>  优点：实现简单，数据分配比较均匀，不容易出现冷热不均，负荷不均的情况。<br>  缺点：扩容时会产生大量的数据迁移，比如从n台设备扩容到n+1，绝大部分数据需要重新分配和<br>  迁移。</p>
+</li>
+<li><p>一致性哈希分片<br>  采用Hash取模的方式进行拆分，后期集群扩容需要迁移旧的数据。使用一致性Hash算法能够很大<br>  程度的避免这个问题，所以很多中间件的集群分片都会采用一致性Hash算法。<br>  一致性Hash是将数据按照特征值映射到一个首尾相接的Hash环上，同时也将节点（按照IP地址或<br>  者机器名Hash）映射到这个环上。对于数据，从数据在环上的位置开始，顺时针找到的第一个节<br>  点即为数据的存储节点。Hash环示意图与数据的分布如下：<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212824.png" alt="img"></p>
+</li>
+</ul>
+<p>一致性Hash在增加或者删除节点的时候，受到影响的数据是比较有限的，只会影响到Hash环相邻的节<br>点，不会发生大规模的数据迁移。</p>
+<h3 id="扩容方案"><a href="#扩容方案" class="headerlink" title="扩容方案"></a>扩容方案</h3><p>当系统用户进入了高速增长期时，即便是对数据进行分库分表，但数据库的容量，还有表的数据量也总<br>会达到天花板。当现有数据库达到承受极限时，就需要增加新服务器节点数量进行横向扩容。<br>首先来思考一下，横向扩展会有什么技术难度？<br> <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212821.png" alt="img"></p>
+<ul>
+<li><p>数据迁移问题</p>
+</li>
+<li><p>分片规则改变</p>
+</li>
+<li><p>数据同步、时间点、数据一致性</p>
+</li>
+</ul>
+<p>遇到上述问题时，我们可以使用以下两种方案：</p>
+<h4 id="停机扩容"><a href="#停机扩容" class="headerlink" title="停机扩容"></a>停机扩容</h4><p>这是一种很多人初期都会使用的方案，尤其是初期只有几台数据库的时候。停机扩容的具体步骤如下：</p>
+<ul>
+<li><p>站点发布一个公告，例如：“为了为广大用户提供更好的服务，本站点将在今晚00:00-2:00之间升<br>  级，给您带来不便抱歉”；</p>
+</li>
+<li><p>时间到了，停止所有对外服务；</p>
+</li>
+<li><p>新增n个数据库，然后写一个数据迁移程序，将原有x个库的数据导入到最新的y个库中。比如分片<br>  规则由%x变为%y；</p>
+</li>
+<li><p>数据迁移完成，修改数据库服务配置，原来x个库的配置升级为y个库的配置</p>
+</li>
+<li><p>重启服务，连接新库重新对外提供服务</p>
+</li>
+</ul>
+<p>回滚方案：万一数据迁移失败，需要将配置和数据回滚，改天再挂公告。<br>优点：简单<br>缺点：</p>
+<ul>
+<li><p>停止服务，缺乏高可用</p>
+</li>
+<li><p>程序员压力山大，需要在指定时间完成</p>
+</li>
+<li><p>如果有问题没有及时测试出来启动了服务，运行后发现问题，数据会丢失一部分，难以回滚。</p>
+</li>
+</ul>
+<p>适用场景：</p>
+<ul>
+<li><p>小型网站</p>
+</li>
+<li><p>大部分游戏</p>
+</li>
+<li><p>对高可用要求不高的服务</p>
+</li>
+</ul>
+<h4 id="平滑扩容"><a href="#平滑扩容" class="headerlink" title="平滑扩容"></a>平滑扩容</h4><p>数据库扩容的过程中，如果想要持续对外提供服务，保证服务的可用性，平滑扩容方案是最好的选择。<br>平滑扩容就是将数据库数量扩容成原来的2倍，比如：由2个数据库扩容到4个数据库，具体步骤如下：</p>
+<ul>
+<li><p>新增2个数据库</p>
+</li>
+<li><p>配置双主进行数据同步（先测试、后上线）<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212818.png" alt="img"></p>
+</li>
+<li><p>数据同步完成之后，配置双主双写（同步因为有延迟，如果时时刻刻都有写和更新操作，会存在不<br>  准确问题）<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212815.png" alt="img"></p>
+</li>
+<li><p>数据同步完成后，删除双主同步，修改数据库配置，并重启；<br>   <img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210703212812.png" alt="img"></p>
+</li>
+<li><p>此时已经扩容完成，但此时的数据并没有减少，新增的数据库跟旧的数据库一样多的数据，此时还<br>  需要写一个程序，清空数据库中多余的数据，如：<br>  User1去除 uid % 4 = 2的数据；<br>  User3去除 uid % 4 = 0的数据；<br>  User2去除 uid % 4 = 3的数据；<br>  User4去除 uid % 4 = 1的数据；<br>  平滑扩容方案能够实现n库扩2n库的平滑扩容，增加数据库服务能力，降低单库一半的数据量。其核心<br>  原理是：成倍扩容，避免数据迁移。<br>  优点：</p>
+</li>
+<li><p>扩容期间，服务正常进行，保证高可用</p>
+</li>
+<li><p>相对停机扩容，时间长，项目组压力没那么大，出错率低</p>
+</li>
+<li><p>扩容期间遇到问题，随时解决，不怕影响线上服务</p>
+</li>
+<li><p>可以将每个数据库数据量减少一半</p>
+</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>程序复杂、配置双主同步、双主双写、检测数据同步等</li>
+<li>后期数据库扩容，比如成千上万，代价比较高</li>
+</ul>
+<p>适用场景：</p>
+<ul>
+<li>大型网站</li>
+<li>对高可用要求高的服务 </li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/2fd63cc0.html">http://www.lvxueyang.vip/post/2fd63cc0.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/msyql/">msyql</a></div><div class="post_share"><div class="social-share" data-image="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165211.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/972ee6bd.html"><img class="prev-cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165241.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Mysql高级-sql优化-索引-存储引擎</div></div></a></div><div class="next-post pull-right"><a href="/post/c716d2e3.html"><img class="next-cover" src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210806165212.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Mysql高级——优化</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="toc-number">1.</span> <span class="toc-text">集群架构设计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">架构设计理念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E7%94%A8%E6%80%A7%E8%AE%BE%E8%AE%A1"><span class="toc-number">1.2.</span> <span class="toc-text">可用性设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E6%80%A7%E8%AE%BE%E8%AE%A1"><span class="toc-number">1.3.</span> <span class="toc-text">扩展性设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7%E8%AE%BE%E8%AE%A1"><span class="toc-number">1.4.</span> <span class="toc-text">一致性设计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">主从模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">2.1.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">2.2.</span> <span class="toc-text">实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6"><span class="toc-number">2.2.1.</span> <span class="toc-text">主从复制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%8A%E5%90%8C%E6%AD%A5%E5%A4%8D%E5%88%B6"><span class="toc-number">2.2.2.</span> <span class="toc-text">半同步复制</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E8%A1%8C%E5%A4%8D%E5%88%B6"><span class="toc-number">2.3.</span> <span class="toc-text">并行复制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#MySQL-5-6%E5%B9%B6%E8%A1%8C%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86"><span class="toc-number">2.3.1.</span> <span class="toc-text">MySQL 5.6并行复制原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MySQL-5-7%E5%B9%B6%E8%A1%8C%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86"><span class="toc-number">2.3.2.</span> <span class="toc-text">MySQL 5.7并行复制原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MySQL8-0-%E5%B9%B6%E8%A1%8C%E5%A4%8D%E5%88%B6"><span class="toc-number">2.3.3.</span> <span class="toc-text">MySQL8.0 并行复制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B9%B6%E8%A1%8C%E5%A4%8D%E5%88%B6%E9%85%8D%E7%BD%AE%E4%B8%8E%E8%B0%83%E4%BC%98"><span class="toc-number">2.3.4.</span> <span class="toc-text">并行复制配置与调优</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B9%B6%E8%A1%8C%E5%A4%8D%E5%88%B6%E7%9B%91%E6%8E%A7"><span class="toc-number">2.3.5.</span> <span class="toc-text">并行复制监控</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB"><span class="toc-number">2.4.</span> <span class="toc-text">读写分离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E5%BC%95%E5%85%A5%E6%97%B6%E6%9C%BA"><span class="toc-number">2.5.</span> <span class="toc-text">读写分离引入时机</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E5%BB%B6%E8%BF%9F"><span class="toc-number">2.5.1.</span> <span class="toc-text">主从同步延迟</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E8%90%BD%E5%9C%B0"><span class="toc-number">2.5.2.</span> <span class="toc-text">读写分离落地</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8C%E4%B8%BB%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.</span> <span class="toc-text">双主模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-1"><span class="toc-number">3.1.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MMM%E6%9E%B6%E6%9E%84"><span class="toc-number">3.2.</span> <span class="toc-text">MMM架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MHA%E6%9E%B6%E6%9E%84"><span class="toc-number">3.3.</span> <span class="toc-text">MHA架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E5%A4%87%E5%88%87%E6%8D%A2"><span class="toc-number">3.4.</span> <span class="toc-text">主备切换</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8"><span class="toc-number">4.</span> <span class="toc-text">分库分表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%86%E5%88%86%E6%96%B9%E5%BC%8F"><span class="toc-number">4.1.</span> <span class="toc-text">拆分方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E9%94%AE%E7%AD%96%E7%95%A5"><span class="toc-number">4.2.</span> <span class="toc-text">主键策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%89%87%E7%AD%96%E7%95%A5"><span class="toc-number">4.3.</span> <span class="toc-text">分片策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E7%89%87%E6%A6%82%E5%BF%B5"><span class="toc-number">4.3.1.</span> <span class="toc-text">分片概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E7%89%87%E7%AD%96%E7%95%A5-1"><span class="toc-number">4.3.2.</span> <span class="toc-text">分片策略</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%AE%B9%E6%96%B9%E6%A1%88"><span class="toc-number">4.4.</span> <span class="toc-text">扩容方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%81%9C%E6%9C%BA%E6%89%A9%E5%AE%B9"><span class="toc-number">4.4.1.</span> <span class="toc-text">停机扩容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B9%B3%E6%BB%91%E6%89%A9%E5%AE%B9"><span class="toc-number">4.4.2.</span> <span class="toc-text">平滑扩容</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><p><a style="margin-inline:5px"target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://img.shields.io/badge/CDN-%E5%8F%88%E6%8B%8D%E4%BA%91-blue" title="又拍云提供CDN加速" alt="又拍云"></a><a style="margin-inline:5px"target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为 Hexo" alt="HEXO"></a><a style="margin-inline:5px"target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用 Butterfly" alt="Butterfly"></a><a style="margin-inline:5px"target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用 Jsdelivr 为静态资源提供CDN加速" alt="Jsdelivr"></a><a style="margin-inline:5px"target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由 GitHub 托管" alt="GitHub"></a><a style="margin-inline:5px"target="_blank"href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" alt="img" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                console.log('已挂载history_calendar')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='/'|| '/' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><!-- hexo injector body_end end --></body></html>
