@@ -6,9 +6,7 @@ var backimg =[
   "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830103649.jpg)",
   "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830104042.jpg)",
   "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830102648.jpg)",
-  "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830102655.jpg)",
-  "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830102705.jpg)",
-  "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830102715.jpg)"
+  "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830102655.jpg)"
 ];
 //获取背景图片总数，生成随机数
 var bgindex =Math.ceil(Math.random() * (backimg.length-1));
