@@ -2,7 +2,6 @@
 var backimg =[
   "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830103321.jpg)",
   "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830103450.jpg)",
-  "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830103530.jpg)",
   "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830103623.jpg)",
   "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830103649.jpg)",
   "url(https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210830104042.jpg)",
