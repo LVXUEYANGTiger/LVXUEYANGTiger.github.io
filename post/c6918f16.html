@@ -1,0 +1,1251 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HDFS数据存储与数据管理 | 牧马人的忧伤</title><meta name="keywords" content="HDFS"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="HDFS数据存储与数据管理HDFS REST HTTP API我们之前所学习的HDFS shell客户端和Java客户端，都客户端上安装了HDFS客户端。之前我们在windows上也配置了HDFS的windows版本客户端，否则，我们将无法操作HDFS。而且，客户端的版本如果不匹配，有可能会导致无法操作。 如果我们想要在没有安装HDFS客户端的机器上操作该如何呢？譬如以下场景：  接下来，我们将学">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HDFS数据存储与数据管理">
+<meta property="og:url" content="http://lvxueyang.vip/post/c6918f16.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="HDFS数据存储与数据管理HDFS REST HTTP API我们之前所学习的HDFS shell客户端和Java客户端，都客户端上安装了HDFS客户端。之前我们在windows上也配置了HDFS的windows版本客户端，否则，我们将无法操作HDFS。而且，客户端的版本如果不匹配，有可能会导致无法操作。 如果我们想要在没有安装HDFS客户端的机器上操作该如何呢？譬如以下场景：  接下来，我们将学">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082055.jpg">
+<meta property="article:published_time" content="2021-11-06T09:42:00.000Z">
+<meta property="article:modified_time" content="2021-11-06T09:42:32.484Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="HDFS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082055.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://lvxueyang.vip/post/c6918f16"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'HDFS数据存储与数据管理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-11-06 17:42:32'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    document.addEventListener('pjax:complete', detectApple)})(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">107</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">32</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">31</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082055.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">HDFS数据存储与数据管理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-11-06T09:42:00.000Z" title="发表于 2021-11-06 17:42:00">2021-11-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-11-06T09:42:32.484Z" title="更新于 2021-11-06 17:42:32">2021-11-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/HDFS/">HDFS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">11.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>42分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="HDFS数据存储与数据管理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="HDFS数据存储与数据管理"><a href="#HDFS数据存储与数据管理" class="headerlink" title="HDFS数据存储与数据管理"></a>HDFS数据存储与数据管理</h1><h1 id="HDFS-REST-HTTP-API"><a href="#HDFS-REST-HTTP-API" class="headerlink" title="HDFS REST HTTP API"></a>HDFS REST HTTP API</h1><p>我们之前所学习的HDFS shell客户端和Java客户端，都客户端上安装了HDFS客户端。之前我们在windows上也配置了HDFS的windows版本客户端，否则，我们将无法操作HDFS。而且，客户端的版本如果不匹配，有可能会导致无法操作。</p>
+<p>如果我们想要在没有安装HDFS客户端的机器上操作该如何呢？譬如以下场景：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106151601.png" alt="image-20211106151601139"></p>
+<p>接下来，我们将学习几种基于HTTP协议的客户端，HTTP是跨平台的，它不要求客户端上必须安装Hadoop，就可以直接操作HDFS。</p>
+<h2 id="WebHDFS"><a href="#WebHDFS" class="headerlink" title="WebHDFS"></a>WebHDFS</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106151620.png" alt="image-20211106151620272"></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>WebHDFS其实是HDFS提供的HTTP <strong>RESTFul API</strong>接口，并且它是独立于Hadoop的版本的，它支持HDFS的完整FileSystem / FileContext接口。它可以让客户端发送http请求的方式来操作HDFS，而无需安装Hadoop。</p>
+<p>在我们经常使用的HDFS Web UI，它就是基于webhdfs来操作HDFS的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106151906.png" alt="image-20211106151906379"></p>
+<h3 id="关于RESTful"><a href="#关于RESTful" class="headerlink" title="关于RESTful"></a>关于RESTful</h3><h4 id="REST"><a href="#REST" class="headerlink" title="REST"></a>REST</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106151934.png" alt="image-20211106151934755"></p>
+<ul>
+<li>REST（表现层状态转换，英语：Representational State Transfer）是Roy Thomas Fielding博士于2000年在博士论文中提出来的一种万维网软件架构风格，目的是便于不同软件/程序在网络（例如互联网）中互相传递信息。</li>
+<li>REST是基于超文本传输协议（HTTP）之上而确定的一组约束和属性，是一种设计提供万维网络服务的软件构建风格。符合或兼容于这种架构风格（简称为 REST 或 RESTful）的网络服务，允许客户端发出以统一资源标识符访问和操作网络资源的请求，而与预先定义好的无状态操作集一致化。</li>
+<li>因此REST提供了在互联网络的计算系统之间，彼此资源可交互使用的协作性质（interoperability）。相对于其它种类的网络服务，例如SOAP服务，则是以本身所定义的操作集，来访问网络上的资源。</li>
+<li>目前在三种主流的Web服务实现方案中，因为REST模式与复杂的SOAP和XML-RPC相比更加简洁，越来越多的Web服务开始采用REST风格设计和实现。例如，Amazon.com提供接近REST风格的Web服务运行图书查询；雅虎提供的Web服务也是REST风格的。</li>
+<li>需要注意的是，REST是设计风格而不是标准。REST通常基于HTTP、URI、XML以及HTML这些现有的广泛流行的协议和标准。<ul>
+<li>资源是由URI来指定。</li>
+<li>对资源的操作包括获取、创建、修改和删除，这些操作正好对应HTTP协议提供的GET、POST、PUT和DELETE方法。</li>
+<li>通过操作资源的表现形式来操作资源。</li>
+<li>资源的表现形式则是XML或者HTML，取决于读者是机器还是人、是消费Web服务的客户软件还是Web浏览器。当然也可以是任何其他的格式，例如JSON。</li>
+</ul>
+</li>
+</ul>
+<h4 id="RESTFul-API"><a href="#RESTFul-API" class="headerlink" title="RESTFul API"></a>RESTFul API</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106152112.png" alt="image-20211106152112535"></p>
+<ul>
+<li>符合REST设计风格的Web API称为RESTful API。它从以下三个方面资源进行定义：<ul>
+<li>直观简短的资源地址：URI，比如：<a target="_blank" rel="noopener" href="http://example.com/resources%E3%80%82">http://example.com/resources。</a></li>
+<li>传输的资源：Web服务接受与返回的互联网媒体类型，比如：JSON，XML，YAML等。</li>
+<li>对资源的操作：Web服务在该资源上所支持的一系列请求方法（比如：POST，GET，PUT或DELETE）。</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th><strong>GET</strong></th>
+<th><strong>PUT</strong></th>
+<th><strong>POST</strong></th>
+<th><strong>DELETE</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一组资源的URI，比如  <a target="_blank" rel="noopener" href="https://example.com/resources">https://example.com/resources</a></td>
+<td>列出URI，以及该资源组中每个资源的详细信息。</td>
+<td>使用给定的一组资源替换当前整组资源。</td>
+<td>在本组资源中创建/追加一个新的资源。该操作往往返回新资源的URL。</td>
+<td>删除整组资源。</td>
+</tr>
+<tr>
+<td>单个资源的URI，比如<a target="_blank" rel="noopener" href="https://example.com/resources/142">https://example.com/resources/142</a></td>
+<td>获取指定的资源的详细信息，格式可以自选一个合适的网络媒体类型（比如：XML、JSON等）</td>
+<td>替换/创建指定的资源。并将其追加到相应的资源组中。</td>
+<td>把指定的资源当做一个资源组，并在其下创建/追加一个新的元素，使其隶属于当前资源。</td>
+<td>删除指定的元素。</td>
+</tr>
+</tbody></table>
+<ul>
+<li>PUT和DELETE方法是幂等方法</li>
+<li>GET方法是安全方法（不会对服务器端有修改，因此当然也是幂等的）</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106152839.png" alt="image-20211106152839083"></p>
+<h4 id="PUT请求类型和POST请求类型的区别"><a href="#PUT请求类型和POST请求类型的区别" class="headerlink" title="PUT请求类型和POST请求类型的区别"></a>PUT请求类型和POST请求类型的区别</h4><ul>
+<li>PUT和POST均可用于创建或者更新某个资源（例如：添加一个用户、添加一个文件），用哪种请求方式取决我们自己。</li>
+<li>我们主要使用是否需要有幂等性来判断到底用PUT、还是POST。PUT是幂等的，也就是将一个对象进行两次PUT操作，是不会起作用的。而如果使用POST，会同时收到两个请求。</li>
+</ul>
+<h3 id="HDFS-HTTP-RESTFUL-API"><a href="#HDFS-HTTP-RESTFUL-API" class="headerlink" title="HDFS HTTP RESTFUL API"></a>HDFS HTTP RESTFUL API</h3><p>HDFS HTTP RESTFUL API它支持以下操作：</p>
+<h4 id="HTTP-GET"><a href="#HTTP-GET" class="headerlink" title="HTTP GET"></a>HTTP GET</h4><ul>
+<li>OPEN (等同于FileSystem.open)</li>
+<li>GETFILESTATUS (等同于FileSystem.getFileStatus)</li>
+<li>LISTSTATUS (等同于FileSystem.listStatus)</li>
+<li>LISTSTATUS_BATCH (等同于FileSystem.listStatusIterator)</li>
+<li>GETCONTENTSUMMARY (等同于FileSystem.getContentSummary)</li>
+<li>GETQUOTAUSAGE (等同于FileSystem.getQuotaUsage)</li>
+<li>GETFILECHECKSUM (等同于FileSystem.getFileChecksum)</li>
+<li>GETHOMEDIRECTORY (等同于FileSystem.getHomeDirectory)</li>
+<li>GETDELEGATIONTOKEN (等同于FileSystem.getDelegationToken)</li>
+<li>GETTRASHROOT (等同于FileSystem.getTrashRoot)</li>
+<li>GETXATTRS (等同于FileSystem.getXAttr)</li>
+<li>GETXATTRS (等同于FileSystem.getXAttrs)</li>
+<li>GETXATTRS (等同于FileSystem.getXAttrs)</li>
+<li>LISTXATTRS (等同于FileSystem.listXAttrs)</li>
+<li>CHECKACCESS (等同于FileSystem.access)</li>
+<li>GETALLSTORAGEPOLICY (等同于FileSystem.getAllStoragePolicies)</li>
+<li>GETSTORAGEPOLICY (等同于FileSystem.getStoragePolicy)</li>
+<li>GETSNAPSHOTDIFF</li>
+<li>GETSNAPSHOTTABLEDIRECTORYLIST</li>
+<li>GETECPOLICY (等同于HDFSErasureCoding.getErasureCodingPolicy)</li>
+<li>GETFILEBLOCKLOCATIONS (等同于FileSystem.getFileBlockLocations)</li>
+</ul>
+<h4 id="HTTP-PUT"><a href="#HTTP-PUT" class="headerlink" title="HTTP PUT"></a>HTTP PUT</h4><ul>
+<li>CREATE (等同于FileSystem.create)</li>
+<li>MKDIRS (等同于FileSystem.mkdirs)</li>
+<li>CREATESYMLINK (等同于FileContext.createSymlink)</li>
+<li>RENAME (等同于FileSystem.rename)</li>
+<li>SETREPLICATION (等同于FileSystem.setReplication)</li>
+<li>SETOWNER (等同于FileSystem.setOwner)</li>
+<li>SETPERMISSION (等同于FileSystem.setPermission)</li>
+<li>SETTIMES (等同于FileSystem.setTimes)</li>
+<li>RENEWDELEGATIONTOKEN (等同于DelegationTokenAuthenticator.renewDelegationToken)</li>
+<li>CANCELDELEGATIONTOKEN (等同于DelegationTokenAuthenticator.cancelDelegationToken)</li>
+<li>CREATESNAPSHOT (等同于FileSystem.createSnapshot)</li>
+<li>RENAMESNAPSHOT (等同于FileSystem.renameSnapshot)</li>
+<li>SETXATTR (等同于FileSystem.setXAttr)</li>
+<li>REMOVEXATTR (等同于FileSystem.removeXAttr)</li>
+<li>SETSTORAGEPOLICY (等同于FileSystem.setStoragePolicy)</li>
+<li>ENABLEECPOLICY (等同于HDFSErasureCoding.enablePolicy)</li>
+<li>DISABLEECPOLICY (等同于HDFSErasureCoding.disablePolicy)</li>
+<li>SETECPOLICY (等同于HDFSErasureCoding.setErasureCodingPolicy)</li>
+</ul>
+<h4 id="HTTP-POST"><a href="#HTTP-POST" class="headerlink" title="HTTP POST"></a>HTTP POST</h4><ul>
+<li>APPEND (等同于FileSystem.append)</li>
+<li>CONCAT (等同于FileSystem.concat)</li>
+<li>TRUNCATE (等同于FileSystem.truncate)</li>
+<li>UNSETSTORAGEPOLICY (等同于FileSystem.unsetStoragePolicy)</li>
+<li>UNSETECPOLICY (等同于HDFSErasureCoding.unsetErasureCodingPolicy)</li>
+</ul>
+<h4 id="HTTP-DELETE"><a href="#HTTP-DELETE" class="headerlink" title="HTTP DELETE"></a>HTTP DELETE</h4><ul>
+<li>DELETE (等同于FileSystem.delete)</li>
+<li>DELETESNAPSHOT (等同于FileSystem.deleteSnapshot)</li>
+</ul>
+<h3 id="文件系统URL和HTTP-URL"><a href="#文件系统URL和HTTP-URL" class="headerlink" title="文件系统URL和HTTP URL"></a>文件系统URL和HTTP URL</h3><p>WebHDFS的文件系统schema是webhdfs://。WebHDFS文件系统URI具有以下格式。</p>
+<p><code>webhdfs://&lt;HOST&gt;:&lt;HTTP_PORT&gt;/&lt;PATH&gt;</code></p>
+<p>上面的WebHDFS URI对应于下面的HDFS URI。</p>
+<p><code>hdfs://&lt;HOST&gt;:&lt;RPC_PORT&gt;/&lt;PATH&gt;</code></p>
+<p>在RESTAPI中，在路径中插入前缀“/webhdfs/v1”，并在末尾追加一个查询。因此，对应的HTTPURL具有以下格式。</p>
+<p><code>http://&lt;HOST&gt;:&lt;HTTP_PORT&gt;/webhdfs/v1/&lt;PATH&gt;?op=...</code></p>
+<p>安装Postman进行测试：</p>
+<p>请求URL：<a target="_blank" rel="noopener" href="http://node1.itcast.cn:9870/webhdfs/v1/?op=LISTSTATUS">http://node1.itcast.cn:9870/webhdfs/v1/?op=LISTSTATUS</a></p>
+<p>该操作表示要查看根目录下的所有文件以及目录，相当于 hdfs dfs -ls /</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106153535.png" alt="image-20211106153535356"></p>
+<p>我们可以在Postman中看到，HDFS给我们返回了以下信息：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;FileStatuses&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;FileStatus&quot;</span>: [</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">&quot;accessTime&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;blockSize&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;childrenNum&quot;</span>: <span class="number">2</span>,</span><br><span class="line">                <span class="attr">&quot;fileId&quot;</span>: <span class="number">16698</span>,</span><br><span class="line">                <span class="attr">&quot;group&quot;</span>: <span class="string">&quot;supergroup&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;length&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;modificationTime&quot;</span>: <span class="number">1601513468046</span>,</span><br><span class="line">                <span class="attr">&quot;owner&quot;</span>: <span class="string">&quot;root&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;pathSuffix&quot;</span>: <span class="string">&quot;data&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;permission&quot;</span>: <span class="string">&quot;755&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;replication&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;storagePolicy&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;DIRECTORY&quot;</span></span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">&quot;accessTime&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;blockSize&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;childrenNum&quot;</span>: <span class="number">2</span>,</span><br><span class="line">                <span class="attr">&quot;fileId&quot;</span>: <span class="number">16386</span>,</span><br><span class="line">                <span class="attr">&quot;group&quot;</span>: <span class="string">&quot;supergroup&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;length&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;modificationTime&quot;</span>: <span class="number">1600886915849</span>,</span><br><span class="line">                <span class="attr">&quot;owner&quot;</span>: <span class="string">&quot;root&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;pathSuffix&quot;</span>: <span class="string">&quot;mr-history&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;permission&quot;</span>: <span class="string">&quot;770&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;replication&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;storagePolicy&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;DIRECTORY&quot;</span></span><br><span class="line">            &#125;,</span><br><span class="line">            ...</span><br><span class="line">        ]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用WebHDFS创建并写入到一个文件"><a href="#使用WebHDFS创建并写入到一个文件" class="headerlink" title="使用WebHDFS创建并写入到一个文件"></a>使用WebHDFS创建并写入到一个文件</h3><h4 id="创建文件"><a href="#创建文件" class="headerlink" title="创建文件"></a>创建文件</h4><p>提交HTTP PUT请求，而不会自动跟随重定向，也不会发送文件数据。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">curl -i -X PUT <span class="string">&quot;http://&lt;HOST&gt;:&lt;PORT&gt;/webhdfs/v1/&lt;PATH&gt;?op=CREATE</span></span><br><span class="line"><span class="string">                    [&amp;overwrite=&lt;true |false&gt;][&amp;blocksize=&lt;LONG&gt;][&amp;replication=&lt;SHORT&gt;]</span></span><br><span class="line"><span class="string">                    [&amp;permission=&lt;OCTAL&gt;][&amp;buffersize=&lt;INT&gt;][&amp;noredirect=&lt;true|false&gt;]&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>通常，请求被重定向到要写入文件数据的DataNode。</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="meta">HTTP/1.1</span> <span class="number">307</span> TEMPORARY_REDIRECT</span><br><span class="line"><span class="attribute">Location</span><span class="punctuation">: </span>http://&lt;DATANODE&gt;:&lt;PORT&gt;/webhdfs/v1/&lt;PATH&gt;?op=CREATE...</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>0</span><br></pre></td></tr></table></figure>
+
+<p>如果不希望自动重定向，则可以设置noredirected标志。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">HTTP/<span class="number">1.1</span> <span class="number">200</span> OK</span><br><span class="line">Content-Type: application/json</span><br><span class="line">&#123;<span class="attr">&quot;Location&quot;</span>:<span class="string">&quot;http://&lt;DATANODE&gt;:&lt;PORT&gt;/webhdfs/v1/&lt;PATH&gt;?op=CREATE...&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<p>在/data/hdfs-test目录中创建一个名字为webhdfs_api.txt文件，并写入内容。</p>
+<p>使用postman创建一个请求，设置请求方式为PUT，请求url为：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">http:<span class="comment">//node1.itcast.cn:9870/webhdfs/v1/data/hdfs-test/webhdfs_api.txt?op=CREATE&amp;overwrite=true&amp;replication=2&amp;noredirect=true</span></span><br></pre></td></tr></table></figure>
+
+<p>HTTP会响应一个用于上传数据的URL链接：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;Location&quot;</span>: <span class="string">&quot;http://node1.itcast.cn:9864/webhdfs/v1/data/hdfs-test/webhdfs_api.txt?op=CREATE&amp;namenoderpcaddress=node1.itcast.cn:9820&amp;createflag=&amp;createparent=true&amp;overwrite=true&amp;replication=2&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="写入数据"><a href="#写入数据" class="headerlink" title="写入数据"></a>写入数据</h4><p>使用Location标头中的URL提交另一个HTTP PUT请求（如果指定了noredirect，则返回返回的响应），并写入要写入的文件数据。</p>
+<p><code> curl  -i -X PUT -T &lt;LOCAL_FILE&gt;  &quot;http://&lt;DATANODE&gt;:&lt;PORT&gt;/webhdfs/v1/&lt;PATH&gt;?op=CREATE...&quot; </code></p>
+<p>客户端接收到一个201创建的响应，该响应的内容长度为零，位置头中文件的WebHDFS URI为：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="meta">HTTP/1.1</span> <span class="number">201</span> Created</span><br><span class="line"><span class="attribute">Location</span><span class="punctuation">: </span>webhdfs://&lt;HOST&gt;:&lt;PORT&gt;/&lt;PATH&gt;</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>0</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<p>使用postman基于之前返回的http响应，上传文件。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106155052.png" alt="image-20211106155052568"></p>
+<p>我们打开WebUI，发现文件已经上传成功。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106155126.png" alt="image-20211106155126418"></p>
+<p>更多操作请参考：</p>
+<p><a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Cro">https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Cro</a></p>
+<p>ss-Site_Request_Forgery_Prevention</p>
+<h2 id="HttpFS"><a href="#HttpFS" class="headerlink" title="HttpFS"></a>HttpFS</h2><ul>
+<li><p>HttpHDFS本质上和WebHDFS是一样的，都是提供HTTP REST API功能，但它们的区别是HttpHDFS是HttpFS是一个独立于HadoopNameNode的服务，它本身就是Java JettyWeb应用程序。</p>
+</li>
+<li><p>因为是可以独立部署的，所以可以对HttpHDFS设置防火墙，而避免NameNode暴露在墙外，对一些安全性要求比较高的系统，HttpHDFS会更好些。</p>
+</li>
+<li><p>HttpFS是一种服务器，它提供REST HTTP网关，支持所有HDFS文件系统操作(读和写)。并且它可以与<strong>Webhdfs</strong>REST HTTPAPI</p>
+</li>
+<li><p>HttpFS可用于在运行不同版本Hadoop(克服RPC版本控制问题)的集群之间传输数据，例如使用HadoopDiscreCP。</p>
+</li>
+<li><p>HttpFS可用于在防火墙后面的集群上访问HDFS中的数据(HttpFS服务器充当网关，是允许跨越防火墙进入集群的唯一系统)。</p>
+</li>
+<li><p>HttpFS可以使用HTTP实用程序(例如curl和wget)和来自Java以外的其他语言的HTTP库Perl来访问HDFS中的数据。</p>
+</li>
+<li><p>这个<strong>Webhdfs</strong>客户端文件系统实现可以使用Hadoop文件系统命令访问HttpFS(hdfs dfs)行工具以及使用Hadoop文件系统JavaAPI的Java应用程序。</p>
+</li>
+<li><p>HttpFS内置了支持Hadoop伪身份验证和HTTP、SPNEGO Kerberos和其他可插拔身份验证机制的安全性。它还提供Hadoop代理用户支持。</p>
+</li>
+</ul>
+<h3 id="HTTPFS是如何工作的"><a href="#HTTPFS是如何工作的" class="headerlink" title="HTTPFS是如何工作的"></a>HTTPFS是如何工作的</h3><ul>
+<li>HttpFS是一个独立于HadoopNameNode的服务。</li>
+<li>HttpFS本身就是Java JettyWeb应用程序。</li>
+<li>HttpFS HTTP Web服务API调用是HTTPREST调用，映射到HDFS文件系统操作。例如，使用<code>curl/</code>Unix命令：</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="variable">$curl</span> ‘http://httpfs-host:14000/webhdfs/v1/user/foo/README.txt?op=OPEN&amp;user.name=foo’</span><br><span class="line">返回HDFS的内容/user/foo/README.txt档案。</span><br><span class="line"></span><br><span class="line"><span class="variable">$curl</span> ‘http://httpfs-host:14000/webhdfs/v1/user/foo?op=LISTSTATUS&amp;user.name=foo’</span><br><span class="line">返回HDFS的内容/user/foo目录中的JSON格式。</span><br><span class="line"></span><br><span class="line"><span class="variable">$curl</span> ‘http://httpfs-host:14000/webhdfs/v1/user/foo?op=GETTRASHROOT&amp;user.name=foo’</span><br><span class="line">返回路径/user/foo/.trash，如果/是加密区域，则返回路径。/.Trash/Foo。看见更多细节关于加密区域中的垃圾路径。</span><br><span class="line"></span><br><span class="line"><span class="variable">$curl</span> -X POST‘http://httpfs-host:14000/webhdfs/v1/user/foo/bar?op=MKDIRS&amp;user.name=foo’</span><br><span class="line">创建HDFS/user/foo/bar目录。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>HttpFS默认端口号为14000</li>
+</ul>
+<h3 id="配置Hadoop"><a href="#配置Hadoop" class="headerlink" title="配置Hadoop"></a>配置Hadoop</h3><p>编辑Hadoop的<code>core-site.xml``，</code>并将运行HttpFS服务器的Unix用户定义为proxyuser。例如：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.proxyuser.#HTTPFSUSER#.hosts<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>httpfs-host.foo.com<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.proxyuser.#HTTPFSUSER#.groups<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>*<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>重要：替换<code>#HTTPFSUSER#</code>使用将启动HttpFS服务器的Unix用户。</p>
+<p>例如：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.proxyuser.root.hosts<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>*<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.proxyuser.root.groups<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>*<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="重启Hadoop"><a href="#重启Hadoop" class="headerlink" title="重启Hadoop"></a>重启Hadoop</h3><p>重启Hadoop，并激活代理用户配置</p>
+<h3 id="启动HttpFS"><a href="#启动HttpFS" class="headerlink" title="启动HttpFS"></a>启动HttpFS</h3><p><code>hdfs --daemon start httpfs</code></p>
+<h3 id="测试HttpFS工作"><a href="#测试HttpFS工作" class="headerlink" title="测试HttpFS工作"></a>测试HttpFS工作</h3><p><code>http://node1.itcast.cn:14000/webhdfs/v1?user.name=root&amp;op=LISTSTATUS</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106160229.png" alt="image-20211106160229439"></p>
+<h3 id="HTTP默认服务"><a href="#HTTP默认服务" class="headerlink" title="HTTP默认服务"></a>HTTP默认服务</h3><table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>/conf</td>
+<td>Display configuration properties</td>
+</tr>
+<tr>
+<td>/jmx</td>
+<td>Java JMX management interface</td>
+</tr>
+<tr>
+<td>/logLevel</td>
+<td>Get or set log level per class</td>
+</tr>
+<tr>
+<td>/logs</td>
+<td>Display log files</td>
+</tr>
+<tr>
+<td>/stacks</td>
+<td>Display JVM stacks</td>
+</tr>
+<tr>
+<td>/static/index.html</td>
+<td>The static home page</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="http://node1.itcast.cn:14000/conf?user.name=root">http://node1.itcast.cn:14000/conf?user.name=root</a></p>
+<h1 id="Hadoop常用文件存储格式"><a href="#Hadoop常用文件存储格式" class="headerlink" title="Hadoop常用文件存储格式"></a>Hadoop常用文件存储格式</h1><h2 id="传统系统常见文件存储格式"><a href="#传统系统常见文件存储格式" class="headerlink" title="传统系统常见文件存储格式"></a>传统系统常见文件存储格式</h2><p>在Windows有很多种文件格式，例如：JPEG文件用来存储图片、MP3文件用来存储音乐、DOC文件用来存储WORD文档。每一种文件存储某一类的数据，例如：我们不会用文本来存储音乐、不会用文本来存储图片。windows上支持的存储格式是非常的多。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106160836.png" alt="image-20211106160836401"></p>
+<h3 id="文件系统块大小"><a href="#文件系统块大小" class="headerlink" title="文件系统块大小"></a>文件系统块大小</h3><ul>
+<li>在服务器/电脑上，有多种块设备（Block Device），例如：硬盘、CDROM、软盘等等。</li>
+<li>每个文件系统都需要将一个分区拆分为多个块，用来存储文件。不同的文件系统块大小不同。</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># stat -f .</span></span><br><span class="line">  File: <span class="string">&quot;.&quot;</span></span><br><span class="line">    ID: fd0000000000 Namelen: 255     Type: xfs</span><br><span class="line">Block size: 4096       Fundamental block size: 4096</span><br><span class="line">Blocks: Total: 15144730   Free: 11924333   Available: 11924333</span><br><span class="line">Inodes: Total: 30304256   Free: 30139006</span><br></pre></td></tr></table></figure>
+
+<p>例如：我们看到该文件系统的块大小为：4096字节 = 4KB。如果我们需要在磁盘中存储5个字节的数据，也会占据4096字节的空间。</p>
+<h2 id="Hadoop中文件存储格式"><a href="#Hadoop中文件存储格式" class="headerlink" title="Hadoop中文件存储格式"></a>Hadoop中文件存储格式</h2><p>接下来，我们要讲解的是在Hadoop中的数据存储格式。Hadoop上的文件存储格式，肯定不会像Windows这么丰富，因为目前我们用Hadoop来存储、处理数据。我们不会用Hadoop来听歌、看电影、或者打游戏。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106161054.png" alt="image-20211106161054743"></p>
+<ul>
+<li>文件格式是定义数据文件系统中存储的一种方式，可以在文件中存储各种数据结构，特别是Row、Map，数组以及字符串，数字等。</li>
+<li>在Hadoop中，没有默认的文件格式，格式的选择取决于其用途。而选择一种优秀、适合的数据存储格式是非常重要的。</li>
+<li>后续我们要学习的，使用HDFS的应用程序（例如MapReduce或Spark）性能中的最大问题、瓶颈是<strong>在特定位置查找数据的时间</strong>和<strong>写入到另一个位置的时间</strong>，而且管理大量数据的处理和存储也很复杂（例如：数据的格式会不断变化，原来一行有12列，后面要存储20列）。</li>
+<li>Hadoop文件格式发展了好一段时间，这些文件存储格式可以解决大部分问题。我们在开发大数据中，选择合适的文件格式可能会带来一些明显的好处：</li>
+</ul>
+<ol>
+<li><p>可以保证写入的速度</p>
+</li>
+<li><p>可以保证读取的速度</p>
+</li>
+<li><p>文件是可被切分的</p>
+</li>
+</ol>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106161155.png" alt="image-20211106161155435"></p>
+<ol start="4">
+<li><p>对压缩支持友好</p>
+</li>
+<li><p>支持schema的更改</p>
+</li>
+</ol>
+<p>l 某些文件格式是为通用设计的（如MapReduce或Spark），而其他文件则是针对更特定的场景，有些在设计时考虑了特定的数据特征。因此，确实有很多选择。</p>
+<p>每种格式都有优点和缺点，数据处理的不同阶段可以使用不同的格式才会更有效率。通过选择一种格式，最大程度地发挥该存储格式的优势，最小化劣势。</p>
+<h2 id="BigData-File-Viewer工具"><a href="#BigData-File-Viewer工具" class="headerlink" title="BigData File Viewer工具"></a>BigData File Viewer工具</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><ul>
+<li>一个跨平台（Windows，MAC，Linux）桌面应用程序，用于查看常见的大数据二进制格式，例如Parquet，ORC，AVRO等。支持本地文件系统，HDFS，AWS S3等。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106161253.png" alt="image-20211106161253627"></p>
+<p>github地址：<a target="_blank" rel="noopener" href="https://github.com/Eugene-Mark/bigdata-file-viewer">https://github.com/Eugene-Mark/bigdata-file-viewer</a></p>
+<h2 id="功能清单"><a href="#功能清单" class="headerlink" title="功能清单"></a>功能清单</h2><ul>
+<li>打开并查看本地目录中的Parquet，ORC和AVRO，HDFS，AWS S3等。</li>
+<li>将二进制格式的数据转换为文本格式的数据，例如CSV。</li>
+<li>支持复杂的数据类型，例如数组，映射，结构等。</li>
+<li>支持Windows，MAC和Linux等多种平台。</li>
+<li>代码可扩展以涉及其他数据格式。</li>
+</ul>
+<h2 id="Hadoop丰富的存储格式"><a href="#Hadoop丰富的存储格式" class="headerlink" title="Hadoop丰富的存储格式"></a>Hadoop丰富的存储格式</h2><h3 id="Text-File"><a href="#Text-File" class="headerlink" title="Text File"></a>Text File</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106161440.png" alt="image-20211106161440335"></p>
+<h4 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h4><ul>
+<li>文本文件在非Hadoop领域很常见，在Hadoop领域也很常见。</li>
+<li>数据一行一行到排列，每一行都是一条记录。以典型的UNIX方式以换行符【\n】终止。</li>
+<li>文本文件是可以被切分的，但如果对文本文件进行压缩，则必须使用支持切分文件的压缩编解码器，例如BZIP2。因为这些文件只是文本文件，压缩时会对所有内容进行编码。</li>
+<li>可以将每一行成为JSON文档，可以让数据带有结构。</li>
+</ul>
+<h4 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h4><p>仅在需要从Hadoop中直接提取数据，或直接从文件中加载大量数据的情况下，才建议使用纯文本格式或CSV。</p>
+<h4 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106161656.png" alt="image-20211106161656395"></p>
+<h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><p>简单易读、轻量级</p>
+<h4 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h4><ul>
+<li>读写速度慢。</li>
+<li>不支持块压缩，在Hadoop中对文本文件进行压缩/解压缩会有较高的读取成本，因为需要将整个文件全部压缩或者解压缩。</li>
+<li>无法切分压缩文件（会导致较大的map task）。</li>
+</ul>
+<h3 id="Sequence-File"><a href="#Sequence-File" class="headerlink" title="Sequence File"></a>Sequence File</h3><h4 id="简介-2"><a href="#简介-2" class="headerlink" title="简介"></a>简介</h4><ul>
+<li>Sequence最初是为MapReduce设计的，因此和MapReduce集成很好。</li>
+<li>在Sequence File中，每个数据都是以一个key和一个value进行序列化存储，仅此而已。</li>
+<li>Sequence File中的数据是以二进制格式存储，这种格式所需的存储空间小于文本的格式。与文本文件一样，Sequence File内部也不支持对键和值的结构指定格式编码。</li>
+</ul>
+<h4 id="应用场景-1"><a href="#应用场景-1" class="headerlink" title="应用场景"></a>应用场景</h4><p>通常把Sequence file作为中间数据存储格式。例如：将大量小文件合并放入到一个SequenceFIle中。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106161835.png" alt="image-20211106161835043"></p>
+<h4 id="结构-1"><a href="#结构-1" class="headerlink" title="结构"></a>结构</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106161850.png" alt="image-20211106161850748"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106161854.png" alt="image-20211106161854512"></p>
+<h4 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h4><ul>
+<li>与文本文件相比更紧凑，支持块级压缩<ul>
+<li>压缩文件内容的同时，支持将文件切分。</li>
+<li>序列文件在Hadoop和许多其他支持HDFS的项目支持很好，例如：Spark。</li>
+<li>它是让我们摆脱文本文件迈出第一步。</li>
+</ul>
+</li>
+<li>它可以作为大量小文件的容器</li>
+</ul>
+<h4 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h4><ul>
+<li>对于具有SQL类型的Hive支持不好，需要读取和解压缩所有字段</li>
+<li>不存储元数据，并且对schema扩展中的唯一方式是在末尾添加新字段。</li>
+</ul>
+<h3 id="Avro-File"><a href="#Avro-File" class="headerlink" title="Avro File"></a>Avro File</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106162100.png" alt="image-20211106162100523"></p>
+<h4 id="简介-3"><a href="#简介-3" class="headerlink" title="简介"></a>简介</h4><ul>
+<li>Apache Avro是与语言无关的序列化系统，由Hadoop创始人 Doug Cutting开发。</li>
+<li>Avro是<strong>基于行</strong>的存储格式，它在每个文件中都包含JSON格式的schema定义，从而提高了互操作性并允许schema的变化（删除列、添加列）。 除了支持可切分以外，还此次块压缩。</li>
+<li>Avro是一种自描述格式，它将数据的schema直接编码存储在文件中，可以用来存储复杂结构的数据。</li>
+<li>Avro可以进行快速序列化，生成的序列化数据也比较小。</li>
+</ul>
+<h4 id="应用场景-2"><a href="#应用场景-2" class="headerlink" title="应用场景"></a>应用场景</h4><ul>
+<li>适合于一次性需要将大量的列（数据比较宽）、写入频繁的场景。</li>
+<li>随着更多存储格式的发展，常用于Kafka和Druid中。</li>
+</ul>
+<h4 id="结构-2"><a href="#结构-2" class="headerlink" title="结构"></a>结构</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106162319.png" alt="image-20211106162319827"></p>
+<p>直接将一行数据序列化在一个block中</p>
+<h4 id="优点-2"><a href="#优点-2" class="headerlink" title="优点"></a>优点</h4><ul>
+<li>Avro是与语言无关的数据序列化系统。</li>
+<li>Avro将schema存储在header中，数据是自描述的。</li>
+<li>序列化和反序列化速度很快。</li>
+<li>Avro文件是可切分的、可压缩的，非常适合在Hadoop生态系统中进行数据存储。</li>
+</ul>
+<h4 id="缺点-2"><a href="#缺点-2" class="headerlink" title="缺点"></a>缺点</h4><ul>
+<li>如果我们只需要对数据文件中的少数列进行操作，行式存储效率较低。例如：我们读取15列中的2列数据，基于行式存储就需要读取数百万行的15列。而列式存储就会比行式存储方式高效。</li>
+<li>列式存储因为是将同一列（类）的数据存储在一起，压缩率要比方式存储高。</li>
+</ul>
+<h3 id="RCFile"><a href="#RCFile" class="headerlink" title="RCFile"></a>RCFile</h3><h4 id="简介-4"><a href="#简介-4" class="headerlink" title="简介"></a>简介</h4><ul>
+<li>RCFile是为基于MapReduce的数据仓库系统设计的数据存储结构。它结合了行存储和列存储的优点，可以满足快速数据加载和查询，有效利用存储空间以及适应高负载的需求。</li>
+<li>RCFile是由二进制键/值对组成的flat文件，它与sequence file有很多相似之处。</li>
+<li>在数仓中执行分析时，这种面向列的存储非常有用。当我们使用面向列的存储类型时，执行分析很容易。</li>
+</ul>
+<p><strong>Hive Tip：</strong></p>
+<p>无法将数据直接加载到RCFILE中。首先需要将数据加载到另一个表中，然后将其覆盖写入到新创建的RCFile中。</p>
+<h4 id="应用场景-3"><a href="#应用场景-3" class="headerlink" title="应用场景"></a>应用场景</h4><ul>
+<li>常用在Hive中</li>
+</ul>
+<h4 id="结构-3"><a href="#结构-3" class="headerlink" title="结构"></a>结构</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106162735.png" alt="image-20211106162735608"></p>
+<ul>
+<li>RCFile可将数据分为几组行，并且在其中将数据存储在列中。</li>
+<li>RCFile首先将行水平划分为行拆分（Row Group），然后以列方式垂直划分每个行拆分（Columns）。</li>
+<li>RCFile将行拆分的元数据存储为record的key，并将行拆分的所有数据存储value。</li>
+<li>作为行存储，RCFile保证同一行中的数据位于同一节点中。</li>
+<li>作为列存储，RCFile可以利用列数据压缩，并跳过不必要的列读取。</li>
+</ul>
+<h4 id="优点-3"><a href="#优点-3" class="headerlink" title="优点"></a>优点</h4><ul>
+<li>基于列式的存储，更好的压缩比。</li>
+<li>利用元数据存储来支持数据类型。</li>
+<li>支持Split。</li>
+</ul>
+<h4 id="缺点-3"><a href="#缺点-3" class="headerlink" title="缺点"></a>缺点</h4><ul>
+<li>RC不支持schema扩展，如果要添加新的列，则必须重写文件，这会降低操作效率。</li>
+</ul>
+<h3 id="ORC-File"><a href="#ORC-File" class="headerlink" title="ORC File"></a>ORC File</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106162923.png" alt="image-20211106162923388"></p>
+<h4 id="简介-5"><a href="#简介-5" class="headerlink" title="简介"></a>简介</h4><ul>
+<li>Apache ORC（Optimized Row Columnar，优化行列）是Apache Hadoop生态系统面向列的开源数据存储格式，它与Hadoop环境中的大多数计算框架兼容。</li>
+<li>ORC代表“优化行列”，它以比RC更为优化的方式存储数据，提供了一种非常有效的方式来存储关系数据，然后存储RC文件。</li>
+<li>ORC将原始数据的大小最多<strong>减少75％</strong>，数据处理的速度也提高了 。</li>
+</ul>
+<h4 id="应用场景-4"><a href="#应用场景-4" class="headerlink" title="应用场景"></a>应用场景</h4><ul>
+<li>常用在Hive中</li>
+</ul>
+<h4 id="结构-4"><a href="#结构-4" class="headerlink" title="结构"></a>结构</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106163143.png" alt="image-20211106163143132"></p>
+<h4 id="优点-4"><a href="#优点-4" class="headerlink" title="优点"></a>优点</h4><ul>
+<li>比TextFile，Sequence File和RC File具备更好的的性能。</li>
+<li>列数据单独存储。</li>
+<li>带类型的数据存储格式，使用类型专用的编码器。</li>
+<li>轻量级索引。</li>
+</ul>
+<h4 id="缺点-4"><a href="#缺点-4" class="headerlink" title="缺点"></a>缺点</h4><ul>
+<li>与RC文件一样，ORC也是不支持列扩展的。</li>
+</ul>
+<h3 id="Parquet-File"><a href="#Parquet-File" class="headerlink" title="Parquet File"></a>Parquet File</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106163303.png" alt="image-20211106163303081"></p>
+<h4 id="简介-6"><a href="#简介-6" class="headerlink" title="简介"></a>简介</h4><ul>
+<li>Parquet File是另一种列式存储的结构，来自于Hadoop的创始人Doug Cutting的Trevni项目。</li>
+<li>和ORCFile一样，Parquet也是基于列的二进制存储格式，可以<strong>存储嵌套</strong>的数据结构。</li>
+<li>当指定要使用列进行操作时，磁盘输入/输出操效率很高。</li>
+<li>Parquet与Cloudera Impala兼容很好，并做了大量优化。</li>
+<li>支持块压缩。</li>
+<li>与RC和ORC文件不同，Parquet serdes支持有限的schema扩展。在Parquet中，可以在结构的末尾添加新列。</li>
+</ul>
+<p>Hive Tip：</p>
+<p>关于Hive对Parquet文件的支持的一个注意事项：Parquet列名必须小写，这一点非常重要。如果Parquet文件包含大小写混合的列名，则Hive将无法读取该列</p>
+<h4 id="结构-5"><a href="#结构-5" class="headerlink" title="结构"></a>结构</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106163420.png" alt="image-20211106163420488"></p>
+<h4 id="优点-5"><a href="#优点-5" class="headerlink" title="优点"></a>优点</h4><ul>
+<li>和ORC文件一样，它非常适合进行压缩，具有出色的查询性能，尤其是从特定列查询数据时，效率很高。</li>
+</ul>
+<h4 id="缺点-5"><a href="#缺点-5" class="headerlink" title="缺点"></a>缺点</h4><ul>
+<li>与RC和ORC一样，Parquet也具有压缩和查询性能方面的优点，与非列文件格式相比，写入速度通常较慢。</li>
+</ul>
+<h2 id="Parquet-VS-ORC"><a href="#Parquet-VS-ORC" class="headerlink" title="Parquet VS ORC"></a>Parquet VS ORC</h2><ul>
+<li>ORC文件格式压缩比parquet要高，parquet文件的数据格式schema要比ORC复杂，占用的空间也就越高。</li>
+<li>ORC文件格式的读取效率要比parquet文件格式高。</li>
+<li>如果数据中有嵌套结构的数据，则Parquet会更好。</li>
+<li>Hive对ORC的支持更好，对parquet支持不好，ORC与Hive关联紧密。</li>
+<li>ORC还可以支持ACID、Update操作等。</li>
+<li>Spark对parquet支持较好，对ORC支持不好。</li>
+<li>为了数据能够兼容更多的查询引擎，Parquet也是一种较好的选择。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106163634.png" alt="image-20211106163634763"></p>
+<h2 id="ProtoBuf和Thrift"><a href="#ProtoBuf和Thrift" class="headerlink" title="ProtoBuf和Thrift"></a>ProtoBuf和Thrift</h2><p>由于Protobuf和Thrift是不可split的，因此它们在HDFS中并不流行</p>
+<h2 id="扩展：新一代的存储格式Apache-Arrow"><a href="#扩展：新一代的存储格式Apache-Arrow" class="headerlink" title="扩展：新一代的存储格式Apache Arrow"></a>扩展：新一代的存储格式Apache Arrow</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106163715.png" alt="image-20211106163714944"></p>
+<h3 id="Arrow简介"><a href="#Arrow简介" class="headerlink" title="Arrow简介"></a>Arrow简介</h3><ul>
+<li>Apache Arrow是一个跨语言平台，是一种<strong>列式内存</strong>数据结构，主要用于构建数据系统。Apache Arrow在2016年2月17日作为顶级Apache项目引入。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106163816.png" alt="image-20211106163816704"></p>
+<ul>
+<li>Apache Arrow发展非常迅速，并且在未来会有更好的发展空间。 它可以在系统之间进行高效且快速的数据交换，而无需进行序列化，而这些成本已与其他系统（例如Thrift，Avro和Protocol Buffers）相关联。</li>
+<li>每一个系统实现，它的方法（method）都有自己的内存存储格式，在开发中，70%-80%的时间浪费在了序列化和反序列化上。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106163904.png" alt="image-20211106163904621"></p>
+<ul>
+<li>Arrow促进了许多组件之间的通信。 例如，使用Python（pandas）读取复杂的文件并将其转换为Spark DataFrame。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106164233.png" alt="image-20211106164232930"></p>
+<h3 id="Arrow是如何提升数据移动性能的"><a href="#Arrow是如何提升数据移动性能的" class="headerlink" title="Arrow是如何提升数据移动性能的"></a>Arrow是如何提升数据移动性能的</h3><ul>
+<li>利用Arrow作为内存中数据表示的两个过程可以将数据从一种方法“重定向”到另一种方法，而无需序列化或反序列化。 例如，Spark可以使用Python进程发送Arrow数据来执行用户定义的函数。</li>
+<li>无需进行反序列化，可以直接从启用了Arrow的数据存储系统中接收Arrow数据。 例如，Kudu可以将Arrow数据直接发送到Impala进行分析。</li>
+<li>Arrow的设计针对嵌套结构化数据（例如在Impala或Spark Data框架中）的分析性能进行了优化。</li>
+</ul>
+<h1 id="文件压缩格式"><a href="#文件压缩格式" class="headerlink" title="文件压缩格式"></a>文件压缩格式</h1><p>在Hadoop中，一般存储着非常大的文件，以及在存储HDFS块或运行MapReduce任务时，Hadoop集群中节点之间的存在大量数据传输。 如果条件允许时，尽量减少文件大小，这将有助于<strong>减少存储需求</strong>以及<strong>减少网络上的数据传输</strong>。</p>
+<h2 id="文件压缩测试"><a href="#文件压缩测试" class="headerlink" title="文件压缩测试"></a>文件压缩测试</h2><p>在资料中有一份数据random_data.zip，里面每一个数据文件都是不一样的，而且文件都是通过大量随机函数生成的。我们上传到Linux，使用gzip方式压缩，测试以下压缩比。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /<span class="built_in">export</span>/software/</span><br><span class="line">rz</span><br><span class="line"><span class="comment"># 解压ZIP文件</span></span><br><span class="line">unzip random_data.zip</span><br><span class="line"><span class="comment"># 查看原始文件大小</span></span><br><span class="line">[root@node1 ~]<span class="comment"># du -d 0 -h random_data</span></span><br><span class="line">49M     random_data</span><br><span class="line"><span class="comment"># 使用gz方式进行压缩</span></span><br><span class="line">tar -cvzf random_data.tar.gz random_data</span><br><span class="line"><span class="comment"># 我们看到压缩后大约40M左右</span></span><br><span class="line">-rw-r--r--  1 root root  40M Sep 26 09:54 random_data.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>在资料中还有一份数据集，名为hbase-logs.zip，这个压缩包中存储了大量重复的一些日志。我们</p>
+<p>同样上传到Linux，测试压缩比。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /<span class="built_in">export</span>/software/</span><br><span class="line">rz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压日志文件</span></span><br><span class="line">unzip hbase-logs.zip </span><br><span class="line">ll</span><br><span class="line"><span class="comment"># 未压缩之前为69M</span></span><br><span class="line">du -d 0 -h logs/</span><br><span class="line">69M     logs/</span><br><span class="line"><span class="comment"># 压缩之后为6.5M</span></span><br><span class="line">tar -cvzf hbase_logs.tar.gz logs</span><br><span class="line">ll -h</span><br><span class="line">-rw-r--r--  1 root   root   6.5M Sep 26 10:08 hbase_logs.tar.gz</span><br></pre></td></tr></table></figure>
+
+<h2 id="Hadoop支持的压缩算法"><a href="#Hadoop支持的压缩算法" class="headerlink" title="Hadoop支持的压缩算法"></a>Hadoop支持的压缩算法</h2><p>Haodop对文件压缩均实现org.apache.hadoop.io.compress.CompressionCodec接口，所有的实现类都在<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/api/org/apache/hadoop/io/compress/package-frame.html">org.apache.hadoop.io.compress</a>包下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106164445.png" alt="image-20211106164445286"></p>
+<h3 id="压缩算法比较"><a href="#压缩算法比较" class="headerlink" title="压缩算法比较"></a>压缩算法比较</h3><p>有不少的压缩算法可以应用到Hadoop中，但不同压缩算法有各自的特点。</p>
+<table>
+<thead>
+<tr>
+<th>压缩格式</th>
+<th>工具</th>
+<th>算法</th>
+<th>文件扩展名</th>
+<th>是否可切分</th>
+<th>对应的编码/解码器</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DEFAULT</td>
+<td>无</td>
+<td>DEFAULT</td>
+<td>.deflate</td>
+<td>否</td>
+<td>org.apache.hadoop.io.compress.DefaultCodec</td>
+</tr>
+<tr>
+<td>Gzip</td>
+<td>gzip</td>
+<td>DEFAULT</td>
+<td>.gz</td>
+<td>否</td>
+<td>org.apache.hadoop.io.compress.GzipCodec</td>
+</tr>
+<tr>
+<td>bzip2</td>
+<td>bzip2</td>
+<td>bzip2</td>
+<td>.bz2</td>
+<td>是</td>
+<td>org.apache.hadoop.io.compress.BZip2Codec</td>
+</tr>
+<tr>
+<td>LZO</td>
+<td>lzop</td>
+<td>LZO</td>
+<td>.lzo</td>
+<td>是（索引）</td>
+<td>com.hadoop.compression.lzo.LzopCodec</td>
+</tr>
+<tr>
+<td>LZ4</td>
+<td>无</td>
+<td>LZ4</td>
+<td>.lz4</td>
+<td>否</td>
+<td>org.apache.hadoop.io.compress.Lz4Codec</td>
+</tr>
+<tr>
+<td>Snappy</td>
+<td>无</td>
+<td>Snappy</td>
+<td>.snappy</td>
+<td>否</td>
+<td>org.apache.hadoop.io.compress.SnappyCodec</td>
+</tr>
+</tbody></table>
+<p>存放数据到HDFS中，可以选择指定的压缩方式，在MapReduce程序读取时，会根据扩展名自动解压。例如：如果文件扩展名为.snappy，Hadoop框架将自动使用SnappyCodec解压缩文件。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106164543.png" alt="image-20211106164542994"></p>
+<p>通过上图，我们可以看到哪些压缩算法压缩比更高。</p>
+<p>整体排序如下：</p>
+<p>Snappy &lt; LZ4 &lt; LZO &lt; GZIP &lt; BZIP2，但压缩比越高，压缩的时间也会更长。以下是部分参考数据：</p>
+<table>
+<thead>
+<tr>
+<th><strong>压缩算法</strong></th>
+<th><strong>压缩后占比</strong></th>
+<th><strong>压缩</strong></th>
+<th><strong>解压缩</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GZIP</td>
+<td>13.4%</td>
+<td>21 MB/s</td>
+<td>118 MB/s</td>
+</tr>
+<tr>
+<td>LZO</td>
+<td>20.5%</td>
+<td>135 MB/s</td>
+<td>410 MB/s</td>
+</tr>
+<tr>
+<td>Zippy/Snappy</td>
+<td>22.2%</td>
+<td>172 MB/s</td>
+<td>409 MB/s</td>
+</tr>
+</tbody></table>
+<h2 id="HDFS压缩如何抉择"><a href="#HDFS压缩如何抉择" class="headerlink" title="HDFS压缩如何抉择"></a>HDFS压缩如何抉择</h2><p>既然压缩能够节省空间、而且可以提升IO效率，那么能否将所有数据都以压缩格式存储在HDFS中呢？例如：bzip2，而且文件是支持切分的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106164630.png" alt="image-20211106164630188"></p>
+<p>如果选择GZIP，就会出现以下情况：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106164643.png" alt="image-20211106164643226"></p>
+<ul>
+<li>如果文件是不可切分的，只有一个CPU在处理所有的文件，其他的CPU都是空闲的。如果HDFS中的block和文件大小差不多还好，一个文件、一个块、一个CPU。如果是一个很大的文件就会出现问题了。</li>
+<li>bzip2在压缩和解压缩数据方面实际上平均比Gzip差3倍，这对性能是有一定的影响的。如果我们需要频繁地查询数据，数据压缩一定会影响查询效率。</li>
+<li>如果不关心查询性能（没有任何SLA）并且很少选择此数据，则bzip2可能是不错的选择。最好是对自己的数据进行基准测试，然后再做决定。</li>
+</ul>
+<h2 id="HDFS存储类型和存储策略"><a href="#HDFS存储类型和存储策略" class="headerlink" title="HDFS存储类型和存储策略"></a>HDFS存储类型和存储策略</h2><h2 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h2><ul>
+<li>Archive存储（档案存储）是一种将增长的存储容量与计算容量解耦的解决方案。</li>
+<li>可以将一些需要存储、但计算需求很少的数据放在低成本的存储节点中，这些节点用于集群中冷数据的存储。</li>
+<li>根据策略，热数据可以转移到冷节点存储。在冷区域中加入更多的节点可以使存储与集群中的计算容量无关。</li>
+<li>异构存储和归档存储提供的框架将HDFS体系结构概括为包括其他类型的存储介质，包括：SSD和内存。用户可以选择将数据存储在SSD或内存中以获得更好的性能。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106165153.png" alt="image-20211106165153112"></p>
+<h2 id="存储类型和存储策略"><a href="#存储类型和存储策略" class="headerlink" title="存储类型和存储策略"></a>存储类型和存储策略</h2><h3 id="多种多样的存储类型"><a href="#多种多样的存储类型" class="headerlink" title="多种多样的存储类型"></a>多种多样的存储类型</h3><p>大家考虑一个问题：我们可以将数据保存在什么样的存储类型中呢？</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106165250.png" alt="image-20211106165250428"></p>
+<ol>
+<li>硬盘</li>
+</ol>
+<ul>
+<li>SSD</li>
+<li>SATA</li>
+</ul>
+<ol start="2">
+<li><p>内存</p>
+</li>
+<li><p>NAS</p>
+</li>
+</ol>
+<h3 id="速率对比"><a href="#速率对比" class="headerlink" title="速率对比"></a>速率对比</h3><p>RAM比SSD快几个数量级。普通的磁盘大致的速度为30-150MB，比较快的SSD可以实现500MB /秒的实际写入速度。 RAM的理论上最大速度可以达到SSD实际性能的30倍。</p>
+<p>以下是一个实际对比图：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106165348.png" alt="image-20211106165348098"></p>
+<h3 id="存储类型"><a href="#存储类型" class="headerlink" title="存储类型"></a>存储类型</h3><p>之前在hdfs-site.xml中配置，是将数据保存在Linux中的本地磁盘。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>/export/server/hadoop-3.1.4/data/datanode<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">description</span>&gt;</span>DataNode存储名称空间和事务日志的本地文件系统上的路径<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>以上配置跟下面的配置是一样的：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>[DISK]:/export/server/hadoop-3.1.4/data/datanode<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">description</span>&gt;</span>DataNode存储名称空间和事务日志的本地文件系统上的路径<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在HDFS中，可以给不同的存储介质分配不同的存储类型：</p>
+<ul>
+<li>DISK：默认的存储类型，磁盘存储。</li>
+<li>ARCHIVE：具有存储密度高(PB级)，但计算能力小的特点，可用于支持档案存储。</li>
+<li>SSD：固态硬盘。</li>
+<li>RAM_DISK：DataNode中的内存空间。</li>
+</ul>
+<h3 id="存储策略介绍"><a href="#存储策略介绍" class="headerlink" title="存储策略介绍"></a>存储策略介绍</h3><p>HDFS中提供热、暖、冷、ALL_SSD、One_SSD、Lazy_Persistence等存储策略。为了根据不同的存储策略将文件存储在不同的存储类型中，引入了一种新的存储策略概念。HDFS支持以下存储策略：</p>
+<p><strong>热（hot）</strong></p>
+<ul>
+<li>用于大量存储和计算。</li>
+<li>当数据经常被使用，将保留在此策略中。</li>
+<li>当block是hot时，所有副本都存储在磁盘中。</li>
+</ul>
+<p><strong>冷（cold）</strong></p>
+<ul>
+<li>仅仅用于存储，只有非常有限的一部分数据用于计算。</li>
+<li>不再使用的数据或需要存档的数据将从热存储转移到冷存储中。</li>
+<li>当block是cold时，所有副本都存储在Archive中。</li>
+</ul>
+<p><strong>温（warm）</strong></p>
+<ul>
+<li>部分热，部分冷。</li>
+<li>当一个块是warm时，它的一些副本存储在磁盘中，其余的副本存储在Archive中。</li>
+</ul>
+<p><strong>单SSD</strong></p>
+<p>在SSD中存储一个副本，其余的副本存储在磁盘中。</p>
+<p><strong>懒持久</strong></p>
+<p>用于编写内存中只有一个副本的块。副本首先写在RAM_Disk中，然后惰性地保存在磁盘中。</p>
+<h3 id="HDFS中的存储策略"><a href="#HDFS中的存储策略" class="headerlink" title="HDFS中的存储策略"></a>HDFS中的存储策略</h3><p>HDFS存储策略由以下字段组成：</p>
+<ol>
+<li><p>策略ID（Policy ID）</p>
+</li>
+<li><p>策略名称（Policy Name）</p>
+</li>
+<li><p>块放置的存储类型列表（Block Placement）</p>
+</li>
+<li><p>用于创建文件的后备存储类型列表（Fallback storages for creation）</p>
+</li>
+<li><p>用于副本的后备存储类型列表（Fallback storages for replication）</p>
+</li>
+</ol>
+<p>当有足够的空间时，块副本将根据#3中指定的存储类型列表存储。当列表#3中的某些存储类型耗尽时，将分别使用#4和#5中指定的后备存储类型列表来替换空间外存储类型，以便进行文件创建和副本。</p>
+<p>以下是一个典型的存储策略表格：</p>
+<table>
+<thead>
+<tr>
+<th><strong>Policy ID</strong></th>
+<th><strong>Policy Name</strong></th>
+<th><strong>Block  Placement (n replicas)</strong></th>
+<th><strong>Fallback storages for  creation</strong></th>
+<th><strong>Fallback storages for  replication</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>15</td>
+<td>Lazy_Persist</td>
+<td>RAM_DISK: 1, DISK: <em>n</em>-1</td>
+<td>DISK</td>
+<td>DISK</td>
+</tr>
+<tr>
+<td>12</td>
+<td>All_SSD</td>
+<td>SSD: <em>n</em></td>
+<td>DISK</td>
+<td>DISK</td>
+</tr>
+<tr>
+<td>10</td>
+<td>One_SSD</td>
+<td>SSD: 1, DISK: <em>n</em>-1</td>
+<td>SSD, DISK</td>
+<td>SSD, DISK</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Hot (default)</td>
+<td>DISK: <em>n</em></td>
+<td><none></td>
+<td>ARCHIVE</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Warm</td>
+<td>DISK: 1, ARCHIVE: <em>n</em>-1</td>
+<td>ARCHIVE, DISK</td>
+<td>ARCHIVE, DISK</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cold</td>
+<td>ARCHIVE: <em>n</em></td>
+<td><none></td>
+<td><none></td>
+</tr>
+<tr>
+<td>1</td>
+<td>Provided</td>
+<td>PROVIDED: 1, DISK: <em>n</em>-1</td>
+<td>PROVIDED, DISK</td>
+<td>PROVIDED, DISK</td>
+</tr>
+</tbody></table>
+<p>注意事项：</p>
+<ol>
+<li><p>Lazy_Persistence策略仅对单个副本块有用。对于具有多个副本的块，所有副本都将被写入磁盘，因为只将一个副本写入RAM_Disk并不能提高总体性能。</p>
+</li>
+<li><p>对于带条带的擦除编码文件，合适的存储策略是ALL_SSD、HOST、CORD。因此，如果用户为EC文件设置除上述之外的策略，在创建或移动块时不会遵循该策略。</p>
+</li>
+</ol>
+<h3 id="存储策略方案"><a href="#存储策略方案" class="headerlink" title="存储策略方案"></a>存储策略方案</h3><ul>
+<li>创建文件或目录时，其存储策略为未指定状态。可以使用：</li>
+</ul>
+<p><code>storagepolicies -setStoragePolicy</code></p>
+<p>命令指定</p>
+<ul>
+<li>文件或目录的有效存储策略由以下规则解析：<ul>
+<li>如果使用存储策略指定了文件或目录，则返回该文件或目录。</li>
+<li>对于未指定的文件或目录，如果是根目录，则返回默认存储策略。否则，返回其父级的有效存储策略。</li>
+</ul>
+</li>
+<li>可以使用storagepolicies –getStoragePolicy命令获取有效的存储策略。</li>
+</ul>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><ul>
+<li><p>dfs.storage.policy.enabled</p>
+<p>  启用/禁用存储策略功能。默认值是true</p>
+</li>
+<li><p>dfs.datanode.data.dir</p>
+</li>
+<li><p>在每个数据节点上，应当用逗号分隔的存储位置标记它们的存储类型。这允许存储策略根据策</p>
+<p>  略将块放置在不同的存储类型上。</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">磁盘上的DataNode存储位置/grid/dn/disk 0应该配置为[DISK]file:///grid/dn/disk0</span><br><span class="line">SSD上的DataNode存储位置/grid/dn/ssd 0应该配置为 [SSD]file:///grid/dn/ssd0</span><br><span class="line">存档上的DataNode存储位置/grid/dn/Archive 0应该配置为 [ARCHIVE]file:///grid/dn/archive0</span><br><span class="line">将RAM_磁盘上的DataNode存储位置/grid/dn/ram0配置为[RAM_DISK]file:///grid/dn/ram0</span><br><span class="line">如果DataNode存储位置没有显式标记存储类型，它的默认存储类型将是磁盘。</span><br></pre></td></tr></table></figure>
+
+<h2 id="存储策略命令"><a href="#存储策略命令" class="headerlink" title="存储策略命令"></a>存储策略命令</h2><h3 id="列出存储策略"><a href="#列出存储策略" class="headerlink" title="列出存储策略"></a>列出存储策略</h3><p>列出所有存储策略。</p>
+<p>命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 Examples]<span class="comment"># hdfs storagepolicies -listPolicies</span></span><br><span class="line">Block Storage Policies:</span><br><span class="line">        BlockStoragePolicy&#123;PROVIDED:1, storageTypes=[PROVIDED, DISK], creationFallbacks=[PROVIDED, DISK], replicationFallbacks=[PROVIDED, DISK]&#125;</span><br><span class="line">        BlockStoragePolicy&#123;COLD:2, storageTypes=[ARCHIVE], creationFallbacks=[], replicationFallbacks=[]&#125;</span><br><span class="line">        BlockStoragePolicy&#123;WARM:5, storageTypes=[DISK, ARCHIVE], creationFallbacks=[DISK, ARCHIVE], replicationFallbacks=[DISK, ARCHIVE]&#125;</span><br><span class="line">        BlockStoragePolicy&#123;HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]&#125;</span><br><span class="line">        BlockStoragePolicy&#123;ONE_SSD:10, storageTypes=[SSD, DISK], creationFallbacks=[SSD, DISK], replicationFallbacks=[SSD, DISK]&#125;</span><br><span class="line">        BlockStoragePolicy&#123;ALL_SSD:12, storageTypes=[SSD], creationFallbacks=[DISK], replicationFallbacks=[DISK]&#125;</span><br><span class="line">        BlockStoragePolicy&#123;LAZY_PERSIST:15, storageTypes=[RAM_DISK, DISK], creationFallbacks=[DISK], replicationFallbacks=[DISK]&#125;</span><br></pre></td></tr></table></figure>
+
+<p>hdfs storagepolicies -listPolicies</p>
+<h3 id="设置存储策略"><a href="#设置存储策略" class="headerlink" title="设置存储策略"></a>设置存储策略</h3><p>给一个文件或目录设置存储策略</p>
+<p>hdfs storagepolicies -setStoragePolicy -path <path> -policy <policy></p>
+<p>参数：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106171750.png" alt="image-20211106171750817"></p>
+<h3 id="取消存储策略"><a href="#取消存储策略" class="headerlink" title="取消存储策略"></a>取消存储策略</h3><p>取消文件或目录的存储策略。在执行unset命令之后，将应用当前目录最近的祖先存储策略，如果没有任何祖先的策略，则将应用默认的存储策略。</p>
+<p>hdfs storagepolicies -unsetStoragePolicy -path <path></p>
+<p>参数：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106171817.png" alt="image-20211106171817622"></p>
+<h3 id="获取存储策略"><a href="#获取存储策略" class="headerlink" title="获取存储策略"></a>获取存储策略</h3><p>获取文件或目录的存储策略。</p>
+<p>hdfs storagepolicies -getStoragePolicy -path <path></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106171853.png" alt="image-20211106171852912"></p>
+<h2 id="冷热温三阶段数据存储"><a href="#冷热温三阶段数据存储" class="headerlink" title="冷热温三阶段数据存储"></a>冷热温三阶段数据存储</h2><p>为了更加充分的利用存储资源，我们可以将数据分为冷、热、温三个阶段来存储。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>/data/hdfs-test/data_phase/warm</td>
+<td>温阶段数据</td>
+</tr>
+<tr>
+<td>/data/hdfs-test/data_phase/cold</td>
+<td>冷阶段数据</td>
+</tr>
+<tr>
+<td>/data/hdfs-test/data_phase/hot</td>
+<td>热阶段数据</td>
+</tr>
+</tbody></table>
+<h3 id="配置DataNode存储目录"><a href="#配置DataNode存储目录" class="headerlink" title="配置DataNode存储目录"></a>配置DataNode存储目录</h3><p>为了能够支撑不同类型的数据，我们需要在hdfs-site.xml中配置不同存储类型数据的位置。</p>
+<ol>
+<li>进入到Hadoop配置目录，编辑hdfs-site.xml</li>
+</ol>
+<p><code>cd /export/server/hadoop-3.1.4/etc/hadoop</code></p>
+<p><code>vim hdfs-site.xml</code></p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">&lt;property&gt;</span></span><br><span class="line">  <span class="attr">&lt;name&gt;dfs.datanode.data.dir&lt;/name&gt;</span></span><br><span class="line">  <span class="meta">&lt;value&gt;[DISK]file</span>:<span class="string">///export/server/hadoop-3.1.4/data/datanode,[ARCHIVE]file:///export/server/hadoop-3.1.4/data/archive&lt;/value&gt;</span></span><br><span class="line">  <span class="attr">&lt;description&gt;DataNode存储名称空间和事务日志的本地文件系统上的路径&lt;/description&gt;</span></span><br><span class="line"><span class="attr">&lt;/property&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>  2.分发到不同另外两个节点中</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">scp hdfs-site.xml node2.itcast.cn:<span class="variable">$PWD</span></span><br><span class="line">scp hdfs-site.xml node3.itcast.cn:<span class="variable">$PWD</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>重启HDFS集群</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">stop-dfs.sh</span><br><span class="line">start-dfs.sh</span><br></pre></td></tr></table></figure>
+
+<p>配置好后，我们在WebUI的Datanodes页面中点击任意一个DataNode节点。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106172126.png" alt="image-20211106172125998"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106172130.png" alt="image-20211106172130664"></p>
+<p>可以看到，现在配置的是两个目录，一个StorageType为ARCHIVE、一个Storage为DISK。</p>
+<h3 id="配置策略"><a href="#配置策略" class="headerlink" title="配置策略"></a>配置策略</h3><ol>
+<li>创建测试目录结构</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">hdfs dfs -mkdir -p /data/hdfs-test/data_phase/hot</span><br><span class="line">hdfs dfs -mkdir -p /data/hdfs-test/data_phase/warm</span><br><span class="line">hdfs dfs -mkdir -p /data/hdfs-test/data_phase/cold</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>查看当前HDFS支持的存储策略</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 Examples]<span class="comment"># hdfs storagepolicies -listPolicies</span></span><br><span class="line">Block Storage Policies:</span><br><span class="line">BlockStoragePolicy&#123;PROVIDED:1, storageTypes=[PROVIDED, DISK], creationFallbacks=[PROVIDED, DISK], replicationFallbacks=[PROVIDED, DISK]&#125;</span><br><span class="line">BlockStoragePolicy&#123;COLD:2, storageTypes=[ARCHIVE], creationFallbacks=[], replicationFallbacks=[]&#125;</span><br><span class="line">BlockStoragePolicy&#123;WARM:5, storageTypes=[DISK, ARCHIVE], creationFallbacks=[DISK, ARCHIVE], replicationFallbacks=[DISK, ARCHIVE]&#125;</span><br><span class="line">BlockStoragePolicy&#123;HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]&#125;</span><br><span class="line">BlockStoragePolicy&#123;ONE_SSD:10, storageTypes=[SSD, DISK], creationFallbacks=[SSD, DISK], replicationFallbacks=[SSD, DISK]&#125;</span><br><span class="line">BlockStoragePolicy&#123;ALL_SSD:12, storageTypes=[SSD], creationFallbacks=[DISK], replicationFallbacks=[DISK]&#125;</span><br><span class="line">BlockStoragePolicy&#123;LAZY_PERSIST:15, storageTypes=[RAM_DISK, DISK], creationFallbacks=[DISK], replicationFallbacks=[DISK]&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3.分别设置三个目录的存储策略</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">hdfs storagepolicies -setStoragePolicy -path /data/hdfs-test/data_phase/hot -policy HOT</span><br><span class="line">hdfs storagepolicies -setStoragePolicy -path /data/hdfs-test/data_phase/warm -policy WARM</span><br><span class="line">hdfs storagepolicies -setStoragePolicy -path /data/hdfs-test/data_phase/cold -policy COLD</span><br></pre></td></tr></table></figure>
+
+<p> 4.查看三个目录的存储策略</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">hdfs storagepolicies -getStoragePolicy -path /data/hdfs-test/data_phase/hot</span><br><span class="line">hdfs storagepolicies -getStoragePolicy -path /data/hdfs-test/data_phase/warm </span><br><span class="line">hdfs storagepolicies -getStoragePolicy -path /data/hdfs-test/data_phase/cold </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 Examples]<span class="comment"># hdfs storagepolicies -getStoragePolicy -path /data/hdfs-test/data_phase/hot</span></span><br><span class="line">The storage policy of /data/hdfs-test/data_phase/hot:</span><br><span class="line">BlockStoragePolicy&#123;HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]&#125;</span><br><span class="line"></span><br><span class="line">[root@node1 Examples]<span class="comment"># hdfs storagepolicies -getStoragePolicy -path /data/hdfs-test/data_phase/warm </span></span><br><span class="line">The storage policy of /data/hdfs-test/data_phase/warm:</span><br><span class="line">BlockStoragePolicy&#123;WARM:5, storageTypes=[DISK, ARCHIVE], creationFallbacks=[DISK, ARCHIVE], replicationFallbacks=[DISK, ARCHIVE]&#125;</span><br><span class="line"></span><br><span class="line">[root@node1 Examples]<span class="comment"># hdfs storagepolicies -getStoragePolicy -path /data/hdfs-test/data_phase/cold </span></span><br><span class="line">The storage policy of /data/hdfs-test/data_phase/cold:</span><br><span class="line">BlockStoragePolicy&#123;COLD:2, storageTypes=[ARCHIVE], creationFallbacks=[], replicationFallbacks=[]&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="上传测试"><a href="#上传测试" class="headerlink" title="上传测试"></a>上传测试</h3><ol>
+<li>分别上传文件到三个目录中测试</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">hdfs dfs -put /etc/profile /data/hdfs-test/data_phase/hot</span><br><span class="line">hdfs dfs -put /etc/profile /data/hdfs-test/data_phase/warm</span><br><span class="line">hdfs dfs -put /etc/profile /data/hdfs-test/data_phase/cold</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>查看不同存储策略文件的block位置</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 hadoop]<span class="comment"># hdfs fsck /data/hdfs-test/data_phase/hot/profile -files -blocks -locations</span></span><br><span class="line">Connecting to namenode via http://node1.itcast.cn:9870/fsck?ugi=root&amp;files=1&amp;blocks=1&amp;locations=1&amp;path=%2Fdata%2Fhdfs-test%2Fdata_phase%2Fhot%2Fprofile</span><br><span class="line">FSCK started by root (auth:SIMPLE) from /192.168.88.100 <span class="keyword">for</span> path /data/hdfs-test/data_phase/hot/profile at Sun Oct 11 22:03:05 CST 2020</span><br><span class="line"></span><br><span class="line">/data/hdfs-test/data_phase/hot/profile 3158 bytes, replicated: replication=3, 1 block(s):  OK</span><br><span class="line">0. BP-538037512-192.168.88.100-1600884040401:blk_1073742535_1750 len=3158 Live_repl=3  [DatanodeInfoWithStorage[192.168.88.101:9866,DS-96feb29a-5dfd-4692-81ea-9e7f100166fe,DISK], DatanodeInfoWithStorage[192.168.88.100:9866,DS-79739be9-5f9b-4f96-a005-aa5b507899f5,DISK], DatanodeInfoWithStorage[192.168.88.102:9866,DS-e28af2f2-21ae-4aa6-932e-e376dd04ddde,DISK]]</span><br><span class="line"></span><br><span class="line">hdfs fsck /data/hdfs-test/data_phase/warm/profile -files -blocks -locations</span><br><span class="line"></span><br><span class="line">/data/hdfs-test/data_phase/warm/profile 3158 bytes, replicated: replication=3, 1 block(s):  OK</span><br><span class="line">0. BP-538037512-192.168.88.100-1600884040401:blk_1073742536_1751 len=3158 Live_repl=3  [DatanodeInfoWithStorage[192.168.88.102:9866,DS-636f34a0-682c-4d1b-b4ee-b4c34e857957,ARCHIVE], DatanodeInfoWithStorage[192.168.88.101:9866,DS-ff6970f8-43e0-431f-9041-fc440a44fdb0,ARCHIVE], DatanodeInfoWithStorage[192.168.88.100:9866,DS-79739be9-5f9b-4f96-a005-aa5b507899f5,DISK]]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">hdfs fsck /data/hdfs-test/data_phase/cold/profile -files -blocks -locations</span><br><span class="line">/data/hdfs-test/data_phase/cold/profile 3158 bytes, replicated: replication=3, 1 block(s):  OK</span><br><span class="line">0. BP-538037512-192.168.88.100-1600884040401:blk_1073742537_1752 len=3158 Live_repl=3  [DatanodeInfoWithStorage[192.168.88.102:9866,DS-636f34a0-682c-4d1b-b4ee-b4c34e857957,ARCHIVE], DatanodeInfoWithStorage[192.168.88.101:9866,DS-ff6970f8-43e0-431f-9041-fc440a44fdb0,ARCHIVE], DatanodeInfoWithStorage[192.168.88.100:9866,DS-ca9759a0-f6f0-4b8b-af38-d96f603bca93,ARCHIVE]]</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到：</p>
+<ul>
+<li>hot目录中的block，3个block都在DISK磁盘。</li>
+<li>warm目录中的block，1个block在DISK磁盘，另外两个在archive磁盘。</li>
+<li>cold目录中的block，3个block都在archive磁盘。</li>
+</ul>
+<h2 id="HDFS中的内存存储支持"><a href="#HDFS中的内存存储支持" class="headerlink" title="HDFS中的内存存储支持"></a>HDFS中的内存存储支持</h2><h3 id="介绍-2"><a href="#介绍-2" class="headerlink" title="介绍"></a>介绍</h3><ul>
+<li>HDFS支持写入由DataNode管理的堆外内存。</li>
+<li>DataNode异步地将内存中数据刷新到磁盘，从而减少代价较高的磁盘IO操作，这种写入称之为懒持久写入。</li>
+<li>HDFS为懒持久化写做了较大的持久性保证。在将副本保存到磁盘之前，如果节点重新启动，有非常小的几率会出现数据丢失。应用程序可以选择使用懒持久化写，以减少写入延迟。</li>
+</ul>
+<p>该特性从ApacheHadoop 2.6.0开始支持。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106172647.png" alt="image-20211106172646925"></p>
+<ul>
+<li>比较适用于，当应用程序需要往HDFS中以低延迟的方式写入相对较低数据量(从几GB到十几GB(取决于可用内存)的数据量时。</li>
+<li>内存存储适用于在集群内运行，且运行的客户端与HDFS DataNode处于同一节点的应用程序。使用内存存储可以减少网络传输的开销。</li>
+<li>如果内存不足或未配置，使用懒持久化写入的应用程序将继续工作，会继续使用磁盘存储。</li>
+</ul>
+<h3 id="配置内存存储支持"><a href="#配置内存存储支持" class="headerlink" title="配置内存存储支持"></a>配置内存存储支持</h3><p>接下来，我们来了解下在HDFS中使用该功能，需要有哪些操作。</p>
+<h4 id="设置能够使用的内存空间"><a href="#设置能够使用的内存空间" class="headerlink" title="设置能够使用的内存空间"></a>设置能够使用的内存空间</h4><p>确定用于存储在内存中的副本内存量</p>
+<ul>
+<li>在指定DataNode的hdfs-site.xml设置dfs.datanode.max.locked.memory。</li>
+<li>DataNode将确保懒持久化的内存不超过dfs.datanode.max.locked.memory</li>
+<li>例如，为内存中的副本预留32 GB</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.max.locked.memory<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">value</span>&gt;</span>34359738368<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在设置此值时，请记住，还需要内存中的空间来处理其他事情，例如数据节点和应用程序JVM堆以及操作系统页缓存。如果在与数据节点相同的节点上运行YARN节点管理器进程，则还需要YARN容器的内存。</p>
+<h4 id="DataNode设置基于内存的存储"><a href="#DataNode设置基于内存的存储" class="headerlink" title="DataNode设置基于内存的存储"></a>DataNode设置基于内存的存储</h4><ul>
+<li><p>在每个DataNode节点上初始化一个RAM磁盘。</p>
+</li>
+<li><p>通过选择RAM磁盘，可以在DataNode进程重新启动时保持更好的数据持久性。</p>
+<p>  下面的设置可以在大多数Linux发行版上运行，目前不支持在其他平台上使用RAM磁盘。</p>
+</li>
+</ul>
+<h3 id="选择tmpfs（VS-ramfs）"><a href="#选择tmpfs（VS-ramfs）" class="headerlink" title="选择tmpfs（VS ramfs）"></a>选择tmpfs（VS ramfs）</h3><ul>
+<li>Linux支持使用两种类型的RAM磁盘-tmpfs和ramfs。</li>
+<li>tmpfs的大小受linux内核的限制，而ramfs可以使用所有系统可用的内存。</li>
+<li>tmpfs可以在内存不足情况下交换到磁盘上。但是，许多对性能要求很高的应用运行时都禁用内存磁盘交换。</li>
+<li>HDFS当前支持tmpfs分区，而对ramfs的支持正在开发中。</li>
+</ul>
+<h3 id="挂载RAM磁盘"><a href="#挂载RAM磁盘" class="headerlink" title="挂载RAM磁盘"></a>挂载RAM磁盘</h3><ul>
+<li><p>使用Linux中的mount命令来挂载内存磁盘。例如：挂载32GB的tmpfs分区在/mnt/dn-tmpfs。</p>
+<p>  sudo mount -t tmpfs -o size=32g tmpfs /mnt/dn-tmpfs/。</p>
+</li>
+<li><p>建议在/etc/fstab创建一个入口，在DataNode节点重新启动时，将自动重新创建RAM磁盘。</p>
+</li>
+<li><p>另一个可选项是使用/dev/shm下面的子目录。这是tmpfs默认在大多数Linux发行版上都可以安装。</p>
+</li>
+<li><p>确保挂载的大小大于或等于dfs.datanode.max.locked.memory，或者写入到/etc /fstab。</p>
+</li>
+<li><p>不建议使用多个tmpfs对懒持久化写入的每个DataNode节点进行分区。</p>
+</li>
+</ul>
+<h3 id="设置RAM-DISK存储类型tmpfs标签"><a href="#设置RAM-DISK存储类型tmpfs标签" class="headerlink" title="设置RAM_DISK存储类型tmpfs标签"></a>设置RAM_DISK存储类型tmpfs标签</h3><ul>
+<li>标记tmpfs目录中具有RAM_磁盘存储类型的目录。</li>
+<li>在hdfs-site.xml中配置dfs.datanode.data.dir。例如，在具有三个硬盘卷的DataNode上，/grid /0, /grid /1以及 /grid /2和一个tmpfs挂载在 /mnt/dn-tmpfs, dfs.datanode.data.dir必须设置如下：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">value</span>&gt;</span>/grid/0,/grid/1,/grid/2,[RAM_DISK]/mnt/dn-tmpfs<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这一步至关重要。如果没有RAM_DISK标记，HDFS将把tmpfs卷作为非易失性存储，数据将不会保存到持久存储，重新启动节点时将丢失数据。</li>
+</ul>
+<h3 id="确保启用存储策略"><a href="#确保启用存储策略" class="headerlink" title="确保启用存储策略"></a>确保启用存储策略</h3><p>确保全局设置中的存储策略是已启用的。默认情况下，此设置是打开的。</p>
+<h3 id="使用内存存储"><a href="#使用内存存储" class="headerlink" title="使用内存存储"></a>使用内存存储</h3><h3 id="使用懒持久化存储策略"><a href="#使用懒持久化存储策略" class="headerlink" title="使用懒持久化存储策略"></a>使用懒持久化存储策略</h3><ul>
+<li><p>指定HDFS使用LAZY_PERSIST策略，可以对文件使用懒持久化写入 </p>
+<p>  可以通过以下三种方式之一进行设置：</p>
+</li>
+</ul>
+<h3 id="在目录上执行hdfs-storagepolicies命令"><a href="#在目录上执行hdfs-storagepolicies命令" class="headerlink" title="在目录上执行hdfs storagepolicies命令"></a>在目录上执行hdfs storagepolicies命令</h3><ul>
+<li>在目录上设置㽾策略，将使其对目录中的所有新文件生效</li>
+<li>这个HDFS存储策略命令可以用于设置策略.</li>
+</ul>
+<p><code>hdfs storagepolicies -setStoragePolicy -path &lt;path&gt; -policy LAZY_PERSIST</code></p>
+<h3 id="在目录上执行setStoragePolicy方法"><a href="#在目录上执行setStoragePolicy方法" class="headerlink" title="在目录上执行setStoragePolicy方法"></a>在目录上执行setStoragePolicy方法</h3><p>Apache Hadoop 2.8.0后，应用程序可以通过编程方式将存储策略设置FileSystem.setStoragePolicy。</p>
+<p><code> fs.setStoragePolicy(path, &quot;LAZY_PERSIST&quot;);</code></p>
+<h3 id="创建文件的时候指定CreateFlag"><a href="#创建文件的时候指定CreateFlag" class="headerlink" title="创建文件的时候指定CreateFlag"></a>创建文件的时候指定CreateFlag</h3><p>当创建文件时，应用程序调用FileSystem.create方法，传递CreateFlag#LAZY_PERSIST实现。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">FSDataOutputStream fos =</span><br><span class="line">        fs.create(</span><br><span class="line">            path,</span><br><span class="line">            FsPermission.getFileDefault(),</span><br><span class="line">            EnumSet.of(CreateFlag.CREATE, CreateFlag.LAZY_PERSIST),</span><br><span class="line">            bufferLength,</span><br><span class="line">            replicationFactor,</span><br><span class="line">            blockSize,</span><br><span class="line">            <span class="keyword">null</span>);</span><br></pre></td></tr></table></figure>
+
+<h1 id="银行海量转账数据分层案例"><a href="#银行海量转账数据分层案例" class="headerlink" title="银行海量转账数据分层案例"></a>银行海量转账数据分层案例</h1><p>银行每一天都有大量的转账、交易需要保存、处理。用户每进行一笔交易或者转账，银行都需要将用户转账的所有相关信息保存下来。</p>
+<p>四大银行：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211106173645.png" alt="image-20211106173645579"></p>
+<p>银行有非常多的用户，四大银行拥有数10亿的用户。要保存的数据量可想而知。如果说有的数据，都同等对待，为了保证使用数据的性能，采用的是高性能存储，这将是一笔不小的资源浪费。实际上，超过一定时间的数据，数据访问的频率要低得多。例如：用户查询5年前的转账记录、要比查询1年类的转账记录频率要低得多。</p>
+<p>所以，为了能够更好地利用资源，需要对数据进行分层。也就是不同时间范围的数据，放在不同的层（冷热温）中。</p>
+<h2 id="存储分层策略"><a href="#存储分层策略" class="headerlink" title="存储分层策略"></a>存储分层策略</h2><p>按照以下配置，在HDFS的source目录中创建以下几个文件夹：</p>
+<table>
+<thead>
+<tr>
+<th>文件夹路径</th>
+<th>存储策略</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>/source/bank/transfer/log_lte1y</td>
+<td>DISK</td>
+<td>存储一年以内采集的数据</td>
+</tr>
+<tr>
+<td>/source/bank/transfer/log_gt1y</td>
+<td>ARCHIVE</td>
+<td>存储1年以上的数据</td>
+</tr>
+</tbody></table>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建文件夹</span></span><br><span class="line">hdfs dfs -mkdir -p /<span class="built_in">source</span>/bank/transfer/log_lte1y</span><br><span class="line">hdfs dfs -mkdir -p /<span class="built_in">source</span>/bank/transfer/log_gt1y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定存储策略</span></span><br><span class="line">hdfs storagepolicies -setStoragePolicy -path /<span class="built_in">source</span>/bank/transfer/log_lte1y -policy HOT</span><br><span class="line">hdfs storagepolicies -setStoragePolicy -path /<span class="built_in">source</span>/bank/transfer/log_gt1y -policy COLD</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看存储策略</span></span><br><span class="line">hdfs storagepolicies -getStoragePolicy -path /<span class="built_in">source</span>/bank/transfer/log_lte1y</span><br><span class="line">hdfs storagepolicies -getStoragePolicy -path /<span class="built_in">source</span>/bank/transfer/log_gt1y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 上传文件测试</span></span><br><span class="line"><span class="comment"># 上传文件到linux</span></span><br><span class="line">rz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一年</span></span><br><span class="line">hdfs dfs -put /root/bank_record.csv /<span class="built_in">source</span>/bank/transfer/log_lte1y/bank_record_2020_9.csv</span><br><span class="line"><span class="comment"># 五年</span></span><br><span class="line">hdfs dfs -put /root/bank_record.csv /<span class="built_in">source</span>/bank/transfer/log_gt1y/bank_record_2015_9.csv</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设现在到了2021年10年，我们可以将之前的数据移动到log_gt1y</span></span><br><span class="line">hdfs dfs -mv /<span class="built_in">source</span>/bank/transfer/log_lte1y/bank_record_2020_9.csv /<span class="built_in">source</span>/bank/transfer/log_gt1y/bank_record_2020_9.csv</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://lvxueyang.vip/post/c6918f16.html">http://lvxueyang.vip/post/c6918f16.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/HDFS/">HDFS</a></div><div class="post_share"><div class="social-share" data-image="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082055.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/post/90f10c53.html"><img class="next-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">HDFS入门与应用开发</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/90f10c53.html" title="HDFS入门与应用开发"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-06</div><div class="title">HDFS入门与应用开发</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">HDFS数据存储与数据管理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS-REST-HTTP-API"><span class="toc-number">2.</span> <span class="toc-text">HDFS REST HTTP API</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#WebHDFS"><span class="toc-number">2.1.</span> <span class="toc-text">WebHDFS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">2.1.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8ERESTful"><span class="toc-number">2.1.2.</span> <span class="toc-text">关于RESTful</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#REST"><span class="toc-number">2.1.2.1.</span> <span class="toc-text">REST</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RESTFul-API"><span class="toc-number">2.1.2.2.</span> <span class="toc-text">RESTFul API</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PUT%E8%AF%B7%E6%B1%82%E7%B1%BB%E5%9E%8B%E5%92%8CPOST%E8%AF%B7%E6%B1%82%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">2.1.2.3.</span> <span class="toc-text">PUT请求类型和POST请求类型的区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HDFS-HTTP-RESTFUL-API"><span class="toc-number">2.1.3.</span> <span class="toc-text">HDFS HTTP RESTFUL API</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-GET"><span class="toc-number">2.1.3.1.</span> <span class="toc-text">HTTP GET</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-PUT"><span class="toc-number">2.1.3.2.</span> <span class="toc-text">HTTP PUT</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-POST"><span class="toc-number">2.1.3.3.</span> <span class="toc-text">HTTP POST</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-DELETE"><span class="toc-number">2.1.3.4.</span> <span class="toc-text">HTTP DELETE</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FURL%E5%92%8CHTTP-URL"><span class="toc-number">2.1.4.</span> <span class="toc-text">文件系统URL和HTTP URL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8WebHDFS%E5%88%9B%E5%BB%BA%E5%B9%B6%E5%86%99%E5%85%A5%E5%88%B0%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6"><span class="toc-number">2.1.5.</span> <span class="toc-text">使用WebHDFS创建并写入到一个文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6"><span class="toc-number">2.1.5.1.</span> <span class="toc-text">创建文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%99%E5%85%A5%E6%95%B0%E6%8D%AE"><span class="toc-number">2.1.5.2.</span> <span class="toc-text">写入数据</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HttpFS"><span class="toc-number">2.2.</span> <span class="toc-text">HttpFS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTPFS%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84"><span class="toc-number">2.2.1.</span> <span class="toc-text">HTTPFS是如何工作的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEHadoop"><span class="toc-number">2.2.2.</span> <span class="toc-text">配置Hadoop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%90%AFHadoop"><span class="toc-number">2.2.3.</span> <span class="toc-text">重启Hadoop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8HttpFS"><span class="toc-number">2.2.4.</span> <span class="toc-text">启动HttpFS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95HttpFS%E5%B7%A5%E4%BD%9C"><span class="toc-number">2.2.5.</span> <span class="toc-text">测试HttpFS工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E9%BB%98%E8%AE%A4%E6%9C%8D%E5%8A%A1"><span class="toc-number">2.2.6.</span> <span class="toc-text">HTTP默认服务</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Hadoop%E5%B8%B8%E7%94%A8%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="toc-number">3.</span> <span class="toc-text">Hadoop常用文件存储格式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E7%BB%9F%E7%B3%BB%E7%BB%9F%E5%B8%B8%E8%A7%81%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="toc-number">3.1.</span> <span class="toc-text">传统系统常见文件存储格式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%9D%97%E5%A4%A7%E5%B0%8F"><span class="toc-number">3.1.1.</span> <span class="toc-text">文件系统块大小</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hadoop%E4%B8%AD%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="toc-number">3.2.</span> <span class="toc-text">Hadoop中文件存储格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BigData-File-Viewer%E5%B7%A5%E5%85%B7"><span class="toc-number">3.3.</span> <span class="toc-text">BigData File Viewer工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.3.1.</span> <span class="toc-text">介绍</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E6%B8%85%E5%8D%95"><span class="toc-number">3.4.</span> <span class="toc-text">功能清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hadoop%E4%B8%B0%E5%AF%8C%E7%9A%84%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="toc-number">3.5.</span> <span class="toc-text">Hadoop丰富的存储格式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Text-File"><span class="toc-number">3.5.1.</span> <span class="toc-text">Text File</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-1"><span class="toc-number">3.5.1.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">3.5.1.2.</span> <span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84"><span class="toc-number">3.5.1.3.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%82%B9"><span class="toc-number">3.5.1.4.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="toc-number">3.5.1.5.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sequence-File"><span class="toc-number">3.5.2.</span> <span class="toc-text">Sequence File</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-2"><span class="toc-number">3.5.2.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF-1"><span class="toc-number">3.5.2.2.</span> <span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84-1"><span class="toc-number">3.5.2.3.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-1"><span class="toc-number">3.5.2.4.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-1"><span class="toc-number">3.5.2.5.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Avro-File"><span class="toc-number">3.5.3.</span> <span class="toc-text">Avro File</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-3"><span class="toc-number">3.5.3.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF-2"><span class="toc-number">3.5.3.2.</span> <span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84-2"><span class="toc-number">3.5.3.3.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-2"><span class="toc-number">3.5.3.4.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-2"><span class="toc-number">3.5.3.5.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RCFile"><span class="toc-number">3.5.4.</span> <span class="toc-text">RCFile</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-4"><span class="toc-number">3.5.4.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF-3"><span class="toc-number">3.5.4.2.</span> <span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84-3"><span class="toc-number">3.5.4.3.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-3"><span class="toc-number">3.5.4.4.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-3"><span class="toc-number">3.5.4.5.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ORC-File"><span class="toc-number">3.5.5.</span> <span class="toc-text">ORC File</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-5"><span class="toc-number">3.5.5.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF-4"><span class="toc-number">3.5.5.2.</span> <span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84-4"><span class="toc-number">3.5.5.3.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-4"><span class="toc-number">3.5.5.4.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-4"><span class="toc-number">3.5.5.5.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Parquet-File"><span class="toc-number">3.5.6.</span> <span class="toc-text">Parquet File</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-6"><span class="toc-number">3.5.6.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84-5"><span class="toc-number">3.5.6.2.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-5"><span class="toc-number">3.5.6.3.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9-5"><span class="toc-number">3.5.6.4.</span> <span class="toc-text">缺点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parquet-VS-ORC"><span class="toc-number">3.6.</span> <span class="toc-text">Parquet VS ORC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ProtoBuf%E5%92%8CThrift"><span class="toc-number">3.7.</span> <span class="toc-text">ProtoBuf和Thrift</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%EF%BC%9A%E6%96%B0%E4%B8%80%E4%BB%A3%E7%9A%84%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8FApache-Arrow"><span class="toc-number">3.8.</span> <span class="toc-text">扩展：新一代的存储格式Apache Arrow</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Arrow%E7%AE%80%E4%BB%8B"><span class="toc-number">3.8.1.</span> <span class="toc-text">Arrow简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Arrow%E6%98%AF%E5%A6%82%E4%BD%95%E6%8F%90%E5%8D%87%E6%95%B0%E6%8D%AE%E7%A7%BB%E5%8A%A8%E6%80%A7%E8%83%BD%E7%9A%84"><span class="toc-number">3.8.2.</span> <span class="toc-text">Arrow是如何提升数据移动性能的</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">文件压缩格式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8E%8B%E7%BC%A9%E6%B5%8B%E8%AF%95"><span class="toc-number">4.1.</span> <span class="toc-text">文件压缩测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hadoop%E6%94%AF%E6%8C%81%E7%9A%84%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95"><span class="toc-number">4.2.</span> <span class="toc-text">Hadoop支持的压缩算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95%E6%AF%94%E8%BE%83"><span class="toc-number">4.2.1.</span> <span class="toc-text">压缩算法比较</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS%E5%8E%8B%E7%BC%A9%E5%A6%82%E4%BD%95%E6%8A%89%E6%8B%A9"><span class="toc-number">4.3.</span> <span class="toc-text">HDFS压缩如何抉择</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.4.</span> <span class="toc-text">HDFS存储类型和存储策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D-1"><span class="toc-number">4.5.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.6.</span> <span class="toc-text">存储类型和存储策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E7%A7%8D%E5%A4%9A%E6%A0%B7%E7%9A%84%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B"><span class="toc-number">4.6.1.</span> <span class="toc-text">多种多样的存储类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9F%E7%8E%87%E5%AF%B9%E6%AF%94"><span class="toc-number">4.6.2.</span> <span class="toc-text">速率对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B"><span class="toc-number">4.6.3.</span> <span class="toc-text">存储类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5%E4%BB%8B%E7%BB%8D"><span class="toc-number">4.6.4.</span> <span class="toc-text">存储策略介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HDFS%E4%B8%AD%E7%9A%84%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.6.5.</span> <span class="toc-text">HDFS中的存储策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5%E6%96%B9%E6%A1%88"><span class="toc-number">4.6.6.</span> <span class="toc-text">存储策略方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-number">4.6.7.</span> <span class="toc-text">配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5%E5%91%BD%E4%BB%A4"><span class="toc-number">4.7.</span> <span class="toc-text">存储策略命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%97%E5%87%BA%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.7.1.</span> <span class="toc-text">列出存储策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.7.2.</span> <span class="toc-text">设置存储策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%96%E6%B6%88%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.7.3.</span> <span class="toc-text">取消存储策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.7.4.</span> <span class="toc-text">获取存储策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%B7%E7%83%AD%E6%B8%A9%E4%B8%89%E9%98%B6%E6%AE%B5%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8"><span class="toc-number">4.8.</span> <span class="toc-text">冷热温三阶段数据存储</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEDataNode%E5%AD%98%E5%82%A8%E7%9B%AE%E5%BD%95"><span class="toc-number">4.8.1.</span> <span class="toc-text">配置DataNode存储目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%AD%96%E7%95%A5"><span class="toc-number">4.8.2.</span> <span class="toc-text">配置策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E4%BC%A0%E6%B5%8B%E8%AF%95"><span class="toc-number">4.8.3.</span> <span class="toc-text">上传测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS%E4%B8%AD%E7%9A%84%E5%86%85%E5%AD%98%E5%AD%98%E5%82%A8%E6%94%AF%E6%8C%81"><span class="toc-number">4.9.</span> <span class="toc-text">HDFS中的内存存储支持</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D-2"><span class="toc-number">4.9.1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%86%85%E5%AD%98%E5%AD%98%E5%82%A8%E6%94%AF%E6%8C%81"><span class="toc-number">4.9.2.</span> <span class="toc-text">配置内存存储支持</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E8%83%BD%E5%A4%9F%E4%BD%BF%E7%94%A8%E7%9A%84%E5%86%85%E5%AD%98%E7%A9%BA%E9%97%B4"><span class="toc-number">4.9.2.1.</span> <span class="toc-text">设置能够使用的内存空间</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DataNode%E8%AE%BE%E7%BD%AE%E5%9F%BA%E4%BA%8E%E5%86%85%E5%AD%98%E7%9A%84%E5%AD%98%E5%82%A8"><span class="toc-number">4.9.2.2.</span> <span class="toc-text">DataNode设置基于内存的存储</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%89%E6%8B%A9tmpfs%EF%BC%88VS-ramfs%EF%BC%89"><span class="toc-number">4.9.3.</span> <span class="toc-text">选择tmpfs（VS ramfs）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%82%E8%BD%BDRAM%E7%A3%81%E7%9B%98"><span class="toc-number">4.9.4.</span> <span class="toc-text">挂载RAM磁盘</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AERAM-DISK%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8Btmpfs%E6%A0%87%E7%AD%BE"><span class="toc-number">4.9.5.</span> <span class="toc-text">设置RAM_DISK存储类型tmpfs标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A1%AE%E4%BF%9D%E5%90%AF%E7%94%A8%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.9.6.</span> <span class="toc-text">确保启用存储策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%86%85%E5%AD%98%E5%AD%98%E5%82%A8"><span class="toc-number">4.9.7.</span> <span class="toc-text">使用内存存储</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%87%92%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.9.8.</span> <span class="toc-text">使用懒持久化存储策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8%E7%9B%AE%E5%BD%95%E4%B8%8A%E6%89%A7%E8%A1%8Chdfs-storagepolicies%E5%91%BD%E4%BB%A4"><span class="toc-number">4.9.9.</span> <span class="toc-text">在目录上执行hdfs storagepolicies命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8%E7%9B%AE%E5%BD%95%E4%B8%8A%E6%89%A7%E8%A1%8CsetStoragePolicy%E6%96%B9%E6%B3%95"><span class="toc-number">4.9.10.</span> <span class="toc-text">在目录上执行setStoragePolicy方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6%E7%9A%84%E6%97%B6%E5%80%99%E6%8C%87%E5%AE%9ACreateFlag"><span class="toc-number">4.9.11.</span> <span class="toc-text">创建文件的时候指定CreateFlag</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%93%B6%E8%A1%8C%E6%B5%B7%E9%87%8F%E8%BD%AC%E8%B4%A6%E6%95%B0%E6%8D%AE%E5%88%86%E5%B1%82%E6%A1%88%E4%BE%8B"><span class="toc-number">5.</span> <span class="toc-text">银行海量转账数据分层案例</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E5%88%86%E5%B1%82%E7%AD%96%E7%95%A5"><span class="toc-number">5.1.</span> <span class="toc-text">存储分层策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">5.2.</span> <span class="toc-text">测试</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><p><a style="margin-inline:5px"target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://img.shields.io/badge/CDN-%E5%8F%88%E6%8B%8D%E4%BA%91-blue" title="又拍云提供CDN加速" alt="又拍云"></a><a style="margin-inline:5px"target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为 Hexo" alt="HEXO"></a><a style="margin-inline:5px"target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用 Butterfly" alt="Butterfly"></a><a style="margin-inline:5px"target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用 Jsdelivr 为静态资源提供CDN加速" alt="Jsdelivr"></a><a style="margin-inline:5px"target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由 GitHub 托管" alt="GitHub"></a><a style="margin-inline:5px"target="_blank"href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" alt="img" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><div class="aplayer no-destroy" data-id="7520334743" data-server="tencent" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-preload="none" data-autoplay="true" muted></div><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script async data-pjax src="/js/randombg.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = [
+  'title',
+  '#config-diff',
+  '#body-wrap',
+  '#rightside-config-hide',
+  '#rightside-config-show',
+  '.js-pjax'
+]
+
+if (false) {
+  pjaxSelectors.unshift('meta[property="og:image"]', 'meta[property="og:title"]', 'meta[property="og:url"]')
+}
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.removeEventListener('scroll', window.tocScrollFn)
+  window.removeEventListener('scroll', scrollCollect)
+
+  typeof preloader === 'object' && preloader.initLoading()
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // Analytics
+  if (false) {
+    MtaH5.pgv()
+  }
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+
+  typeof preloader === 'object' && preloader.endLoading()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                console.log('已挂载history_calendar')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='/'|| '/' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><script data-pjax>
+  function butterfly_clock_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src="/img/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_injector_config();
+  }
+  </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax src="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.js"></script><!-- hexo injector body_end end --></body></html>
