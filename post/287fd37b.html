@@ -1,0 +1,638 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HDFS架构原理 | 牧马人的忧伤</title><meta name="keywords" content="HDFS"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="HDFS架构原理HDFS架构剖析HDFS整体概述HDFS是Hadoop Distribute File System 的简称，意为：Hadoop分布式文件系统。是Hadoop核心组件之一，作为大数据生态圈最底层的分布式存储服务而存在。HDFS解决的问题就是大数据如何存储,它是横跨在多台计算机上的文件存储系统并且具有高度的容错能力。 HDFS集群遵循主从架构。每个群集包括一个主节点和多个从节点。在内">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HDFS架构原理">
+<meta property="og:url" content="http://lvxueyang.vip/post/287fd37b.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="HDFS架构原理HDFS架构剖析HDFS整体概述HDFS是Hadoop Distribute File System 的简称，意为：Hadoop分布式文件系统。是Hadoop核心组件之一，作为大数据生态圈最底层的分布式存储服务而存在。HDFS解决的问题就是大数据如何存储,它是横跨在多台计算机上的文件存储系统并且具有高度的容错能力。 HDFS集群遵循主从架构。每个群集包括一个主节点和多个从节点。在内">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082121.jpg">
+<meta property="article:published_time" content="2021-11-10T14:13:00.000Z">
+<meta property="article:modified_time" content="2021-11-10T14:20:31.692Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="HDFS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082121.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://lvxueyang.vip/post/287fd37b"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'HDFS架构原理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-11-10 22:20:31'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    document.addEventListener('pjax:complete', detectApple)})(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">112</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">33</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">32</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082121.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">HDFS架构原理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-11-10T14:13:00.000Z" title="发表于 2021-11-10 22:13:00">2021-11-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-11-10T14:20:31.692Z" title="更新于 2021-11-10 22:20:31">2021-11-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/HDFS/">HDFS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">9.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>33分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="HDFS架构原理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="HDFS架构原理"><a href="#HDFS架构原理" class="headerlink" title="HDFS架构原理"></a>HDFS架构原理</h1><h1 id="HDFS架构剖析"><a href="#HDFS架构剖析" class="headerlink" title="HDFS架构剖析"></a>HDFS架构剖析</h1><h2 id="HDFS整体概述"><a href="#HDFS整体概述" class="headerlink" title="HDFS整体概述"></a>HDFS整体概述</h2><p><strong>HDFS</strong>是Hadoop Distribute File System 的简称，意为：Hadoop分布式文件系统。是Hadoop核心组件之一，作为大数据生态圈最底层的分布式存储服务而存在。HDFS解决的问题就是大数据如何存储,它是横跨在多台计算机上的文件存储系统并且具有高度的容错能力。</p>
+<p>HDFS集群遵循<strong>主从架构</strong>。每个群集包括一个主节点和多个从节点。在内部，文件分为一个或多个块，每个块根据复制因子存储在不同的从节点计算机上。主节点存储和管理文件系统名称空间，即有关文件块的信息，例如块位置，权限等。从节点存储文件的数据块。主从各司其职，互相配合，共同对外提供分布式文件存储服务。当然内部细节对于用户来说是透明的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110211147.png" alt="image-20211110211147807"></p>
+<h2 id="角色介绍"><a href="#角色介绍" class="headerlink" title="角色介绍"></a>角色介绍</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>HDFS遵循<strong>主从架构</strong>。每个群集包括一个主节点和多个从节点。其中：</p>
+<p><strong>NameNode</strong>是主节点<strong>，负责存储和管理文件系统元数据信息，包括namespace目录结构、文件块位置信息等；DataNode</strong>是从节点，<strong>负责存储文件具体的数据块</strong>。</p>
+<p>两种角色各司其职，共同协调完成分布式的文件存储服务。</p>
+<p><strong>SecondaryNameNode</strong>是主角色的辅助角色，帮助主角色进行元数据的合并。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110211226.png" alt="image-20211110211226124"></p>
+<h3 id="Namenode"><a href="#Namenode" class="headerlink" title="Namenode"></a>Namenode</h3><p><strong>NameNode</strong>是Hadoop分布式文件系统的核心，架构中的主角色。它维护和管理文件系统元数据，包括名称空间目录树结构、文件和块的位置信息、访问权限等信息。基于此，NameNode成为了访问HDFS的唯一入口。</p>
+<p>内部通过内存和磁盘两种方式管理元数据。其中磁盘上的元数据文件包括Fsimage内存元数据镜像文件和edits log（Journal）编辑日志。</p>
+<p>在Hadoop2之前，NameNode是单点故障。Hadoop 2中引入的高可用性。Hadoop群集体系结构允许在群集中以热备配置运行两个或多个NameNode。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110211333.png" alt="image-20211110211333711"></p>
+<h3 id="Datanode"><a href="#Datanode" class="headerlink" title="Datanode"></a>Datanode</h3><p><strong>DataNode</strong>是Hadoop HDFS中的从角色，负责具体的数据块存储。DataNode的数量决定了HDFS集群的整体数据存储能力。通过和NameNode配合维护着数据块。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110211540.png" alt="image-20211110211539975"></p>
+<h3 id="Secondarynamenode"><a href="#Secondarynamenode" class="headerlink" title="Secondarynamenode"></a>Secondarynamenode</h3><p>除了DataNode和NameNode之外，还有另一个守护进程，它称为<strong>secondary NameNode</strong>。充当NameNode的辅助节点，但不能替代NameNode。</p>
+<p>当NameNode启动时，NameNode合并Fsimage和edits log文件以还原当前文件系统名称空间。如果edits log过大不利于加载，Secondary NameNode就辅助NameNode从NameNode下载<strong>Fsimage文件和edits log文件进行合并</strong>。</p>
+<h2 id="HDFS重要特性"><a href="#HDFS重要特性" class="headerlink" title="HDFS重要特性"></a>HDFS重要特性</h2><h3 id="主从架构"><a href="#主从架构" class="headerlink" title="主从架构"></a>主从架构</h3><p>HDFS采用master/slave架构。一般一个HDFS集群是有一个Namenode和一定数目的Datanode组成。Namenode是HDFS主节点，Datanode是HDFS从节点，两种角色各司其职，共同协调完成分布式的文件存储服务。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110211640.png" alt="image-20211110211640403"></p>
+<h3 id="分块机制"><a href="#分块机制" class="headerlink" title="分块机制"></a>分块机制</h3><p>HDFS中的文件在物理上是分块存储（block）的，块的大小可以通过配置参数来规定，参数位于hdfs-default.xml中：dfs.blocksize。默认大小是<strong>128M</strong>（134217728）。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110211657.png" alt="image-20211110211657822"></p>
+<h3 id="副本机制"><a href="#副本机制" class="headerlink" title="副本机制"></a>副本机制</h3><p>为了容错，文件的所有block都会有副本。每个文件的block大小（dfs.blocksize）和副本系数（dfs.replication）都是可配置的。应用程序可以指定某个文件的副本数目。副本系数可以在文件创建的时候指定，也可以在之后通过命令改变。</p>
+<p>默认<strong>dfs.replication的值是3</strong>，也就是会额外再复制2份，连同本身总共3份副本。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110211719.png" alt="image-20211110211719478"></p>
+<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>HDFS支持传统的<strong>层次型文件组织结构</strong>。用户可以创建目录，然后将文件保存在这些目录里。文件系统名字空间的层次结构和大多数现有的文件系统类似：用户可以创建、删除、移动或重命名文件。</p>
+<p>Namenode负责维护文件系统的namespace名称空间，任何对文件系统名称空间或属性的修改都将被Namenode记录下来。</p>
+<p>HDFS会给客户端提供一个<strong>统一的抽象目录树</strong>，客户端通过路径来访问文件，形如：<code>hdfs://namenode:port/dir-a/dir-b/dir-c/file.data</code>。</p>
+<h3 id="元数据管理"><a href="#元数据管理" class="headerlink" title="元数据管理"></a>元数据管理</h3><p>在HDFS中，Namenode管理的元数据具有两种类型：</p>
+<ul>
+<li><strong>文件自身属性信息</strong></li>
+</ul>
+<p>文件名称、权限，修改时间，文件大小，复制因子，数据块大小。</p>
+<ul>
+<li><strong>文件块位置映射信息</strong></li>
+</ul>
+<p>记录文件块和DataNode之间的映射信息，即哪个块位于哪个节点上。</p>
+<h3 id="数据块存储"><a href="#数据块存储" class="headerlink" title="数据块存储"></a>数据块存储</h3><p>文件的各个block的具体存储管理由DataNode节点承担。每一个block都可以在多个DataNode上存储。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110211836.png" alt="image-20211110211836082"></p>
+<h1 id="HDFS-Web-Interfaces"><a href="#HDFS-Web-Interfaces" class="headerlink" title="HDFS Web Interfaces"></a>HDFS Web Interfaces</h1><h2 id="Web-Interfaces介绍"><a href="#Web-Interfaces介绍" class="headerlink" title="Web Interfaces介绍"></a>Web Interfaces介绍</h2><p>除了命令行界面之外，Hadoop还为HDFS提供了Web用户界面。用户可以通过Web界面操作文件系统并且获取和HDFS相关的状态属性信息。</p>
+<p>HDFS Web地址是<a href="http://nn_host:port/,默认端口号9870。">http://nn_host:port/,默认端口号9870。</a></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110211946.png" alt="image-20211110211946230"></p>
+<h2 id="模块功能解读"><a href="#模块功能解读" class="headerlink" title="模块功能解读"></a>模块功能解读</h2><h3 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h3><p>Overview是总揽模块，默认的主页面。展示了HDFS一些最核心的信息。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212007.png" alt="image-20211110212007741"></p>
+<h4 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212044.png" alt="image-20211110212044278"></p>
+<h4 id="NameNode-Journal-Status"><a href="#NameNode-Journal-Status" class="headerlink" title="NameNode Journal Status"></a>NameNode Journal Status</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212055.png" alt="image-20211110212055547"></p>
+<h4 id="NameNode-Storage"><a href="#NameNode-Storage" class="headerlink" title="NameNode Storage"></a>NameNode Storage</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212106.png" alt="image-20211110212106739"></p>
+<h4 id="DFS-Storage-Types"><a href="#DFS-Storage-Types" class="headerlink" title="DFS Storage Types"></a>DFS Storage Types</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212119.png" alt="image-20211110212119169"></p>
+<h3 id="Datanodes"><a href="#Datanodes" class="headerlink" title="Datanodes"></a>Datanodes</h3><p>Datanodes模块主要记录了HDFS集群中各个DataNode的相关状态信息。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212133.png" alt="image-20211110212133435"></p>
+<h3 id="Datanode-Volume-Failures"><a href="#Datanode-Volume-Failures" class="headerlink" title="Datanode Volume Failures"></a>Datanode Volume Failures</h3><p>此模块记录了DataNode卷故障信息。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212151.png" alt="image-20211110212151569"></p>
+<h3 id="Snapshot"><a href="#Snapshot" class="headerlink" title="Snapshot"></a>Snapshot</h3><p><strong>Snapshot模块</strong>记录HDFS文件系统的快照相关信息，包括哪些文件夹创建了快照和总共有哪些快照。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212212.png" alt="image-20211110212212555"></p>
+<h3 id="Satartup-progress"><a href="#Satartup-progress" class="headerlink" title="Satartup progress"></a>Satartup progress</h3><p><strong>Startup Progress模块</strong>记录了HDFS集群启动的过程信息，执行步骤和每一步所做的事和用时。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212238.png" alt="image-20211110212238009"></p>
+<h3 id="Utilities"><a href="#Utilities" class="headerlink" title="Utilities"></a>Utilities</h3><p><strong>Utilities模块</strong>算是用户使用最多的模块了，里面包括了文件浏览、日志查看、配置信息查看等核心功能。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212259.png" alt="image-20211110212259852"></p>
+<h4 id="Browse-the-file-system"><a href="#Browse-the-file-system" class="headerlink" title="Browse the file system"></a>Browse the file system</h4><p>该模块可以说是我们在开发使用HDFS过程中使用最多的模块了，提供了一种Web页面浏览操作文件系统的能力，在某些场合下，比使用命令操作更加直观方便。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212316.png" alt="image-20211110212316653"></p>
+<h4 id="Logs、Log-Level"><a href="#Logs、Log-Level" class="headerlink" title="Logs、Log Level"></a>Logs、Log Level</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212348.png" alt="image-20211110212348262"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212353.png" alt="image-20211110212353411"></p>
+<h4 id="Configruation"><a href="#Configruation" class="headerlink" title="Configruation"></a>Configruation</h4><p>该模块可以列出当前集群成功加载的所谓配置文件属性，可以从这里来进行判断用户所设置的参数属性是否成功加载生效，如果此处没有，需要检查配置文件或者重启集群加载。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212434.png" alt="image-20211110212434636"></p>
+<h1 id="HDFS读写流程"><a href="#HDFS读写流程" class="headerlink" title="HDFS读写流程"></a>HDFS读写流程</h1><p>因为namenode维护管理了文件系统的元数据信息，这就造成了不管是读还是写数据都是基于NameNode开始的，也就是说<strong>NameNode成为了HDFS访问的唯一入口</strong>。入口地址是：<a href="http://nn_host:8020。">http://nn_host:8020。</a></p>
+<h2 id="写数据流程"><a href="#写数据流程" class="headerlink" title="写数据流程"></a>写数据流程</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212511.png" alt="image-20211110212511083"></p>
+<h3 id="Pipeline管道、ACK应答响应"><a href="#Pipeline管道、ACK应答响应" class="headerlink" title="Pipeline管道、ACK应答响应"></a>Pipeline管道、ACK应答响应</h3><p><strong>Pipeline</strong>，中文翻译为管道。这是HDFS在上传文件写数据过程中采用的一种数据传输方式。客户端将数据块写入第一个数据节点，第一个数据节点保存数据之后再将块复制到第二个数据节点，后者保存后将其复制到第三个数据节点。通俗描述pipeline的过程就是：<strong>Client</strong>-&gt;A-&gt;B-&gt;C。</p>
+<p>为什么datanode之间采用pipeline<strong>线性传输</strong>，而不是一次给三个datanode拓扑式传输呢？因为数据以管道的方式，顺序的沿着一个方向传输，这样能够充分利用每个机器的带宽，避免网络瓶颈和高延迟时的连接，最小化推送所有数据的延时。在线性推送模式下，每台机器所有的出口宽带都用于以最快的速度传输数据，而不是在多个接受者之间分配宽带。</p>
+<p><strong>ACK</strong> (Acknowledge character）即是确认字符，在数据通信中，接收方发给发送方的一种传输类控制字符。表示发来的数据已确认接收无误。在pipeline管道传输数据的过程中，传输的反方向会进行ACK校验，确保数据传输安全。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110212606.png" alt="image-20211110212606493"></p>
+<h3 id="具体流程"><a href="#具体流程" class="headerlink" title="具体流程"></a>具体流程</h3><ul>
+<li>HDFS客户端通过对DistributedFileSystem 对象调用**create()**请求创建文件。</li>
+<li>DistributedFileSystem对namenode进行<strong>RPC调用</strong>，请求上传文件。namenode执行各种检查判断：目标文件是否存在、父目录是否存在、客户端是否具有创建该文件的权限。检查通过，namenode就会为创建新文件记录一条记录。否则，文件创建失败并向客户端抛出一个IOException。</li>
+<li>DistributedFileSystem为客户端返回FSDataOutputStream输出流对象。由此客户端可以开始写入数据。FSDataOutputStream是一个包装类，所包装的是DFSOutputStream。</li>
+<li>在客户端写入数据时，DFSOutputStream将它分成一个个数据包（<strong>packet</strong> 默认64kb）,并写入一个称之为数据队列（data queue）的内部队列。DFSOutputStream有一个内部类做DataStreamer，用于请求NameNode挑选出适合存储数据副本的一组DataNode。这一组DataNode采用<strong>pipeline机制</strong>做数据的发送。默认是3副本存储。</li>
+<li>DataStreamer将数据包流式传输到pipeline的第一个datanode,该DataNode存储数据包并将它发送到pipeline的第二个DataNode。同样，第二个DataNode存储数据包并且发送给第三个（也是最后一个）DataNode。</li>
+<li>DFSOutputStream也维护着一个内部数据包队列来等待DataNode的收到确认回执，称之为确认队列（ack queue）,收到pipeline中所有DataNode确认信息后，该数据包才会从确认队列删除。</li>
+<li>客户端完成数据写入后，将在流上调用close()方法关闭。该操作将剩余的所有数据包写入DataNode pipeline，并在联系到NameNode告知其文件写入完成之前，等待确认。</li>
+<li>因为namenode已经知道文件由哪些块组成（DataStream请求分配数据块），因此它仅需等待最小复制块即可成功返回。</li>
+<li>数据块最小复制是由参数dfs.namenode.replication.min指定，默认是1.</li>
+</ul>
+<h3 id="默认3副本存储策略"><a href="#默认3副本存储策略" class="headerlink" title="默认3副本存储策略"></a>默认3副本存储策略</h3><p>默认副本存储策略是由BlockPlacementPolicyDefault指定。策略如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110213132.png" alt="image-20211110213132191"></p>
+<p>第一块副本：优先客户端本地，否则随机</p>
+<p>第二块副本：不同于第一块副本的不同机架。</p>
+<p>第三块副本：第二块副本相同机架不同机器。</p>
+<h2 id="读数据流程"><a href="#读数据流程" class="headerlink" title="读数据流程"></a>读数据流程</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110213205.png" alt="image-20211110213205264"></p>
+<h3 id="具体流程-1"><a href="#具体流程-1" class="headerlink" title="具体流程"></a>具体流程</h3><ul>
+<li>客户端通过调用DistributedFileSystem对象上的open()来打开希望读取的文件。</li>
+<li>DistributedFileSystem使用<strong>RPC调用</strong>namenode来确定文件中<strong>前几个块</strong>的块位置。对于每个块，namenode返回具有该块副本的datanode的地址，并且datanode根据块与客户端的距离进行排序。注意此距离指的是<strong>网络拓扑中的距离</strong>。比如客户端的本身就是一个DataNode，那么从本地读取数据明显比跨网络读取数据效率要高。</li>
+<li>DistributedFileSystem将FSDataInputStream（支持文件seek定位读的输入流）返回到客户端以供其读取数据。FSDataInputStream类转而封装为DFSInputStream类，DFSInputStream管理着datanode和namenode之间的IO。</li>
+<li>客户端在流上调用read()方法。然后，已存储着文件前几个块DataNode地址的DFSInputStream随即连接到文件中第一个块的最近的DataNode节点。通过对数据流反复调用read()方法，可以将数据从DataNode传输到客户端。</li>
+<li>当该块快要读取结束时，DFSInputStream将关闭与该DataNode的连接，然后寻找下一个块的最佳datanode。这些操作对用户来说是透明的。所以用户感觉起来它一直在读取一个连续的流。</li>
+<li>客户端从流中读取数据时，块是按照打开DFSInputStream与DataNode新建连接的顺序读取的。它也会根据需要询问NameNode来检索下一批数据块的DataNode位置信息。一旦客户端完成读取，就对FSDataInputStream调用close()方法。</li>
+<li>如果DFSInputStream与DataNode通信时遇到错误，它将尝试该块的下一个最接近的DataNode读取数据。并将记住发生故障的DataNode，保证以后不会反复读取该DataNode后续的块。此外，DFSInputStream也会通过校验和（checksum）确认从DataNode发来的数据是否完整。如果发现有损坏的块，DFSInputStream会尝试从其他DataNode读取该块的副本，也会将被损坏的块报告给namenode 。</li>
+</ul>
+<h2 id="角色职责概述"><a href="#角色职责概述" class="headerlink" title="角色职责概述"></a>角色职责概述</h2><h3 id="Namenode职责"><a href="#Namenode职责" class="headerlink" title="Namenode职责"></a>Namenode职责</h3><p>a、 NameNode是HDFS的核心，集群的主角色，被称为Master。</p>
+<p>b、 NameNode仅存储管理HDFS的元数据：文件系统namespace操作维护目录树，文件和块的位置信息。</p>
+<p>c、 NameNode不存储实际数据或数据集。数据本身实际存储在DataNodes中。</p>
+<p>d、 NameNode知道HDFS中任何给定文件的块列表及其位置。使用此信息NameNode知道如何从块中构建文件。</p>
+<p>e、 NameNode并不持久化存储每个文件中各个块所在的DataNode的位置信息，这些信息会在系统启动时从DataNode汇报中重建。</p>
+<p>f、 NameNode对于HDFS至关重要，当NameNode关闭时，HDFS / Hadoop集群无法访问。</p>
+<p>g、 NameNode是Hadoop集群中的单点故障。</p>
+<p>h、 NameNode所在机器通常会配置有大量内存（RAM）。</p>
+<h3 id="Datanode职责"><a href="#Datanode职责" class="headerlink" title="Datanode职责"></a>Datanode职责</h3><p>a、 DataNode负责将实际数据存储在HDFS中。是集群的从角色，被称为Slave。</p>
+<p>b、 DataNode启动时，它将自己发布到NameNode并汇报自己负责持有的块列表。</p>
+<p>c、 根据NameNode的指令，执行块的创建、复制、删除操作。</p>
+<p>d、 DataNode会定期（dfs.heartbeat.interval配置项配置，默认是3秒）向NameNode发送心跳，如果NameNode长时间没有接受到DataNode发送的心跳， NameNode就会认为该DataNode失效。</p>
+<p>e、 DataNode会定期向NameNode进行自己持有的数据块信息汇报，汇报时间间隔取参数dfs.blockreport.intervalMsec,参数未配置的话默认为6小时.</p>
+<p>f、 DataNode所在机器通常配置有大量的硬盘空间。因为实际数据存储在DataNode中。</p>
+<h1 id="Namenode-元数据管理"><a href="#Namenode-元数据管理" class="headerlink" title="Namenode 元数据管理"></a>Namenode 元数据管理</h1><h2 id="元数据是什么"><a href="#元数据是什么" class="headerlink" title="元数据是什么"></a>元数据是什么</h2><p><strong>元数据（Metadata）</strong>，又称中介数据，为描述<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E6%95%B0%E6%8D%AE/5947370">数据</a>的数据（data about data），主要是描述数据<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%B1%9E%E6%80%A7/1405051">属性</a>（property）的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E4%BF%A1%E6%81%AF/111163">信息</a>，用来支持如指示存储位置、<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2/360">历史</a>数据、<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E8%B5%84%E6%BA%90/9089683">资源</a>查找、文件记录等功能。</p>
+<p>在HDFS中，元数据主要指的是<strong>文件相关的元数据</strong>，由NameNode管理维护。从广义的角度来说，因为NameNode还需要管理众多DataNode节点，因此DataNode的位置和健康状态信息也属于元数据。</p>
+<h2 id="元数据管理概述"><a href="#元数据管理概述" class="headerlink" title="元数据管理概述"></a>元数据管理概述</h2><p>在HDFS中，文件相关元数据具有两种类型：</p>
+<ul>
+<li> <strong>文件自身属性信息</strong></li>
+</ul>
+<p>文件名称、权限，修改时间，文件大小，复制因子，数据块大小。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110213549.png" alt="image-20211110213549787"></p>
+<ul>
+<li><strong>文件块位置映射信息</strong></li>
+</ul>
+<p>记录文件块和DataNode之间的映射信息，即哪个块位于哪个节点上。</p>
+<p>按存储形式分为内存元数据和元数据文件两种，分别存在内存和磁盘上。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110213628.png" alt="image-20211110213628838"></p>
+<h3 id="内存元数据"><a href="#内存元数据" class="headerlink" title="内存元数据"></a>内存元数据</h3><p>为了保证用户操作元数据交互高效，延迟低，NameNode把所有的元数据都存储在内存中，我们叫做内存元数据。内存中的元数据是最完整的，包括文件自身属性信息、文件块位置映射信息。</p>
+<p>但是内存的致命问题是，断点数据丢失，数据不会持久化。因此NameNode又辅佐了元数据文件来保证元数据的安全完整。</p>
+<h3 id="磁盘元数据文件"><a href="#磁盘元数据文件" class="headerlink" title="磁盘元数据文件"></a>磁盘元数据文件</h3><h4 id="fsimage-内存镜像文件"><a href="#fsimage-内存镜像文件" class="headerlink" title="fsimage 内存镜像文件"></a>fsimage 内存镜像文件</h4><p>是内存元数据的一个持久化的检查点。但是<strong>fsimage中仅包含Hadoop文件系统中文件自身属性相关的元数据信息，但不包含文件块位置的信息</strong>。文件块位置信息只存储在内存中，时由datanode启动加入集群的时候，向namenode进行数据块的汇报得到的，并且后续间断指定时间进行数据块报告。</p>
+<p>持久化的动作是一种数据从内存到磁盘的IO过程。会对namenode正常服务造成一定的影响，不能频繁的进行持久化。</p>
+<h4 id="Edits-log编辑日志"><a href="#Edits-log编辑日志" class="headerlink" title="Edits log编辑日志"></a>Edits log编辑日志</h4><p>为了避免两次持久化之间数据丢失的问题，又设计了Edits log编辑日志文件。<strong>文件中记录的是HDFS所有更改操作（文件创建，删除或修改）的日志</strong>，文件系统客户端执行的更改操作首先会被记录到edits文件中。</p>
+<h3 id="加载元数据顺序"><a href="#加载元数据顺序" class="headerlink" title="加载元数据顺序"></a>加载元数据顺序</h3><p>fsimage和edits文件都是经过序列化的，在<strong>NameNode启动的时候，它会将fsimage文件中的内容加载到内存中，之后再执行edits文件中的各项操作，使得内存中的元数据和实际的同步</strong>，存在内存中的元数据支持客户端的读操作，也是最完整的元数据。</p>
+<p>当客户端对HDFS中的文件进行新增或者修改操作，操作记录首先被记入edits日志文件中，当客户端操作成功后，相应的元数据会更新到内存元数据中。因为fsimage文件一般都很大（GB级别的很常见），如果所有的更新操作都往fsimage文件中添加，这样会导致系统运行的十分缓慢。</p>
+<p>HDFS这种设计实现着手于：一是内存中数据更新、查询快，极大缩短了操作响应时间；二是内存中元数据丢失风险颇高（断电等），因此辅佐元数据镜像文件（fsimage）+编辑日志文件（edits）的备份机制进行确保元数据的安全。</p>
+<p>NameNode维护整个文件系统元数据。因此，元数据的准确管理，影响着HDFS提供文件存储服务的能力。</p>
+<h2 id="元数据管理相关目录文件"><a href="#元数据管理相关目录文件" class="headerlink" title="元数据管理相关目录文件"></a>元数据管理相关目录文件</h2><h3 id="元数据存储目录"><a href="#元数据存储目录" class="headerlink" title="元数据存储目录"></a>元数据存储目录</h3><p>在Hadoop的HDFS首次部署好配置文件之后，并不能马上启动使用，而是先要对文件系统进行格式化操作:<code>hdfs namenode -format</code></p>
+<p>在这里要注意两个概念，一个是format之前，HDFS在物理上还不存在；二就是此处的<strong>format</strong>并不是指传统意义上的本地磁盘格式化，而是一些清除与准备工作。其中就会创建元数据本地存储目录和一些初始化的元数据相关文件。</p>
+<p>namenode元数据存储目录由参数：<code>dfs.namenode.name.dir</code>指定，格式化完成之后，将会在<code>$dfs.namenode.name.dir/current</code>目录下创建如下的文件：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214141.png" alt="image-20211110214141166"></p>
+<p>其中的dfs.namenode.name.dir是在hdfs-site.xml文件中配置的，默认值如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214149.png" alt="image-20211110214149543"></p>
+<p><strong>dfs.namenode.name.dir</strong>属性可以配置多个目录，各个目录存储的文件结构和内容都完全一样，相当于备份，这样做的好处是当其中一个目录损坏了，也不会影响到hadoop的元数据，特别是当其中一个目录是NFS（网络文件系统Network File System，NFS）之上，即使你这台机器损坏了，元数据也得到保存。</p>
+<h3 id="元数据相关文件"><a href="#元数据相关文件" class="headerlink" title="元数据相关文件"></a>元数据相关文件</h3><h4 id="VERSION"><a href="#VERSION" class="headerlink" title="VERSION"></a>VERSION</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214242.png" alt="image-20211110214242636"></p>
+<ul>
+<li>namespaceID/clusterID/blockpoolID</li>
+</ul>
+<p>这些都是HDFS集群的唯一标识符。标识符被用来防止DataNodes意外注册到另一个集群中的namenode上。这些标识在联邦（federation）部署中特别重要。联邦模式下，会有多个NameNode独立工作。每个的NameNode提供唯一的命名空间（namespaceID），并管理一组唯一的文件块池（blockpoolID）。clusterID将整个集群结合在一起作为单个逻辑单元，在集群中的所有节点上都是一样的。</p>
+<ul>
+<li>storageType</li>
+</ul>
+<p>说明这个文件存储的是什么进程的数据结构信息</p>
+<p>如果是DataNode，storageType=DATA_NODE。</p>
+<ul>
+<li>cTime</li>
+</ul>
+<p>NameNode存储系统创建时间，首次格式化文件系统这个属性是0，当文件系统升级之后，该值会更新到升级之后的时间戳；</p>
+<ul>
+<li>layoutVersion</li>
+</ul>
+<p>HDFS元数据格式的版本。添加需要更改元数据格式的新功能时，请更改此数字。当前的HDFS软件使用比当前版本更新的布局版本时，需要进行HDFS升级。</p>
+<h4 id="seen-txid"><a href="#seen-txid" class="headerlink" title="seen_txid"></a>seen_txid</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214354.png" alt="image-20211110214354817"></p>
+<p>包含最后一个checkpoint的最后一个事务ID。这不是NameNode接受的最后一个事务ID。该文件不会在每个事务上更新，而只会在checkpoint或编辑日志记录上更新。该文件的目的是尝试识别edits启动期间是否丢失的文件。如果 edits目录被意外删除，然后自上一个checkpoint以来的所有事务都将消失，NameNode仅从最近的一次fsimage加载启动。为了防止这种情况，NameNode启动还检查 seen_txid以确认它至少可以加载该数目的事务。如果无法验证装入事务，它将中止启动。</p>
+<h4 id="fsimage相关"><a href="#fsimage相关" class="headerlink" title="fsimage相关"></a>fsimage相关</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214429.png" alt="image-20211110214429113"></p>
+<p>元数据镜像文件。每个fsimage文件还有一个对应的.md5文件，其中包含MD5校验和，HDFS使用该文件来防止磁盘损坏文件异常。</p>
+<h4 id="Edits-log相关"><a href="#Edits-log相关" class="headerlink" title="Edits log相关"></a>Edits log相关</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214445.png" alt="image-20211110214445039"></p>
+<p>已完成且不可修改的编辑日志。这些文件中的每个文件都包含文件名定义的范围内的所有编辑日志事务。在HA高可用性部署中，主备namenode之间可以通过edits log进行数据同步。 </p>
+<h3 id="Fsimage、editslog查看"><a href="#Fsimage、editslog查看" class="headerlink" title="Fsimage、editslog查看"></a>Fsimage、editslog查看</h3><h4 id="Fsimage"><a href="#Fsimage" class="headerlink" title="Fsimage"></a>Fsimage</h4><p><strong>fsimage</strong>文件是Hadoop文件系统元数据的一个永久性的检查点，包含Hadoop文件系统中的所有目录和文件idnode的序列化信息；对于文件来说，包含的信息有修改时间、访问时间、块大小和组成一个文件块信息等；而对于目录来说，包含的信息主要有修改时间、访问控制权限等信息。</p>
+<p><strong>oiv</strong>是offline image viewer**的缩写，用于将fsimage文件的内容转储到指定文件中以便于阅读，该工具还提供了只读的WebHDFS API以允许离线分析和检查hadoop集群的命名空间。</p>
+<p>oiv在处理非常大的fsimage文件时是相当快的，如果该工具不能够处理fsimage，它会直接退出。该工具不具备向后兼容性，比如使用hadoop-2.4版本的oiv不能处理hadoop-2.3版本的fsimage，只能使用hadoop-2.3版本的oiv。就像它的名称所提示的（offline），oiv不需要hadoop集群处于运行状态。</p>
+<p>命令：<code>hdfs oiv -i fsimage_0000000000000000050 -p XML -o fsimage.xml</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214550.png" alt="image-20211110214550288"></p>
+<h4 id="edits-log"><a href="#edits-log" class="headerlink" title="edits log"></a>edits log</h4><p><strong>edits log</strong>文件存放的是Hadoop文件系统的所有更新操作记录日志，文件系统客户端执行的所有写操作首先会被记录到edits文件中。</p>
+<p>NameNode起来之后，HDFS中的更新操作会重新写到edits文件中，因为fsimage文件一般都很大（GB级别的很常见），如果所有的更新操作都往fsimage文件中添加，这样会导致系统运行的十分缓慢，但是如果往edits文件里面写就不会这样，每次执行写操作之后，且在向客户端发送成功代码之前，edits文件都需要同步更新。如果一个文件比较大，使得写操作需要向多台机器进行操作，只有当所有的写操作都执行完成之后，写操作才会返回成功，这样的好处是任何的操作都不会因为机器的故障而导致元数据的不同步。</p>
+<p><strong>oev是offline edits viewer</strong>（离线edits查看器）的缩写，该工具不需要hadoop集群处于运行状态。</p>
+<p>命令：<code>hdfs oev -i edits_0000000000000000011-0000000000000000025 -o edits.xml</code></p>
+<p>在输出文件中，每个RECORD记录了一次操作,示例如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214627.png" alt="image-20211110214627896"></p>
+<h2 id="SecondaryNamenode"><a href="#SecondaryNamenode" class="headerlink" title="SecondaryNamenode"></a>SecondaryNamenode</h2><h3 id="SNN职责概述"><a href="#SNN职责概述" class="headerlink" title="SNN职责概述"></a>SNN职责概述</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214650.png" alt="image-20211110214650048"></p>
+<p>NameNode职责是管理元数据信息，DataNode的职责是负责数据具体存储，那么SecondaryNameNode的作用是什么？对很多初学者来说是非常迷惑的。它为什么会出现在HDFS中。从它的名字上看，它给人的感觉就像是NameNode的备份。但它实际上却不是。</p>
+<p>当HDFS集群运行一段事件后，就会出现下面一些问题：</p>
+<ul>
+<li>edits logs会变的很大，fsimage将会变得很旧；</li>
+<li>namenode重启会花费很长时间，因为有很多改动要合并到fsimage文件上；</li>
+<li>如果频繁进行fsimage持久化，又会影响NameNode正常服务，毕竟IO操作是一种内存到磁盘的耗精力操作</li>
+</ul>
+<p>因此为了克服这个问题，需要一个易于管理的机制来帮助我们<strong>减小edit logs文件的大小和得到一个最新的fsimage文件</strong>，这样也会减小在NameNode上的压力。</p>
+<p><strong>SecondaryNameNode</strong>就是来帮助解决上述问题的，它的职责是<strong>合并NameNode的edit logs到fsimage文件中</strong>。</p>
+<h3 id="SNN-checkpoint机制"><a href="#SNN-checkpoint机制" class="headerlink" title="SNN checkpoint机制"></a>SNN checkpoint机制</h3><h4 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h4><p><strong>Checkpoint</strong>核心是把fsimage与edits log合并以生成新的fsimage的过程。此过程有两个好处：fsimage版本不断更新不会太旧、edits log文件不会太大。</p>
+<h4 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110214849.png" alt="image-20211110214849380"></p>
+<ul>
+<li>当触发checkpoint操作条件时，SNN发生请求给NN滚动edits log。然后NN会生成一个新的编辑日志文件：edits new，便于记录后续操作记录。</li>
+<li>同时SNN会将edits文件和fsimage复制到本地（使用HTTP GET方式）。</li>
+<li>SNN首先将fsimage载入到内存，然后一条一条地执行edits文件中的操作，使得内存中的fsimage不断更新，这个过程就是edits和fsimage文件合并。合并结束，SNN将内存中的数据dump生成一个新的fsimage文件。</li>
+<li>SNN将新生成的Fsimage new文件复制到NN节点。</li>
+<li>至此刚好是一个轮回，等待下一次checkpoint触发SecondaryNameNode进行工作，一直这样循环操作。</li>
+</ul>
+<h4 id="触发机制"><a href="#触发机制" class="headerlink" title="触发机制"></a>触发机制</h4><p>Checkpoint触发条件受两个参数控制，可以通过<strong>core-site.xml</strong>进行配置：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">dfs.namenode.checkpoint.period</span>=<span class="string">3600  //两次连续的checkpoint之间的时间间隔。默认1小时</span></span><br><span class="line"><span class="meta">dfs.namenode.checkpoint.txns</span>=<span class="string">1000000 //最大没有执行checkpoint事务的数量，满足将强制执行紧急checkpoint，即使尚未达到检查点周期。默认100万事务数量。</span></span><br></pre></td></tr></table></figure>
+
+<p>从上面的描述我们可以看出，<strong>SecondaryNamenode根本就不是Namenode的一个热备，只是将fsimage和edits合并</strong>。</p>
+<h2 id="Namenode-元数据恢复"><a href="#Namenode-元数据恢复" class="headerlink" title="Namenode 元数据恢复"></a>Namenode 元数据恢复</h2><h3 id="NameNode存储多目录"><a href="#NameNode存储多目录" class="headerlink" title="NameNode存储多目录"></a>NameNode存储多目录</h3><p>namenode元数据存储目录由参数：<code>dfs.namenode.name.dir</code>指定。</p>
+<p><strong>dfs.namenode.name.dir****属性可以配置多个目录</strong>，各个目录存储的文件结构和内容都完全一样，相当于备份，这样做的好处是当其中一个目录损坏了，也不会影响到hadoop的元数据，特别是当其中一个目录是NFS（网络文件系统Network File System，NFS）之上，即使你这台机器损坏了，元数据也得到保存。</p>
+<h3 id="从SecondaryNameNode恢复"><a href="#从SecondaryNameNode恢复" class="headerlink" title="从SecondaryNameNode恢复"></a>从SecondaryNameNode恢复</h3><p>SecondaryNameNode在checkpoint的时候会将fsimage和edits log下载到自己的本机上本地存储目录下。并且在checkpoint之后也不会进行删除。</p>
+<p>如果NameNode中的fsimage真的出问题了，还是可以用SecondaryNamenode中的fsimage替换一下NameNode上的fsimage，虽然已经不是最新的fsimage，但是我们可以将损失减小到最少！</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215149.png" alt="image-20211110215149444"></p>
+<h1 id="HDFS-小文件解决方案"><a href="#HDFS-小文件解决方案" class="headerlink" title="HDFS 小文件解决方案"></a>HDFS 小文件解决方案</h1><h2 id="Hadoop-Archive归档"><a href="#Hadoop-Archive归档" class="headerlink" title="Hadoop Archive归档"></a>Hadoop Archive归档</h2><p>HDFS并不擅长存储小文件，因为每个文件最少一个block，每个block的元数据都会在NameNode占用内存，如果存在大量的小文件，它们会吃掉NameNode节点的大量内存。如下所示，模拟小文件场景：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># hadoop fs -mkdir /smallfile</span></span><br><span class="line">[root@node1 ~]<span class="comment"># echo 1 &gt;1.txt</span></span><br><span class="line">[root@node1 ~]<span class="comment"># echo 2 &gt;2.txt</span></span><br><span class="line">[root@node1 ~]<span class="comment"># echo 3 &gt;3.txt</span></span><br><span class="line">[root@node1 ~]<span class="comment"># hadoop fs -put 1.txt 2.txt 3.txt /smallfile</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215245.png" alt="image-20211110215245656"></p>
+<p>Hadoop Archives可以有效的处理以上问题，它可以把多个文件归档成为一个文件，归档成一个文件后还可以透明的访问每一个文件。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215335.png" alt="image-20211110215335167"></p>
+<h3 id="创建Archive"><a href="#创建Archive" class="headerlink" title="创建Archive"></a>创建Archive</h3><p>Usage: hadoop archive -archiveName name -p <parent> <src>* <dest></p>
+<p>其中-archiveName是指要创建的存档的名称。比如test.har，archive的名字的扩展名应该是*.har。 -p参数指定文件存档文件（src）的相对路径。</p>
+<p>举个例子：-p /foo/bar a/b/c e/f/g，这里的/foo/bar是a/b/c与e/f/g的父路径，所以完整路径为/foo/bar/a/b/c与/foo/bar/e/f/g。</p>
+<p>例如：如果你只想存档一个目录/smallfile下的所有文件:</p>
+<p><code>hadoop archive -archiveName test.har -p /smallfile /outputdir</code></p>
+<p>这样就会在/outputdir目录下创建一个名为test.har的存档文件。</p>
+<p>注意：Archive归档是通过MapReduce程序完成的，需要启动YARN集群。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215400.png" alt="image-20211110215400491"></p>
+<h3 id="查看Archive"><a href="#查看Archive" class="headerlink" title="查看Archive"></a>查看Archive</h3><h4 id="查看归档之后的样子"><a href="#查看归档之后的样子" class="headerlink" title="查看归档之后的样子"></a>查看归档之后的样子</h4><p>首先我们来看下创建好的har文件。使用如下的命令：</p>
+<p><code>hadoop fs -ls /outputdir/test.har</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215451.png" alt="image-20211110215450927"></p>
+<p>这里可以看到har文件包括：两个索引文件，多个part文件（本例只有一个）以及一个标识成功与否的文件。part文件是多个原文件的集合， 通过index文件可以去找到原文件。</p>
+<p>例如上述的三个小文件1.txt 2.txt 3.txt内容分别为1，2，3。进行archive操作之后，三个小文件就归档到test.har里的part-0一个文件里。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215459.png" alt="image-20211110215459685"></p>
+<h4 id="查看归档之前的样子"><a href="#查看归档之前的样子" class="headerlink" title="查看归档之前的样子"></a>查看归档之前的样子</h4><p>在查看har文件的时候，如果没有指定访问协议，默认使用的就是hdfs://，此时所能看到的就是归档之后的样子。</p>
+<p>此外，Archive还提供了自己的har uri访问协议。如果用har uri去访问的话，索引、标识等文件就会隐藏起来，只显示创建档案之前的原文件：</p>
+<p>Hadoop Archives的URI是：</p>
+<p><code>har://scheme-hostname:port/archivepath/fileinarchive  </code></p>
+<p>scheme-hostname格式为hdfs-域名:端口。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215523.png" alt="image-20211110215523679"></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">hadoop fs -ls har://hdfs-node1:8020/outputdir/test.har/</span><br><span class="line">hadoop fs -ls har:///outputdir/test.har</span><br><span class="line">hadoop fs -cat har:///outputdir/test.har/1.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="提取Archive"><a href="#提取Archive" class="headerlink" title="提取Archive"></a>提取Archive</h3><p>按顺序解压存档（串行）：</p>
+<p><code>hadoop fs -cp har:///user/zoo/foo.har/dir1 hdfs:/user/zoo/newdir</code></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># hadoop fs -mkdir /smallfile1</span></span><br><span class="line">[root@node1 ~]<span class="comment"># hadoop fs -cp har:///outputdir/test.har/* /smallfile1</span></span><br><span class="line">[root@node1 ~]<span class="comment"># hadoop fs -ls /smallfile1</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215604.png" alt="image-20211110215604369"></p>
+<p>要并行解压存档，请使用DistCp,对应大的归档文件可以提高效率：</p>
+<p><code>hadoop distcp har:///user/zoo/foo.har/dir1 hdfs:/user/zoo/newdir</code></p>
+<p><code>hadoop distcp har:///outputdir/test.har/* /smallfile2</code></p>
+<h3 id="Archive使用注意事项"><a href="#Archive使用注意事项" class="headerlink" title="Archive使用注意事项"></a>Archive使用注意事项</h3><ol>
+<li><p>Hadoop archives是特殊的档案格式。一个Hadoop archive对应一个文件系统目录。Hadoop archive的扩展名是***.har**；</p>
+</li>
+<li><p>创建archives本质是运行一个Map/Reduce任务，所以应该在Hadoop集群上运行创建档案的命令；</p>
+</li>
+<li><p>创建archive文件要消耗和原文件一样多的硬盘空间；</p>
+</li>
+<li><p>archive文件不支持压缩，尽管archive文件看起来像已经被压缩过；</p>
+</li>
+<li><p>archive文件一旦创建就无法改变，要修改的话，需要创建新的archive文件。事实上，一般不会再对存档后的文件进行修改，因为它们是<strong>定期存档的，比如每周或每日</strong>；</p>
+</li>
+<li><p>当创建archive时，源文件不会被更改或删除；</p>
+</li>
+</ol>
+<h2 id="Sequence-File"><a href="#Sequence-File" class="headerlink" title="Sequence File"></a>Sequence File</h2><h3 id="Sequence-File介绍"><a href="#Sequence-File介绍" class="headerlink" title="Sequence File介绍"></a>Sequence File介绍</h3><p><strong>Sequence File</strong>是Hadoop API提供的一种二进制文件支持。这种二进制文件直接将&lt;key, value&gt;键值对序列化到文件中。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215727.png" alt="image-20211110215726984"></p>
+<h3 id="Sequence-File优缺点"><a href="#Sequence-File优缺点" class="headerlink" title="Sequence File优缺点"></a>Sequence File优缺点</h3><h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><ul>
+<li>二级制格式存储，比文本文件更紧凑。</li>
+<li>支持不同级别压缩（基于Record或Block压缩）。</li>
+<li>文件可以拆分和并行处理，适用于MapReduce。</li>
+</ul>
+<h4 id="局限性"><a href="#局限性" class="headerlink" title="局限性"></a>局限性</h4><ul>
+<li>二进制格式文件不方便查看。</li>
+<li>特定于hadoop，只有Java API可用于与之件进行交互。尚未提供多语言支持。</li>
+</ul>
+<h3 id="Sequence-File格式"><a href="#Sequence-File格式" class="headerlink" title="Sequence File格式"></a>Sequence File格式</h3><p>Hadoop Sequence File 是一个由二进制键/值对组成的。根据压缩类型，有3种不同的Sequence File格式：<strong>未压缩格式</strong>、<strong>record压缩格式</strong>、<strong>block压缩格式</strong>。</p>
+<p>Sequence File由<strong>一个header</strong>和<strong>一个或多个record</strong>组成。以上三种格式均使用相同的header结构，如下所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215902.png" alt="image-20211110215902236"></p>
+<p>前3个字节为SEQ，表示该文件是序列文件，后跟一个字节表示实际版本号（例如SEQ4或SEQ6）。Header中其他也包括key、value class名字、 压缩细节、metadata、Sync marker。Sync Marker同步标记，用于可以读取任意位置的数据。</p>
+<h4 id="未压缩格式"><a href="#未压缩格式" class="headerlink" title="未压缩格式"></a>未压缩格式</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215922.png" alt="image-20211110215922178"></p>
+<p>未压缩的Sequence File文件由header、record、sync三个部分组成。其中record包含了4个部分：record length（记录长度）、key length（键长）、key、value。</p>
+<p>每隔几个record（100字节左右）就有一个同步标记。</p>
+<h4 id="基于record压缩格式"><a href="#基于record压缩格式" class="headerlink" title="基于record压缩格式"></a>基于record压缩格式</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110215940.png" alt="image-20211110215940009"></p>
+<p>基于record压缩的Sequence File文件由header、record、sync三个部分组成。其中record包含了4个部分：record length（记录长度）、key length（键长）、key、<strong>compressed value（被压缩的值）</strong>。</p>
+<p>每隔几个record（100字节左右）就有一个同步标记。</p>
+<h4 id="基于block压缩格式"><a href="#基于block压缩格式" class="headerlink" title="基于block压缩格式"></a>基于block压缩格式</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110220005.png" alt="image-20211110220005585"></p>
+<p>基于block压缩的Sequence File文件由header、block、sync三个部分组成。</p>
+<p><strong>block</strong>指的是record block，可以理解为多个record记录组成的块**。注意，这个block和HDFS中分块存储的block（128M）是不同的概念。</p>
+<p>Block中包括：record条数、压缩的key长度、压缩的keys、压缩的value长度、压缩的values。每隔一个block就有一个同步标记。</p>
+<p>block压缩比record压缩提供更好的压缩率。使用Sequence File时，通常首选块压缩。</p>
+<h3 id="Sequence-File文件读写"><a href="#Sequence-File文件读写" class="headerlink" title="Sequence File文件读写"></a>Sequence File文件读写</h3><h4 id="开发环境构建"><a href="#开发环境构建" class="headerlink" title="开发环境构建"></a>开发环境构建</h4><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hadoop-common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hadoop-hdfs<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hadoop-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="SequenceFileWrite"><a href="#SequenceFileWrite" class="headerlink" title="SequenceFileWrite"></a>SequenceFileWrite</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.itcast.hdfs.sequence;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.net.URI;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FileSystem;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IOUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IntWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.SequenceFile;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Text;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.compress.CompressionCodec;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.compress.GzipCodec;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@description</span>:</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span>: Allen Woon</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@time</span>: 2020/12/23 15:56</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SequenceFileWrite</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String[] DATA = &#123;</span><br><span class="line">            <span class="string">&quot;One, two, buckle my shoe&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Three, four, shut the door&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Five, six, pick up sticks&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Seven, eight, lay them straight&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Nine, ten, a big fat hen&quot;</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">//设置客户端运行身份 以root去操作访问HDFS</span></span><br><span class="line">        System.setProperty(<span class="string">&quot;HADOOP_USER_NAME&quot;</span>,<span class="string">&quot;root&quot;</span>);</span><br><span class="line">        <span class="comment">//Configuration 用于指定相关参数属性</span></span><br><span class="line">        Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">        <span class="comment">//sequence file key、value</span></span><br><span class="line">        IntWritable key = <span class="keyword">new</span> IntWritable();</span><br><span class="line">        Text value = <span class="keyword">new</span> Text();</span><br><span class="line">        <span class="comment">//构造Writer参数属性</span></span><br><span class="line">        SequenceFile.Writer writer = <span class="keyword">null</span>;</span><br><span class="line">        CompressionCodec Codec = <span class="keyword">new</span> GzipCodec();</span><br><span class="line">        SequenceFile.Writer.Option optPath = SequenceFile.Writer.file(<span class="keyword">new</span> Path(<span class="string">&quot;hdfs://node1:8020/seq.out&quot;</span>));</span><br><span class="line">        SequenceFile.Writer.Option optKey = SequenceFile.Writer.keyClass(key.getClass());</span><br><span class="line">        SequenceFile.Writer.Option optVal = SequenceFile.Writer.valueClass(value.getClass());</span><br><span class="line">        SequenceFile.Writer.Option optCom = SequenceFile.Writer.compression(SequenceFile.CompressionType.RECORD,Codec);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            writer = SequenceFile.createWriter( conf, optPath, optKey, optVal, optCom);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">                key.set(<span class="number">100</span> - i);</span><br><span class="line">                value.set(DATA[i % DATA.length]);</span><br><span class="line">                System.out.printf(<span class="string">&quot;[%s]\t%s\t%s\n&quot;</span>, writer.getLength(), key, value);</span><br><span class="line">                writer.append(key, value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            IOUtils.closeStream(writer);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行过程打印输出：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110220149.png" alt="image-20211110220149600"></p>
+<p>最终输出的文件结果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110220156.png" alt="image-20211110220156463"></p>
+<h4 id="SequenceFileRead"><a href="#SequenceFileRead" class="headerlink" title="SequenceFileRead"></a>SequenceFileRead</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.itcast.hdfs.sequence;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IOUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.SequenceFile;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Writable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.util.ReflectionUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@description</span>:</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span>: Allen Woon</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@time</span>: 2020/12/23 20:27</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SequenceFileRead</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">//设置客户端运行身份 以root去操作访问HDFS</span></span><br><span class="line">        System.setProperty(<span class="string">&quot;HADOOP_USER_NAME&quot;</span>,<span class="string">&quot;root&quot;</span>);</span><br><span class="line">        <span class="comment">//Configuration 用于指定相关参数属性</span></span><br><span class="line">        Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line"></span><br><span class="line">        SequenceFile.Reader.Option option1 = SequenceFile.Reader.file(<span class="keyword">new</span> Path(<span class="string">&quot;hdfs://node1:8020/seq.out&quot;</span>));</span><br><span class="line">        SequenceFile.Reader.Option option2 = SequenceFile.Reader.length(<span class="number">174</span>);<span class="comment">//这个参数表示读取的长度</span></span><br><span class="line"></span><br><span class="line">        SequenceFile.Reader reader = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            reader = <span class="keyword">new</span> SequenceFile.Reader(conf,option1,option2);</span><br><span class="line">            Writable key = (Writable) ReflectionUtils.newInstance(</span><br><span class="line">                    reader.getKeyClass(), conf);</span><br><span class="line">            Writable value = (Writable) ReflectionUtils.newInstance(</span><br><span class="line">                    reader.getValueClass(), conf);</span><br><span class="line">            <span class="keyword">long</span> position = reader.getPosition();</span><br><span class="line">            <span class="keyword">while</span> (reader.next(key, value)) &#123;</span><br><span class="line">                String syncSeen = reader.syncSeen() ? <span class="string">&quot;*&quot;</span> : <span class="string">&quot;&quot;</span>;<span class="comment">//是否返回了Sync Mark同步标记</span></span><br><span class="line">                System.out.printf(<span class="string">&quot;[%s%s]\t%s\t%s\n&quot;</span>, position, syncSeen, key, value);</span><br><span class="line">                position = reader.getPosition(); <span class="comment">// beginning of next record</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            IOUtils.closeStream(reader);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110220237.png" alt="image-20211110220237635"></p>
+<h3 id="案例：使用Sequence-File合并小文件"><a href="#案例：使用Sequence-File合并小文件" class="headerlink" title="案例：使用Sequence File合并小文件"></a>案例：使用Sequence File合并小文件</h3><h4 id="理论依据"><a href="#理论依据" class="headerlink" title="理论依据"></a>理论依据</h4><p>可以使用Sequence File对小文件合并，即将文件名作为key，文件内容作为value序列化到大文件中。例如，假设有10,000个100KB文件，那么我们可以编写一个程序将它们放入单个Sequence File中，如下所示，您可以在其中使用filename作为键，并使用content作为值。</p>
+<h4 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.itcast.hdfs.sequence;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@description</span>:</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span>: Allen Woon</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@time</span>: 2020/12/24 11:21</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.nio.charset.Charset;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.codec.digest.DigestUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FileUtil;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.BytesWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.SequenceFile;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.SequenceFile.Reader;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.SequenceFile.Writer;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Text;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MergeSmallFilesToSequenceFile</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Configuration configuration = <span class="keyword">new</span> Configuration();</span><br><span class="line">    <span class="keyword">private</span> List&lt;String&gt; smallFilePaths = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//定义方法用来添加小文件的路径</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addInputPath</span><span class="params">(String inputPath)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        File file = <span class="keyword">new</span> File(inputPath);</span><br><span class="line">        <span class="comment">//给定路径是文件夹，则遍历文件夹，将子文件夹中的文件都放入smallFilePaths</span></span><br><span class="line">        <span class="comment">//给定路径是文件，则把文件的路径放入smallFilePaths</span></span><br><span class="line">        <span class="keyword">if</span>(file.isDirectory())&#123;</span><br><span class="line">            File[] files = FileUtil.listFiles(file);</span><br><span class="line">            <span class="keyword">for</span>(File sFile:files)&#123;</span><br><span class="line">                smallFilePaths.add(sFile.getPath());</span><br><span class="line">                System.out.println(<span class="string">&quot;添加小文件路径：&quot;</span> + sFile.getPath());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            smallFilePaths.add(file.getPath());</span><br><span class="line">            System.out.println(<span class="string">&quot;添加小文件路径：&quot;</span> + file.getPath());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//把smallFilePaths的小文件遍历读取，然后放入合并的sequencefile容器中</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">mergeFile</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        Writer.Option bigFile = Writer.file(<span class="keyword">new</span> Path(<span class="string">&quot;D:\\bigfile.seq&quot;</span>));</span><br><span class="line">        Writer.Option keyClass = Writer.keyClass(Text.class);</span><br><span class="line">        Writer.Option valueClass = Writer.valueClass(BytesWritable.class);</span><br><span class="line">        <span class="comment">//构造writer</span></span><br><span class="line">        Writer writer = SequenceFile.createWriter(configuration, bigFile, keyClass, valueClass);</span><br><span class="line">        <span class="comment">//遍历读取小文件，逐个写入sequencefile</span></span><br><span class="line">        Text key = <span class="keyword">new</span> Text();</span><br><span class="line">        <span class="keyword">for</span>(String path:smallFilePaths)&#123;</span><br><span class="line">            File file = <span class="keyword">new</span> File(path);</span><br><span class="line">            <span class="keyword">long</span> fileSize = file.length();<span class="comment">//获取文件的字节数大小</span></span><br><span class="line">            <span class="keyword">byte</span>[] fileContent = <span class="keyword">new</span> <span class="keyword">byte</span>[(<span class="keyword">int</span>)fileSize];</span><br><span class="line">            FileInputStream inputStream = <span class="keyword">new</span> FileInputStream(file);</span><br><span class="line">            inputStream.read(fileContent, <span class="number">0</span>, (<span class="keyword">int</span>)fileSize);<span class="comment">//把文件的二进制流加载到fileContent字节数组中去</span></span><br><span class="line">            String md5Str = DigestUtils.md5Hex(fileContent);</span><br><span class="line">            System.out.println(<span class="string">&quot;merge小文件：&quot;</span>+path+<span class="string">&quot;,md5:&quot;</span>+md5Str);</span><br><span class="line">            key.set(path);</span><br><span class="line">            <span class="comment">//把文件路径作为key，文件内容做为value，放入到sequencefile中</span></span><br><span class="line">            writer.append(key, <span class="keyword">new</span> BytesWritable(fileContent));</span><br><span class="line">        &#125;</span><br><span class="line">        writer.hflush();</span><br><span class="line">        writer.close();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//读取大文件中的小文件</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">readMergedFile</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        Reader.Option file = Reader.file(<span class="keyword">new</span> Path(<span class="string">&quot;D:\\bigfile.seq&quot;</span>));</span><br><span class="line">        Reader reader = <span class="keyword">new</span> Reader(configuration, file);</span><br><span class="line">        Text key = <span class="keyword">new</span> Text();</span><br><span class="line">        BytesWritable value = <span class="keyword">new</span> BytesWritable();</span><br><span class="line">        <span class="keyword">while</span>(reader.next(key, value))&#123;</span><br><span class="line">            <span class="keyword">byte</span>[] bytes = value.copyBytes();</span><br><span class="line">            String md5 = DigestUtils.md5Hex(bytes);</span><br><span class="line">            String content = <span class="keyword">new</span> String(bytes, Charset.forName(<span class="string">&quot;GBK&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;读取到文件：&quot;</span>+key+<span class="string">&quot;,md5:&quot;</span>+md5+<span class="string">&quot;,content:&quot;</span>+content);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        MergeSmallFilesToSequenceFile msf = <span class="keyword">new</span> MergeSmallFilesToSequenceFile();</span><br><span class="line">        <span class="comment">//合并小文件</span></span><br><span class="line"><span class="comment">//		msf.addInputPath(&quot;D:\\datasets\\smallfile&quot;);</span></span><br><span class="line"><span class="comment">//		msf.mergeFile();</span></span><br><span class="line">        <span class="comment">//读取大文件</span></span><br><span class="line">        msf.readMergedFile();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211110220439.png" alt="image-20211110220439619"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://lvxueyang.vip/post/287fd37b.html">http://lvxueyang.vip/post/287fd37b.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/HDFS/">HDFS</a></div><div class="post_share"><div class="social-share" data-image="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082121.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/post/f9e87748.html"><img class="next-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082302.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">HDFS集群管理与运维</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/c6918f16.html" title="HDFS数据存储与数据管理"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082110.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-06</div><div class="title">HDFS数据存储与数据管理</div></div></a></div><div><a href="/post/90f10c53.html" title="HDFS入门与应用开发"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212055.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-06</div><div class="title">HDFS入门与应用开发</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E6%9E%B6%E6%9E%84%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">HDFS架构原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E6%9E%B6%E6%9E%84%E5%89%96%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">HDFS架构剖析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS%E6%95%B4%E4%BD%93%E6%A6%82%E8%BF%B0"><span class="toc-number">2.1.</span> <span class="toc-text">HDFS整体概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%92%E8%89%B2%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.2.</span> <span class="toc-text">角色介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">2.2.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Namenode"><span class="toc-number">2.2.2.</span> <span class="toc-text">Namenode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Datanode"><span class="toc-number">2.2.3.</span> <span class="toc-text">Datanode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Secondarynamenode"><span class="toc-number">2.2.4.</span> <span class="toc-text">Secondarynamenode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS%E9%87%8D%E8%A6%81%E7%89%B9%E6%80%A7"><span class="toc-number">2.3.</span> <span class="toc-text">HDFS重要特性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8E%E6%9E%B6%E6%9E%84"><span class="toc-number">2.3.1.</span> <span class="toc-text">主从架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%9D%97%E6%9C%BA%E5%88%B6"><span class="toc-number">2.3.2.</span> <span class="toc-text">分块机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%AF%E6%9C%AC%E6%9C%BA%E5%88%B6"><span class="toc-number">2.3.3.</span> <span class="toc-text">副本机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Namespace"><span class="toc-number">2.3.4.</span> <span class="toc-text">Namespace</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86"><span class="toc-number">2.3.5.</span> <span class="toc-text">元数据管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%9D%97%E5%AD%98%E5%82%A8"><span class="toc-number">2.3.6.</span> <span class="toc-text">数据块存储</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS-Web-Interfaces"><span class="toc-number">3.</span> <span class="toc-text">HDFS Web Interfaces</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Web-Interfaces%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.1.</span> <span class="toc-text">Web Interfaces介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9D%97%E5%8A%9F%E8%83%BD%E8%A7%A3%E8%AF%BB"><span class="toc-number">3.2.</span> <span class="toc-text">模块功能解读</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Overview"><span class="toc-number">3.2.1.</span> <span class="toc-text">Overview</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Summary"><span class="toc-number">3.2.1.1.</span> <span class="toc-text">Summary</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NameNode-Journal-Status"><span class="toc-number">3.2.1.2.</span> <span class="toc-text">NameNode Journal Status</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NameNode-Storage"><span class="toc-number">3.2.1.3.</span> <span class="toc-text">NameNode Storage</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DFS-Storage-Types"><span class="toc-number">3.2.1.4.</span> <span class="toc-text">DFS Storage Types</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Datanodes"><span class="toc-number">3.2.2.</span> <span class="toc-text">Datanodes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Datanode-Volume-Failures"><span class="toc-number">3.2.3.</span> <span class="toc-text">Datanode Volume Failures</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Snapshot"><span class="toc-number">3.2.4.</span> <span class="toc-text">Snapshot</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Satartup-progress"><span class="toc-number">3.2.5.</span> <span class="toc-text">Satartup progress</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Utilities"><span class="toc-number">3.2.6.</span> <span class="toc-text">Utilities</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Browse-the-file-system"><span class="toc-number">3.2.6.1.</span> <span class="toc-text">Browse the file system</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Logs%E3%80%81Log-Level"><span class="toc-number">3.2.6.2.</span> <span class="toc-text">Logs、Log Level</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Configruation"><span class="toc-number">3.2.6.3.</span> <span class="toc-text">Configruation</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B"><span class="toc-number">4.</span> <span class="toc-text">HDFS读写流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%99%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B"><span class="toc-number">4.1.</span> <span class="toc-text">写数据流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Pipeline%E7%AE%A1%E9%81%93%E3%80%81ACK%E5%BA%94%E7%AD%94%E5%93%8D%E5%BA%94"><span class="toc-number">4.1.1.</span> <span class="toc-text">Pipeline管道、ACK应答响应</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E6%B5%81%E7%A8%8B"><span class="toc-number">4.1.2.</span> <span class="toc-text">具体流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%98%E8%AE%A43%E5%89%AF%E6%9C%AC%E5%AD%98%E5%82%A8%E7%AD%96%E7%95%A5"><span class="toc-number">4.1.3.</span> <span class="toc-text">默认3副本存储策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%BB%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B"><span class="toc-number">4.2.</span> <span class="toc-text">读数据流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E6%B5%81%E7%A8%8B-1"><span class="toc-number">4.2.1.</span> <span class="toc-text">具体流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%92%E8%89%B2%E8%81%8C%E8%B4%A3%E6%A6%82%E8%BF%B0"><span class="toc-number">4.3.</span> <span class="toc-text">角色职责概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Namenode%E8%81%8C%E8%B4%A3"><span class="toc-number">4.3.1.</span> <span class="toc-text">Namenode职责</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Datanode%E8%81%8C%E8%B4%A3"><span class="toc-number">4.3.2.</span> <span class="toc-text">Datanode职责</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Namenode-%E5%85%83%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">Namenode 元数据管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">5.1.</span> <span class="toc-text">元数据是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86%E6%A6%82%E8%BF%B0"><span class="toc-number">5.2.</span> <span class="toc-text">元数据管理概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%85%83%E6%95%B0%E6%8D%AE"><span class="toc-number">5.2.1.</span> <span class="toc-text">内存元数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E5%85%83%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6"><span class="toc-number">5.2.2.</span> <span class="toc-text">磁盘元数据文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#fsimage-%E5%86%85%E5%AD%98%E9%95%9C%E5%83%8F%E6%96%87%E4%BB%B6"><span class="toc-number">5.2.2.1.</span> <span class="toc-text">fsimage 内存镜像文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Edits-log%E7%BC%96%E8%BE%91%E6%97%A5%E5%BF%97"><span class="toc-number">5.2.2.2.</span> <span class="toc-text">Edits log编辑日志</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E5%85%83%E6%95%B0%E6%8D%AE%E9%A1%BA%E5%BA%8F"><span class="toc-number">5.2.3.</span> <span class="toc-text">加载元数据顺序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86%E7%9B%B8%E5%85%B3%E7%9B%AE%E5%BD%95%E6%96%87%E4%BB%B6"><span class="toc-number">5.3.</span> <span class="toc-text">元数据管理相关目录文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%9B%AE%E5%BD%95"><span class="toc-number">5.3.1.</span> <span class="toc-text">元数据存储目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E7%9B%B8%E5%85%B3%E6%96%87%E4%BB%B6"><span class="toc-number">5.3.2.</span> <span class="toc-text">元数据相关文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#VERSION"><span class="toc-number">5.3.2.1.</span> <span class="toc-text">VERSION</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#seen-txid"><span class="toc-number">5.3.2.2.</span> <span class="toc-text">seen_txid</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fsimage%E7%9B%B8%E5%85%B3"><span class="toc-number">5.3.2.3.</span> <span class="toc-text">fsimage相关</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Edits-log%E7%9B%B8%E5%85%B3"><span class="toc-number">5.3.2.4.</span> <span class="toc-text">Edits log相关</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fsimage%E3%80%81editslog%E6%9F%A5%E7%9C%8B"><span class="toc-number">5.3.3.</span> <span class="toc-text">Fsimage、editslog查看</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Fsimage"><span class="toc-number">5.3.3.1.</span> <span class="toc-text">Fsimage</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#edits-log"><span class="toc-number">5.3.3.2.</span> <span class="toc-text">edits log</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SecondaryNamenode"><span class="toc-number">5.4.</span> <span class="toc-text">SecondaryNamenode</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SNN%E8%81%8C%E8%B4%A3%E6%A6%82%E8%BF%B0"><span class="toc-number">5.4.1.</span> <span class="toc-text">SNN职责概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SNN-checkpoint%E6%9C%BA%E5%88%B6"><span class="toc-number">5.4.2.</span> <span class="toc-text">SNN checkpoint机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="toc-number">5.4.2.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%81%E7%A8%8B"><span class="toc-number">5.4.2.2.</span> <span class="toc-text">流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A6%E5%8F%91%E6%9C%BA%E5%88%B6"><span class="toc-number">5.4.2.3.</span> <span class="toc-text">触发机制</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Namenode-%E5%85%83%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D"><span class="toc-number">5.5.</span> <span class="toc-text">Namenode 元数据恢复</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#NameNode%E5%AD%98%E5%82%A8%E5%A4%9A%E7%9B%AE%E5%BD%95"><span class="toc-number">5.5.1.</span> <span class="toc-text">NameNode存储多目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8ESecondaryNameNode%E6%81%A2%E5%A4%8D"><span class="toc-number">5.5.2.</span> <span class="toc-text">从SecondaryNameNode恢复</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS-%E5%B0%8F%E6%96%87%E4%BB%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">6.</span> <span class="toc-text">HDFS 小文件解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Hadoop-Archive%E5%BD%92%E6%A1%A3"><span class="toc-number">6.1.</span> <span class="toc-text">Hadoop Archive归档</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAArchive"><span class="toc-number">6.1.1.</span> <span class="toc-text">创建Archive</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BArchive"><span class="toc-number">6.1.2.</span> <span class="toc-text">查看Archive</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%BD%92%E6%A1%A3%E4%B9%8B%E5%90%8E%E7%9A%84%E6%A0%B7%E5%AD%90"><span class="toc-number">6.1.2.1.</span> <span class="toc-text">查看归档之后的样子</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%BD%92%E6%A1%A3%E4%B9%8B%E5%89%8D%E7%9A%84%E6%A0%B7%E5%AD%90"><span class="toc-number">6.1.2.2.</span> <span class="toc-text">查看归档之前的样子</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E5%8F%96Archive"><span class="toc-number">6.1.3.</span> <span class="toc-text">提取Archive</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Archive%E4%BD%BF%E7%94%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">6.1.4.</span> <span class="toc-text">Archive使用注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sequence-File"><span class="toc-number">6.2.</span> <span class="toc-text">Sequence File</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sequence-File%E4%BB%8B%E7%BB%8D"><span class="toc-number">6.2.1.</span> <span class="toc-text">Sequence File介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sequence-File%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">6.2.2.</span> <span class="toc-text">Sequence File优缺点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%82%B9"><span class="toc-number">6.2.2.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B1%80%E9%99%90%E6%80%A7"><span class="toc-number">6.2.2.2.</span> <span class="toc-text">局限性</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sequence-File%E6%A0%BC%E5%BC%8F"><span class="toc-number">6.2.3.</span> <span class="toc-text">Sequence File格式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AA%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F"><span class="toc-number">6.2.3.1.</span> <span class="toc-text">未压缩格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8Erecord%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F"><span class="toc-number">6.2.3.2.</span> <span class="toc-text">基于record压缩格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8Eblock%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F"><span class="toc-number">6.2.3.3.</span> <span class="toc-text">基于block压缩格式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sequence-File%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99"><span class="toc-number">6.2.4.</span> <span class="toc-text">Sequence File文件读写</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA"><span class="toc-number">6.2.4.1.</span> <span class="toc-text">开发环境构建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SequenceFileWrite"><span class="toc-number">6.2.4.2.</span> <span class="toc-text">SequenceFileWrite</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SequenceFileRead"><span class="toc-number">6.2.4.3.</span> <span class="toc-text">SequenceFileRead</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%EF%BC%9A%E4%BD%BF%E7%94%A8Sequence-File%E5%90%88%E5%B9%B6%E5%B0%8F%E6%96%87%E4%BB%B6"><span class="toc-number">6.2.5.</span> <span class="toc-text">案例：使用Sequence File合并小文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%90%86%E8%AE%BA%E4%BE%9D%E6%8D%AE"><span class="toc-number">6.2.5.1.</span> <span class="toc-text">理论依据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="toc-number">6.2.5.2.</span> <span class="toc-text">具体实现</span></a></li></ol></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><p><a style="margin-inline:5px"target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://img.shields.io/badge/CDN-%E5%8F%88%E6%8B%8D%E4%BA%91-blue" title="又拍云提供CDN加速" alt="又拍云"></a><a style="margin-inline:5px"target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为 Hexo" alt="HEXO"></a><a style="margin-inline:5px"target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用 Butterfly" alt="Butterfly"></a><a style="margin-inline:5px"target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用 Jsdelivr 为静态资源提供CDN加速" alt="Jsdelivr"></a><a style="margin-inline:5px"target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由 GitHub 托管" alt="GitHub"></a><a style="margin-inline:5px"target="_blank"href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" alt="img" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><div class="aplayer no-destroy" data-id="7520334743" data-server="tencent" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-preload="none" data-autoplay="true" muted></div><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script async data-pjax src="/js/randombg.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = [
+  'title',
+  '#config-diff',
+  '#body-wrap',
+  '#rightside-config-hide',
+  '#rightside-config-show',
+  '.js-pjax'
+]
+
+if (false) {
+  pjaxSelectors.unshift('meta[property="og:image"]', 'meta[property="og:title"]', 'meta[property="og:url"]')
+}
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.removeEventListener('scroll', window.tocScrollFn)
+  window.removeEventListener('scroll', scrollCollect)
+
+  typeof preloader === 'object' && preloader.initLoading()
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // Analytics
+  if (false) {
+    MtaH5.pgv()
+  }
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+
+  typeof preloader === 'object' && preloader.endLoading()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                console.log('已挂载history_calendar')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='/'|| '/' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><script data-pjax>
+  function butterfly_clock_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src="/img/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_injector_config();
+  }
+  </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax src="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.js"></script><!-- hexo injector body_end end --></body></html>
