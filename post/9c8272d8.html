@@ -1,0 +1,639 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HDFS核心源码分析 | 牧马人的忧伤</title><meta name="keywords" content="HDFS"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="HDFS核心源码分析Hadoop源码编译为什么要编译源码Native Library本地库Native Library，一般译为本地库或原生库，是由C&#x2F;C++编写的动态库（*.so），并通过JNI(Java Native Interface)机制为java层提供接口。应用一般会出于性能、安全等角度考虑将相关逻辑用C&#x2F;C++实现并编译为库的形式提供接口，供上层或其他模块调用。 Hadoop是使用Ja">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HDFS核心源码分析">
+<meta property="og:url" content="http://lvxueyang.vip/post/9c8272d8.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="HDFS核心源码分析Hadoop源码编译为什么要编译源码Native Library本地库Native Library，一般译为本地库或原生库，是由C&#x2F;C++编写的动态库（*.so），并通过JNI(Java Native Interface)机制为java层提供接口。应用一般会出于性能、安全等角度考虑将相关逻辑用C&#x2F;C++实现并编译为库的形式提供接口，供上层或其他模块调用。 Hadoop是使用Ja">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg">
+<meta property="article:published_time" content="2021-11-11T13:41:00.000Z">
+<meta property="article:modified_time" content="2021-11-11T13:41:58.059Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="HDFS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://lvxueyang.vip/post/9c8272d8"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'HDFS核心源码分析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-11-11 21:41:58'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    document.addEventListener('pjax:complete', detectApple)})(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">114</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">33</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">32</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">HDFS核心源码分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-11-11T13:41:00.000Z" title="发表于 2021-11-11 21:41:00">2021-11-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-11-11T13:41:58.059Z" title="更新于 2021-11-11 21:41:58">2021-11-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/HDFS/">HDFS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">8.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>32分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="HDFS核心源码分析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="HDFS核心源码分析"><a href="#HDFS核心源码分析" class="headerlink" title="HDFS核心源码分析"></a>HDFS核心源码分析</h1><h1 id="Hadoop源码编译"><a href="#Hadoop源码编译" class="headerlink" title="Hadoop源码编译"></a>Hadoop源码编译</h1><h2 id="为什么要编译源码"><a href="#为什么要编译源码" class="headerlink" title="为什么要编译源码"></a>为什么要编译源码</h2><h3 id="Native-Library本地库"><a href="#Native-Library本地库" class="headerlink" title="Native Library本地库"></a>Native Library本地库</h3><p><strong>Native Library</strong>，一般译为本地库或原生库，是由C/C++编写的动态库（*.so），并通过JNI(Java Native Interface)机制为java层提供接口。应用一般会出于性能、安全等角度考虑将相关逻辑用C/C++实现并编译为库的形式提供接口，供上层或其他模块调用。</p>
+<p>Hadoop是使用Java语言开发的，但是有一些需求和操作并不适合使用java,所以就引入了本地库(Native Library) 的概念。说白了，就是Hadoop的某些功能，必须通过JNT来协调Java类文件和Native代码生成的库文件一起才能工作。系统要运行Native代码，首先要将Native编译成目标CPU架构的动态库文件</p>
+<p>不同的处理器架构，需要编译出相应平台的动态库文件（<strong>Linux下对应[.so]文件，windows下对应[.dll]文件</strong>），才能被正确的执行。</p>
+<p>Hadoop本地库主要组件有：</p>
+<ul>
+<li>压缩编解码器（bzip2，lz4，snappy，zlib）。</li>
+<li>HDFS的本地IO实用程序，用于HDFS短路本地读取和集中式缓存管理。</li>
+<li>CRC32校验和实现。</li>
+</ul>
+<h3 id="源码修改"><a href="#源码修改" class="headerlink" title="源码修改"></a>源码修改</h3><p>Hadoop属于Apache开源软件，如果用户在使用中发觉某些组件或者功能不能满足于自己的企业需求，可以基于开源协议对<strong>Hadoop源码进行修改</strong>，改成符合自己性能要求。此时也是需要重新编译源码然后部署安装。</p>
+<h2 id="如何编译源码"><a href="#如何编译源码" class="headerlink" title="如何编译源码"></a>如何编译源码</h2><p>在Hadoop的源码包根目录下有一个文件：BUILDING.txt。里面描述了在不同平台下对Hadoop进行源码编译的要求和步骤。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111205549.png" alt="image-20211111205549393"></p>
+<p>比如，在Linux/Unix平台如何编译，描述如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111205557.png" alt="image-20211111205557871"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111205601.png" alt="image-20211111205601629"></p>
+<h2 id="Linux平台编译"><a href="#Linux平台编译" class="headerlink" title="Linux平台编译"></a>Linux平台编译</h2><h3 id="编译环境"><a href="#编译环境" class="headerlink" title="编译环境"></a>编译环境</h3><h4 id="安装编译相关的依赖"><a href="#安装编译相关的依赖" class="headerlink" title="安装编译相关的依赖"></a>安装编译相关的依赖</h4><p>1、<code>yum install gcc gcc-c++</code></p>
+<p>#下面这个命令不需要执行 手动安装cmake</p>
+<p>2、<code>yum install make cmake</code> #(这里cmake版本推荐为3.6版本以上，版本低源码无法编译！可手动安装)</p>
+<p>3、<code>yum install autoconf automake libtool curl</code></p>
+<p>4、<code>yum install lzo-devel zlib-devel openssl openssl-devel ncurses-devel</code></p>
+<p>5、<code>yum install snappy snappy-devel bzip2 bzip2-devel lzo lzo-devel lzop libXtst</code></p>
+<h4 id="手动安装cmake"><a href="#手动安装cmake" class="headerlink" title="手动安装cmake"></a>手动安装cmake</h4><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#yum卸载已安装cmake 版本低</span></span><br><span class="line">yum erase cmake</span><br><span class="line"></span><br><span class="line"><span class="comment">#解压</span></span><br><span class="line">tar zxvf cmake-3.13.5.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment">#编译安装</span></span><br><span class="line"><span class="built_in">cd</span> /<span class="built_in">export</span>/server/cmake-3.13.5</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line"><span class="comment">#验证</span></span><br><span class="line">[root@node4 ~]<span class="comment"># cmake -version      </span></span><br><span class="line">cmake version 3.13.5</span><br><span class="line"></span><br><span class="line"><span class="comment">#如果没有正确显示版本 请断开SSH连接 重写登录</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="手动安装snappy"><a href="#手动安装snappy" class="headerlink" title="手动安装snappy"></a>手动安装snappy</h4><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#卸载已经安装的</span></span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/lib</span><br><span class="line"></span><br><span class="line">rm -rf libsnappy*</span><br><span class="line"></span><br><span class="line"><span class="comment">#上传解压</span></span><br><span class="line">tar zxvf snappy-1.1.3.tar.gz </span><br><span class="line"></span><br><span class="line"><span class="comment">#编译安装</span></span><br><span class="line"><span class="built_in">cd</span> /<span class="built_in">export</span>/server/snappy-1.1.3</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line"><span class="comment">#验证是否安装</span></span><br><span class="line">[root@node4 snappy-1.1.3]<span class="comment"># ls -lh /usr/local/lib |grep snappy</span></span><br><span class="line">-rw-r--r-- 1 root root 511K Nov  4 17:13 libsnappy.a</span><br><span class="line">-rwxr-xr-x 1 root root  955 Nov  4 17:13 libsnappy.la</span><br><span class="line">lrwxrwxrwx 1 root root   18 Nov  4 17:13 libsnappy.so -&gt; libsnappy.so.1.3.0</span><br><span class="line">lrwxrwxrwx 1 root root   18 Nov  4 17:13 libsnappy.so.1 -&gt; libsnappy.so.1.3.0</span><br><span class="line">-rwxr-xr-x 1 root root 253K Nov  4 17:13 libsnappy.so.1.3.0</span><br></pre></td></tr></table></figure>
+
+<h4 id="安装配置JDK-1-8"><a href="#安装配置JDK-1-8" class="headerlink" title="安装配置JDK 1.8"></a>安装配置JDK 1.8</h4><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#解压安装包</span></span><br><span class="line">tar zxvf jdk-8u65-linux-x64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment">#配置环境变量</span></span><br><span class="line">vim /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/<span class="built_in">export</span>/server/jdk1.8.0_65</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line"><span class="built_in">export</span> CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="comment">#验证是否安装成功</span></span><br><span class="line">java -version</span><br><span class="line"></span><br><span class="line">java version <span class="string">&quot;1.8.0_65&quot;</span></span><br><span class="line">Java(TM) SE Runtime Environment (build 1.8.0_65-b17)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 25.65-b01, mixed mode)</span><br><span class="line">You have new mail <span class="keyword">in</span> /var/spool/mail/root</span><br></pre></td></tr></table></figure>
+
+<h4 id="安装maven"><a href="#安装maven" class="headerlink" title="安装maven"></a>安装maven</h4><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#解压安装包</span></span><br><span class="line">tar zxvf apache-maven-3.5.4-bin.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment">#配置环境变量</span></span><br><span class="line">vim /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> MAVEN_HOME=/<span class="built_in">export</span>/server/apache-maven-3.5.4</span><br><span class="line"><span class="built_in">export</span> MAVEN_OPTS=<span class="string">&quot;-Xms4096m -Xmx4096m&quot;</span></span><br><span class="line"><span class="built_in">export</span> PATH=:<span class="variable">$MAVEN_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="comment">#验证是否安装成功</span></span><br><span class="line">[root@node4 ~]<span class="comment"># mvn -v</span></span><br><span class="line">Apache Maven 3.5.4</span><br><span class="line"></span><br><span class="line"><span class="comment">#添加maven 阿里云仓库地址 加快国内编译速度</span></span><br><span class="line">vim /<span class="built_in">export</span>/server/apache-maven-3.5.4/conf/settings.xml</span><br><span class="line"></span><br><span class="line">&lt;mirrors&gt;</span><br><span class="line">     &lt;mirror&gt;</span><br><span class="line">           &lt;id&gt;alimaven&lt;/id&gt;</span><br><span class="line">           &lt;name&gt;aliyun maven&lt;/name&gt;</span><br><span class="line">           &lt;url&gt;http://maven.aliyun.com/nexus/content/groups/public/&lt;/url&gt;</span><br><span class="line">           &lt;mirrorOf&gt;central&lt;/mirrorOf&gt;</span><br><span class="line">      &lt;/mirror&gt;</span><br><span class="line">&lt;/mirrors&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="安装ProtocolBuffer-2-5-0"><a href="#安装ProtocolBuffer-2-5-0" class="headerlink" title="安装ProtocolBuffer 2.5.0"></a>安装ProtocolBuffer 2.5.0</h4><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#解压</span></span><br><span class="line">tar zxvf protobuf-2.5.0.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment">#编译安装</span></span><br><span class="line"><span class="built_in">cd</span> /<span class="built_in">export</span>/server/protobuf-2.5.0</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line"><span class="comment">#验证是否安装成功</span></span><br><span class="line">[root@node4 protobuf-2.5.0]<span class="comment"># protoc --version</span></span><br><span class="line">libprotoc 2.5.0</span><br></pre></td></tr></table></figure>
+
+<h3 id="编译Hadoop"><a href="#编译Hadoop" class="headerlink" title="编译Hadoop"></a>编译Hadoop</h3><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#上传解压源码包</span></span><br><span class="line">tar zxvf hadoop-3.1.4-src.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment">#编译</span></span><br><span class="line"><span class="built_in">cd</span> /<span class="built_in">export</span>/server/hadoop-3.1.4-src</span><br><span class="line"></span><br><span class="line">mvn clean package -Pdist,native -DskipTests -Dtar -Dbundle.snappy -Dsnappy.lib=/usr/<span class="built_in">local</span>/lib</span><br><span class="line"></span><br><span class="line"><span class="comment">#参数说明：</span></span><br><span class="line"></span><br><span class="line">Pdist,native ：把重新编译生成的hadoop动态库；</span><br><span class="line">DskipTests ：跳过测试</span><br><span class="line">Dtar ：最后把文件以tar打包</span><br><span class="line">Dbundle.snappy ：添加snappy压缩支持【默认官网下载的是不支持的】</span><br><span class="line">Dsnappy.lib=/usr/<span class="built_in">local</span>/lib ：指snappy在编译机器上安装后的库路径</span><br></pre></td></tr></table></figure>
+
+<h3 id="编译后安装包路径"><a href="#编译后安装包路径" class="headerlink" title="编译后安装包路径"></a>编译后安装包路径</h3><p><code>/export/server/hadoop-3.1.4-src/hadoop-dist/target</code></p>
+<h3 id="编译过程截图"><a href="#编译过程截图" class="headerlink" title="编译过程截图"></a>编译过程截图</h3><p>编程成功：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210136.png" alt="image-20211111210136796"></p>
+<p>编译成功之后安装包：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210144.png" alt="image-20211111210143976"></p>
+<h2 id="Windows平台编译"><a href="#Windows平台编译" class="headerlink" title="Windows平台编译"></a>Windows平台编译</h2><h3 id="编译指南"><a href="#编译指南" class="headerlink" title="编译指南"></a>编译指南</h3><p>在Hadoop的源码包根目录下有一个文件：BUILDING.txt。找到如何在windows平台进行编译的部分。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210208.png" alt="image-20211111210208860"></p>
+<h3 id="编译环境-1"><a href="#编译环境-1" class="headerlink" title="编译环境"></a>编译环境</h3><h4 id="安装windows10"><a href="#安装windows10" class="headerlink" title="安装windows10"></a>安装windows10</h4><p>在windows上编译Hadoop，需要在一台独立的windows 10虚拟机中编译，所以先把windows10装好。</p>
+<h4 id="安装maven-1"><a href="#安装maven-1" class="headerlink" title="安装maven"></a>安装maven</h4><p>本次编译环境Maven仓库位置为： <code>C:\opt\apache-maven-3.6.1。</code></p>
+<p>配置Maven本地仓库，注意：本地仓库尽量短，否则编译时候会报：命令太长</p>
+<p><code>&lt;localRepository&gt;C:\m2&lt;/localRepository&gt;</code></p>
+<p>修改settings中的源，改成国内阿里源会快很多。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>central<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>central<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun maven<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://maven.aliyun.com/nexus/content/repositories/central/<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="安装protobuf"><a href="#安装protobuf" class="headerlink" title="安装protobuf"></a>安装protobuf</h4><ol>
+<li><p>解压资料包中的protobuf-2.5.0.zip</p>
+</li>
+<li><p>解压资料包中的protoc-2.5.0-win32.zip，并将解压后的protoc.exe移动到protobuf-2.5.0\src目录中</p>
+</li>
+<li><p>进入到解压后的 protobuf-2.5.0/java 目录，按住shift + 点击鼠标右键，选择打开 power shell</p>
+</li>
+<li><p>输入 mvn test，执行测试（需要等待一会，mvn会下载相关的依赖包）</p>
+</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] BUILD SUCCESS</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Total time: 02:02 min</span><br><span class="line">[INFO] Finished at: 2020-09-28T16:07:53+08:00</span><br><span class="line">[INFO] Final Memory: 36M/921M</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<p>​    5.再执行 mvn install</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] BUILD SUCCESS</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Total time: 56.838 s</span><br><span class="line">[INFO] Finished at: 2020-09-28T16:12:28+08:00</span><br><span class="line">[INFO] Final Memory: 42M/990M</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<p>​    6.设置系统环境变量</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210437.png" alt="image-20211111210437739"></p>
+<p>7.重启cmd命令行，查看protobuf版本号</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">C:\opt\protobuf-2.5.0\src&gt;protoc --version</span><br><span class="line">libprotoc 2.5.0</span><br></pre></td></tr></table></figure>
+
+<h4 id="安装cmake"><a href="#安装cmake" class="headerlink" title="安装cmake"></a>安装cmake</h4><ol>
+<li><p>从<a target="_blank" rel="noopener" href="https://cmake.org/download/%E4%B8%8B%E8%BD%BD[cmake-3.18.3-win64-x64.zip](https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-win64-x64.zip)%EF%BC%8C%E6%88%96%E8%80%85%E5%9C%A8%E8%B5%84%E6%96%99%E4%B8%AD%E4%B9%9F%E5%8F%AF%E4%BB%A5%E6%89%BE%E5%88%B0%E3%80%82">https://cmake.org/download/下载[cmake-3.18.3-win64-x64.zip](https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-win64-x64.zip)，或者在资料中也可以找到。</a></p>
+</li>
+<li><p>解压到没有中文的目录</p>
+</li>
+<li><p>设置cmake的环境变量</p>
+</li>
+</ol>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210521.png" alt="image-20211111210521567"></p>
+<p>​    4.重启cmd查看cmake版本</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">C:\Users\China&gt;cmake -version</span><br><span class="line">cmake version 3.18.3</span><br><span class="line"></span><br><span class="line">CMake suite maintained and supported by Kitware (kitware.com/cmake).</span><br></pre></td></tr></table></figure>
+
+<h4 id="安装VS-2010"><a href="#安装VS-2010" class="headerlink" title="安装VS 2010"></a>安装VS 2010</h4><ol>
+<li><p>解压资料包中的cn_visual_studio_2010_professional_x86_dvd_532145.iso</p>
+</li>
+<li><p>解压后双击autorun.exe</p>
+</li>
+</ol>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210621.png" alt="image-20211111210620905"></p>
+<p>3.选择以下自定义安装组件，只保留Visual C++，其他的组件取消勾选</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210635.png" alt="image-20211111210635135"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210642.png" alt="image-20211111210642660"></p>
+<ol start="4">
+<li>点击安装。</li>
+</ol>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210654.png" alt="image-20211111210654386"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210732.png" alt="image-20211111210732501"></p>
+<h4 id="安装windows8-1-SDK"><a href="#安装windows8-1-SDK" class="headerlink" title="安装windows8.1 SDK"></a>安装windows8.1 SDK</h4><p>双击安装windows_8.1_sdksetup.exe</p>
+<h4 id="安装zlib"><a href="#安装zlib" class="headerlink" title="安装zlib"></a>安装zlib</h4><ol>
+<li><p>下载Zlib包，<a target="_blank" rel="noopener" href="https://www.zlib.net/%EF%BC%8C%E6%88%96%E8%80%85%E5%9C%A8%E8%B5%84%E6%96%99%E4%B8%AD%E4%B9%9F%E5%8F%AF%E4%BB%A5%E6%89%BE%E5%88%B0%E8%AF%A5zip%E5%8C%85">https://www.zlib.net/，或者在资料中也可以找到该zip包</a></p>
+</li>
+<li><p>将zip包解压到编译的目录中</p>
+</li>
+</ol>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210808.png" alt="image-20211111210807996"></p>
+<p>​    3.打开开始菜单，找到Visual Studio命令提示，并以管理员省份运行</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210820.png" alt="image-20211111210820420"></p>
+<p>​        4.进入到zlib目录</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">Setting environment <span class="keyword">for</span> using Microsoft Visual Studio 2010 x86 tools.</span><br><span class="line"></span><br><span class="line">C:\WINDOWS\system32&gt;<span class="built_in">cd</span> C:\opt\zlib1211\zlib-1.2.11</span><br></pre></td></tr></table></figure>
+
+<p>​        5.执行以下命令编译</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">nmake -f win32/Makefile.msc</span><br></pre></td></tr></table></figure>
+
+<p>​        6.设置ZLIB环境变量</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210921.png" alt="image-20211111210921365"></p>
+<h4 id="安装cygwin"><a href="#安装cygwin" class="headerlink" title="安装cygwin"></a>安装cygwin</h4><p>配置好环境变量</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111210954.png" alt="image-20211111210954132"></p>
+<p>配置cygwin目录权限：</p>
+<p>修改etc中的fstab，添加上noacl</p>
+<p><code>none /cygdrive cygdrive binary,posix=0,user,noacl 0 0</code></p>
+<p>目录权限问题是我把hadoop-src放在了C盘根目录下，而它要对此做权限管理，就会有问题</p>
+<p>而如果放在用户文件夹，文件名的路径就太长了。</p>
+<h3 id="编译hadoop"><a href="#编译hadoop" class="headerlink" title="编译hadoop"></a>编译hadoop</h3><h4 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111211047.png" alt="image-20211111211047754"></p>
+<h4 id="解压hadoop源码"><a href="#解压hadoop源码" class="headerlink" title="解压hadoop源码"></a>解压hadoop源码</h4><h4 id="修改pom-xml"><a href="#修改pom-xml" class="headerlink" title="修改pom.xml"></a>修改pom.xml</h4><p>将<code>C:\hadoop-3.1.4-src\hadoop-hdfs-project\hadoop-hdfs-native-client</code>的pom.xml中的142、147行failonerror修改为false  </p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">exec</span> <span class="attr">executable</span>=<span class="string">&quot;cmake&quot;</span> <span class="attr">dir</span>=<span class="string">&quot;$&#123;project.build.directory&#125;/native&quot;</span></span></span><br><span class="line"><span class="tag">	  <span class="attr">failonerror</span>=<span class="string">&quot;false&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">arg</span> <span class="attr">line</span>=<span class="string">&quot;$&#123;basedir&#125;/src/ -DGENERATED_JAVAH=$&#123;project.build.directory&#125;/native/javah -DJVM_ARCH_DATA_MODEL=$&#123;sun.arch.data.model&#125; -DREQUIRE_FUSE=$&#123;require.fuse&#125; -A &#x27;$&#123;env.PLATFORM&#125;&#x27;&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">exec</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">exec</span> <span class="attr">executable</span>=<span class="string">&quot;msbuild&quot;</span> <span class="attr">dir</span>=<span class="string">&quot;$&#123;project.build.directory&#125;/native&quot;</span></span></span><br><span class="line"><span class="tag">	  <span class="attr">failonerror</span>=<span class="string">&quot;false&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">arg</span> <span class="attr">line</span>=<span class="string">&quot;ALL_BUILD.vcxproj /nologo /p:Configuration=RelWithDebInfo /p:LinkIncremental=false&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">exec</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h4><p>进入到源码目录</p>
+<p><code>cd C:\opt\hadoop-3.1.4-src</code></p>
+<p>开始编译</p>
+<p><code>mvn clean package -Pdist,native-win -DskipTests -Dtar -Dmaven.javadoc.skip=true</code></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Reactor Summary:</span><br><span class="line">[INFO]</span><br><span class="line">[INFO] Apache Hadoop Main ................................. SUCCESS [  2.490 s]</span><br><span class="line">[INFO] Apache Hadoop Build Tools .......................... SUCCESS [  8.349 s]</span><br><span class="line">[INFO] Apache Hadoop Project POM .......................... SUCCESS [  2.282 s]</span><br><span class="line">[INFO] Apache Hadoop Annotations .......................... SUCCESS [  1.670 s]</span><br><span class="line">[INFO] Apache Hadoop Assemblies ........................... SUCCESS [  0.485 s]</span><br><span class="line">[INFO] Apache Hadoop Project Dist POM ..................... SUCCESS [  3.752 s]</span><br><span class="line">[INFO] Apache Hadoop Maven Plugins ........................ SUCCESS [  4.576 s]</span><br><span class="line">[INFO] Apache Hadoop MiniKDC .............................. SUCCESS [  1.241 s]</span><br><span class="line">[INFO] Apache Hadoop Auth ................................. SUCCESS [  6.226 s]</span><br><span class="line">[INFO] Apache Hadoop Auth Examples ........................ SUCCESS [  2.902 s]</span><br><span class="line">[INFO] Apache Hadoop Common ............................... SUCCESS [01:14 min]</span><br><span class="line">[INFO] Apache Hadoop NFS .................................. SUCCESS [  3.664 s]</span><br><span class="line">[INFO] Apache Hadoop KMS .................................. SUCCESS [  4.815 s]</span><br><span class="line">[INFO] Apache Hadoop Common Project ....................... SUCCESS [  0.223 s]</span><br><span class="line">[INFO] Apache Hadoop HDFS Client .......................... SUCCESS [ 34.704 s]</span><br><span class="line">[INFO] Apache Hadoop HDFS ................................. SUCCESS [ 40.664 s]</span><br><span class="line">[INFO] Apache Hadoop HDFS Native Client ................... SUCCESS [ 10.422 s]</span><br><span class="line">[INFO] Apache Hadoop HttpFS ............................... SUCCESS [  5.015 s]</span><br><span class="line">[INFO] Apache Hadoop HDFS-NFS ............................. SUCCESS [  1.685 s]</span><br><span class="line">[INFO] Apache Hadoop HDFS-RBF ............................. SUCCESS [  9.885 s]</span><br><span class="line">[INFO] Apache Hadoop HDFS Project ......................... SUCCESS [  0.156 s]</span><br><span class="line">[INFO] Apache Hadoop YARN ................................. SUCCESS [  0.125 s]</span><br><span class="line">[INFO] Apache Hadoop YARN API ............................. SUCCESS [ 23.505 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Common .......................... SUCCESS [ 27.800 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Registry ........................ SUCCESS [  5.649 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Server .......................... SUCCESS [  0.110 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Server Common ................... SUCCESS [ 13.748 s]</span><br><span class="line">[INFO] Apache Hadoop YARN NodeManager ..................... SUCCESS [ 19.686 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Web Proxy ....................... SUCCESS [  2.984 s]</span><br><span class="line">[INFO] Apache Hadoop YARN ApplicationHistoryService ....... SUCCESS [  6.587 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Timeline Service ................ SUCCESS [  4.163 s]</span><br><span class="line">[INFO] Apache Hadoop YARN ResourceManager ................. SUCCESS [ 28.876 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Server Tests .................... SUCCESS [  4.538 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Client .......................... SUCCESS [  6.306 s]</span><br><span class="line">[INFO] Apache Hadoop YARN SharedCacheManager .............. SUCCESS [  2.906 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Timeline Plugin Storage ......... SUCCESS [  3.675 s]</span><br><span class="line">[INFO] Apache Hadoop YARN TimelineService HBase Backend ... SUCCESS [  0.095 s]</span><br><span class="line">[INFO] Apache Hadoop YARN TimelineService HBase Common .... SUCCESS [  5.343 s]</span><br><span class="line">[INFO] Apache Hadoop YARN TimelineService HBase Client .... SUCCESS [  5.268 s]</span><br><span class="line">[INFO] Apache Hadoop YARN TimelineService HBase Servers ... SUCCESS [  0.125 s]</span><br><span class="line">[INFO] Apache Hadoop YARN TimelineService HBase Server 1.2  SUCCESS [  4.823 s]</span><br><span class="line">[INFO] Apache Hadoop YARN TimelineService HBase tests ..... SUCCESS [  6.625 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Router .......................... SUCCESS [  3.860 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Applications .................... SUCCESS [  0.125 s]</span><br><span class="line">[INFO] Apache Hadoop YARN DistributedShell ................ SUCCESS [  3.062 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Unmanaged Am Launcher ........... SUCCESS [  1.882 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce Client ..................... SUCCESS [  0.422 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce Core ....................... SUCCESS [ 14.190 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce Common ..................... SUCCESS [  7.164 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce Shuffle .................... SUCCESS [  4.968 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce App ........................ SUCCESS [  8.347 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce HistoryServer .............. SUCCESS [  4.659 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce JobClient .................. SUCCESS [ 10.167 s]</span><br><span class="line">[INFO] Apache Hadoop Mini-Cluster ......................... SUCCESS [  2.329 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Services ........................ SUCCESS [  0.125 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Services Core ................... SUCCESS [  7.997 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Services API .................... SUCCESS [  3.672 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Site ............................ SUCCESS [  0.124 s]</span><br><span class="line">[INFO] Apache Hadoop YARN UI .............................. SUCCESS [  0.110 s]</span><br><span class="line">[INFO] Apache Hadoop YARN Project ......................... SUCCESS [ 48.122 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce HistoryServer Plugins ...... SUCCESS [  1.815 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce NativeTask ................. SUCCESS [  3.190 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce Uploader ................... SUCCESS [  1.891 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce Examples ................... SUCCESS [  3.143 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce ............................ SUCCESS [ 10.552 s]</span><br><span class="line">[INFO] Apache Hadoop MapReduce Streaming .................. SUCCESS [  2.927 s]</span><br><span class="line">[INFO] Apache Hadoop Distributed Copy ..................... SUCCESS [  4.068 s]</span><br><span class="line">[INFO] Apache Hadoop Archives ............................. SUCCESS [  1.554 s]</span><br><span class="line">[INFO] Apache Hadoop Archive Logs ......................... SUCCESS [  1.796 s]</span><br><span class="line">[INFO] Apache Hadoop Rumen ................................ SUCCESS [  3.285 s]</span><br><span class="line">[INFO] Apache Hadoop Gridmix .............................. SUCCESS [  3.093 s]</span><br><span class="line">[INFO] Apache Hadoop Data Join ............................ SUCCESS [  1.629 s]</span><br><span class="line">[INFO] Apache Hadoop Extras ............................... SUCCESS [  1.625 s]</span><br><span class="line">[INFO] Apache Hadoop Pipes ................................ SUCCESS [  0.109 s]</span><br><span class="line">[INFO] Apache Hadoop OpenStack support .................... SUCCESS [  2.391 s]</span><br><span class="line">[INFO] Apache Hadoop Amazon Web Services support .......... SUCCESS [ 43.346 s]</span><br><span class="line">[INFO] Apache Hadoop Kafka Library support ................ SUCCESS [  2.066 s]</span><br><span class="line">[INFO] Apache Hadoop Azure support ........................ SUCCESS [  4.817 s]</span><br><span class="line">[INFO] Apache Hadoop Aliyun OSS support ................... SUCCESS [  2.067 s]</span><br><span class="line">[INFO] Apache Hadoop Client Aggregator .................... SUCCESS [  6.846 s]</span><br><span class="line">[INFO] Apache Hadoop Scheduler Load Simulator ............. SUCCESS [  5.208 s]</span><br><span class="line">[INFO] Apache Hadoop Resource Estimator Service ........... SUCCESS [  5.033 s]</span><br><span class="line">[INFO] Apache Hadoop Azure Data Lake support .............. SUCCESS [  2.068 s]</span><br><span class="line">[INFO] Apache Hadoop Image Generation Tool ................ SUCCESS [  2.421 s]</span><br><span class="line">[INFO] Apache Hadoop Tools Dist ........................... SUCCESS [ 15.208 s]</span><br><span class="line">[INFO] Apache Hadoop Tools ................................ SUCCESS [  0.094 s]</span><br><span class="line">[INFO] Apache Hadoop Client API ........................... SUCCESS [01:03 min]</span><br><span class="line">[INFO] Apache Hadoop Client Runtime ....................... SUCCESS [ 53.722 s]</span><br><span class="line">[INFO] Apache Hadoop Client Packaging Invariants .......... SUCCESS [  0.499 s]</span><br><span class="line">[INFO] Apache Hadoop Client Test Minicluster .............. SUCCESS [01:43 min]</span><br><span class="line">[INFO] Apache Hadoop Client Packaging Invariants <span class="keyword">for</span> Test . SUCCESS [  0.376 s]</span><br><span class="line">[INFO] Apache Hadoop Client Packaging Integration Tests ... SUCCESS [  0.377 s]</span><br><span class="line">[INFO] Apache Hadoop Distribution ......................... SUCCESS [17:00 min]</span><br><span class="line">[INFO] Apache Hadoop Client Modules ....................... SUCCESS [  0.124 s]</span><br><span class="line">[INFO] Apache Hadoop Cloud Storage ........................ SUCCESS [  2.110 s]</span><br><span class="line">[INFO] Apache Hadoop Cloud Storage Project ................ SUCCESS [  0.125 s]</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] BUILD SUCCESS</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br><span class="line">[INFO] Total time: 31:38 min</span><br><span class="line">[INFO] Finished at: 2020-10-09T01:02:15+08:00</span><br><span class="line">[INFO] Final Memory: 327M/1222M</span><br><span class="line">[INFO] ------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<h1 id="HDFS源码结构分析"><a href="#HDFS源码结构分析" class="headerlink" title="HDFS源码结构分析"></a>HDFS源码结构分析</h1><h2 id="IDEA导入HDFS源码工程"><a href="#IDEA导入HDFS源码工程" class="headerlink" title="IDEA导入HDFS源码工程"></a>IDEA导入HDFS源码工程</h2><p>解压Hadoop源码在Windows某个目录下（该目录最好没有中文没有空格）。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111211319.png" alt="image-20211111211319314"></p>
+<p>打开IDEA,选择Open or Import</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111211326.png" alt="image-20211111211326476"></p>
+<p>选择HDFS工程打开</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111211333.png" alt="image-20211111211333157"></p>
+<p>初次导入IDEA会自动根据POM依赖下载插件和依赖，此时静静等待即可。确保下载完成。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111211343.png" alt="image-20211111211343201"></p>
+<h2 id="HDFS工程结构"><a href="#HDFS工程结构" class="headerlink" title="HDFS工程结构"></a>HDFS工程结构</h2><p>hadoop-hdfs-project工程目录结构如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111211357.png" alt="image-20211111211357696"></p>
+<h3 id="hadoop-hdfs"><a href="#hadoop-hdfs" class="headerlink" title="hadoop-hdfs"></a>hadoop-hdfs</h3><p>在hadoop-hdfs模块中，主要实现了网络、传输协议、JN、安全、server服务等相关功能。是hdfs的核心模块。并且提供了hdfs web UI页面功能的支撑。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111211412.png" alt="image-20211111211412424"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111211416.png" alt="image-20211111211416657"></p>
+<h3 id="hadoop-hdfs-client"><a href="#hadoop-hdfs-client" class="headerlink" title="hadoop-hdfs-client"></a>hadoop-hdfs-client</h3><p>在hadoop-hdfs-client模块中，主要定义实现了和hdfs 客户端相关的功能逻辑。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212107.png" alt="image-20211111212107167"></p>
+<h3 id="hadoop-hdfs-httpfs"><a href="#hadoop-hdfs-httpfs" class="headerlink" title="hadoop-hdfs-httpfs"></a>hadoop-hdfs-httpfs</h3><p>hadoop-hdfs-httpfs模块主要实现了通过HTTP协议操作访问hdfs文件系统的相关功能。HttpFS是一种服务器，它提供到HDFS的REST HTTP网关，具有完整的文件系统读写功能。</p>
+<p>HttpFS可用于在运行不同Hadoop版本的群集之间传输数据（克服RPC版本问题），例如使用Hadoop DistCP。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212123.png" alt="image-20211111212123041"></p>
+<h3 id="hadoop-hdfs-native-client"><a href="#hadoop-hdfs-native-client" class="headerlink" title="hadoop-hdfs-native-client"></a>hadoop-hdfs-native-client</h3><p>hadoop-hdfs-native-client模块定义了hdfs访问本地库的相关功能和逻辑。该模块主要是使用C语言进行编写，用于和本地库进行交互操作。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212138.png" alt="image-20211111212138693"></p>
+<h3 id="hadoop-hdfs-nfs"><a href="#hadoop-hdfs-nfs" class="headerlink" title="hadoop-hdfs-nfs"></a>hadoop-hdfs-nfs</h3><p>hadoop-hdfs-nfs模块是Hadoop HDFS的NFS实现。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212154.png" alt="image-20211111212154404"></p>
+<h3 id="hadoop-hdfs-rbf"><a href="#hadoop-hdfs-rbf" class="headerlink" title="hadoop-hdfs-rbf"></a>hadoop-hdfs-rbf</h3><p>hadoop-hdfs-rbf模块是hadoop3.0之后的一个新的模块。主要实现了RBF功能。RBF是Router-based Federation简称，翻译中文叫做：基于路由的Federation方案。</p>
+<p>简单来说就是：HDFS将路由信息放在了服务端来处理，而不是在客户端。以此完全做到对于客户端的透明。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212234.png" alt="image-20211111212234343"></p>
+<h1 id="HDFS核心源码解析"><a href="#HDFS核心源码解析" class="headerlink" title="HDFS核心源码解析"></a>HDFS核心源码解析</h1><h2 id="HDFS客户端核心类"><a href="#HDFS客户端核心类" class="headerlink" title="HDFS客户端核心类"></a>HDFS客户端核心类</h2><h3 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h3><p>源码注释中对于Configuration类是这么描述的：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212305.png" alt="image-20211111212305020"></p>
+<p><strong>Configuration</strong>提供对配置参数的访问，通常称之为配置文件类。主要用于加载或者设定程序运行时相关的参数属性。</p>
+<h4 id="Configuration加载默认配置"><a href="#Configuration加载默认配置" class="headerlink" title="Configuration加载默认配置"></a>Configuration加载默认配置</h4><p>在程序中打上断点，看一下新建Configuration对象的时候加载了什么：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212323.png" alt="image-20211111212323041"></p>
+<p>按下F7进入方法内部，再一次次按下F8，执行过程中可以发现，首先加载了静态方法和静态代码块，其中在静态代码块中显示默认加载了两个配置文件：</p>
+<p><strong>core-default.xml</strong>以及<strong>core-site.xml</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212431.png" alt="image-20211111212431147"></p>
+<h4 id="Configuration加载用户设置"><a href="#Configuration加载用户设置" class="headerlink" title="Configuration加载用户设置"></a>Configuration加载用户设置</h4><p>按下shift+F8，跳出Configuration类的创建，按F8执行下一步，当到达FileSystem.get(conf)这一行代码的时候，可以发现用户通过conf.set设置的属性也会被加载。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212446.png" alt="image-20211111212446780"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212450.png" alt="image-20211111212450143"></p>
+<h3 id="FileSystem"><a href="#FileSystem" class="headerlink" title="FileSystem"></a>FileSystem</h3><p>源码注释中对于FileSystem类是这么描述的：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212511.png" alt="image-20211111212511627"></p>
+<p>简单翻译下：<strong>FileSystem</strong>类是一个通用的文件系统的<strong>抽象基类</strong>。具体来说它可以实现为一个分布式的文件系统，也可以实现为一个本地文件系统。所有的可能会使用到HDFS的用户代码在进行编写时都应该使用FileSystem对象。</p>
+<p>代表本地文件系统的实现是LocalFileSystem，代表分布式文件系统的实现是<strong>DistributedFileSystem</strong>。当然针对其他hadoop支持的文件系统也有不同的具体实现。</p>
+<p>因此HDFS客户端在进行读写操作之前，需要创建FileSystem对象的实例。</p>
+<h4 id="获取FileSystem实例"><a href="#获取FileSystem实例" class="headerlink" title="获取FileSystem实例"></a>获取FileSystem实例</h4><p>将断点达到如下的位置，debug运行程序：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212533.png" alt="image-20211111212532966"></p>
+<p>经过方法的层层调用，最终找到了FileSystem对象是通过调用getInternal方法得到的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212540.png" alt="image-20211111212539936"></p>
+<p>首先在getInternal方法中调用了createFileSystem方法，进去该方法：</p>
+<p>原来，FileSystem实例是通过反射的方式获得的，具体实现是通过调用反射工具类ReflectionUtils的newInstance方法并将class对象以及Configuration对象作为参数传入最终得到了FileSystem实例。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212549.png" alt="image-20211111212548973"></p>
+<h2 id="HDFS通信协议"><a href="#HDFS通信协议" class="headerlink" title="HDFS通信协议"></a>HDFS通信协议</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>HDFS作为一个分布式文件系统，它的某些流程是非常复杂的（例如读、写文件等典型流程），常常涉及数据节点、名字节点和客户端三者之间的配合、相互调用才能实现。为了降低节点间代码的耦合性，提高单个节点代码的内聚性， HDFS将这些节点间的调用抽象成不同的接口。</p>
+<p>HDFS节点间的接口主要有两种类型：</p>
+<p><strong>Hadoop RPC接口</strong>：基于Hadoop RPC框架实现的接口；</p>
+<p><strong>流式接口</strong>：基于TCP或者HTTP实现的接口；</p>
+<h3 id="Hadoop-RPC接口"><a href="#Hadoop-RPC接口" class="headerlink" title="Hadoop RPC接口"></a>Hadoop RPC接口</h3><h4 id="RPC介绍"><a href="#RPC介绍" class="headerlink" title="RPC介绍"></a>RPC介绍</h4><p><strong>RPC</strong> 全称 <strong>Remote Procedure Call——远程过程调用</strong>。就是为了解决远程调用服务的一种技术，使得调用者像调用本地服务一样方便透明。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212636.png" alt="image-20211111212635945"></p>
+<p>通信模块：传输RPC请求和响应的网络通信模块，可以基于TCP协议，也可以基于UDP协议，可以是同步，也可以是异步的。</p>
+<p>客户端Stub程序：服务器和客户端都包括Stub程序。在客户端，Stub程序表现的就像本地程序一样，但底层却会将调用请求和参数序列化并通过通信模块发送给服务器。之后Stub程序等待服务器的响应信息，将响应信息反序列化并返回给请求程序。</p>
+<p>服务器端Stub程序：在服务器端，Stub程序会将远程客户端发送的调用请求和参数反序列化，根据调用信息触发对应的服务程序，然后将服务程序返回的响应信息序列化并发回客户端。</p>
+<p>请求程序：请求程序会像调用本地方法一样调用客户端Stub程序，然后接收Stub程序返回的响应信息。</p>
+<p>服务程序：服务器会接收来自Stub程序的调用请求，执行对应的逻辑并返回执行结果。</p>
+<p>Hadoop RPC调用使得HDFS进程能够像本地调用一样调用另一个进程中的方法，并且可以传递Java基本类型或者自定义类作为参数，同时接收返回值。如果远程进程在调用过程中出现异常，本地进程也会收到对应的异常。目前Hadoop RPC调用是基于Protobuf实现的。</p>
+<p>Hadoop RPC接口主要定义在org.apache.hadoop.hdfs.protocol包和org.apache.hadoop.hdfs.server.protocol包中，核心的接口有：</p>
+<p><strong>ClientProtocol</strong>、<strong>ClientDatanodeProtocol</strong>、<strong>DatanodeProtocol</strong>。</p>
+<h4 id="ClientProtocol"><a href="#ClientProtocol" class="headerlink" title="ClientProtocol"></a>ClientProtocol</h4><p><strong>ClientProtocol</strong>定义了客户端与名字节点间的接口，这个接口定义的方法非常多，客户端对文件系统的所有操作都需要通过这个接口，同时客户端读、写文件等操作也需要先通过这个接口与Namenode协商之后，再进行数据块的读出和写入操作。</p>
+<p>ClientProtocol定义了所有由客户端发起的、由Namenode响应的操作。这个接口非常大，有80多个方法，核心的是：<strong>HDFS文件读相关的操作</strong>、<strong>HDFS文件写以及追加写的相关操作</strong>。</p>
+<ul>
+<li>读数据相关的方法</li>
+</ul>
+<p>ClientProtocol中与客户端读取文件相关的方法主要有两个： getBlockLocations（）和reportBadBlocks().</p>
+<p>客户端会调用ClientProtocol.getBlockLocations）方法获取HDFS文件指定范围内所有数据块的位置信息。这个方法的参数是HDFS文件的文件名以及读取范围，返回值是文件指定范围内所有数据块的文件名以及它们的位置信息，使用LocatedBlocks对象封装。每个数据块的位置信息指的是存储这个数据块副本的所有Datanode的信息，这些Datanode会以与当前客户端的距离远近排序。客户端读取数据时，会首先调用getBlockLocations（）方法获取HDFS文件的所有数据块的位置信息，然后客户端会根据这些位置信息从数据节点读取数据块。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212718.png" alt="image-20211111212718203"></p>
+<p>客户端会调用ClientProtocol.reportBadBlocks（）方法向Namenode汇报错误的数据块。当客户端从数据节点读取数据块且发现数据块的校验和并不正确时，就会调用这个方法向Namenode汇报这个错误的数据块信息。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212726.png" alt="image-20211111212726664"></p>
+<ul>
+<li>写、追加数据相关方法</li>
+</ul>
+<p>在HDFS客户端操作中最重要的一部分就是写入一个新的HDFS文件，或者打开一个已有的HDFS文件并执行追加写操作。ClientProtocol中定义了8个方法支持HDFS文件的写操作： <strong>create（）</strong>、 append（）、 addBlock（）、 complete（）， abandonBlockO），getAddtionnalDatanodes（）、updateBlockForPipeline()和updatePipeline()。</p>
+<p>create（）方法用于在HDFS的文件系统目录树中创建一个新的空文件，创建的路径由src参数指定。这个空文件创建后对于其他的客户端是“可读”的，但是这些客户端不能删除、重命名或者移动这个文件，直到这个文件被关闭或者租约过期。客户端写一个新的文件时，会首先调用create方法在文件系统目录树中创建一个空文件，然后调用addBlock方法获取存储文件数据的数据块的位置信息，最后客户端就可以根据位置信息建立数据流管道，向数据节点写入数据了。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212742.png" alt="image-20211111212742459"></p>
+<p>当客户端完成了整个文件的写入操作后，会调用complete（）方法通知Namenode。这个操作会提交新写入HDFS文件的所有数据块，当这些数据块的副本数量满足系统配置的最小副本系数（默认值为1），也就是该文件的所有数据块至少有一个有效副本时， complete（）方法会返回true，这时Namenode中文件的状态也会从构建中状态转换为正常状态；否则， complete会返回false，客户端就需要重复调用complete操作，直至该方法返回true </p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212749.png" alt="image-20211111212749609"></p>
+<h4 id="ClientDatanodeProtocol"><a href="#ClientDatanodeProtocol" class="headerlink" title="ClientDatanodeProtocol"></a>ClientDatanodeProtocol</h4><p>客户端与数据节点间的接口。ClientDatanodeProtocol中定义的方法主要是用于客户端获取数据节点信息时调用，而真正的数据读写交互则是通过流式接口进行的。</p>
+<p>ClientDatanodeProtocol中定义的接口可以分为两部分：一部分是支持HDFS文件读取操作的，例如getReplicaVisibleLength（）以及getBlockLocalPathInfo）；另一部分是支持DFSAdmin中与数据节点管理相关的命令。我们重点关注第一部分。</p>
+<ul>
+<li>getReplicaVisibleLength</li>
+</ul>
+<p>客户端会调用getReplicaVisibleLength（）方法从数据节点获取某个数据块副本真实的数据长度。当客户端读取一个HDFS文件时，需要获取这个文件对应的所有数据块的长度，用于建立数据块的输入流，然后读取数据。但是Namenode元数据中文件的最后一个数据块长度与Datanode实际存储的可能不一致，所以客户端在创建输入流时就需要调用getReplicaVisibleLength（）方法从Datanode获取这个数据块的真实长度。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212925.png" alt="image-20211111212924970"></p>
+<ul>
+<li>getBlockLocalPathInfo</li>
+</ul>
+<p>HDFS对于本地读取，也就是Client和保存该数据块的Datanode在同一台物理机器上时，是有很多优化的。Client会调用ClientProtocol.getBlockLocalPathInfo）方法获取指定数据块文件以及数据块校验文件在当前节点上的本地路径，然后利用这个本地路径执行本地读取操作，而不是通过流式接口执行远程读取，这样也就大大优化了读取的性能。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111212938.png" alt="image-20211111212938911"></p>
+<h4 id="DatanodeProtocol"><a href="#DatanodeProtocol" class="headerlink" title="DatanodeProtocol"></a>DatanodeProtocol</h4><p>数据节点通过这个接口与名字节点通信，同时名字节点会通过这个接口中方法的返回值向数据节点下发指令。注意，这是名字节点与数据节点通信的唯一方式。这个接口非常重要，数据节点会通过这个接口向名字节点注册、汇报数据块的全量以及增量的存储情况。同时，名字节点也会通过这个接口中方法的返回值，将名字节点指令带回该数据块，根据这些指令，数据节点会执行数据块的复制、删除以及恢复操作。</p>
+<p>可以将DatanodeProtocol定义的方法分为三种类型： Datanode启动相关、心跳相关以及数据块读写相关。</p>
+<h3 id="基于TCP-HTTP流式接口"><a href="#基于TCP-HTTP流式接口" class="headerlink" title="基于TCP/HTTP流式接口"></a>基于TCP/HTTP流式接口</h3><p>HDFS除了定义RPC调用接口外，还定义了流式接口，流式接口是HDFS中基于TCP或者HTTP实现的接口。在HDFS中，流式接口包括了基于TCP的<strong>DataTransferProtocol</strong>接口，以及HA架构中Active Namenode和Standby Namenode之间的HTTP接口。</p>
+<h4 id="DataTransferProtocol"><a href="#DataTransferProtocol" class="headerlink" title="DataTransferProtocol"></a>DataTransferProtocol</h4><p><strong>DataTransferProtocol****是用来描述写入或者读出Datanode上数据的基于TCP的流式接口</strong>，HDFS客户端与数据节点以及数据节点与数据节点之间的数据块传输就是基于DataTransferProtocol接口实现的。HDFS没有采用Hadoop RPC来实现HDFS文件的读写功能，是因为Hadoop RPC框架的效率目前还不足以支撑超大文件的读写，而使用基于TCP的流式接口有利于批量处理数据，同时提高了数据的吞吐量。</p>
+<p>DataTransferProtocol中最重要的方法就是readBlock（）和writeBlock（）。</p>
+<ul>
+<li><p>readBlock：从当前Datanode读取指定的数据块。</p>
+</li>
+<li><p>writeBlock：将指定数据块写入数据流管道（pipeLine）中。</p>
+</li>
+</ul>
+<p>DataTransferProtocol接口调用并没有使用Hadoop RPC框架提供的功能，而是定义了用于发送DataTransferProtocol请求的Sender类，以及用于响应DataTransferProtocol请求的Receiver类。</p>
+<p> Sender类和Receiver类都实现了DataTransferProtocol接口。。我们假设DFSClient发起了一个DataTransferProtocol.readBlock（）操作，那么DFSClient会调用Sender将这个请求序列化，并传输给远端的Receiver。远端的Receiver接收到这个请求后,会反序列化请求,然后调用代码 执行读取操作。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213031.png" alt="image-20211111213031268"></p>
+<h2 id="数据写入流程分析"><a href="#数据写入流程分析" class="headerlink" title="数据写入流程分析"></a>数据写入流程分析</h2><h3 id="写入流程图"><a href="#写入流程图" class="headerlink" title="写入流程图"></a>写入流程图</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213049.png" alt="image-20211111213049241"></p>
+<h3 id="写入数据代码"><a href="#写入数据代码" class="headerlink" title="写入数据代码"></a>写入数据代码</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.itcast.hdfs.write;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.io.IOUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FSDataOutputStream;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FileSystem;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@description</span>:</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span>: Allen Woon</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@time</span>: 2020/12/26 17:36</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HDFSWriteDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">//设置客户端用户身份：root 具备在hdfs读写权限</span></span><br><span class="line">        System.setProperty(<span class="string">&quot;HADOOP_USER_NAME&quot;</span>,<span class="string">&quot;root&quot;</span>);</span><br><span class="line">        <span class="comment">//创建Conf对象</span></span><br><span class="line">        Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">        <span class="comment">//设置操作的文件系统是HDFS 默认是file:///</span></span><br><span class="line">        conf.set(<span class="string">&quot;fs.defaultFS&quot;</span>,<span class="string">&quot;hdfs://node1:8020&quot;</span>);</span><br><span class="line">        <span class="comment">//创建FileSystem对象 其是一个通用的文件系统的抽象基类</span></span><br><span class="line">        FileSystem fs = FileSystem.get(conf);</span><br><span class="line">        <span class="comment">//设置文件输出的路径</span></span><br><span class="line">        Path path = <span class="keyword">new</span> Path(<span class="string">&quot;/helloworld.txt&quot;</span>);</span><br><span class="line">        <span class="comment">//调用create方法创建文件</span></span><br><span class="line">        FSDataOutputStream out = fs.create(path);</span><br><span class="line">        <span class="comment">//创建本地文件输入流</span></span><br><span class="line">        FileInputStream in = <span class="keyword">new</span> FileInputStream(<span class="string">&quot;D:\\datasets\\hdfs\\helloworld.txt&quot;</span>);</span><br><span class="line">        <span class="comment">//IO工具类实现流对拷贝</span></span><br><span class="line">        IOUtils.copy(in,out);</span><br><span class="line">        <span class="comment">//关闭连接</span></span><br><span class="line">        fs.close();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="写入数据流程梳理"><a href="#写入数据流程梳理" class="headerlink" title="写入数据流程梳理"></a>写入数据流程梳理</h3><h4 id="客户端请求NameNode创建"><a href="#客户端请求NameNode创建" class="headerlink" title="客户端请求NameNode创建"></a>客户端请求NameNode创建</h4><p>HDFS客户端通过对DistributedFileSystem对象调用create()请求创建文件。DistributedFileSystem为客户端返回FSDataOutputStream输出流对象。通过源码注释可以发现FSDataOutputStream是一个包装类，所包装的是DFSOutputStream。</p>
+<p>可以通过create方法调用不断跟下去，可以发现最终的调用也验证了上述结论，返回的是DFSOutputStream 。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213150.png" alt="image-20211111213150723"></p>
+<p>点击进入代码DFSOutputStream dfsos = dfs.create可以发现，DFSOutputStream这个类是从DFSClient类的create方法中返回过来的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213213.png" alt="image-20211111213213877"></p>
+<p>在DFSOutputStream dfsos = dfs.create打上断点，dubug。进来之后点进去发现，DFSClient类中的DFSOutputStream实例对象是通过调用DFSOutputStream类的newStreamForCreate方法产生的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213223.png" alt="image-20211111213223357"></p>
+<p>点击进入这个方法，找到了客户端请求NameNode新建元数据的关键代码。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213231.png" alt="image-20211111213231232"></p>
+<h4 id="NameNode执行请求检查"><a href="#NameNode执行请求检查" class="headerlink" title="NameNode执行请求检查"></a>NameNode执行请求检查</h4><p>DistributedFileSystem对namenode进行RPC调用，请求上传文件。namenode执行各种检查判断：目标文件是否存在、父目录是否存在、客户端是否具有创建该文件的权限。检查通过，namenode就会为创建新文件记录一条记录。否则，文件创建失败并向客户端抛出一个IOException。</p>
+<h4 id="DataStreamer类"><a href="#DataStreamer类" class="headerlink" title="DataStreamer类"></a>DataStreamer类</h4><p>在之前的newStreamForCreate方法中，我们发现了最终返回的是out对象，并且在返回之前，调用了out对象的start方法。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213258.png" alt="image-20211111213258593"></p>
+<p>点进start方法，发现调用的是DataStreamer对象的start方法。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213307.png"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213323.png" alt="image-20211111213323212"></p>
+<p>DataStreamer类是DFSOutputSteam的一个内部类，在这个类中，有一个方法叫做run方法，数据写入的关键代码就在这个run方法中实现。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213332.png" alt="image-20211111213332063"></p>
+<h4 id="DataStreamer写数据"><a href="#DataStreamer写数据" class="headerlink" title="DataStreamer写数据"></a>DataStreamer写数据</h4><p>在客户端写入数据时，DFSOutputStream将它分成一个个数据包（packet 默认64kb）,并写入一个称之为数据队列（data queue）的内部队列。DataStreamer请求NameNode挑选出适合存储数据副本的一组DataNode。这一组DataNode采用pipeline机制做数据的发送。默认是3副本存储。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213348.png" alt="image-20211111213348204"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213350.png" alt="image-20211111213350862"></p>
+<p>DataStreamer将数据包流式传输到pipeline的第一个datanode,该DataNode存储数据包并将它发送到pipeline的第二个DataNode。同样，第二个DataNode存储数据包并且发送给第三个（也是最后一个）DataNode。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213401.png" alt="image-20211111213401293"></p>
+<p>DFSOutputStream也维护着一个内部数据包队列来等待DataNode的收到确认回执，称之为确认队列（ack queue）,收到pipeline中所有DataNode确认信息后，该数据包才会从确认队列删除。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213408.png" alt="image-20211111213408482"></p>
+<p>客户端完成数据写入后，将在流上调用close()方法关闭。该操作将剩余的所有数据包写入DataNode pipeline，并在联系到NameNode告知其文件写入完成之前，等待确认。</p>
+<p>因为namenode已经知道文件由哪些块组成（DataStream请求分配数据块），因此它仅需等待最小复制块即可成功返回。数据块最小复制是由参数dfs.namenode.replication.min指定，默认是1.</p>
+<h2 id="数据读取流程分析"><a href="#数据读取流程分析" class="headerlink" title="数据读取流程分析"></a>数据读取流程分析</h2><h3 id="读取流程图"><a href="#读取流程图" class="headerlink" title="读取流程图"></a>读取流程图</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213448.png" alt="image-20211111213448681"></p>
+<h3 id="读取数据代码"><a href="#读取数据代码" class="headerlink" title="读取数据代码"></a>读取数据代码</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.itcast.hdfs.read;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.io.IOUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FSDataInputStream;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FSDataOutputStream;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FileSystem;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span>: Allen Woon</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@time</span>: 2020/12/26 17:48</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HDFSReadDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">//设置客户端用户身份：root 具备在hdfs读写权限</span></span><br><span class="line">        System.setProperty(<span class="string">&quot;HADOOP_USER_NAME&quot;</span>,<span class="string">&quot;root&quot;</span>);</span><br><span class="line">        <span class="comment">//创建Conf对象</span></span><br><span class="line">        Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">        <span class="comment">//设置操作的文件系统是HDFS 默认是file:///</span></span><br><span class="line">        conf.set(<span class="string">&quot;fs.defaultFS&quot;</span>,<span class="string">&quot;hdfs://node1:8020&quot;</span>);</span><br><span class="line">        <span class="comment">//创建FileSystem对象 其是一个通用的文件系统的抽象基类</span></span><br><span class="line">        FileSystem fs = FileSystem.get(conf);</span><br><span class="line">        <span class="comment">//调用open方法读取文件</span></span><br><span class="line">        FSDataInputStream in = fs.open(<span class="keyword">new</span> Path(<span class="string">&quot;/helloworld.txt&quot;</span>));</span><br><span class="line">        <span class="comment">//创建本地文件输出流</span></span><br><span class="line">        FileOutputStream out = <span class="keyword">new</span> FileOutputStream(<span class="string">&quot;D:\\helloworld.txt&quot;</span>);</span><br><span class="line">        <span class="comment">//IO工具类实现流对拷贝</span></span><br><span class="line">        IOUtils.copy(in,out);</span><br><span class="line">        <span class="comment">//关闭连接</span></span><br><span class="line">        fs.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="读取数据流程梳理"><a href="#读取数据流程梳理" class="headerlink" title="读取数据流程梳理"></a>读取数据流程梳理</h3><h4 id="客户端请求NameNode打开open"><a href="#客户端请求NameNode打开open" class="headerlink" title="客户端请求NameNode打开open"></a>客户端请求NameNode打开open</h4><p>客户端通过调用DistributedFileSystem对象上的open()来打开希望读取的文件。DistributedFileSystem为客户端返回FSDataInputStream输入流对象。通过源码注释可以发现FSDataInputStream是一个包装类，所包装的是DFSInputStream。</p>
+<p>可以通过open方法调用不断跟下去，可以发现最终的调用也验证了上述结论，返回的是DFSInputStream。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213544.png" alt="image-20211111213544080"></p>
+<p>​                                   </p>
+<p>点击进入代码DFSInputStream dfsis =dfs.open可以发现，DFSInputStream这个类是从DFSClient类的open方法中返回过来的。该输入流从namenode获取block的位置信息。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213554.png" alt="image-20211111213554024"></p>
+<h4 id="getLocatedBlocks"><a href="#getLocatedBlocks" class="headerlink" title="getLocatedBlocks"></a>getLocatedBlocks</h4><p>在上述open方法中，有一个核心方法调用叫做getLocatedBlocks，见名知意，该方法是用于获取块位置信息的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213608.png" alt="image-20211111213608620"></p>
+<p>点击方法进去之后发现，最终调用的是callGetBlockLocations：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213615.png" alt="image-20211111213615850"></p>
+<p>继续点下去，发现最终调用的是getBlockLocations方法。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213625.png" alt="image-20211111213624934"></p>
+<p>  通过源码可以发现，getBlockLocations方法是位于ClientProtocol这个接口中。在ClientProtocol的注释上可以得出信息，这是客户端和namenode进行通信的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213630.png" alt="image-20211111213630782"></p>
+<h4 id="NameNode返回块信息"><a href="#NameNode返回块信息" class="headerlink" title="NameNode返回块信息"></a>NameNode返回块信息</h4><p>DistributedFileSystem使用RPC调用namenode来确定文件中前几个块的块位置。对于每个块，namenode返回具有该块副本的datanode的地址，并且datanode根据块与客户端的距离进行排序。注意此距离指的是网络拓扑中的距离。比如客户端的本身就是一个DataNode，那么从本地读取数据明显比跨网络读取数据效率要高。</p>
+<p>之前的<strong>getBlockLocations</strong>方法在源码注释上也描述了这段逻辑。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213647.png" alt="image-20211111213647536"></p>
+<p>大致意思如下：获取指定范围内指定文件的块位置。 每个块的DataNode位置按与客户端的接近程度进行排序。返回LocatedBlocks，其中包含文件长度，块及其位置。 每个块的DataNode位置按到客户端地址的距离排序。然后，客户端将必须联系指示的DataNode之一以获得实际数据。</p>
+<h4 id="客户端读数据"><a href="#客户端读数据" class="headerlink" title="客户端读数据"></a>客户端读数据</h4><p>DFSClient在获取到block的位置信息之后，继续调用openInternal方法。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213709.png" alt="image-20211111213709027"></p>
+<p>  点击进入该方法可以发现，分了两种不同的输入流。这取决于文件的存储策略是否采用EC纠删码。如果未使用EC编码策略存储，那么直接创建DFSInputStream。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211111213716.png" alt="image-20211111213716078"></p>
+<p>最终将block位置信息保存到DFSInputStream输入流对象中的成员变量中返回给客户端。</p>
+<p>客户端在DFSInputStream流上调用read()方法。然后DFSInputStream连接到文件中第一个块的最近的DataNode节点。通过对数据流反复调用read()方法，将数据从DataNode传输到客户端。当该块快要读取结束时，DFSInputStream将关闭与该DataNode的连接，然后寻找下一个块的最佳datanode。这些操作对用户来说是透明的。所以用户感觉起来它一直在读取一个连续的流。</p>
+<p>客户端从流中读取数据时，也会根据需要询问NameNode来检索下一批数据块的DataNode位置信息。一旦客户端完成读取，就对FSDataInputStream调用close()方法。</p>
+<p>如果DFSInputStream与DataNode通信时遇到错误，它将尝试该块的下一个最接近的DataNode读取数据。并将记住发生故障的DataNode，保证以后不会反复读取该DataNode后续的块。此外，DFSInputStream也会通过校验和（checksum）确认从DataNode发来的数据是否完整。如果发现有损坏的块，DFSInputStream会尝试从其他DataNode读取该块的副本，也会将被损坏的块报告给namenode 。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://lvxueyang.vip/post/9c8272d8.html">http://lvxueyang.vip/post/9c8272d8.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/HDFS/">HDFS</a></div><div class="post_share"><div class="social-share" data-image="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/60651487.html"><img class="prev-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212050.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">HDFS数据安全与隐私保护</div></div></a></div><div class="next-post pull-right"><a href="/post/287fd37b.html"><img class="next-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">HDFS架构原理</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/287fd37b.html" title="HDFS架构原理"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-10</div><div class="title">HDFS架构原理</div></div></a></div><div><a href="/post/60651487.html" title="HDFS数据安全与隐私保护"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212050.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-11</div><div class="title">HDFS数据安全与隐私保护</div></div></a></div><div><a href="/post/c6918f16.html" title="HDFS数据存储与数据管理"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082302.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-06</div><div class="title">HDFS数据存储与数据管理</div></div></a></div><div><a href="/post/90f10c53.html" title="HDFS入门与应用开发"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-06</div><div class="title">HDFS入门与应用开发</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E6%A0%B8%E5%BF%83%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">HDFS核心源码分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Hadoop%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91"><span class="toc-number">2.</span> <span class="toc-text">Hadoop源码编译</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%BC%96%E8%AF%91%E6%BA%90%E7%A0%81"><span class="toc-number">2.1.</span> <span class="toc-text">为什么要编译源码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Native-Library%E6%9C%AC%E5%9C%B0%E5%BA%93"><span class="toc-number">2.1.1.</span> <span class="toc-text">Native Library本地库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E4%BF%AE%E6%94%B9"><span class="toc-number">2.1.2.</span> <span class="toc-text">源码修改</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%BC%96%E8%AF%91%E6%BA%90%E7%A0%81"><span class="toc-number">2.2.</span> <span class="toc-text">如何编译源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E5%B9%B3%E5%8F%B0%E7%BC%96%E8%AF%91"><span class="toc-number">2.3.</span> <span class="toc-text">Linux平台编译</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83"><span class="toc-number">2.3.1.</span> <span class="toc-text">编译环境</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E7%BC%96%E8%AF%91%E7%9B%B8%E5%85%B3%E7%9A%84%E4%BE%9D%E8%B5%96"><span class="toc-number">2.3.1.1.</span> <span class="toc-text">安装编译相关的依赖</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85cmake"><span class="toc-number">2.3.1.2.</span> <span class="toc-text">手动安装cmake</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85snappy"><span class="toc-number">2.3.1.3.</span> <span class="toc-text">手动安装snappy</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEJDK-1-8"><span class="toc-number">2.3.1.4.</span> <span class="toc-text">安装配置JDK 1.8</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85maven"><span class="toc-number">2.3.1.5.</span> <span class="toc-text">安装maven</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85ProtocolBuffer-2-5-0"><span class="toc-number">2.3.1.6.</span> <span class="toc-text">安装ProtocolBuffer 2.5.0</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91Hadoop"><span class="toc-number">2.3.2.</span> <span class="toc-text">编译Hadoop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E5%90%8E%E5%AE%89%E8%A3%85%E5%8C%85%E8%B7%AF%E5%BE%84"><span class="toc-number">2.3.3.</span> <span class="toc-text">编译后安装包路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B%E6%88%AA%E5%9B%BE"><span class="toc-number">2.3.4.</span> <span class="toc-text">编译过程截图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Windows%E5%B9%B3%E5%8F%B0%E7%BC%96%E8%AF%91"><span class="toc-number">2.4.</span> <span class="toc-text">Windows平台编译</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E6%8C%87%E5%8D%97"><span class="toc-number">2.4.1.</span> <span class="toc-text">编译指南</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83-1"><span class="toc-number">2.4.2.</span> <span class="toc-text">编译环境</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85windows10"><span class="toc-number">2.4.2.1.</span> <span class="toc-text">安装windows10</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85maven-1"><span class="toc-number">2.4.2.2.</span> <span class="toc-text">安装maven</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85protobuf"><span class="toc-number">2.4.2.3.</span> <span class="toc-text">安装protobuf</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85cmake"><span class="toc-number">2.4.2.4.</span> <span class="toc-text">安装cmake</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85VS-2010"><span class="toc-number">2.4.2.5.</span> <span class="toc-text">安装VS 2010</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85windows8-1-SDK"><span class="toc-number">2.4.2.6.</span> <span class="toc-text">安装windows8.1 SDK</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85zlib"><span class="toc-number">2.4.2.7.</span> <span class="toc-text">安装zlib</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85cygwin"><span class="toc-number">2.4.2.8.</span> <span class="toc-text">安装cygwin</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91hadoop"><span class="toc-number">2.4.3.</span> <span class="toc-text">编译hadoop</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">2.4.3.1.</span> <span class="toc-text">设置环境变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%8E%8Bhadoop%E6%BA%90%E7%A0%81"><span class="toc-number">2.4.3.2.</span> <span class="toc-text">解压hadoop源码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9pom-xml"><span class="toc-number">2.4.3.3.</span> <span class="toc-text">修改pom.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E8%AF%91"><span class="toc-number">2.4.3.4.</span> <span class="toc-text">编译</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E6%BA%90%E7%A0%81%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">HDFS源码结构分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#IDEA%E5%AF%BC%E5%85%A5HDFS%E6%BA%90%E7%A0%81%E5%B7%A5%E7%A8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">IDEA导入HDFS源码工程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84"><span class="toc-number">3.2.</span> <span class="toc-text">HDFS工程结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hadoop-hdfs"><span class="toc-number">3.2.1.</span> <span class="toc-text">hadoop-hdfs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hadoop-hdfs-client"><span class="toc-number">3.2.2.</span> <span class="toc-text">hadoop-hdfs-client</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hadoop-hdfs-httpfs"><span class="toc-number">3.2.3.</span> <span class="toc-text">hadoop-hdfs-httpfs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hadoop-hdfs-native-client"><span class="toc-number">3.2.4.</span> <span class="toc-text">hadoop-hdfs-native-client</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hadoop-hdfs-nfs"><span class="toc-number">3.2.5.</span> <span class="toc-text">hadoop-hdfs-nfs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hadoop-hdfs-rbf"><span class="toc-number">3.2.6.</span> <span class="toc-text">hadoop-hdfs-rbf</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E6%A0%B8%E5%BF%83%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">HDFS核心源码解析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A0%B8%E5%BF%83%E7%B1%BB"><span class="toc-number">4.1.</span> <span class="toc-text">HDFS客户端核心类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Configuration"><span class="toc-number">4.1.1.</span> <span class="toc-text">Configuration</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Configuration%E5%8A%A0%E8%BD%BD%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE"><span class="toc-number">4.1.1.1.</span> <span class="toc-text">Configuration加载默认配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Configuration%E5%8A%A0%E8%BD%BD%E7%94%A8%E6%88%B7%E8%AE%BE%E7%BD%AE"><span class="toc-number">4.1.1.2.</span> <span class="toc-text">Configuration加载用户设置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FileSystem"><span class="toc-number">4.1.2.</span> <span class="toc-text">FileSystem</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96FileSystem%E5%AE%9E%E4%BE%8B"><span class="toc-number">4.1.2.1.</span> <span class="toc-text">获取FileSystem实例</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE"><span class="toc-number">4.2.</span> <span class="toc-text">HDFS通信协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">4.2.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hadoop-RPC%E6%8E%A5%E5%8F%A3"><span class="toc-number">4.2.2.</span> <span class="toc-text">Hadoop RPC接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#RPC%E4%BB%8B%E7%BB%8D"><span class="toc-number">4.2.2.1.</span> <span class="toc-text">RPC介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ClientProtocol"><span class="toc-number">4.2.2.2.</span> <span class="toc-text">ClientProtocol</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ClientDatanodeProtocol"><span class="toc-number">4.2.2.3.</span> <span class="toc-text">ClientDatanodeProtocol</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DatanodeProtocol"><span class="toc-number">4.2.2.4.</span> <span class="toc-text">DatanodeProtocol</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8ETCP-HTTP%E6%B5%81%E5%BC%8F%E6%8E%A5%E5%8F%A3"><span class="toc-number">4.2.3.</span> <span class="toc-text">基于TCP&#x2F;HTTP流式接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DataTransferProtocol"><span class="toc-number">4.2.3.1.</span> <span class="toc-text">DataTransferProtocol</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-number">4.3.</span> <span class="toc-text">数据写入流程分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-number">4.3.1.</span> <span class="toc-text">写入流程图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E5%85%A5%E6%95%B0%E6%8D%AE%E4%BB%A3%E7%A0%81"><span class="toc-number">4.3.2.</span> <span class="toc-text">写入数据代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E5%85%A5%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86"><span class="toc-number">4.3.3.</span> <span class="toc-text">写入数据流程梳理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82NameNode%E5%88%9B%E5%BB%BA"><span class="toc-number">4.3.3.1.</span> <span class="toc-text">客户端请求NameNode创建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NameNode%E6%89%A7%E8%A1%8C%E8%AF%B7%E6%B1%82%E6%A3%80%E6%9F%A5"><span class="toc-number">4.3.3.2.</span> <span class="toc-text">NameNode执行请求检查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DataStreamer%E7%B1%BB"><span class="toc-number">4.3.3.3.</span> <span class="toc-text">DataStreamer类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DataStreamer%E5%86%99%E6%95%B0%E6%8D%AE"><span class="toc-number">4.3.3.4.</span> <span class="toc-text">DataStreamer写数据</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%8F%96%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-number">4.4.</span> <span class="toc-text">数据读取流程分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-number">4.4.1.</span> <span class="toc-text">读取流程图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE%E4%BB%A3%E7%A0%81"><span class="toc-number">4.4.2.</span> <span class="toc-text">读取数据代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B%E6%A2%B3%E7%90%86"><span class="toc-number">4.4.3.</span> <span class="toc-text">读取数据流程梳理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82NameNode%E6%89%93%E5%BC%80open"><span class="toc-number">4.4.3.1.</span> <span class="toc-text">客户端请求NameNode打开open</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getLocatedBlocks"><span class="toc-number">4.4.3.2.</span> <span class="toc-text">getLocatedBlocks</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NameNode%E8%BF%94%E5%9B%9E%E5%9D%97%E4%BF%A1%E6%81%AF"><span class="toc-number">4.4.3.3.</span> <span class="toc-text">NameNode返回块信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%BB%E6%95%B0%E6%8D%AE"><span class="toc-number">4.4.3.4.</span> <span class="toc-text">客户端读数据</span></a></li></ol></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><p><a style="margin-inline:5px"target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://img.shields.io/badge/CDN-%E5%8F%88%E6%8B%8D%E4%BA%91-blue" title="又拍云提供CDN加速" alt="又拍云"></a><a style="margin-inline:5px"target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为 Hexo" alt="HEXO"></a><a style="margin-inline:5px"target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用 Butterfly" alt="Butterfly"></a><a style="margin-inline:5px"target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用 Jsdelivr 为静态资源提供CDN加速" alt="Jsdelivr"></a><a style="margin-inline:5px"target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由 GitHub 托管" alt="GitHub"></a><a style="margin-inline:5px"target="_blank"href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" alt="img" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><div class="aplayer no-destroy" data-id="7520334743" data-server="tencent" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-preload="none" data-autoplay="true" muted></div><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script async data-pjax src="/js/randombg.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = [
+  'title',
+  '#config-diff',
+  '#body-wrap',
+  '#rightside-config-hide',
+  '#rightside-config-show',
+  '.js-pjax'
+]
+
+if (false) {
+  pjaxSelectors.unshift('meta[property="og:image"]', 'meta[property="og:title"]', 'meta[property="og:url"]')
+}
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.removeEventListener('scroll', window.tocScrollFn)
+  window.removeEventListener('scroll', scrollCollect)
+
+  typeof preloader === 'object' && preloader.initLoading()
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // Analytics
+  if (false) {
+    MtaH5.pgv()
+  }
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+
+  typeof preloader === 'object' && preloader.endLoading()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                console.log('已挂载history_calendar')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='/'|| '/' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><script data-pjax>
+  function butterfly_clock_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src="/img/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_injector_config();
+  }
+  </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax src="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.js"></script><!-- hexo injector body_end end --></body></html>
