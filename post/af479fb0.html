@@ -1,0 +1,601 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Virtual DOM的实现原理 | 牧马人的忧伤</title><meta name="keywords" content="前端,深入Vue"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Virtual DOM的实现原理课程目标 了解什么是虚拟DOM,以及虚拟DOM的作用 Snabbdom的基本使用（Vue内部的虚拟Dom是改造了开源库Snabbdom） Snabbdom的源码解析  在面试的时候经常会问到虚拟DOM是怎么工作的，通过查看Snabbdom源码，可以对这块内容有更加深入的了解。 1、什么是Virtual DOMVirtual Dom(虚拟DOM),是由普通的JS对象来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Virtual DOM的实现原理">
+<meta property="og:url" content="http://lvxueyang.vip/post/af479fb0.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="Virtual DOM的实现原理课程目标 了解什么是虚拟DOM,以及虚拟DOM的作用 Snabbdom的基本使用（Vue内部的虚拟Dom是改造了开源库Snabbdom） Snabbdom的源码解析  在面试的时候经常会问到虚拟DOM是怎么工作的，通过查看Snabbdom源码，可以对这块内容有更加深入的了解。 1、什么是Virtual DOMVirtual Dom(虚拟DOM),是由普通的JS对象来">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg">
+<meta property="article:published_time" content="2021-11-19T14:39:00.000Z">
+<meta property="article:modified_time" content="2021-11-20T14:12:06.188Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="前端">
+<meta property="article:tag" content="深入Vue">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://lvxueyang.vip/post/af479fb0"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Virtual DOM的实现原理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-11-20 22:12:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    document.addEventListener('pjax:complete', detectApple)})(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">220</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">70</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">61</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Virtual DOM的实现原理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-11-19T14:39:00.000Z" title="发表于 2021-11-19 22:39:00">2021-11-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-11-20T14:12:06.188Z" title="更新于 2021-11-20 22:12:06">2021-11-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%8D%E7%AB%AF/%E6%B7%B1%E5%85%A5Vue/">深入Vue</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">7.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>30分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Virtual DOM的实现原理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Virtual-DOM的实现原理"><a href="#Virtual-DOM的实现原理" class="headerlink" title="Virtual DOM的实现原理"></a>Virtual DOM的实现原理</h1><h1 id="课程目标"><a href="#课程目标" class="headerlink" title="课程目标"></a>课程目标</h1><ul>
+<li>了解什么是虚拟<code>DOM</code>,以及虚拟<code>DOM</code>的作用</li>
+<li><code>Snabbdom</code>的基本使用（<code>Vue</code>内部的虚拟<code>Dom</code>是改造了开源库<code>Snabbdom</code>）</li>
+<li><code>Snabbdom</code>的源码解析</li>
+</ul>
+<p>在面试的时候经常会问到虚拟<code>DOM</code>是怎么工作的，通过查看<code>Snabbdom</code>源码，可以对这块内容有更加深入的了解。</p>
+<h1 id="1、什么是Virtual-DOM"><a href="#1、什么是Virtual-DOM" class="headerlink" title="1、什么是Virtual DOM"></a>1、什么是Virtual DOM</h1><p><code>Virtual Dom(虚拟DOM)</code>,是由普通的<code>JS</code>对象来描述<code>DOM</code>对象，因为不是真实的<code>DOM</code>对象，所以叫做<code>Virtual DOM</code>.</p>
+<p>我们为什么用虚拟<code>DOM</code>来模拟真实的<code>DOM</code>呢？</p>
+<p>因为我们知道一个<code>DOM</code>对象中的成员是非常多。所以创建<code>Dom</code>对象的成本非常高。</p>
+<p>如果使用虚拟<code>Dom</code>来描述真实<code>Dom</code>,就会发现创建的成员少，成本也就低了。</p>
+<h1 id="2、为什么使用Virtual-DOM"><a href="#2、为什么使用Virtual-DOM" class="headerlink" title="2、为什么使用Virtual DOM"></a>2、为什么使用Virtual DOM</h1><ul>
+<li><p>手动操作<code>Dom</code>比较麻烦，还需要考虑浏览器兼容性问题，虽然有<code>Jquery</code>等库简化<code>DOM</code>操作，但是随着项目的复杂度越来越高，<code>DOM</code>操作复杂提升，既要考虑<code>Dom</code>操作，还要考虑数据的操作。</p>
+</li>
+<li><p>为了简化<code>DOM</code>的复杂操作于是出现了各种的<code>MVVM</code>框架，<code>MVVM</code>框架解决了视图和状态的同步问题，也就是当数据发生变化，更新视图，当视图发生变化更新数据。</p>
+</li>
+<li><p>为了简化视图的操作我们可以使用模板引擎，但是模板引擎没有解决跟踪状态变化的问题（当数据发生了变化后，无法获取上一次的状态，只有将页面上的元素删除，然后在重新创建，这时页面有刷新的问题，同时频繁操作<code>Dom</code>,性能也会非常低），于是<code>Virtual Dom</code>出现了。</p>
+</li>
+<li><p><code>Virtual Dom</code>的好处就是当状态改变时不需要立即更新<code>DOM</code>，只需要创建一个虚拟树来描述<code>DOM</code>，<code>Virtual Dom</code>内部将弄清楚如何有效(<code>diff</code>)的更新<code>DOM</code>.(例如：向用户添加列表中添加一个用户，只添加新的内容，原有的结构会被重用)</p>
+<p>下面，我们看一段代码，该代码是使用<code>jquery</code>来实现的数据展示与排序，是<code>纯DOM</code>操作的方式</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span><span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;utf-8&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span> <span class="attr">src</span>=<span class="string">&quot;https://code.jquery.com/jquery-1.11.3.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;app&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;sort&quot;</span> <span class="attr">style</span>=<span class="string">&quot;margin-top: 20px;&quot;</span>&gt;</span>按年纪排序<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="keyword">var</span> datas = [</span></span><br><span class="line"><span class="javascript">      &#123; <span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;kongzhi11&#x27;</span>, <span class="string">&#x27;age&#x27;</span>: <span class="number">32</span> &#125;,</span></span><br><span class="line"><span class="javascript">      &#123; <span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;kongzhi44&#x27;</span>, <span class="string">&#x27;age&#x27;</span>: <span class="number">29</span> &#125;,</span></span><br><span class="line"><span class="javascript">      &#123; <span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;kongzhi22&#x27;</span>, <span class="string">&#x27;age&#x27;</span>: <span class="number">31</span> &#125;,</span></span><br><span class="line"><span class="javascript">      &#123; <span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;kongzhi33&#x27;</span>, <span class="string">&#x27;age&#x27;</span>: <span class="number">30</span> &#125;</span></span><br><span class="line"><span class="javascript">    ];</span></span><br><span class="line"><span class="javascript">    <span class="keyword">var</span> render = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">      <span class="keyword">var</span> html = <span class="string">&#x27;&#x27;</span>;</span></span><br><span class="line"><span class="javascript">      datas.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">item, index</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        html += <span class="string">`&lt;li&gt;</span></span></span><br><span class="line"><span class="string"><span class="javascript">                  &lt;div class=&quot;u-cls&quot;&gt;</span></span></span><br><span class="line"><span class="string"><span class="javascript">                    &lt;span class=&quot;name&quot;&gt;姓名:<span class="subst">$&#123;item.name&#125;</span>&lt;/span&gt;</span></span></span><br><span class="line"><span class="string"><span class="javascript">                    &lt;span class=&quot;age&quot; style=&quot;margin-left:20px;&quot;&gt;年龄:<span class="subst">$&#123;item.age&#125;</span>&lt;/span&gt;</span></span></span><br><span class="line"><span class="string"><span class="javascript">                    &lt;span class=&quot;closed&quot;&gt;x&lt;/span&gt;</span></span></span><br><span class="line"><span class="string"><span class="javascript">                  &lt;/div&gt;</span></span></span><br><span class="line"><span class="string"><span class="javascript">                &lt;/li&gt;`</span>;</span></span><br><span class="line"><span class="javascript">      &#125;);</span></span><br><span class="line"><span class="javascript">      <span class="keyword">return</span> html;</span></span><br><span class="line"><span class="javascript">    &#125;;</span></span><br><span class="line"><span class="javascript">    $(<span class="string">&quot;#app&quot;</span>).html(render());</span></span><br><span class="line"><span class="javascript">    $(<span class="string">&#x27;#sort&#x27;</span>).on(<span class="string">&#x27;click&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">      datas = datas.sort(<span class="function"><span class="keyword">function</span>(<span class="params">a, b</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">return</span> a.age - b.age;</span></span><br><span class="line"><span class="javascript">      &#125;);</span></span><br><span class="line"><span class="javascript">      $(<span class="string">&#x27;#app&#x27;</span>).html(render());</span></span><br><span class="line"><span class="javascript">    &#125;)</span></span><br><span class="line"><span class="javascript">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>如上<code>demo</code>排序，虽然在使用<code>jquery</code>时代这种方式是可行的，我们点击按钮，它就可以从小到大的排序，但是它比较暴力，它会将之前的<code>dom</code>全部删除，然后重新渲染新的<code>dom</code>节点，我们知道，操作<code>DOM</code>会影响页面的性能，并且有时候数据根本就没有发生改变，我们希望未更改的数据不需要重新渲染操作。</p>
+<p>因此虚拟<code>DOM</code>的思想就出来了，虚拟<code>DOM</code>的思想是先控制数据再到视图，但是数据状态是通过<code>diff</code>比对，它会比对新旧虚拟<code>DOM</code>节点，然后找出两者之前的不同，然后再把不同的节点再发生渲染操作。</p>
+<p>如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211120151401.png" alt="虚拟DOM1【众筹换课微信610060008】"></p>
+</li>
+<li><p>总结：</p>
+<p>虚拟<code>DOM</code>可以维护程序的状态，跟踪上一次的状态</p>
+<p>通过比较前后两次状态的差异来更新真实<code>DOM</code></p>
+</li>
+</ul>
+<h1 id="3、虚拟DOM的作用"><a href="#3、虚拟DOM的作用" class="headerlink" title="3、虚拟DOM的作用"></a>3、虚拟DOM的作用</h1><p>维护视图和状态的关系（虚拟<code>DOM</code>会记录状态的变化，只需要更新状态变化的内容就可以了）</p>
+<p>复杂视图情况下提升渲染性能。</p>
+<p>下面我们看一个案例，该案例的功能比较简单，单击按钮后，更新<code>div</code>中的内容。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> div=<span class="built_in">document</span>.querySelector(<span class="string">&#x27;#app&#x27;</span>)</span><br><span class="line"><span class="keyword">let</span> btn=<span class="built_in">document</span>.querySelectory(<span class="string">&#x27;#btn&#x27;</span>)</span><br><span class="line">btn.onclick=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    div.textContent=<span class="string">&#x27;Hello World&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上代码非常简单，而且是使用<code>DOM</code>操作的方式来实现的。</p>
+<p>如果上面的案例，我们使用虚拟<code>DOM</code>来实现，应该怎样处理呢？首先，我们要创建一个虚拟<code>DOM</code>的对象，</p>
+<p>虚拟<code>DOM</code>对象就是一个普通的<code>JS</code>对象。当单击按钮的时候，需要对比两次状态的差异。所以说，仅仅是该案例，</p>
+<p>我们使用虚拟<code>DOM</code>的方式来实现，要比使用纯<code>DOM</code>的方式来实现，性能要低。</p>
+<p>所以说，并不是所有的情况下使用虚拟<code>DOM</code>都会提升性能的。只有在视图比较复杂的情况下使用虚拟<code>DOM</code>才会提升渲染的性能。</p>
+<p>虚拟<code>DOM</code>除了渲染<code>DOM</code>以外，还可以实现渲染到其它的平台，例如可以实现服务端渲染(<code>ssr</code>),原生应用(<code>React Native</code>),小程序(<code>uni-app</code>等)。以上列举的案例中，内部都使用了虚拟<code>DOM</code>.</p>
+<p><code>Vue</code>中虚拟<code>DOM</code>生成真实<code>DOM</code>的过程</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211120151314.png" alt="虚拟DOM的生成【众筹换课微信610060008】"></p>
+<p>下面我们重点要讲解的就是一个开源的虚拟<code>DOM</code>库—<code>Snabbdom</code>.</p>
+<p>从<code>Vue2.x</code>开始内部使用的虚拟<code>DOM</code>，就是改造的<code>Snabbdom</code>.</p>
+<p><code>Snabbdom</code>源码大约200行作用，可以通过模块来进行扩展，所以功能比较强大。</p>
+<p>源码使用<code>TypeScript</code>开发，官方宣称是最块的<code>Virtual Dom</code>之一。</p>
+<h1 id="4、Snabbdom基本使用"><a href="#4、Snabbdom基本使用" class="headerlink" title="4、Snabbdom基本使用"></a>4、Snabbdom基本使用</h1><h2 id="4-1-创建项目"><a href="#4-1-创建项目" class="headerlink" title="4.1 创建项目"></a>4.1 创建项目</h2><p>在讲解<code>Snabbdom</code>的基本使用之前，我们先来创建一个项目。</p>
+<p>打包工具为了方便使用，使用了<code>parcel</code>,你也可以使用<code>webpack</code>.</p>
+<p>下面创建项目，并安装<code>parcel</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//创建项目目录</span></span><br><span class="line">md snabbdom-demo</span><br><span class="line"><span class="comment">// 进入项目目录</span></span><br><span class="line"> cd snabbdom-demo</span><br><span class="line"><span class="comment">// 创建package.json</span></span><br><span class="line">npm init -y</span><br><span class="line"><span class="comment">//本地安装parcel</span></span><br><span class="line">npm install parcel-bundler</span><br></pre></td></tr></table></figure>
+
+<p>配置<code>package.json</code>中的<code>scripts</code>‘</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&quot;srcipts&quot;</span>:&#123;</span><br><span class="line">    <span class="string">&quot;dev&quot;</span>:<span class="string">&quot;parcel index.html --open&quot;</span> , <span class="comment">//open打开浏览器</span></span><br><span class="line">    <span class="string">&quot;build&quot;</span>：<span class="string">&quot;parcel build index.html&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建目录结构</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">index.html</span><br><span class="line">package.json</span><br><span class="line">---src</span><br><span class="line">    basicusage.js</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2-导入Snabbdom"><a href="#4-2-导入Snabbdom" class="headerlink" title="4.2  导入Snabbdom"></a>4.2  导入Snabbdom</h2><p>方法文档：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://github.com/snabbdom/snabbdom</span><br></pre></td></tr></table></figure>
+
+<p>下面先安装<code>Snabbdom</code>.(这里最新版本有问题，可以先安装0.7.4)</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">npm install snabbdom@0.7.4</span><br></pre></td></tr></table></figure>
+
+<p>在项目的<code>js</code>文件夹下的<code>01- basicusage.js</code>文件中，添加如下代码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span>  snabbdom  <span class="keyword">from</span> <span class="string">&quot;snabbdom&quot;</span>;</span><br><span class="line"><span class="built_in">console</span>.log(snabbdom);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以上代码的意思就是导入<code>snabbdom</code>这个包，然后打印其内容。</p>
+<p>项目的启动</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">npm run dev</span><br></pre></td></tr></table></figure>
+
+<p>这时，开启的端口号为<code>1234</code></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://localhost:1234</span><br></pre></td></tr></table></figure>
+
+<p>在打开的浏览器中，查看控制台的输出，发现输出的内容为<code>undefined</code></p>
+<p>为什么输出的是<code>undefined</code>呢?</p>
+<p>这里我们需要查看对应的源码，</p>
+<p>在<code>node_modules/snabbdom/snabbdom.js</code>文件中，</p>
+<p>我们可以看到在整个文件中，并没有使用<code>export default</code>的方式进行导出，所以就不能使用<code>import snabbdom</code>这种方式进行导入。同时在，源码中，我们可以看到导出了三项内容分别为<code>h</code>,<code>thunk</code>,<code>init</code>.</p>
+<p>所以，导入的代码修改成如下的形式</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; h, thunk, init &#125; <span class="keyword">from</span> <span class="string">&quot;snabbdom&quot;</span>;</span><br><span class="line"><span class="built_in">console</span>.log(h, thunk, init);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>Snabbdom</code>的核心仅提供最基本的功能，只导出了三个函数<code>init()</code>,<code>h( )</code>,<code>thunk( )</code></p>
+<p><code>init</code>函数是高阶函数，返回<code>patch( )</code>，一会在看该方法</p>
+<p><code>h</code>函数返回虚拟节点<code>VNode</code>,这个函数我们在使用<code>Vue.js</code>的时候见过。</p>
+<p> <code>  h()</code>函数用于创建虚拟<code>DOM</code>，在<code>Snabbdom</code>中用<code>VNode</code>描述虚拟节点，也就是虚拟<code>DOM</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">new Vue(&#123;</span><br><span class="line">router,</span><br><span class="line">render:h=&gt;h(App)</span><br><span class="line">&#125;).$mount(&#x27;#app&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p><code>thunk</code>函数是一种优化策略，可以在处理不可变数据时使用（用于优化复杂的视图）。</p>
+<h2 id="4-3-Snabbdom的基本使用"><a href="#4-3-Snabbdom的基本使用" class="headerlink" title="4.3  Snabbdom的基本使用"></a>4.3  Snabbdom的基本使用</h2><p>下面我们来看一下<code>Snabbdom</code>的基本使用，在<code>01- basicusage.js</code>文件中编写如下代码</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; h, thunk, init &#125; <span class="keyword">from</span> <span class="string">&quot;snabbdom&quot;</span>;</span><br><span class="line"><span class="comment">// init方法返回值为patch函数，patch函数作用是对比两个vndoe的差异并更新到真实的DOM中。init函数的参数是一个数组，数组中的内容是模块，关于模块内容后面还会讲解</span></span><br><span class="line"><span class="keyword">let</span> patch = init([]);</span><br><span class="line"><span class="comment">//创建虚拟DOM</span></span><br><span class="line"><span class="comment">// 第一个参数：标签+选择器(id选择器或者是类选择器)</span></span><br><span class="line"><span class="comment">// 第二个参数：如果是字符串的话就是标签中的内容</span></span><br><span class="line"><span class="keyword">let</span> vnode = h(<span class="string">&quot;div#container.cls&quot;</span>, <span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line"><span class="comment">//我们这里需要将创建的虚拟dom，最终要渲染到`index.html`中`app`这个div中，所以这里需要获取一下该div</span></span><br><span class="line"><span class="keyword">let</span> app = <span class="built_in">document</span>.querySelector(<span class="string">&quot;#app&quot;</span>);</span><br><span class="line"><span class="comment">//要想将虚拟DOM渲染到`app`中，需要用到patch函数。</span></span><br><span class="line"><span class="comment">// 我们知道patch函数的作用是对比两个vnode的差异来更新到真实的`DOM`中。</span></span><br><span class="line"><span class="comment">//但是我们目前没有两个虚拟DOM.那么patch方法的第一个参数也可以是真实的DOM.patch方法会将真实的DOM转换成VNode.</span></span><br><span class="line"><span class="comment">// 第二个参数：为VNode</span></span><br><span class="line"><span class="comment">//返回值为VNode</span></span><br><span class="line"><span class="keyword">let</span> oldNode = patch(app, vnode);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>运行上面的代码，可以在浏览器中看到<code>Hello World</code>.</p>
+<p>可以查看对应生成的元素。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211120151333.png" alt="snabbdom【众筹换课微信610060008】"></p>
+<p>下面我们再来看一个问题，假如在某个时刻需要重新获取服务端的数据，并且将获取到的数据重新渲染到该<code>div</code>中(<code>id=&#39;container&#39;</code>的div)。</p>
+<p>我们这里，就需要重新创建一个<code>VNode</code>, 然后传递给<code>patch</code>,让<code>patch</code>比较一下新的<code>VNode</code>与原有的<code>VNode</code>之间的差异。</p>
+<p>补充后的代码如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; h, thunk, init &#125; <span class="keyword">from</span> <span class="string">&quot;snabbdom&quot;</span>;</span><br><span class="line"><span class="comment">// init方法返回值为patch函数，patch函数作用是对比两个vndoe的差异并更新到真实的DOM中。init函数的参数是一个数组，数组中的内容是模块，关于模块内容后面还会讲解</span></span><br><span class="line"><span class="keyword">let</span> patch = init([]);</span><br><span class="line"><span class="comment">//创建虚拟DOM</span></span><br><span class="line"><span class="comment">// 第一个参数：标签+选择器(id选择器或者是类选择器)</span></span><br><span class="line"><span class="comment">// 第二个参数：如果是字符串的话就是标签中的内容</span></span><br><span class="line"><span class="keyword">let</span> vnode = h(<span class="string">&quot;div#container.cls&quot;</span>, <span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line"><span class="comment">//我们这里需要将创建的虚拟dom，最终要渲染到`index.html`中`app`这个div中，所以这里需要获取一下该div</span></span><br><span class="line"><span class="keyword">let</span> app = <span class="built_in">document</span>.querySelector(<span class="string">&quot;#app&quot;</span>);</span><br><span class="line"><span class="comment">//要想将虚拟DOM渲染到`app`中，需要用到patch函数。</span></span><br><span class="line"><span class="comment">// 我们知道patch函数的作用是对比两个vnode的差异来更新到真实的`DOM`中。</span></span><br><span class="line"><span class="comment">//但是我们目前没有两个虚拟DOM.那么patch方法的第一个参数也可以是真实的DOM.patch方法会将真实的DOM转换成VNode.</span></span><br><span class="line"><span class="comment">// 第二个参数：为VNode</span></span><br><span class="line"><span class="comment">//返回值为VNode</span></span><br><span class="line"><span class="keyword">let</span> oldNode = patch(app, vnode);</span><br><span class="line">vnode = h(<span class="string">&quot;div&quot;</span>, <span class="string">&quot;Hello Vue&quot;</span>);</span><br><span class="line">patch(oldNode, vnode);</span><br></pre></td></tr></table></figure>
+
+<p>在上面的代码中，我们又创建了一个虚拟<code>DOM</code> ,<code>vnode</code>。然后把这个<code>vnode</code>与<code>oldNode</code>进行对比，最后渲染到页面中。</p>
+<p>下面我们在做一个案例：</p>
+<p>在<code>js</code>目录下面在创建一个文件：<code>02-basicusage.js</code></p>
+<p>实现的代码如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 本案例实现的要求是:在div中设置子元素h1，p</span></span><br><span class="line"><span class="keyword">import</span> &#123; h, init &#125; <span class="keyword">from</span> <span class="string">&quot;snabbdom&quot;</span>;</span><br><span class="line"><span class="keyword">let</span> patch = init([]);</span><br><span class="line"><span class="comment">// h函数的第二个参数可以是一个数组，在该数组中添加所要创建的子元素。</span></span><br><span class="line"><span class="keyword">let</span> vnode = h(<span class="string">&quot;div#container&quot;</span>, [</span><br><span class="line">  h(<span class="string">&quot;h1&quot;</span>, <span class="string">&quot;hello world&quot;</span>),</span><br><span class="line">  h(<span class="string">&quot;p&quot;</span>, <span class="string">&quot;这是一个p标签&quot;</span>),</span><br><span class="line">]);</span><br><span class="line"><span class="keyword">let</span> app = <span class="built_in">document</span>.querySelector(<span class="string">&quot;#app&quot;</span>);</span><br><span class="line">patch(app, vnode);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>同时还需要修改<code>index.html</code>文件中的引入。</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;app&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;./js/02-basicusage.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这时，可以在浏览器中查看更新后的内容。</p>
+<p>下面我们再来看另外一个问题，就是模拟从服务器获取数据，然后更新页面中的内容。</p>
+<p>在上面的代码中，再增加如下的内容：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 本案例实现的要求是:在div中设置子元素h1，p</span></span><br><span class="line"><span class="keyword">import</span> &#123; h, init &#125; <span class="keyword">from</span> <span class="string">&quot;snabbdom&quot;</span>;</span><br><span class="line"><span class="keyword">let</span> patch = init([]);</span><br><span class="line"><span class="comment">// h函数的第二个参数可以是一个数组，在该数组中添加所要创建的子元素。</span></span><br><span class="line"><span class="keyword">let</span> vnode = h(<span class="string">&quot;div#container&quot;</span>, [</span><br><span class="line">  h(<span class="string">&quot;h1&quot;</span>, <span class="string">&quot;hello world&quot;</span>),</span><br><span class="line">  h(<span class="string">&quot;p&quot;</span>, <span class="string">&quot;这是一个p标签&quot;</span>),</span><br><span class="line">]);</span><br><span class="line"><span class="keyword">let</span> app = <span class="built_in">document</span>.querySelector(<span class="string">&quot;#app&quot;</span>);</span><br><span class="line"><span class="comment">// 记录更新后的VNode</span></span><br><span class="line"><span class="keyword">let</span> oldVnode = patch(app, vnode);</span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  vnode = h(<span class="string">&quot;div#container&quot;</span>, [h(<span class="string">&quot;h1&quot;</span>, <span class="string">&quot;Hello Vue&quot;</span>), h(<span class="string">&quot;p&quot;</span>, <span class="string">&quot;Hello p&quot;</span>)]);</span><br><span class="line">  patch(oldVnode, vnode);</span><br><span class="line">    </span><br><span class="line">&#125;, <span class="number">2000</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在上面的代码中，首先记录第一次<code>patch</code>方法更新后的<code>vnode</code>,同时在2秒钟以后，通过<code>h</code>函数重新创建了一个虚拟<code>DOM</code>,并且通过<code>patch</code>函数与原有的虚拟<code>DOM</code>进行比较，然后重新更新页面内容。</p>
+<p>2秒钟以后清空节点内容</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> a = patch(oldVnode, vnode);</span><br><span class="line">patch(a, h(<span class="string">&quot;!&quot;</span>));<span class="comment">//第二个参数，表示创建一个注释节点。</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-4-模块"><a href="#4-4-模块" class="headerlink" title="4.4 模块"></a>4.4 模块</h2><p><code>Snabbdom</code>的核心库并不能处理元素的属性/样式/事件等，如果需要处理，可以使用模块.</p>
+<p><strong>常用模块</strong></p>
+<p>官方提供了6个模块</p>
+<p> **<code>attributes**</code>:<code>设置</code>DOM<code>元素的属性，内部使用</code>setAttribute()来设置属性,<code>处理布尔类型的属性（可以对布尔类型的属性作相应的判断处理，布尔类型的属性，我们比较熟悉的有</code>selected<code>,</code>checked`等）。</p>
+<p><strong><code>props</code>:</strong>  和<code>attributes</code>模块类似，设置<code>DOM</code>元素的属性<code>element[attr]=value</code>,不处理布尔类型的属性。</p>
+<p><code>class</code>: 切换样式类，注意：给元素设置类样式是通过<code>sel</code>选择器。··</p>
+<p><code>dataset</code>:设置<code> HTML5</code> 中的 <code>data-*</code> 的自定义属性</p>
+<p><code>eventlisteners</code>: 注册和移除事件</p>
+<p><code>style</code>:设置行内样式，支持动画（内部创建<code>transitionend</code>事件）,会增加额外的属性：delayed / remove / destroy</p>
+<p>下面看一下模块的使用</p>
+<p>使用模块的步骤：</p>
+<p>第一步：导入需要的模块</p>
+<p>第二步：在<code>init()</code>中注册模块</p>
+<p>第三步：使用<code>h</code>函数创建<code>VNode</code>的时候，可以把第二个参数设置为对象(对象中是模块需要的数据，可以设置行内样式、事件等)，其它参数往后移。</p>
+<p>下面我们要实现的案例，就是给<code>div</code>添加一个背景，同时为其添加一个单击事件，当然在<code>div</code>中还要创建两个元素分别是<code>h1</code>与<code>p</code>.</p>
+<p>具体实现的代码如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; init, h &#125; <span class="keyword">from</span> <span class="string">&quot;snabbdom&quot;</span>;</span><br><span class="line"><span class="comment">//导入模块</span></span><br><span class="line"><span class="keyword">import</span> style <span class="keyword">from</span> <span class="string">&quot;snabbdom/modules/style&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> eventlisteners <span class="keyword">from</span> <span class="string">&quot;snabbdom/modules/eventlisteners&quot;</span>;</span><br><span class="line"><span class="comment">//注册模块</span></span><br><span class="line"><span class="keyword">let</span> patch = init([style, eventlisteners]);</span><br><span class="line"><span class="comment">// 使用h函数的第二个参数传入模块所需要的数据(对象)</span></span><br><span class="line"><span class="keyword">let</span> vnode = h(</span><br><span class="line">  <span class="string">&quot;div&quot;</span>,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">style</span>: &#123;</span><br><span class="line">      <span class="attr">backgroundColor</span>: <span class="string">&quot;red&quot;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">on</span>: &#123;</span><br><span class="line">      <span class="attr">click</span>: eventHandler,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  [h(<span class="string">&quot;h1&quot;</span>, <span class="string">&quot;Hello Vue&quot;</span>), h(<span class="string">&quot;p&quot;</span>, <span class="string">&quot;这是p标签&quot;</span>)]</span><br><span class="line">);</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">eventHandler</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&quot;点击了我&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> app = <span class="built_in">document</span>.querySelector(<span class="string">&quot;#app&quot;</span>);</span><br><span class="line">patch(app, vnode);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>注意：在<code>index.html</code>文件中要引入以上代码所在的<code>js</code>文件，如下所示：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;app&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;./js/03-modules.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="5、Snabbdom源码解读"><a href="#5、Snabbdom源码解读" class="headerlink" title="5、Snabbdom源码解读"></a>5、<code>Snabbdom</code>源码解读</h1><p>通过前面的学习，我们可以总结出<code>Snabbdom</code>的核心：</p>
+<ul>
+<li><p>使用<code>h( )</code>函数创建<code>JavaScript</code>对象(<code>VNode</code>)描述真实<code>DOM</code>。</p>
+</li>
+<li><p><code>init( )</code>函数设置模块，创建<code>patch( )</code>函数。</p>
+</li>
+<li><p><code>patch( )</code>函数比较新旧两个<code>VNode</code></p>
+</li>
+<li><p>把变化的内容更新到真实<code>DOM</code>树上</p>
+</li>
+</ul>
+<h2 id="5-1-h函数"><a href="#5-1-h函数" class="headerlink" title="5.1  h函数"></a>5.1  <code>h</code>函数</h2><p><code>h</code>函数介绍</p>
+<p>在使用<code>Vue</code>的时候加过<code>h( )</code>函数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">new Vue(&#123;</span><br><span class="line">   router,</span><br><span class="line">   render:h=&gt;h(App)</span><br><span class="line">&#125;).$mount(&#x27;#app&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p><code>render</code>函数的参数就是<code>Snabbdom</code>中的<code>h</code>函数，当然在<code>Vue</code>中将<code>h</code>函数做了一定的修改，可以用来支持组件，原有的<code>Snabbdom</code>中的<code>h</code>函数不支持组件的内容。在<code>Snabbdom</code>中<code>h( )</code>函数的作用就是用来创建<code>VNode</code>.</p>
+<p>在看源码之前，我们先来了解一个概念：<code>函数重载</code>。</p>
+<p>因为在源码中用到了<code>函数重载</code>。</p>
+<p>  所谓的函数重载: <strong>参数个数</strong>或<strong>类型</strong>不同的函数，称之为函数重载</p>
+<p>但是在<code>JavaScript</code>中没有重载的概念，在<code>TypeScript</code>中是有重载的。</p>
+<p>我们来看一段重载的示例代码</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add</span>(<span class="params">a,b</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a+b</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add</span>(<span class="params">a,b,c</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(a+b+c)</span><br><span class="line">&#125;</span><br><span class="line">add(<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line">add(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<p>以上我们是通过参数个数的形式，展示了一段函数重载的代码。</p>
+<p>下面我们来看一下<code>h</code>函数的源码。</p>
+<p>源码位置：<code>node_modules/snabbdom/src/h.ts</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// h函数的重载</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">h</span>(<span class="params">sel: string</span>): <span class="title">VNode</span></span>;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">h</span>(<span class="params">sel: string, data: VNodeData</span>): <span class="title">VNode</span></span>;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">h</span>(<span class="params">sel: string, children: VNodeChildren</span>): <span class="title">VNode</span></span>;</span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">h</span>(<span class="params">sel: string, data: VNodeData, children: VNodeChildren</span>): <span class="title">VNode</span></span>;</span><br><span class="line"><span class="comment">//h函数重载的具体实现</span></span><br><span class="line"><span class="comment">//h函数可以接收三个参数，?表示该参数可以不传递</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">h</span>(<span class="params">sel: any, b?: any, c?: any</span>): <span class="title">VNode</span> </span>&#123;</span><br><span class="line">    <span class="comment">//定义变量</span></span><br><span class="line">  <span class="keyword">var</span> data: VNodeData = &#123;&#125;, <span class="attr">children</span>: any, <span class="attr">text</span>: any, <span class="attr">i</span>: number;</span><br><span class="line">    <span class="comment">// 处理参数，实现重载的机制</span></span><br><span class="line">    <span class="comment">//如果c这个参数的值不等于undefined,表示传递了三个参数</span></span><br><span class="line">  <span class="keyword">if</span> (c !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="comment">//如果该条件成立，表示处理的就是有三个参数的情况</span></span><br><span class="line">      <span class="comment">//参数b中存储的就是模块处理的时候，需要的数据，例如：行内样式，事件等，关于这块在前面的案例中我们也写过,在这里将b参数的值赋给了data这个变量</span></span><br><span class="line">    data = b;</span><br><span class="line">      <span class="comment">//下面是对参数c进行了判断。</span></span><br><span class="line">      <span class="comment">//关于参数c有三种情况，第一种情况为数组，第二种情况为字符串或者是数字,第三种情况为VNode.</span></span><br><span class="line">      <span class="comment">//首先判断参数c是否为数组，如果是数组，赋值给了children这个变量,表明c是子元素。</span></span><br><span class="line">      <span class="comment">//例如前面我们在使用模块的案例中，给h函数指定的第三个参数就为数组：[h(&quot;h1&quot;, &quot;Hello Vue&quot;), h(&quot;p&quot;, &quot;这是p标签&quot;)]</span></span><br><span class="line">    <span class="keyword">if</span> (is.array(c)) &#123; children = c; &#125;</span><br><span class="line">      <span class="comment">//如果c参数是字符串或者是数字，将参数c赋值给了text变量，表明传递过来的内容其实就是标签中的文本内容</span></span><br><span class="line">      </span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (is.primitive(c)) &#123; text = c; &#125;</span><br><span class="line">      <span class="comment">//如果有sel属性，表明c是vnode,在这里需要转换成数组的形式，然后再赋值给children这个变量</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (c &amp;&amp; c.sel) &#123; children = [c]; &#125;</span><br><span class="line">      </span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (b !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="comment">//如果该条件成立，表明处理的是两个参数的情况</span></span><br><span class="line">      <span class="comment">//如果b是一个数组，赋值给chilren这个变量：vnode = h(&quot;div#container&quot;, [h(&quot;h1&quot;, &quot;Hello Vue&quot;), h(&quot;p&quot;, &quot;Hello p&quot;)]);</span></span><br><span class="line">    <span class="keyword">if</span> (is.array(b)) &#123; children = b; &#125;</span><br><span class="line">      <span class="comment">//如果b是字符串或者数字：h(&quot;div&quot;, &quot;Hello Vue&quot;);</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (is.primitive(b)) &#123; text = b; &#125;</span><br><span class="line">      <span class="comment">//如果b是Vnode的情况</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (b &amp;&amp; b.sel) &#123; children = [b]; &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123; data = b; &#125;</span><br><span class="line">  &#125;</span><br><span class="line">    <span class="comment">//判断children中有值</span></span><br><span class="line">  <span class="keyword">if</span> (children !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="comment">//对chilren进行遍历</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; children.length; ++i) &#123;</span><br><span class="line">        <span class="comment">//判断从chilren中取出来的内容是否为：string/number,如果是创建文本的虚拟节点.</span></span><br><span class="line">      <span class="keyword">if</span> (is.primitive(children[i])) children[i] = vnode(<span class="literal">undefined</span>, <span class="literal">undefined</span>, <span class="literal">undefined</span>, children[i], <span class="literal">undefined</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (</span><br><span class="line">    sel[<span class="number">0</span>] === <span class="string">&#x27;s&#x27;</span> &amp;&amp; sel[<span class="number">1</span>] === <span class="string">&#x27;v&#x27;</span> &amp;&amp; sel[<span class="number">2</span>] === <span class="string">&#x27;g&#x27;</span> &amp;&amp;</span><br><span class="line">    (sel.length === <span class="number">3</span> || sel[<span class="number">3</span>] === <span class="string">&#x27;.&#x27;</span> || sel[<span class="number">3</span>] === <span class="string">&#x27;#&#x27;</span>)</span><br><span class="line">  ) &#123;</span><br><span class="line">      <span class="comment">//如果是svg，添加命名空间</span></span><br><span class="line">    addNS(data, children, sel);</span><br><span class="line">  &#125;</span><br><span class="line">    <span class="comment">//最后返回的是整个VNode.所h函数的核心就是调用vnode方法，来返回一个虚拟节点</span></span><br><span class="line">  <span class="keyword">return</span> vnode(sel, data, children, text, <span class="literal">undefined</span>);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 导出h函数</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> h;</span><br></pre></td></tr></table></figure>
+
+<p><code>addNs</code>方法的实现如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addNS</span>(<span class="params">data: any, children: VNodes | <span class="literal">undefined</span>, sel: string | <span class="literal">undefined</span></span>): <span class="title">void</span> </span>&#123;</span><br><span class="line">  data.ns = <span class="string">&#x27;http://www.w3.org/2000/svg&#x27;</span>;</span><br><span class="line">  <span class="keyword">if</span> (sel !== <span class="string">&#x27;foreignObject&#x27;</span> &amp;&amp; children !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; children.length; ++i) &#123;</span><br><span class="line">      <span class="keyword">let</span> childData = children[i].data;</span><br><span class="line">      <span class="keyword">if</span> (childData !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">        addNS(childData, (children[i] <span class="keyword">as</span> VNode).children <span class="keyword">as</span> VNodes, children[i].sel);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>addNs</code>方法中就是给<code>data</code>添加了命名空间，然后通过递归的方式给<code>chilren</code>中的所有子元素都添加了命名空间。</p>
+<p>在看<code>VNode</code>这个方法的源码之前，我们先来说一下看源码必备的快捷键。</p>
+<ul>
+<li>光标移动到某个变量处，按<code>F12</code>快速定位到该变量的定义位置。</li>
+<li><code>ALT</code> + 左方向键，回到上次的代码位置</li>
+<li><code>Ctrl</code> + 单击，跳转到某个变量的定义处</li>
+<li>选中某个变量或方法名，按<code>F12</code>显示出该变量或方法的具体代码</li>
+</ul>
+<h2 id="5-2-VNode函数"><a href="#5-2-VNode函数" class="headerlink" title="5.2 VNode函数"></a>5.2 <code>VNode</code>函数</h2><p>在<code>h</code>函数的最后调用了<code>VNode</code>函数创建了一个虚拟节点，并返回。下面看一下<code>VNode</code>函数内部实现。</p>
+<p><code>VNode</code>函数的代码在<code>vnode.ts</code>文件中</p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;Hooks&#125; <span class="keyword">from</span> <span class="string">&#x27;./hooks&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;AttachData&#125; <span class="keyword">from</span> <span class="string">&#x27;./helpers/attachto&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123;VNodeStyle&#125; <span class="keyword">from</span> <span class="string">&#x27;./modules/style&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123;On&#125; <span class="keyword">from</span> <span class="string">&#x27;./modules/eventlisteners&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123;Attrs&#125; <span class="keyword">from</span> <span class="string">&#x27;./modules/attributes&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123;Classes&#125; <span class="keyword">from</span> <span class="string">&#x27;./modules/class&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123;Props&#125; <span class="keyword">from</span> <span class="string">&#x27;./modules/props&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123;Dataset&#125; <span class="keyword">from</span> <span class="string">&#x27;./modules/dataset&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123;Hero&#125; <span class="keyword">from</span> <span class="string">&#x27;./modules/hero&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">type</span> Key = <span class="built_in">string</span> | <span class="built_in">number</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> VNode &#123;</span><br><span class="line">  <span class="attr">sel</span>: <span class="built_in">string</span> | <span class="literal">undefined</span>;</span><br><span class="line">  data: VNodeData | <span class="literal">undefined</span>;</span><br><span class="line">  children: <span class="built_in">Array</span>&lt;VNode | <span class="built_in">string</span>&gt; | <span class="literal">undefined</span>;</span><br><span class="line">  elm: Node | <span class="literal">undefined</span>;</span><br><span class="line">  text: <span class="built_in">string</span> | <span class="literal">undefined</span>;</span><br><span class="line">  key: Key | <span class="literal">undefined</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> VNodeData &#123;</span><br><span class="line">  props?: Props;</span><br><span class="line">  attrs?: Attrs;</span><br><span class="line">  <span class="class"><span class="keyword">class</span>?: <span class="title">Classes</span></span>;</span><br><span class="line">  style?: VNodeStyle;</span><br><span class="line">  dataset?: Dataset;</span><br><span class="line">  on?: On;</span><br><span class="line">  hero?: Hero;</span><br><span class="line">  attachData?: AttachData;</span><br><span class="line">  hook?: Hooks;</span><br><span class="line">  key?: Key;</span><br><span class="line">  ns?: <span class="built_in">string</span>; <span class="comment">// for SVGs</span></span><br><span class="line">  fn?: <span class="function">() =&gt;</span> VNode; <span class="comment">// for thunks</span></span><br><span class="line">  args?: <span class="built_in">Array</span>&lt;<span class="built_in">any</span>&gt;; <span class="comment">// for thunks</span></span><br><span class="line">  [key: <span class="built_in">string</span>]: <span class="built_in">any</span>; <span class="comment">// for any other 3rd party module</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">vnode</span>(<span class="params">sel: <span class="built_in">string</span> | <span class="literal">undefined</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                      data: <span class="built_in">any</span> | <span class="literal">undefined</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                      children: <span class="built_in">Array</span>&lt;VNode | <span class="built_in">string</span>&gt; | <span class="literal">undefined</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                      text: <span class="built_in">string</span> | <span class="literal">undefined</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                      elm: Element | Text | <span class="literal">undefined</span></span>): <span class="title">VNode</span> </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> key = data === <span class="literal">undefined</span> ? <span class="literal">undefined</span> : data.key;</span><br><span class="line">  <span class="keyword">return</span> &#123;sel, data, children, text, elm, key&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> vnode;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在上面的代码中，我们首先关注的就是接口<code>VNode</code>,该接口中定义了很多的属性，而最终<code>vnode</code>这个函数返回的<code>VNode</code>对象必须都要实现该接口中的这些属性。</p>
+<p>下面可以看一下这些属性的含义</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> interface VNode &#123;</span><br><span class="line">    <span class="comment">//选择器，也就是调用h函数的时候传递的第一个参数</span></span><br><span class="line">  <span class="attr">sel</span>: string | <span class="literal">undefined</span>;</span><br><span class="line">    <span class="comment">// 节点数据：属性/样式/事件等。</span></span><br><span class="line">  data: VNodeData | <span class="literal">undefined</span>;</span><br><span class="line">    <span class="comment">//子节点,和text互斥  VNode是描述真实DOM的，如果所描述的真实DOM中有子节点，通过children来表示这些子节点</span></span><br><span class="line">  children: <span class="built_in">Array</span>&lt;VNode | string&gt; | <span class="literal">undefined</span>;</span><br><span class="line">    <span class="comment">// 记录vnode对应的真是DOM，将Vnode转换成真实DOM以后，会存储到elm这个属性中。关于这一点可以在将VNode转换成真实DOM的时候看到。</span></span><br><span class="line">  elm: Node | <span class="literal">undefined</span>;</span><br><span class="line">    <span class="comment">// 节点中的内容，和children只能互斥</span></span><br><span class="line">  text: string | <span class="literal">undefined</span>;</span><br><span class="line">    <span class="comment">//优化，关于这个属性可以在将VNode转换成真实DOM的时候看到。</span></span><br><span class="line">  key: Key | <span class="literal">undefined</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后看一下<code>vnode</code>这个函数，返回的就是一个<code>js</code>对象，该对象中包含了<code>VNode</code>这个接口中的属性，而这个<code>js</code>对象就行虚拟节点。而这个虚拟的节点是怎样转换成真实的<code>DOM</code>？后面会重点讲解这块内容。</p>
+<h2 id="5-3-复习h函数与Vnode函数应用"><a href="#5-3-复习h函数与Vnode函数应用" class="headerlink" title="5.3 复习h函数与Vnode函数应用"></a>5.3 复习<code>h</code>函数与<code>Vnode</code>函数应用</h2><p>下面我们在通过一个案例，复习一下<code>h</code>函数与<code>vnode</code>函数。</p>
+<p>假如，我们创建了如下的一个虚拟<code>DOM</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 构造一个虚拟dom</span></span><br><span class="line"><span class="keyword">var</span> vnode = h(<span class="string">&#x27;div#app&#x27;</span>,</span><br><span class="line">  &#123;<span class="attr">style</span>: &#123;<span class="attr">color</span>: <span class="string">&#x27;#000&#x27;</span>&#125;&#125;,</span><br><span class="line">  [</span><br><span class="line">    h(<span class="string">&#x27;span&#x27;</span>, &#123;<span class="attr">style</span>: &#123;<span class="attr">fontWeight</span>: <span class="string">&#x27;bold&#x27;</span>&#125;&#125;, <span class="string">&quot;my name is zhangsan&quot;</span>),</span><br><span class="line">    <span class="string">&#x27; and xxxx&#x27;</span>,</span><br><span class="line">    h(<span class="string">&#x27;a&#x27;</span>, &#123;<span class="attr">props</span>: &#123;<span class="attr">href</span>: <span class="string">&#x27;/foo&#x27;</span>&#125;&#125;, <span class="string">&#x27;我是张三&#x27;</span>)</span><br><span class="line">  ]</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>下面看一下上面的代码的执行流程。</p>
+<p><strong>注意：这边先执行的是先内部的调用，然后再依次往外执行调用。</strong></p>
+<p>因此首先调用和执行的代码是：</p>
+<p>第一步： <code>h(&#39;span&#39;, &#123;style: &#123;fontWeight: &#39;bold&#39;&#125;&#125;, &quot;my name is kongzhi&quot;)</code>, 因此把参数传递到<code>h</code>函数后：<code>sel: &#39;span&#39;, b = &#123;style: &#123;fontWeight: &#39;bold&#39;&#125;&#125;, c = &quot;my name is kongzhi&quot;</code>;</p>
+<p>首先判断 <code>if (c !== undefined) &#123;&#125;</code> 代码，然后进入if语句内部代码，如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (c !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">  data = b;</span><br><span class="line">  <span class="keyword">if</span> (is.array(c)) &#123; children = c; &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (is.primitive(c)) &#123; text = c; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此<code> data = &#123;style: &#123;fontWeight: &#39;bold&#39;&#125;&#125;</code>; 然后判断<code> c</code> 是否是一个数组，可以看到，不是，因此进入 <code>else if</code>语句，因此<code> text = &quot;my name is zhangsan&quot;</code>; 从代码中可以看到，就直接跳过所有的代码了，最后执行 return<code> VNode(sel, data, children, text, undefined);</code> 了，因此会调用 <code>snabbdom/vnode.js</code> 代码如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * VNode函数如下：主要的功能是构造VNode, 把输入的参数转化为Vnode</span></span><br><span class="line"><span class="comment"> * @param &#123;sel&#125; &#x27;span&#x27;</span></span><br><span class="line"><span class="comment"> * @param &#123;data&#125; &#123;style: &#123;fontWeight: &#x27;bold&#x27;&#125;&#125;</span></span><br><span class="line"><span class="comment"> * @param &#123;children&#125; undefined</span></span><br><span class="line"><span class="comment"> * @param &#123;text&#125; &quot;my name is zhangsan&quot;</span></span><br><span class="line"><span class="comment"> * @param &#123;elm&#125; undefined</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">sel, data, children, text, elm</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> key = data === <span class="literal">undefined</span> ? <span class="literal">undefined</span> : data.key;</span><br><span class="line">  <span class="keyword">return</span> &#123;<span class="attr">sel</span>: sel, <span class="attr">data</span>: data, <span class="attr">children</span>: children,</span><br><span class="line">          <span class="attr">text</span>: text, <span class="attr">elm</span>: elm, <span class="attr">key</span>: key&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>因此 <code>var key = data.key = undefined;</code> 最后返回值如下：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123; </span><br><span class="line">  sel: &#x27;span&#x27;, </span><br><span class="line">  data: &#123;style: &#123;fontWeight: &#x27;bold&#x27;&#125;&#125;,</span><br><span class="line">  children: undefined,</span><br><span class="line">  text: <span class="string">&quot;my name is kongzhi&quot;</span>,</span><br><span class="line">  elm: undefined,</span><br><span class="line">  key: undefined</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二步：调用<code>h(&#39;a&#39;, &#123;props: &#123;href: &#39;/foo&#39;&#125;&#125;, &#39;我是张三&#39;);</code>代码</p>
+<p>同理：<code>sel = &#39;a&#39;; b = &#123;props: &#123;href: &#39;/foo&#39;&#125;&#125;, c = &#39;我是张三&#39;;</code> 然后执行如下代码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (c !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">  data = b;</span><br><span class="line">  <span class="keyword">if</span> (is.array(c)) &#123; children = c; &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (is.primitive(c)) &#123; text = c; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此 <code>data = &#123;props: &#123;href: &#39;/foo&#39;&#125;&#125;; text = &#39;我是张三&#39;; children = undefined;</code> 最后也一样执行返回：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> VNode(sel, data, children, text, <span class="literal">undefined</span>);</span><br></pre></td></tr></table></figure>
+
+<p>因此又调用<code> snabbdom/vnode.js</code> 代码如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * VNode函数如下：主要的功能是构造VNode, 把输入的参数转化为Vnode</span></span><br><span class="line"><span class="comment"> * @param &#123;sel&#125; &#x27;a&#x27;</span></span><br><span class="line"><span class="comment"> * @param &#123;data&#125; &#123;props: &#123;href: &#x27;/foo&#x27;&#125;&#125;</span></span><br><span class="line"><span class="comment"> * @param &#123;children&#125; undefined</span></span><br><span class="line"><span class="comment"> * @param &#123;text&#125; &quot;我是张三&quot;</span></span><br><span class="line"><span class="comment"> * @param &#123;elm&#125; undefined</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">sel, data, children, text, elm</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> key = data === <span class="literal">undefined</span> ? <span class="literal">undefined</span> : data.key;</span><br><span class="line">  <span class="keyword">return</span> &#123;<span class="attr">sel</span>: sel, <span class="attr">data</span>: data, <span class="attr">children</span>: children,</span><br><span class="line">          <span class="attr">text</span>: text, <span class="attr">elm</span>: elm, <span class="attr">key</span>: key&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>因此执行代码：<code>var key = data.key = undefined;</code> 最后返回值如下：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  sel: &#x27;a&#x27;,</span><br><span class="line">  data: &#123;props: &#123;href: &#x27;/foo&#x27;&#125;&#125;,</span><br><span class="line">  children: undefined,</span><br><span class="line">  text: <span class="string">&quot;我是张三&quot;</span>,</span><br><span class="line">  elm: undefined,</span><br><span class="line">  key: undefined</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第三步调用外层的代码，把参数传递进去，因此代码初始化变成如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> vnode = h(<span class="string">&#x27;div#app&#x27;</span>,</span><br><span class="line">  &#123;<span class="attr">style</span>: &#123;<span class="attr">color</span>: <span class="string">&#x27;#000&#x27;</span>&#125;&#125;,</span><br><span class="line">  [</span><br><span class="line">    &#123; </span><br><span class="line">      <span class="attr">sel</span>: <span class="string">&#x27;span&#x27;</span>, </span><br><span class="line">      <span class="attr">data</span>: &#123;<span class="attr">style</span>: &#123;<span class="attr">fontWeight</span>: <span class="string">&#x27;bold&#x27;</span>&#125;&#125;,</span><br><span class="line">      <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">text</span>: <span class="string">&quot;my name is zhangsan&quot;</span>,</span><br><span class="line">      <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&#x27; and xxxx&#x27;</span>,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">sel</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">      <span class="attr">data</span>: &#123;<span class="attr">props</span>: &#123;<span class="attr">href</span>: <span class="string">&#x27;/foo&#x27;</span>&#125;&#125;,</span><br><span class="line">      <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">text</span>: <span class="string">&quot;我是张三&quot;</span>,</span><br><span class="line">      <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>继续把参数传递进去，因此 <code>sel = &#39;div#app&#39;; b = &#123;style: &#123;color: &#39;#000&#39;&#125;&#125;; c </code>的值变为如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">c = [</span><br><span class="line">  &#123; </span><br><span class="line">    <span class="attr">sel</span>: <span class="string">&#x27;span&#x27;</span>, </span><br><span class="line">    <span class="attr">data</span>: &#123;<span class="attr">style</span>: &#123;<span class="attr">fontWeight</span>: <span class="string">&#x27;bold&#x27;</span>&#125;&#125;,</span><br><span class="line">    <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">    <span class="attr">text</span>: <span class="string">&quot;my name is 张三&quot;</span>,</span><br><span class="line">    <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&#x27; and xxxx&#x27;</span>,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">sel</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">    <span class="attr">data</span>: &#123;<span class="attr">props</span>: &#123;<span class="attr">href</span>: <span class="string">&#x27;/foo&#x27;</span>&#125;&#125;,</span><br><span class="line">    <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">    <span class="attr">text</span>: <span class="string">&quot;我是张三&quot;</span>,</span><br><span class="line">    <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>首先看<code>if</code>判断语句，<code>if (c !== undefined) &#123;&#125;; </code>因此会进入if语句内部代码;</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (c !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">  data = b;</span><br><span class="line">  <span class="keyword">if</span> (is.array(c)) &#123; children = c; &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (is.primitive(c)) &#123; text = c; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此 <code>data = &#123;style: &#123;color: &#39;#000&#39;&#125;&#125;; c</code> 是数组的话，就把c赋值给<code>children</code>; 因此 <code>children</code> 值为如下</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">children = [</span><br><span class="line">  &#123; </span><br><span class="line">    <span class="attr">sel</span>: <span class="string">&#x27;span&#x27;</span>, </span><br><span class="line">    <span class="attr">data</span>: &#123;<span class="attr">style</span>: &#123;<span class="attr">fontWeight</span>: <span class="string">&#x27;bold&#x27;</span>&#125;&#125;,</span><br><span class="line">    <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">    <span class="attr">text</span>: <span class="string">&quot;my name is zhangsan&quot;</span>,</span><br><span class="line">    <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&#x27; and xxxx&#x27;</span>,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">sel</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">    <span class="attr">data</span>: &#123;<span class="attr">props</span>: &#123;<span class="attr">href</span>: <span class="string">&#x27;/foo&#x27;</span>&#125;&#125;,</span><br><span class="line">    <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">    <span class="attr">text</span>: <span class="string">&quot;我是张三&quot;</span>,</span><br><span class="line">    <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>我们下面接着看 如下代码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (is.array(children)) &#123;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; children.length; ++i) &#123;</span><br><span class="line">    <span class="keyword">if</span> (is.primitive(children[i])) children[i] = VNode(<span class="literal">undefined</span>, <span class="literal">undefined</span>, <span class="literal">undefined</span>, children[i]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上代码，判断如果<code> children</code> 是一个数组的话，就循环该数组<code> children</code>; 从上面我们知道 <code>children</code> 长度为3，因此会循环3次。进入<code>for</code>循环内部。判断其中一项是否是数字和字符串类型，因此只有 <code>&#39; and xxxx&#39; </code>符合要求，因此 <code>children[1] = VNode(undefined, undefined, undefined, &#39; and xxxx&#39;);</code> 最后会调用 <code>snabbdom/vnode.js </code>代码如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">sel, data, children, text, elm</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> key = data === <span class="literal">undefined</span> ? <span class="literal">undefined</span> : data.key;</span><br><span class="line">  <span class="keyword">return</span> &#123;<span class="attr">sel</span>: sel, <span class="attr">data</span>: data, <span class="attr">children</span>: children,</span><br><span class="line">          <span class="attr">text</span>: text, <span class="attr">elm</span>: elm, <span class="attr">key</span>: key&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>通过上面的代码可知，我们最后返回的是如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">children[<span class="number">1</span>] = &#123;</span><br><span class="line">  <span class="attr">sel</span>: <span class="literal">undefined</span>,</span><br><span class="line">  <span class="attr">data</span>: <span class="literal">undefined</span>,</span><br><span class="line">  <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">  <span class="attr">text</span>: <span class="string">&#x27; and xxxx&#x27;</span>,</span><br><span class="line">  <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">  <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>执行完成后，我们最后返回代码：<code>return VNode(sel, data, children, text, undefined); </code>因此会继续调用<code>snabbdom/vnode.js</code>代码如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> @param &#123;sel&#125; &#x27;div#app&#x27;</span></span><br><span class="line"><span class="comment"> @param &#123;data&#125; &#123;style: &#123;color: &#x27;#000&#x27;&#125;&#125;</span></span><br><span class="line"><span class="comment"> @param &#123;children&#125; 值变为如下：</span></span><br><span class="line"><span class="comment"> children = [</span></span><br><span class="line"><span class="comment">    &#123; </span></span><br><span class="line"><span class="comment">      sel: &#x27;span&#x27;, </span></span><br><span class="line"><span class="comment">      data: &#123;style: &#123;fontWeight: &#x27;bold&#x27;&#125;&#125;,</span></span><br><span class="line"><span class="comment">      children: undefined,</span></span><br><span class="line"><span class="comment">      text: &quot;my name is zhangsan&quot;,</span></span><br><span class="line"><span class="comment">      elm: undefined,</span></span><br><span class="line"><span class="comment">      key: undefined</span></span><br><span class="line"><span class="comment">    &#125;,</span></span><br><span class="line"><span class="comment">    &#123;</span></span><br><span class="line"><span class="comment">      sel: undefined,</span></span><br><span class="line"><span class="comment">      data: undefined,</span></span><br><span class="line"><span class="comment">      children: undefined,</span></span><br><span class="line"><span class="comment">      text: &#x27; and xxxx&#x27;,</span></span><br><span class="line"><span class="comment">      elm: undefined,</span></span><br><span class="line"><span class="comment">      key: undefined</span></span><br><span class="line"><span class="comment">    &#125;,</span></span><br><span class="line"><span class="comment">    &#123;</span></span><br><span class="line"><span class="comment">      sel: &#x27;a&#x27;,</span></span><br><span class="line"><span class="comment">      data: &#123;props: &#123;href: &#x27;/foo&#x27;&#125;&#125;,</span></span><br><span class="line"><span class="comment">      children: undefined,</span></span><br><span class="line"><span class="comment">      text: &quot;我是张三&quot;,</span></span><br><span class="line"><span class="comment">      elm: undefined,</span></span><br><span class="line"><span class="comment">      key: undefined</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment"> ];</span></span><br><span class="line"><span class="comment"> @param &#123;text&#125; undefined</span></span><br><span class="line"><span class="comment"> @param &#123;elm&#125; undefined</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">sel, data, children, text, elm</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> key = data === <span class="literal">undefined</span> ? <span class="literal">undefined</span> : data.key;</span><br><span class="line">  <span class="keyword">return</span> &#123;<span class="attr">sel</span>: sel, <span class="attr">data</span>: data, <span class="attr">children</span>: children,</span><br><span class="line">          <span class="attr">text</span>: text, <span class="attr">elm</span>: elm, <span class="attr">key</span>: key&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>因此继续执行内部代码：<code>var key = undefined; </code>最后返回代码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> &#123;</span><br><span class="line">  <span class="attr">sel</span>: sel, </span><br><span class="line">  <span class="attr">data</span>: data, </span><br><span class="line">  <span class="attr">children</span>: children,</span><br><span class="line">  <span class="attr">text</span>: text, </span><br><span class="line">  <span class="attr">elm</span>: elm, </span><br><span class="line">  <span class="attr">key</span>: key</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>因此最后构造一个虚拟<code>dom</code>返回的值为如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">vnode = &#123;</span><br><span class="line">  <span class="attr">sel</span>: <span class="string">&#x27;div#app&#x27;</span>,</span><br><span class="line">  <span class="attr">data</span>: &#123;<span class="attr">style</span>: &#123;<span class="attr">color</span>: <span class="string">&#x27;#000&#x27;</span>&#125;&#125;,</span><br><span class="line">  <span class="attr">children</span>: [</span><br><span class="line">    &#123; </span><br><span class="line">      <span class="attr">sel</span>: <span class="string">&#x27;span&#x27;</span>, </span><br><span class="line">      <span class="attr">data</span>: &#123;<span class="attr">style</span>: &#123;<span class="attr">fontWeight</span>: <span class="string">&#x27;bold&#x27;</span>&#125;&#125;,</span><br><span class="line">      <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">text</span>: <span class="string">&quot;my name is zhangsan&quot;</span>,</span><br><span class="line">      <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">sel</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">data</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">text</span>: <span class="string">&#x27; and xxxx&#x27;</span>,</span><br><span class="line">      <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">sel</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">      <span class="attr">data</span>: &#123;<span class="attr">props</span>: &#123;<span class="attr">href</span>: <span class="string">&#x27;/foo&#x27;</span>&#125;&#125;,</span><br><span class="line">      <span class="attr">children</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">text</span>: <span class="string">&quot;我是张三&quot;</span>,</span><br><span class="line">      <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">      <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">text</span>: <span class="literal">undefined</span>,</span><br><span class="line">  <span class="attr">elm</span>: <span class="literal">undefined</span>,</span><br><span class="line">  <span class="attr">key</span>: <span class="literal">undefined</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着往下执行如下代码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 初始化容器</span></span><br><span class="line"><span class="keyword">var</span> app = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;app&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将vnode patch 到 app 中</span></span><br><span class="line">patch(app, vnode);</span><br></pre></td></tr></table></figure>
+
+
+
+<p>以上就是生成整个虚拟<code>DOM</code>的过程。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://lvxueyang.vip/post/af479fb0.html">http://lvxueyang.vip/post/af479fb0.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%85%A5Vue/">深入Vue</a></div><div class="post_share"><div class="social-share" data-image="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/b7f40a1c.html"><img class="prev-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212055.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Node 第 3 天笔记</div></div></a></div><div class="next-post pull-right"><a href="/post/5c4a3e27.html"><img class="next-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212025.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Vuex状态管理</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/98b0a524.html" title="JavaScript基础第03天笔记"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212044.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-18</div><div class="title">JavaScript基础第03天笔记</div></div></a></div><div><a href="/post/2e39ac9e.html" title="day05 - Web APIs"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-18</div><div class="title">day05 - Web APIs</div></div></a></div><div><a href="/post/5c4a3e27.html" title="Vuex状态管理"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212025.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-19</div><div class="title">Vuex状态管理</div></div></a></div><div><a href="/post/5e19306.html" title="Vue相应原理"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212025.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-19</div><div class="title">Vue相应原理</div></div></a></div><div><a href="/post/6887a1ad.html" title="持续集成与持续部署"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212025.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-19</div><div class="title">持续集成与持续部署</div></div></a></div><div><a href="/post/49bed910.html" title="Vue Router"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082137.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-19</div><div class="title">Vue Router</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Virtual-DOM%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-text">Virtual DOM的实现原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%BE%E7%A8%8B%E7%9B%AE%E6%A0%87"><span class="toc-text">课程目标</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AFVirtual-DOM"><span class="toc-text">1、什么是Virtual DOM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8Virtual-DOM"><span class="toc-text">2、为什么使用Virtual DOM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3%E3%80%81%E8%99%9A%E6%8B%9FDOM%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-text">3、虚拟DOM的作用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4%E3%80%81Snabbdom%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-text">4、Snabbdom基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE"><span class="toc-text">4.1 创建项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E5%AF%BC%E5%85%A5Snabbdom"><span class="toc-text">4.2  导入Snabbdom</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-Snabbdom%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-text">4.3  Snabbdom的基本使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-%E6%A8%A1%E5%9D%97"><span class="toc-text">4.4 模块</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5%E3%80%81Snabbdom%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB"><span class="toc-text">5、Snabbdom源码解读</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-h%E5%87%BD%E6%95%B0"><span class="toc-text">5.1  h函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-VNode%E5%87%BD%E6%95%B0"><span class="toc-text">5.2 VNode函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-3-%E5%A4%8D%E4%B9%A0h%E5%87%BD%E6%95%B0%E4%B8%8EVnode%E5%87%BD%E6%95%B0%E5%BA%94%E7%94%A8"><span class="toc-text">5.3 复习h函数与Vnode函数应用</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><p><a style="margin-inline:5px"target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://img.shields.io/badge/CDN-%E5%8F%88%E6%8B%8D%E4%BA%91-blue" title="又拍云提供CDN加速" alt="又拍云"></a><a style="margin-inline:5px"target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为 Hexo" alt="HEXO"></a><a style="margin-inline:5px"target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用 Butterfly" alt="Butterfly"></a><a style="margin-inline:5px"target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用 Jsdelivr 为静态资源提供CDN加速" alt="Jsdelivr"></a><a style="margin-inline:5px"target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由 GitHub 托管" alt="GitHub"></a><a style="margin-inline:5px"target="_blank"href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" alt="img" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><div class="aplayer no-destroy" data-id="7520334743" data-server="tencent" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-preload="none" data-autoplay="true" muted></div><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script async data-pjax src="/js/randombg.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = [
+  'title',
+  '#config-diff',
+  '#body-wrap',
+  '#rightside-config-hide',
+  '#rightside-config-show',
+  '.js-pjax'
+]
+
+if (false) {
+  pjaxSelectors.unshift('meta[property="og:image"]', 'meta[property="og:title"]', 'meta[property="og:url"]')
+}
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.removeEventListener('scroll', window.tocScrollFn)
+  window.removeEventListener('scroll', scrollCollect)
+
+  typeof preloader === 'object' && preloader.initLoading()
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // Analytics
+  if (false) {
+    MtaH5.pgv()
+  }
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+
+  typeof preloader === 'object' && preloader.endLoading()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                console.log('已挂载history_calendar')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='/'|| '/' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><script data-pjax>
+  function butterfly_clock_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_injector_config();
+  }
+  </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax src="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.js"></script><!-- hexo injector body_end end --></body></html>
