@@ -1,0 +1,957 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SpringCloud-day01 | 牧马人的忧伤</title><meta name="keywords" content="SpringCloud"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="第1天 SpringCloud学习目标 能够理解SpringCloud作用  用来做微服务架构的技术解决方案 SpringCloud基于SpringBoot开发的，SpringCloud整合了很多优秀的第三方微服务开源框架   能够使用RestTemplate发送请求  封装了基于Rest的Http请求 可以实现Java对象序列化与反序列化   能够搭建Eureka注册中心  用于管理服务、监控服">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringCloud-day01">
+<meta property="og:url" content="http://lvxueyang.vip/post/36cabde6.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="第1天 SpringCloud学习目标 能够理解SpringCloud作用  用来做微服务架构的技术解决方案 SpringCloud基于SpringBoot开发的，SpringCloud整合了很多优秀的第三方微服务开源框架   能够使用RestTemplate发送请求  封装了基于Rest的Http请求 可以实现Java对象序列化与反序列化   能够搭建Eureka注册中心  用于管理服务、监控服">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212120.jpg">
+<meta property="article:published_time" content="2021-12-08T07:27:00.000Z">
+<meta property="article:modified_time" content="2021-12-09T13:44:27.483Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="SpringCloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212120.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://lvxueyang.vip/post/36cabde6"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'SpringCloud-day01',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-12-09 21:44:27'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    document.addEventListener('pjax:complete', detectApple)})(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/css/main.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">284</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">100</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">92</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212120.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">SpringCloud-day01</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-12-08T07:27:00.000Z" title="发表于 2021-12-08 15:27:00">2021-12-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-12-09T13:44:27.483Z" title="更新于 2021-12-09 21:44:27">2021-12-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/java%E5%AD%A6%E4%B9%A0/">java学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/java%E5%AD%A6%E4%B9%A0/SpringCloud/">SpringCloud</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">11k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>42分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="SpringCloud-day01"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="第1天-SpringCloud"><a href="#第1天-SpringCloud" class="headerlink" title="第1天 SpringCloud"></a>第1天 SpringCloud</h1><h2 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h2><ul>
+<li><p>能够理解SpringCloud作用</p>
+<ul>
+<li>用来做微服务架构的技术解决方案</li>
+<li>SpringCloud基于SpringBoot开发的，SpringCloud整合了很多优秀的第三方微服务开源框架</li>
+</ul>
+</li>
+<li><p>能够使用RestTemplate发送请求</p>
+<ul>
+<li>封装了基于Rest的Http请求</li>
+<li>可以实现Java对象序列化与反序列化</li>
+</ul>
+</li>
+<li><p><strong>能够搭建Eureka注册中心</strong></p>
+<ul>
+<li>用于管理服务、监控服务、服务路由</li>
+</ul>
+</li>
+<li><p>能够使用<strong>Ribbon负载均衡</strong></p>
+<ul>
+<li>用来实现负载均衡(实现消费方负载均衡)</li>
+</ul>
+</li>
+<li><p>能够使用<strong>Hystrix</strong>熔断器</p>
+<ul>
+<li>做服务降级，防止程序发生雪崩</li>
+</ul>
+</li>
+</ul>
+<h2 id="1-初识Spring-Cloud"><a href="#1-初识Spring-Cloud" class="headerlink" title="1 初识Spring Cloud"></a>1 初识Spring Cloud</h2><p>大家谈起的微服务，大多来讲说的只不过是种架构方式。其实现方式很多种：Spring Cloud，Dubbo，华为的Service Combo，Istio 。</p>
+<p>那么这么多的微服务架构产品中，我们为什么要用Spring Cloud？因为它后台硬、技术强、群众基础好，使用方便；</p>
+<h3 id="1-1-目标"><a href="#1-1-目标" class="headerlink" title="1.1 目标"></a>1.1 目标</h3><ul>
+<li>了解微服务架构</li>
+<li>了解SpringCloud技术</li>
+</ul>
+<h3 id="1-2-讲解"><a href="#1-2-讲解" class="headerlink" title="1.2 讲解"></a>1.2 讲解</h3><h4 id="1-2-1-技术架构演变"><a href="#1-2-1-技术架构演变" class="headerlink" title="1.2.1 技术架构演变"></a>1.2.1 技术架构演变</h4><p>(1)单一应用架构</p>
+<p>当网站流量很小时，只需要一个应用，所有功能部署在一起，减少部署节点成本的框架称之为集中式框架。此时，用于简化增删改查工作量的数据访问框架(ORM)是影响项目开发的关键。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114707.png" alt="1563128795202"></p>
+<p>(2)垂直应用架构</p>
+<p>当访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的Web框架(MVC)是关键。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114708.png" alt="1563128890388"></p>
+<p>(3)分布式服务架构</p>
+<p>当垂直应用越来越多，应用之间交互不可避免，将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心，使前端应用能更快速的响应多变的市场需求。此时，用于提高业务复用及整合的分布式服务框架(RPC)是关键。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114709.png" alt="1563129132684"></p>
+<p>(4)面向服务(SOA)架构</p>
+<p>典型代表有两个：流动计算架构和微服务架构；</p>
+<p><strong>流动计算架构：</strong></p>
+<p>当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于提高机器利用率的资源调度和治理中心(SOA)是关键。流动计算架构的最佳实践阿里的Dubbo。</p>
+<p><strong>微服务架构</strong></p>
+<p>与流动计算架构很相似，除了具备流动计算架构优势外，微服务架构中的微服务可以独立部署，独立发展。且微服务的开发不会限制于任何技术栈。微服务架构的最佳实践是SpringCloud。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114710.png" alt="1563128667644"></p>
+<h4 id="1-2-2-SpringCloud简介"><a href="#1-2-2-SpringCloud简介" class="headerlink" title="1.2.2 SpringCloud简介"></a>1.2.2 SpringCloud简介</h4><p>(1)SpringCloud介绍</p>
+<p>Spring Boot擅长的是集成，把世界上最好的框架集成到自己项目中</p>
+<p><strong>Spring Cloud本身也是基于SpringBoot开发而来，SpringCloud是一系列框架的有序集合,也是把非常流行的微服务的技术整合到一起，是属于微服务架构的一站式技术解决方案。</strong></p>
+<p>Spring Cloud包含了：</p>
+<p>注册中心：Eureka、consul、Zookeeper</p>
+<p>负载均衡：Ribbon</p>
+<p>熔断器：Hystrix</p>
+<p>服务通信：Feign</p>
+<p>网关：Gateway</p>
+<p>配置中心 ：config</p>
+<p>消息总线：Bus</p>
+<p>集群状态等等….功能。</p>
+<p>Spring Cloud协调分布式环境中各个微服务，为各类服务提供支持。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114711.png" alt=""></p>
+<p>(2)Spring Cloud的版本</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114712.png" alt="1563019084631"></p>
+<p>版本说明：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">SpringCloud是一系列框架组合，为了避免与框架版本产生混淆，采用新的版本命名方式，形式为大版本名+子版本名称</span></span><br><span class="line">  <span class="attr">大版本名用伦敦地铁站名</span></span><br><span class="line">  <span class="attr">子版本名称三种</span></span><br><span class="line">    <span class="attr">SNAPSHOT：快照版本，尝鲜版，随时可能修改</span></span><br><span class="line">    <span class="attr">M版本，MileStone，M1表示第一个里程碑版本，一般同时标注PRE，表示预览版</span></span><br><span class="line">    <span class="meta">SR，Service</span> <span class="string">Release，SR1表示第一个正式版本，同时标注GA(Generally Available)，稳定版</span></span><br></pre></td></tr></table></figure>
+<p>(3)SpringCloud与SpringBoot版本匹配关系</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>SpringBoot</th>
+<th>SpringCloud</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.2.x</td>
+<td>Angel版本</td>
+</tr>
+<tr>
+<td>1.3.x</td>
+<td>Brixton版本</td>
+</tr>
+<tr>
+<td>1.4.x</td>
+<td>Camden版本</td>
+</tr>
+<tr>
+<td>1.5.x</td>
+<td>Dalston版本、Edgware</td>
+</tr>
+<tr>
+<td>2.0.x</td>
+<td>Finchley版本</td>
+</tr>
+<tr>
+<td>2.1.x</td>
+<td>Greenwich GA版本 (2019年2月发布)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>鉴于SpringBoot与SpringCloud关系，SpringBoot建议采用2.1.x版本</p>
+<h3 id="1-3-小结"><a href="#1-3-小结" class="headerlink" title="1.3 小结"></a>1.3 小结</h3><ul>
+<li>微服务架构：就是将相关的功能独立出来，单独创建一个项目，并且连数据库也独立出来，单独创建对应的数据库。</li>
+<li>Spring Cloud本身也是基于SpringBoot开发而来，SpringCloud是一系列框架的有序集合,也是把非常流行的微服务的技术整合到一起。</li>
+</ul>
+<h2 id="2-服务调用方式"><a href="#2-服务调用方式" class="headerlink" title="2 服务调用方式"></a>2 服务调用方式</h2><h3 id="2-1-目标"><a href="#2-1-目标" class="headerlink" title="2.1 目标"></a>2.1 目标</h3><ul>
+<li>理解RPC和HTTP的区别</li>
+<li>能使用RestTemplate发送请求</li>
+</ul>
+<h3 id="2-2-讲解"><a href="#2-2-讲解" class="headerlink" title="2.2 讲解"></a>2.2 讲解</h3><h4 id="2-2-1-RPC和HTTP"><a href="#2-2-1-RPC和HTTP" class="headerlink" title="2.2.1 RPC和HTTP"></a>2.2.1 RPC和HTTP</h4><p>常见远程调用方式：</p>
+<p>RPC:(Remote Produce Call)远程过程调用</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.基于Socket</span></span><br><span class="line"><span class="attr">2.自定义数据格式</span></span><br><span class="line"><span class="attr">3.速度快，效率高</span></span><br><span class="line"><span class="attr">4.典型应用代表：Dubbo，WebService，ElasticSearch集群间互相调用</span></span><br></pre></td></tr></table></figure>
+<p>HTTP：网络传输协议</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.基于TCP/IP</span></span><br><span class="line"><span class="attr">2.规定数据传输格式</span></span><br><span class="line"><span class="attr">3.缺点是消息封装比较臃肿、传输速度比较慢</span></span><br><span class="line"><span class="attr">4.优点是对服务提供和调用方式没有任何技术限定，自由灵活，更符合微服务理念</span></span><br></pre></td></tr></table></figure>
+<p>RPC和HTTP的区别：RPC是根据语言API来定义，而不是根据基于网络的应用来定义。</p>
+<p>Http客户端工具</p>
+<p>常见Http客户端工具：HttpClient、OKHttp、URLConnection。</p>
+<h4 id="2-2-2-Spring的RestTemplate"><a href="#2-2-2-Spring的RestTemplate" class="headerlink" title="2.2.2 Spring的RestTemplate"></a>2.2.2 Spring的RestTemplate</h4><p>(1)RestTemplate介绍</p>
+<ul>
+<li>RestTemplate是Rest的HTTP客户端模板工具类</li>
+<li>对基于Http的客户端进行封装</li>
+<li>实现对象与JSON的序列化与反序列化</li>
+<li>不限定客户端类型，目前常用的3种客户端都支持：HttpClient、OKHttp、JDK原生URLConnection(默认方式)</li>
+</ul>
+<p>(2)RestTemplate入门案例</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114713.png" alt="1563020200215"></p>
+<p>我们可以使用RestTemplate实现上图中的请求，<code>springcloud-day1-resttemplate</code>通过发送请求，请求<code>springcloud-day1-provider</code>的<code>/user/list</code>方法。</p>
+<p>(1)搭建<code>springcloud-day1-provider</code></p>
+<p>这里不演示详细过程了，大家直接使用IDEA搭建一个普通的SpringBoot工程即可。</p>
+<p>坐标</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.itheima<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>springcloud-day1-provider<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>pom.xml依赖</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!--父工程--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.6.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!--web起步依赖--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>创建<code>com.itheima.domain.User</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String address;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">(String name, String address, Integer age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.address = address;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//..get set toString 略</span></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>application.properties</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">server.port</span>=<span class="string">18081</span></span><br></pre></td></tr></table></figure>
+<p>创建<code>com.itheima.controller.UserController</code>,代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(value = &quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/***</span></span><br><span class="line"><span class="comment">     * 提供服务</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@RequestMapping(value = &quot;/list&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;User&gt; <span class="title">list</span><span class="params">()</span></span>&#123;</span><br><span class="line">        List&lt;User&gt; users = <span class="keyword">new</span> ArrayList&lt;User&gt;();</span><br><span class="line">        users.add(<span class="keyword">new</span> User(<span class="string">&quot;王五&quot;</span>, <span class="string">&quot;深圳&quot;</span>, <span class="number">25</span>));</span><br><span class="line">        users.add(<span class="keyword">new</span> User(<span class="string">&quot;李四&quot;</span>, <span class="string">&quot;北京&quot;</span>, <span class="number">23</span>));</span><br><span class="line">        users.add(<span class="keyword">new</span> User(<span class="string">&quot;赵六&quot;</span>, <span class="string">&quot;上海&quot;</span>, <span class="number">26</span>));</span><br><span class="line">        <span class="keyword">return</span> users;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建启动类，并启动工程</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringcloudDay1ProviderApplication</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(SpringcloudDay1ProviderApplication.class, args);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>访问：<code>&lt;http://localhost:18081/user/list&gt;</code>效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114714.png" alt="1563020871025"></p>
+<p>(2)创建<code>springcloud-day1-resttemplate</code></p>
+<p>创建的详细过程也不讲解了，直接使用IDEA创建一个SpringBoot工程即可。</p>
+<p>pom.xml依赖</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!--父工程--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.6.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!--web起步依赖--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!--测试包--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>创建启动类，并在启动类中创建RestTemplate对象</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringcloudDay1ResttemplateApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(SpringcloudDay1ResttemplateApplication.class, args);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/***</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@Bean</span>:创建一个对象实例，并将对象交给Spring容器管理</span></span><br><span class="line"><span class="comment">	 * &lt;bean class=&quot;restTemplate&quot; class=&quot;org.springframework.web.client.RestTemplate&quot; /&gt;</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">return</span>  <span class="keyword">new</span> RestTemplate();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试</p>
+<p>在测试类HttpDemoApplicationTests中<code>@Autowired</code>注入RestTemplate</p>
+<p>通过RestTemplate的getForObject()方法，传递url地址及实体类的字节码</p>
+<p>RestTemplate会自动发起请求，接收响应</p>
+<p>并且帮我们对响应结果进行反序列化</p>
+<p>代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RunWith(SpringRunner.class)</span></span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringcloudDay1ResttemplateApplicationTests</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/****</span></span><br><span class="line"><span class="comment">	 * RestTemplate远程调用</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testRestTemplateQuery</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		String url = <span class="string">&quot;http://localhost:18081/user/list&quot;</span>;</span><br><span class="line">		String result = restTemplate.getForObject(url, String.class);</span><br><span class="line">		System.out.println(result);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试方法，效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114715.png" alt="1563021138586"></p>
+<h3 id="2-3-小结"><a href="#2-3-小结" class="headerlink" title="2.3 小结"></a>2.3 小结</h3><ul>
+<li><p>RPC和HTTP的区别：RPC是根据语言API来定义，而不是根据基于网络的应用来定义。</p>
+</li>
+<li><p>RestTemplate:</p>
+<p>①RestTemplate是Rest的HTTP客户端模板工具类。</p>
+<p>②对基于Http的客户端进行封装。</p>
+<p>③实现对象与JSON的序列化与反序列化。</p>
+<p>④不限定客户端类型</p>
+</li>
+</ul>
+<h2 id="3-模拟微服务业务场景"><a href="#3-模拟微服务业务场景" class="headerlink" title="3 模拟微服务业务场景"></a>3 模拟微服务业务场景</h2><p>模拟开发过程中的服务间关系。抽象出来，开发中的微服务之间的关系是生产者和消费者关系。</p>
+<p><strong>总目标：模拟一个最简单的服务调用场景，场景中保护微服务提供者(Producer)和微服务调用者(Consumer)</strong>，方便后面学习微服务架构</p>
+<p><strong>注意：实际开发中，每个微服务为一个独立的SpringBoot工程。</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114716.png" alt="1563027834881"></p>
+<h3 id="3-1-目标"><a href="#3-1-目标" class="headerlink" title="3.1 目标"></a>3.1 目标</h3><ul>
+<li><p>创建父工程</p>
+</li>
+<li><p>搭建服务提供者</p>
+</li>
+<li>搭建服务消费者</li>
+<li>服务消费者使用RestTemplate调用服务提供者</li>
+</ul>
+<h3 id="3-2-讲解"><a href="#3-2-讲解" class="headerlink" title="3.2 讲解"></a>3.2 讲解</h3><h4 id="3-2-1-创建父工程"><a href="#3-2-1-创建父工程" class="headerlink" title="3.2.1 创建父工程"></a>3.2.1 创建父工程</h4><p>(1)新建工程</p>
+<p>新建一个Maven父工程<code>springcloud-parent</code>,创建步骤如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114717.png" alt="1563027911022"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114718.png" alt="1563027956557"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114719.png" alt="1563027999119"></p>
+<p>（2）引入依赖</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.itheima<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>springcloud-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modules</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span>&gt;</span>user-provider<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span>&gt;</span>user-consumer<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">modules</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--父工程--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.6.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--SpringCloud包依赖管理--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>Greenwich.SR1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="3-2-2-创建服务提供者-producer-工程"><a href="#3-2-2-创建服务提供者-producer-工程" class="headerlink" title="3.2.2 创建服务提供者(producer)工程"></a>3.2.2 创建服务提供者(producer)工程</h4><p>每个微服务工程都是独立的工程，连数据库都是独立的，所以我们一会要单独为该服务工程创建数据库。</p>
+<p>工程创建步骤：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.准备表结构</span></span><br><span class="line"><span class="attr">2.创建工程</span></span><br><span class="line"><span class="attr">3.引入依赖</span></span><br><span class="line"><span class="attr">4.创建Pojo，需要配置JPA的注解</span></span><br><span class="line"><span class="attr">5.创建Dao，需要继承JpaRepository&lt;T,ID&gt;</span></span><br><span class="line"><span class="attr">6.创建Service，并调用Dao</span></span><br><span class="line"><span class="attr">7.创建Controller，并调用Service</span></span><br><span class="line"><span class="attr">8.创建application.yml文件</span></span><br><span class="line"><span class="attr">9.创建启动类</span></span><br><span class="line"><span class="attr">10.测试</span></span><br></pre></td></tr></table></figure>
+<p>(1)建表</p>
+<p>producer工程是一个独立的微服务，一般拥有独立的controller、service、dao、数据库，我们在springcloud数据库新建表结构信息，如下：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 使用springcloud数据库</span></span><br><span class="line">USE springcloud;</span><br><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="comment">-- Table structure for tb_user</span></span><br><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `tb_user` (</span><br><span class="line">  `id` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `username` <span class="type">varchar</span>(<span class="number">100</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;用户名&#x27;</span>,</span><br><span class="line">  `password` <span class="type">varchar</span>(<span class="number">100</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;密码&#x27;</span>,</span><br><span class="line">  `name` <span class="type">varchar</span>(<span class="number">100</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">  `age` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;年龄&#x27;</span>,</span><br><span class="line">  `sex` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;性别，1男，2女&#x27;</span>,</span><br><span class="line">  `birthday` <span class="type">date</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;出生日期&#x27;</span>,</span><br><span class="line">  `created` <span class="type">date</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line">  `updated` <span class="type">date</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;更新时间&#x27;</span>,</span><br><span class="line">  `note` <span class="type">varchar</span>(<span class="number">1000</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;备注&#x27;</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`id`)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB AUTO_INCREMENT<span class="operator">=</span><span class="number">2</span> <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8 COMMENT<span class="operator">=</span><span class="string">&#x27;用户信息表&#x27;</span>;</span><br><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="comment">-- Records of tb_user</span></span><br><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `tb_user` <span class="keyword">VALUES</span> (<span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;zhangsan&#x27;</span>, <span class="string">&#x27;123456&#x27;</span>, <span class="string">&#x27;张三&#x27;</span>, <span class="string">&#x27;13&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2006-08-01&#x27;</span>, <span class="string">&#x27;2019-05-16&#x27;</span>, <span class="string">&#x27;2019-05-16&#x27;</span>, <span class="string">&#x27;张三&#x27;</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `tb_user` <span class="keyword">VALUES</span> (<span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;lisi&#x27;</span>, <span class="string">&#x27;123456&#x27;</span>, <span class="string">&#x27;李四&#x27;</span>, <span class="string">&#x27;13&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2006-08-01&#x27;</span>, <span class="string">&#x27;2019-05-16&#x27;</span>, <span class="string">&#x27;2019-05-16&#x27;</span>, <span class="string">&#x27;李四&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>(2)新建user-provider工程</p>
+<p>选中springcloud-parent工程-&gt;New Modul-&gt;Maven-&gt;输入坐标名字，如下步骤：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114720.png" alt="1563028264001"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114721.png" alt="1563028308366"></p>
+<p>引入pom.xml依赖</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>springcloud-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.itheima<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>user-provider<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--依赖包--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--JPA包--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-jpa<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--web起步包--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--MySQL驱动包--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--测试包--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>(3)User对象创建</p>
+<p>创建<code>com.itheima.domain.User</code>，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table(name = &quot;tb_user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue(strategy = GenerationType.IDENTITY)</span></span><br><span class="line">    <span class="keyword">private</span> Integer id;<span class="comment">//主键id</span></span><br><span class="line">    <span class="keyword">private</span> String username;<span class="comment">//用户名</span></span><br><span class="line">    <span class="keyword">private</span> String password;<span class="comment">//密码</span></span><br><span class="line">    <span class="keyword">private</span> String name;<span class="comment">//姓名</span></span><br><span class="line">    <span class="keyword">private</span> Integer age;<span class="comment">//年龄</span></span><br><span class="line">    <span class="keyword">private</span> Integer sex;<span class="comment">//性别 1男性，2女性</span></span><br><span class="line">    <span class="keyword">private</span> Date birthday; <span class="comment">//出生日期</span></span><br><span class="line">    <span class="keyword">private</span> Date created; <span class="comment">//创建时间</span></span><br><span class="line">    <span class="keyword">private</span> Date updated; <span class="comment">//更新时间</span></span><br><span class="line">    <span class="keyword">private</span> String note;<span class="comment">//备注</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//..set get toString 略</span></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(4)dao<br>创建<code>com.itheima.dao.UserDao</code>，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserDao</span> <span class="keyword">extends</span> <span class="title">JpaRepository</span>&lt;<span class="title">User</span>,<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(5)Service层</p>
+<p>创建<code>com.itheima.service.UserService</code>接口，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="comment">/***</span></span><br><span class="line"><span class="comment">     * 根据ID查询用户信息</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">User <span class="title">findByUserId</span><span class="params">(Integer id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建<code>com.itheima.service.impl.UserServiceImpl</code>代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDao userDao;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/***</span></span><br><span class="line"><span class="comment">     * 根据ID查询用户信息</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">findByUserId</span><span class="params">(Integer id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userDao.findById(id).get();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(6)控制层</p>
+<p>创建<code>com.itheima.controller.UserController</code>，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(value = &quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/***</span></span><br><span class="line"><span class="comment">     * 根据ID查询用户信息</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@RequestMapping(value = &quot;/find/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">findById</span><span class="params">(<span class="meta">@PathVariable(value = &quot;id&quot;)</span> Integer id)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.findByUserId(id);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(7)application.yml配置</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">server</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">port</span>: <span class="string">18081</span></span><br><span class="line"><span class="attr">spring</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">datasource</span>:<span class="string"></span></span><br><span class="line">    <span class="meta">driver-class-name</span>: <span class="string">com.mysql.cj.jdbc.Driver</span></span><br><span class="line">    <span class="attr">username</span>: <span class="string">root</span></span><br><span class="line">    <span class="attr">password</span>: <span class="string">itcast</span></span><br><span class="line">    <span class="attr">url</span>: <span class="string">jdbc:mysql://127.0.0.1:3306/springcloud?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC</span></span><br></pre></td></tr></table></figure>
+<p>(8)启动类创建</p>
+<p>创建<code>com.itheima.UserProviderApplication</code>启动类，并启动</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserProviderApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(UserProviderApplication.class,args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试：<code>&lt;http://localhost:18081/user/find/2&gt;</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114722.png" alt="1563028849102"></p>
+<h4 id="3-2-3-创建服务消费者-consumer-工程"><a href="#3-2-3-创建服务消费者-consumer-工程" class="headerlink" title="3.2.3 创建服务消费者(consumer)工程"></a>3.2.3 创建服务消费者(consumer)工程</h4><p>在该工程中使用RestTemplate来调用user-provider微服务。</p>
+<p>实现步骤：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.创建工程</span></span><br><span class="line"><span class="attr">2.引入依赖</span></span><br><span class="line"><span class="attr">3.创建Pojo</span></span><br><span class="line"><span class="attr">4.创建启动类，同时创建RestTemplate对象，并交给SpringIOC容器管理</span></span><br><span class="line"><span class="attr">5.创建application.yml文件，指定端口</span></span><br><span class="line"><span class="attr">6.编写Controller，在Controller中通过RestTemplate调用user-provider的服务</span></span><br><span class="line"><span class="attr">7.启动测试</span></span><br></pre></td></tr></table></figure>
+<p>(1)工程搭建</p>
+<p>选中springcloud-parent工程-&gt;New Modul-&gt;Maven-&gt;输入坐标名字，如下步骤：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114723.png" alt="1563028974269"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114724.png" alt="1563029007419"></p>
+<p>pom.xml依赖如下：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>springcloud-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.itheima<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>user-consumer<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--依赖包--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--web起步依赖--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>(2)创建User对象</p>
+<p>在src下创建<code>com.itheima.domain.User</code>,代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Integer id;<span class="comment">//主键id</span></span><br><span class="line">    <span class="keyword">private</span> String username;<span class="comment">//用户名</span></span><br><span class="line">    <span class="keyword">private</span> String password;<span class="comment">//密码</span></span><br><span class="line">    <span class="keyword">private</span> String name;<span class="comment">//姓名</span></span><br><span class="line">    <span class="keyword">private</span> Integer age;<span class="comment">//年龄</span></span><br><span class="line">    <span class="keyword">private</span> Integer sex;<span class="comment">//性别 1男性，2女性</span></span><br><span class="line">    <span class="keyword">private</span> Date birthday; <span class="comment">//出生日期</span></span><br><span class="line">    <span class="keyword">private</span> Date created; <span class="comment">//创建时间</span></span><br><span class="line">    <span class="keyword">private</span> Date updated; <span class="comment">//更新时间</span></span><br><span class="line">    <span class="keyword">private</span> String note;<span class="comment">//备注</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//..set、get、toString 略</span></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(3)创建启动引导类</p>
+<p>在src下创建<code>com.itheima.UserConsumerApplication</code>,代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserConsumerApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(UserConsumerApplication.class,args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/***</span></span><br><span class="line"><span class="comment">     * 将RestTemplate的实例放到Spring容器中</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建application.yml,并配置端口为18082</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">server</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">port</span>: <span class="string">18082</span></span><br></pre></td></tr></table></figure>
+<p>(4)创建控制层，在控制层中调用user-provider</p>
+<p>在src下创建<code>com.itheima.controller.UserController</code>，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(value = &quot;/consumer&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/****</span></span><br><span class="line"><span class="comment">     * 在user-consumer服务中通过RestTemplate调用user-provider服务</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(value = &quot;/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">queryById</span><span class="params">(<span class="meta">@PathVariable(value = &quot;id&quot;)</span>Integer id)</span></span>&#123;</span><br><span class="line">        String url = <span class="string">&quot;http://localhost:18081/user/find/&quot;</span>+id;</span><br><span class="line">        <span class="keyword">return</span> restTemplate.getForObject(url,User.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>启动测试：</p>
+<p>请求地址：<code>&lt;http://localhost:18082/consumer/1&gt;</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114725.png" alt="1563029284043"></p>
+<h4 id="3-2-4-思考问题"><a href="#3-2-4-思考问题" class="headerlink" title="3.2.4 思考问题"></a>3.2.4 思考问题</h4><p>user-provider：对外提供用户查询接口</p>
+<p>user-consumer：通过RestTemplate访问接口查询用户数据</p>
+<p>存在的问题：</p>
+<ol>
+<li>在服务消费者中，我们把url地址硬编码到代码中，不方便后期维护</li>
+<li>在服务消费者中，不清楚服务提供者的状态(user-provider有可能没有宕机了)</li>
+<li>服务提供者只有一个服务，即便服务提供者形成集群，服务消费者还需要自己实现负载均衡</li>
+<li>服务提供者的如果出现故障，是否能够及时发现：</li>
+</ol>
+<p>其实上面说的问题，概括一下就是微服务架构必然要面临的问题</p>
+<ul>
+<li>服务管理：自动注册与发现、状态监管</li>
+<li>服务负载均衡</li>
+<li>熔断器</li>
+</ul>
+<h3 id="3-3-小结"><a href="#3-3-小结" class="headerlink" title="3.3 小结"></a>3.3 小结</h3><ul>
+<li>服务消费者使用RestTemplate调用服务提供者,使用RestTemplate调用的时候，需要先创建并注入到SpringIOC容器中</li>
+<li>在服务消费者中，我们把url地址硬编码到代码中，不方便后期维护</li>
+<li>在服务消费者中，不清楚服务提供者的状态(user-provider有可能没有宕机了)</li>
+<li>服务提供者只有一个服务，即便服务提供者形成集群，服务消费者还需要自己实现负载均衡</li>
+<li>服务提供者的如果出现故障，不能及时发现。</li>
+</ul>
+<h2 id="4-注册中心-Spring-Cloud-Eureka"><a href="#4-注册中心-Spring-Cloud-Eureka" class="headerlink" title="4 注册中心 Spring Cloud Eureka"></a>4 注册中心 Spring Cloud Eureka</h2><p>前面我们学过Dubbo，关于Dubbo的执行过程我们看如下图片：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114726.png" alt=""></p>
+<p>执行过程：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">1.Provider</span>:<span class="string">服务提供者,异步将自身信息注册到Register（注册中心）</span></span><br><span class="line"><span class="attr">2.Consumer：服务消费者，异步去Register中拉取服务数据</span></span><br><span class="line"><span class="attr">3.Register异步推送服务数据给Consumer,如果有新的服务注册了，Consumer可以直接监控到新的服务</span></span><br><span class="line"><span class="attr">4.Consumer同步调用Provider</span></span><br><span class="line"><span class="attr">5.Consumer和Provider异步将调用频率信息发给Monitor监控</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-1-目标"><a href="#4-1-目标" class="headerlink" title="4.1 目标"></a>4.1 目标</h3><ul>
+<li>理解Eureka的原理图</li>
+<li>能实现Eureka服务的搭建</li>
+<li>能实现服务提供者向Eureka注册服务</li>
+<li>能实现服务消费者向Eureka注册服务</li>
+<li>能实现消费者通过Eureka访问服务提供者</li>
+<li>能掌握Eureka的详细配置</li>
+</ul>
+<h3 id="4-2-讲解"><a href="#4-2-讲解" class="headerlink" title="4.2 讲解"></a>4.2 讲解</h3><h4 id="4-2-1-Eureka-简介"><a href="#4-2-1-Eureka-简介" class="headerlink" title="4.2.1 Eureka 简介"></a>4.2.1 Eureka 简介</h4><p>Eureka解决了第一个问题：服务的管理，注册和发现、状态监管、动态路由。</p>
+<p>Eureka负责管理记录服务提供者的信息。服务调用者无需自己寻找服务，Eureka自动匹配服务给调用者。</p>
+<p>Eureka与服务之间通过<code>心跳</code>机制进行监控；</p>
+<h4 id="4-2-2-原理图"><a href="#4-2-2-原理图" class="headerlink" title="4.2.2 原理图"></a>4.2.2 原理图</h4><p>基本架构图</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114727.png" alt="1563089431796"></p>
+<p>Eureka：就是服务注册中心(可以是一个集群)，对外暴露自己的地址</p>
+<p>服务提供者：启动后向Eureka注册自己的信息(地址，提供什么服务)</p>
+<p>服务消费者：向Eureka订阅服务，Eureka会将对应服务的所有提供者地址列表发送给消费者，并且定期更新</p>
+<p>心跳(续约)：提供者定期通过http方式向Eureka刷新自己的状态</p>
+<h4 id="4-2-3-入门案例"><a href="#4-2-3-入门案例" class="headerlink" title="4.2.3 入门案例"></a>4.2.3 入门案例</h4><p>目标：搭建Eureka Server环境，创建一个eureka_server工程。</p>
+<p><strong>步骤：</strong>分三步</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1：eureka-serve搭建工程eureka-server</span></span><br><span class="line"><span class="attr">2：服务提供者-注册服务，user-provider工程</span></span><br><span class="line"><span class="attr">3：服务消费者-发现服务，user-consumer工程</span></span><br></pre></td></tr></table></figure>
+<h5 id="4-2-3-1-搭建eureka-server工程"><a href="#4-2-3-1-搭建eureka-server工程" class="headerlink" title="4.2.3.1 搭建eureka-server工程"></a>4.2.3.1 搭建eureka-server工程</h5><p>(1)工程搭建</p>
+<p>选中springcloud-parent工程-&gt;New Modul-&gt;Maven-&gt;输入坐标名字，如下步骤：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114728.png" alt="1563093804303"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114729.png" alt="1563093844890"></p>
+<p>(2)pom.xml引入依赖</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>springcloud-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.itheima<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--依赖包--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--eureka-server依赖--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>(3)application.yml配置</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">server</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">port</span>: <span class="string">7001    #端口号</span></span><br><span class="line"><span class="attr">spring</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">application</span>:<span class="string"></span></span><br><span class="line">    <span class="attr">name</span>: <span class="string">eureka-server # 应用名称，会在Eureka中作为服务的id标识（serviceId）</span></span><br><span class="line"><span class="attr">eureka</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">client</span>:<span class="string"></span></span><br><span class="line">    <span class="meta">register-with-eureka</span>: <span class="string">false   #是否将自己注册到Eureka中</span></span><br><span class="line">    <span class="meta">fetch-registry</span>: <span class="string">false   #是否从eureka中获取服务信息</span></span><br><span class="line">    <span class="meta">service-url</span>:<span class="string"></span></span><br><span class="line">      <span class="attr">defaultZone</span>: <span class="string">http://localhost:7001/eureka # EurekaServer的地址</span></span><br></pre></td></tr></table></figure>
+<p>(4)启动类创建</p>
+<p>在src下创建<code>com.itheima.EurekaServerApplication</code>,在类上需要添加一个注解<code>@EnableEurekaServer</code>，用于开启Eureka服务,代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableEurekaServer</span> <span class="comment">//开启Eureka服务</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EurekaServerApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(EurekaServerApplication.class,args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(5)启动访问</p>
+<p>启动后，访问<code>&lt;http://127.0.0.1:7001/&gt;</code>，效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114730.png" alt="1563094286893"></p>
+<h5 id="4-2-3-2-服务提供者-注册服务"><a href="#4-2-3-2-服务提供者-注册服务" class="headerlink" title="4.2.3.2 服务提供者-注册服务"></a>4.2.3.2 服务提供者-注册服务</h5><p>我们的user-provider属于服务提供者，需要在user-provider工程中引入Eureka客户端依赖，然后在配置文件中指定Eureka服务地址,然后在启动类中开启Eureka服务发现功能。</p>
+<p>步骤：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.引入eureka客户端依赖包</span></span><br><span class="line"><span class="attr">2.在application.yml中配置Eureka服务地址</span></span><br><span class="line"><span class="meta">3.在启动类上添加@EnableDiscoveryClient或者@EnableEurekaClient</span> <span class="string"></span></span><br></pre></td></tr></table></figure>
+<p>(1)引入依赖</p>
+<p>在user-provider的pom.xml中引入如下依赖</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!--eureka客户端--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>(2)配置Eureka服务地址</p>
+<p>修改user-provider的application.yml配置文件，添加Eureka服务地址，代码如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114731.png" alt="1563097201829"></p>
+<p>上图代码如下：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">server</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">port</span>: <span class="string">18081</span></span><br><span class="line"><span class="attr">spring</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">datasource</span>:<span class="string"></span></span><br><span class="line">    <span class="meta">driver-class-name</span>: <span class="string">com.mysql.cj.jdbc.Driver</span></span><br><span class="line">    <span class="attr">username</span>: <span class="string">root</span></span><br><span class="line">    <span class="attr">password</span>: <span class="string">itcast</span></span><br><span class="line">    <span class="attr">url</span>: <span class="string">jdbc:mysql://127.0.0.1:3306/springcloud?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC</span></span><br><span class="line">  <span class="attr">application</span>:<span class="string"></span></span><br><span class="line">    <span class="attr">name</span>: <span class="string">user-provider #服务的名字,不同的应用，名字不同，如果是集群，名字需要相同</span></span><br><span class="line"><span class="comment">#指定eureka服务地址</span></span><br><span class="line"><span class="attr">eureka</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">client</span>:<span class="string"></span></span><br><span class="line">    <span class="meta">service-url</span>:<span class="string"></span></span><br><span class="line"><span class="comment">      # EurekaServer的地址</span></span><br><span class="line">      <span class="attr">defaultZone</span>: <span class="string">http://localhost:7001/eureka</span></span><br></pre></td></tr></table></figure>
+<p>(3)开启Eureka客户端发现功能</p>
+<p>在user-provider的启动类<code>com.itheima.UserProviderApplication</code>上添加<code>@EnableDiscoveryClient</code>注解或者<code>@EnableEurekaClient</code>，用于开启客户端发现功能。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span>  <span class="comment">//开启Eureka客户端发现功能</span></span><br><span class="line"><span class="meta">@EnableEurekaClient</span>     <span class="comment">//开启Eureka客户端发现功能，注册中心只能是Eureka</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserProviderApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(UserProviderApplication.class,args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>区别：</p>
+<p><code>@EnableDiscoveryClient</code>和<code>@EnableEurekaClient</code>都用于开启客户端的发现功能，但<code>@EnableEurekaClient</code>的注册中心只能是Eureka。</p>
+<p>(4)启动测试</p>
+<p>启动eureka-server，再启动user-provider。</p>
+<p>访问Eureka地址<code>&lt;http://127.0.0.1:7001/&gt;</code>，效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114732.png" alt="1563097634851"></p>
+<h5 id="4-2-3-3-服务消费者-注册服务中心"><a href="#4-2-3-3-服务消费者-注册服务中心" class="headerlink" title="4.2.3.3 服务消费者-注册服务中心"></a>4.2.3.3 服务消费者-注册服务中心</h5><p>消费方添加Eureka服务注册和生产方配置流程一致。</p>
+<p>步骤：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.引入eureka客户端依赖包</span></span><br><span class="line"><span class="attr">2.在application.yml中配置Eureka服务地址</span></span><br><span class="line"><span class="meta">3.在启动类上添加@EnableDiscoveryClient或者@EnableEurekaClient</span> <span class="string"></span></span><br></pre></td></tr></table></figure>
+<p>(1)pom.xml引入依赖</p>
+<p>修改user-consumer的pom.xml引入如下依赖</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!--eureka客户端--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>(2)application.yml中配置eureka服务地址</p>
+<p>修改user-consumer工程的application.yml配置，添加eureka服务地址，配置如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114733.png" alt="1563098000059"></p>
+<p>上图配置如下：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">server</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">port</span>: <span class="string">18082</span></span><br><span class="line"><span class="attr">spring</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">application</span>:<span class="string"></span></span><br><span class="line">    <span class="attr">name</span>: <span class="string">user-consumer   #服务名字</span></span><br><span class="line"><span class="comment">#指定eureka服务地址</span></span><br><span class="line"><span class="attr">eureka</span>:<span class="string"></span></span><br><span class="line">  <span class="attr">client</span>:<span class="string"></span></span><br><span class="line">    <span class="meta">service-url</span>:<span class="string"></span></span><br><span class="line"><span class="comment">      # EurekaServer的地址</span></span><br><span class="line">      <span class="attr">defaultZone</span>: <span class="string">http://localhost:7001/eureka</span></span><br></pre></td></tr></table></figure>
+<p>(3)在启动类上开启Eureka服务发现功能</p>
+<p>修改user-consumer的<code>com.itheima.UserConsumerApplication</code>启动类，在类上添加<code>@EnableDiscoveryClient</code>注解，代码如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114734.png" alt="1563098256837"></p>
+<p>上图代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span>  <span class="comment">//开启Eureka客户端发现功能</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserConsumerApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//...略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(4)测试</p>
+<p>启动user-consumer，然后访问Eureka服务地址<code>&lt;http://127.0.0.1:7001/&gt;</code>效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114735.png" alt="1563098399496"></p>
+<h5 id="4-2-3-4-消费者通过Eureka访问提供者"><a href="#4-2-3-4-消费者通过Eureka访问提供者" class="headerlink" title="4.2.3.4 消费者通过Eureka访问提供者"></a>4.2.3.4 消费者通过Eureka访问提供者</h5><p>之前消费者<code>user-consumer</code>访问服务提供者<code>user-provider</code>是通过<code>http://localhost:18081/user/find/1</code>访问的，这里是具体的路径，没有从Eureka获取访问地址，我们可以让消费者从Eureka那里获取服务提供者的访问地址，然后访问服务提供者。</p>
+<p>修改user-consumer的<code>com.itheima.controller.UserController</code>，代码如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114736.png" alt="1563098992272"></p>
+<p>Debug跟踪运行，访问<code>&lt;http://localhost:18082/consumer/1&gt;</code>，效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114737.png" alt="1563099222018"></p>
+<p>跟踪运行后，我们发现，这里的地址就是服务注册中的状态名字。</p>
+<p>浏览器结果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114738.png" alt="1563099333167"></p>
+<p>(2)使用IP访问配置</p>
+<p>上面的请求地址是服务状态名字，其实也是当前主机的名字，可以通过配置文件，将它换成IP，修改application.yml配置文件，代码如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114739.png" alt="1563100045968"></p>
+<p>上图配置如下：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">instance</span>:<span class="string"></span></span><br><span class="line"><span class="comment">  #指定IP地址</span></span><br><span class="line">  <span class="meta">ip-address</span>: <span class="string">127.0.0.1</span></span><br><span class="line"><span class="comment">  #访问服务的时候，推荐使用IP</span></span><br><span class="line">  <span class="meta">prefer-ip-address</span>: <span class="string">true</span></span><br></pre></td></tr></table></figure>
+<p>重新启动<code>user-provider</code>，并再次测试，测试效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114740.png" alt="1563100168497"></p>
+<h4 id="4-2-4-Eureka详解"><a href="#4-2-4-Eureka详解" class="headerlink" title="4.2.4 Eureka详解"></a>4.2.4 Eureka详解</h4><h5 id="4-2-4-1-基础架构"><a href="#4-2-4-1-基础架构" class="headerlink" title="4.2.4.1 基础架构"></a>4.2.4.1 基础架构</h5><p>Eureka架构中的三个核心角色</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.服务注册中心：Eureka服务端应用，提供服务注册发现功能，eureka-server</span></span><br><span class="line"><span class="attr">2.服务提供者：提供服务的应用</span></span><br><span class="line">  <span class="attr">要求统一对外提供Rest风格服务即可</span></span><br><span class="line">  <span class="attr">本例子：user-provider</span></span><br><span class="line"><span class="attr">3.服务消费者：从注册中心获取服务列表，知道去哪调用服务方，user-consumer</span></span><br></pre></td></tr></table></figure>
+<h5 id="4-2-4-2-Eureka客户端"><a href="#4-2-4-2-Eureka客户端" class="headerlink" title="4.2.4.2 Eureka客户端"></a>4.2.4.2 Eureka客户端</h5><p>服务提供者要向EurekaServer注册服务，并完成服务续约等工作</p>
+<p><strong>服务注册:</strong></p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">1.</span> <span class="string">当我们开启了客户端发现注解@DiscoveryClient。同时导入了eureka-client依赖坐标</span></span><br><span class="line"><span class="meta">2.</span> <span class="string">同时配置Eureka服务注册中心地址在配置文件中</span></span><br><span class="line"><span class="meta">3.</span> <span class="string">服务在启动时，检测是否有@DiscoveryClient注解和配置信息</span></span><br><span class="line"><span class="meta">4.</span> <span class="string">如果有，则会向注册中心发起注册请求，携带服务元数据信息(IP、端口等)</span></span><br><span class="line"><span class="meta">5.</span> <span class="string">Eureka注册中心会把服务的信息保存在Map中。</span></span><br></pre></td></tr></table></figure>
+<p><strong>服务续约：</strong></p>
+<p>服务注册完成以后，服务提供者会维持一个<code>心跳</code>，保存服务处于存在状态。这个称之为服务续约(renew)。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114741.png" alt="1563102805802"></p>
+<p>上图配置如下：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment">#租约到期，服务时效时间，默认值90秒</span></span><br><span class="line"><span class="attr">lease-expiration-duration-in-seconds:</span> <span class="number">150</span></span><br><span class="line"><span class="comment">#租约续约间隔时间，默认30秒</span></span><br><span class="line"><span class="attr">lease-renewal-interval-in-seconds:</span> <span class="number">30</span></span><br></pre></td></tr></table></figure>
+<p>参数说明：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.两个参数可以修改服务续约行为</span></span><br><span class="line">  <span class="meta">lease-renewal-interval-seconds</span>:<span class="string">90，租约到期时效时间，默认90秒</span></span><br><span class="line">  <span class="meta">lease-expiration-duration-in-seconds</span>:<span class="string">30，租约续约间隔时间，默认30秒</span></span><br><span class="line"><span class="attr">2.服务超过90秒没有发生心跳，EurekaServer会将服务从列表移除[前提是EurekaServer关闭了自我保护]</span></span><br></pre></td></tr></table></figure>
+<p><strong>获取服务列表：</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114742.png" alt="1563102910373"></p>
+<p>上图配置如下：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">registry-fetch-interval-seconds:</span> <span class="number">30</span></span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">服务消费者启动时，会检测是否获取服务注册信息配置</span></span><br><span class="line"><span class="meta">如果是，则会从</span> <span class="string">EurekaServer服务列表获取只读备份，缓存到本地</span></span><br><span class="line"><span class="attr">每隔30秒，会重新获取并更新数据</span></span><br><span class="line"><span class="attr">每隔30秒的时间可以通过配置registry-fetch-interval-seconds修改</span></span><br></pre></td></tr></table></figure>
+<h5 id="4-2-4-3-失效剔除和自我保护"><a href="#4-2-4-3-失效剔除和自我保护" class="headerlink" title="4.2.4.3 失效剔除和自我保护"></a>4.2.4.3 失效剔除和自我保护</h5><p><strong>服务下线：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">当服务正常关闭操作时，会发送服务下线的REST请求给EurekaServer。</span><br><span class="line">服务中心接受到请求后，将该服务置为下线状态</span><br></pre></td></tr></table></figure>
+<p><strong>失效剔除：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">服务中心每隔一段时间(默认60秒)将清单中没有续约的服务剔除。</span><br><span class="line">通过eviction-interval-timer-in-ms配置可以对其进行修改，单位是毫秒</span><br></pre></td></tr></table></figure>
+<p>剔除时间配置</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114743.png" alt="1563103529735"></p>
+<p>上图代码如下：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">eviction-interval-timer-in-ms</span>: <span class="string">5000</span></span><br></pre></td></tr></table></figure>
+<p><strong>自我保护：</strong></p>
+<p>Eureka会统计服务实例最近15分钟心跳续约的比例是否低于85%，如果低于则会触发自我保护机制。</p>
+<p>服务中心页面会显示如下提示信息</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114744.png" alt="1558056004897"></p>
+<p>含义：紧急情况！Eureka可能错误地声称实例已经启动，而事实并非如此。续约低于阈值，因此实例不会为了安全而过期。</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.自我保护模式下，不会剔除任何服务实例</span></span><br><span class="line"><span class="attr">2.自我保护模式保证了大多数服务依然可用</span></span><br><span class="line"><span class="attr">3.通过enable-self-preservation配置可用关停自我保护，默认值是打开</span></span><br></pre></td></tr></table></figure>
+<p>关闭自我保护</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114745.png" alt="1563103437025"></p>
+<p>上图配置如下：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">enable-self-preservation</span>: <span class="string">false</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-3-小结"><a href="#4-3-小结" class="headerlink" title="4.3 小结"></a>4.3 小结</h3><ul>
+<li><p>理解Eureka的原理图:</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">Eureka：就是服务注册中心(可以是一个集群)，对外暴露自己的地址</span></span><br><span class="line"><span class="attr">服务提供者：启动后向Eureka注册自己的信息(地址，提供什么服务)</span></span><br><span class="line"><span class="attr">服务消费者：向Eureka订阅服务，Eureka会将对应服务的所有提供者地址列表发送给消费者，并且定期更新</span></span><br><span class="line"><span class="attr">心跳(续约)：提供者定期通过http方式向Eureka刷新自己的状态</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>能实现Eureka服务的搭建:引入依赖包，配置配置文件，在启动类上加<code>@EnableEurekaServer</code>。</p>
+</li>
+<li><p>能实现服务提供者向Eureka注册服务</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.引入eureka客户端依赖包</span></span><br><span class="line"><span class="attr">2.在application.yml中配置Eureka服务地址</span></span><br><span class="line"><span class="meta">3.在启动类上添加@EnableDiscoveryClient或者@EnableEurekaClient</span> <span class="string"></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>能实现服务消费者向Eureka注册服务</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.引入eureka客户端依赖包</span></span><br><span class="line"><span class="attr">2.在application.yml中配置Eureka服务地址</span></span><br><span class="line"><span class="meta">3.在启动类上添加@EnableDiscoveryClient或者@EnableEurekaClient</span> <span class="string"></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>能实现消费者通过Eureka访问服务提供者</p>
+</li>
+</ul>
+<h2 id="5-负载均衡-Spring-Cloud-Ribbon"><a href="#5-负载均衡-Spring-Cloud-Ribbon" class="headerlink" title="5 负载均衡 Spring Cloud Ribbon"></a>5 负载均衡 Spring Cloud Ribbon</h2><p>Ribbon主要 解决集群服务中，多个服务高效率访问的问题。</p>
+<h3 id="5-1-目标"><a href="#5-1-目标" class="headerlink" title="5.1 目标"></a>5.1 目标</h3><ul>
+<li>理解Ribbon的负载均衡应用场景</li>
+<li>能实现Ribbon的轮询、随机算法配置</li>
+<li>理解源码对负载均衡的切换</li>
+</ul>
+<h3 id="5-2-讲解"><a href="#5-2-讲解" class="headerlink" title="5.2 讲解"></a>5.2 讲解</h3><h4 id="5-2-1-Ribbon-简介"><a href="#5-2-1-Ribbon-简介" class="headerlink" title="5.2.1 Ribbon 简介"></a>5.2.1 Ribbon 简介</h4><p>什么是Ribbon？</p>
+<p>Ribbon是Netflix发布的负载均衡器，有助于控制HTTP客户端行为。为Ribbon配置服务提供者地址列表后，Ribbon就可基于负载均衡算法，自动帮助服务消费者请求。</p>
+<p>Ribbon默认提供的负载均衡算法：轮询，随机,重试法,加权。当然，我们可用自己定义负载均衡算法</p>
+<h4 id="5-2-2-入门案例"><a href="#5-2-2-入门案例" class="headerlink" title="5.2.2 入门案例"></a>5.2.2 入门案例</h4><h5 id="5-2-2-1-多个服务集群"><a href="#5-2-2-1-多个服务集群" class="headerlink" title="5.2.2.1 多个服务集群"></a>5.2.2.1 多个服务集群</h5><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114746.png" alt="1563110459400"></p>
+<p>如果想要做负载均衡，我们的服务至少2个以上,为了演示负载均衡案例，我们可以复制2个工程，分别为<code>user-provider</code>和<code>user-provider-demo1</code>，可以按照如下步骤拷贝工程：</p>
+<p>①选中<code>user-provider</code>,按<code>Ctrl+C</code>，然后<code>Ctrl+V</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114747.png" alt="1563110649115"></p>
+<p>②名字改成<code>user-provider-demo1</code>,点击OK</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114748.png" alt="1563110738488"></p>
+<p>③将<code>user-provider-demo1</code>的<code>artifactId</code>换成<code>user-provider-demo1</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114749.png" alt="1563110842156"></p>
+<p>④在springcloud-parent的pom.xml中添加一个<code>&lt;module&gt;user-provider-demo1&lt;/module&gt;</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114750.png" alt="1563110990061"></p>
+<p>⑤将<code>user-provider-demo1</code>的application.yml中的端口改成18083</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114751.png" alt="1563111191901"></p>
+<p>为了方便测试，将2个工程对应的<code>com.itheima.controller.UserController</code>都修改一下：</p>
+<p><code>user-provider</code>:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(value = &quot;/find/&#123;id&#125;&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">findById</span><span class="params">(<span class="meta">@PathVariable(value = &quot;id&quot;)</span> Integer id)</span></span>&#123;</span><br><span class="line">    User user = userService.findByUserId(id);</span><br><span class="line">    user.setUsername(user+<span class="string">&quot;     user-provider&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>user-provider-demo1</code>:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(value = &quot;/find/&#123;id&#125;&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">findById</span><span class="params">(<span class="meta">@PathVariable(value = &quot;id&quot;)</span> Integer id)</span></span>&#123;</span><br><span class="line">    User user = userService.findByUserId(id);</span><br><span class="line">    user.setUsername(user+<span class="string">&quot;     user-provider-demo1&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>⑥启动<code>eureka-server</code>和<code>user-provider</code>、<code>user-provider-demo1</code>、<code>user-consumer</code>，启动前先注释掉<code>eureka-server</code>中的自我保护和剔除服务配置。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114752.png" alt="1563111434062"></p>
+<p>访问<code>eureka-server</code>地址<code>&lt;http://127.0.0.1:7001/&gt;</code>效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114753.png" alt="1563111556883"></p>
+<h5 id="5-2-2-2-开启负载均衡"><a href="#5-2-2-2-开启负载均衡" class="headerlink" title="5.2.2.2 开启负载均衡"></a>5.2.2.2 开启负载均衡</h5><p>(1)客户端开启负载均衡</p>
+<p>Eureka已经集成Ribbon，所以无需引入依赖,要想使用Ribbon，直接在RestTemplate的配置方法上添加<code>@LoadBalanced</code>注解即可</p>
+<p>修改<code>user-consumer</code>的<code>com.itheima.UserConsumerApplication</code>启动类，在<code>restTemplate()</code>方法上添加<code>@LoadBalanced</code>注解，代码如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114754.png" alt="1563112003073"></p>
+<p>(2)采用服务名访问配置</p>
+<p>修改<code>user-consumer</code>的<code>com.itheima.controller.UserController</code>的调用方式，不再手动获取ip和端口，而是直接通过服务名称调用，代码如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114755.png" alt="1563112311866"></p>
+<p>(3)测试</p>
+<p>启动并访问测试<code>&lt;http://localhost:18082/consumer/1&gt;</code>,可以发现，数据会在2个服务之间轮询切换。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114756.png" alt="1563113049010"></p>
+<h5 id="5-2-2-3-其他负载均衡策略配置"><a href="#5-2-2-3-其他负载均衡策略配置" class="headerlink" title="5.2.2.3 其他负载均衡策略配置"></a>5.2.2.3 其他负载均衡策略配置</h5><p>配置修改轮询策略：Ribbon默认的负载均衡策略是轮询，通过如下</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 修改服务地址轮询策略，默认是轮询，配置之后变随机</span></span><br><span class="line"><span class="attr">user-provider:</span></span><br><span class="line">  <span class="attr">ribbon:</span></span><br><span class="line">    <span class="comment">#轮询</span></span><br><span class="line">    <span class="comment">#NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RoundRobinRule</span></span><br><span class="line">    <span class="comment">#随机算法</span></span><br><span class="line">    <span class="comment">#NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule</span></span><br><span class="line">    <span class="comment">#重试算法,该算法先按照轮询的策略获取服务,如果获取服务失败则在指定的时间内会进行重试，获取可用的服务</span></span><br><span class="line">    <span class="comment">#NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RetryRule</span></span><br><span class="line">    <span class="comment">#加权法,会根据平均响应时间计算所有服务的权重，响应时间越快服务权重越大被选中的概率越大。刚启动时如果同统计信息不足，则使用轮询的策略，等统计信息足够会切换到自身规则。</span></span><br><span class="line">    <span class="attr">NFLoadBalancerRuleClassName:</span> <span class="string">com.netflix.loadbalancer.ZoneAvoidanceRule</span></span><br></pre></td></tr></table></figure>
+<p>SpringBoot可以修改负载均衡规则，配置为<code>ribbon.NFLoadBalancerRuleClassName</code></p>
+<p>格式{服务名称}.ribbon.NFLoadBalancerRuleClassName</p>
+<h4 id="5-2-3-负载均衡源码跟踪探究"><a href="#5-2-3-负载均衡源码跟踪探究" class="headerlink" title="5.2.3 负载均衡源码跟踪探究"></a>5.2.3 负载均衡源码跟踪探究</h4><p>为什么只输入了Service名称就可以访问了呢？不应该需要获取ip和端口吗？</p>
+<p>负载均衡器动态的从服务注册中心中获取服务提供者的访问地址(host、port)</p>
+<p>显然是有某个组件根据Service名称，获取了服务实例ip和端口。就是LoadBalancerInterceptor</p>
+<p>这个类会对RestTemplate的请求进行拦截，然后从Eureka根据服务id获取服务列表，随后利用负载均衡算法得到真正服务地址信息，替换服务id。</p>
+<p>源码跟踪步骤：</p>
+<p>打开LoadBalancerInterceptor类，断点打入intercept方法中</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114757.png" alt="1563118138994"></p>
+<p>继续跟入execute方法：发现获取了18081发端口的服务</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114758.png" alt="1563118256259"></p>
+<p>再跟下一次，发现获取的是18081和18083之间切换</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114759.png" alt="1563118382026"></p>
+<p>通过代码断点内容判断，果然是实现了负载均衡</p>
+<h3 id="5-3-小结"><a href="#5-3-小结" class="headerlink" title="5.3 小结"></a>5.3 小结</h3><ul>
+<li>Ribbon的负载均衡算法应用在客户端，只需要提供服务列表，就能帮助消费端自动访问服务端，并通过不同算法实现负载均衡。</li>
+<li>Ribbon的轮询、随机算法配置：在application.yml中配置 <code>&#123;服务名称&#125;.ribbon.NFLoadBalancerRuleClassName</code></li>
+<li>负载均衡的切换:在LoadBalancerInterceptor中获取服务的名字，通过调用RibbonLoadBalancerClient的execute方法，并获取ILoadBalancer负载均衡器，然后根据ILoadBalancer负载均衡器查询出要使用的节点，再获取节点的信息，并实现调用。</li>
+</ul>
+<h2 id="6-熔断器-Spring-Cloud-Hystrix"><a href="#6-熔断器-Spring-Cloud-Hystrix" class="headerlink" title="6 熔断器 Spring Cloud Hystrix"></a>6 熔断器 Spring Cloud Hystrix</h2><h3 id="6-1-目标"><a href="#6-1-目标" class="headerlink" title="6.1 目标"></a>6.1 目标</h3><ul>
+<li>理解Hystrix的作用</li>
+<li>理解雪崩效应</li>
+<li>知道熔断器的3个状态以及3个状态的切换过程</li>
+<li>能理解什么是线程隔离，什么是服务降级</li>
+<li>能实现一个局部方法熔断案例</li>
+<li>能实现全局方法熔断案例</li>
+</ul>
+<h3 id="6-2-讲解"><a href="#6-2-讲解" class="headerlink" title="6.2 讲解"></a>6.2 讲解</h3><h4 id="6-2-1-Hystrix-简介"><a href="#6-2-1-Hystrix-简介" class="headerlink" title="6.2.1 Hystrix 简介"></a>6.2.1 Hystrix 简介</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114800.png" alt="hystrix-logo-tagline-640"></p>
+<p>Hystrix，英文意思是豪猪，全身是刺，刺是一种保护机制。Hystrix也是Netflix公司的一款组件。</p>
+<p>Hystrix的作用是什么？</p>
+<p>Hystrix是Netflix开源的一个延迟和容错库，用于隔离访问远程服务、第三方库、防止出现级联失败也就是雪崩效应。</p>
+<h4 id="6-2-2-雪崩效应"><a href="#6-2-2-雪崩效应" class="headerlink" title="6.2.2 雪崩效应"></a>6.2.2 雪崩效应</h4><p>什么是雪崩效应？</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.微服务中，一个请求可能需要多个微服务接口才能实现，会形成复杂的调用链路。</span></span><br><span class="line"><span class="attr">2.如果某服务出现异常，请求阻塞，用户得不到响应，容器中线程不会释放，于是越来越多用户请求堆积，越来越多线程阻塞。</span></span><br><span class="line"><span class="attr">3.单服务器支持线程和并发数有限，请求如果一直阻塞，会导致服务器资源耗尽，从而导致所有其他服务都不可用，从而形成雪崩效应；</span></span><br></pre></td></tr></table></figure>
+<p>Hystrix解决雪崩问题的手段，主要是服务降级<strong>(兜底)</strong>，线程隔离；</p>
+<h4 id="6-2-3-熔断原理分析"><a href="#6-2-3-熔断原理分析" class="headerlink" title="6.2.3 熔断原理分析"></a>6.2.3 熔断原理分析</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114801.png" alt="1558425403175"></p>
+<p>熔断器的原理很简单，如同电力过载保护器。</p>
+<p>熔断器状态机有3个状态：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.Closed：关闭状态，所有请求正常访问</span></span><br><span class="line"><span class="attr">2.Open：打开状态，所有请求都会被降级。</span></span><br><span class="line">  <span class="attr">Hystrix会对请求情况计数，当一定时间失败请求百分比达到阈(yu：四声)值(极限值)，则触发熔断，断路器完全关闭</span></span><br><span class="line">  <span class="attr">默认失败比例的阈值是50%，请求次数最低不少于20次</span></span><br><span class="line"><span class="meta">3.Half</span> <span class="string">Open：半开状态</span></span><br><span class="line">  <span class="attr">Open状态不是永久的，打开一会后会进入休眠时间(默认5秒)。休眠时间过后会进入半开状态。</span></span><br><span class="line">  <span class="attr">半开状态：熔断器会判断下一次请求的返回状况，如果成功，熔断器切回closed状态。如果失败，熔断器切回open状态。</span></span><br><span class="line"><span class="attr">threshold</span> <span class="string">reached 到达阈(yu：四声)值</span></span><br><span class="line"><span class="attr">under</span> <span class="string">threshold  阈值以下</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114802.png" alt="1558064571689"></p>
+<p>​                                                                        【Hystrix熔断状态机模型：配图】</p>
+<p><strong>翻译之后的图：</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114803.png" alt="1563120878233"></p>
+<p><strong>熔断器的核心：线程隔离和服务降级。</strong></p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.线程隔离：是指Hystrix为每个依赖服务调用一个小的线程池，如果线程池用尽，调用立即被拒绝，默认不采用排队。</span></span><br><span class="line"><span class="attr">2.服务降级(兜底方法)：优先保证核心服务，而非核心服务不可用或弱可用。触发Hystrix服务降级的情况：线程池已满、请求超时。</span></span><br></pre></td></tr></table></figure>
+<p>线程隔离和服务降级之后，用户请求故障时，线程不会被阻塞，更不会无休止等待或者看到系统奔溃，至少可以看到执行结果(熔断机制)。</p>
+<h4 id="6-2-4-局部熔断案例"><a href="#6-2-4-局部熔断案例" class="headerlink" title="6.2.4 局部熔断案例"></a>6.2.4 局部熔断案例</h4><p>目标：服务提供者的服务出现了故障，服务消费者快速失败给用户友好提示。体验服务降级</p>
+<p><strong>实现步骤：</strong></p>
+<p>(1)引入熔断的依赖坐标：</p>
+<p>在<code>user-consumer</code>中加入依赖</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!--熔断器--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-hystrix<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>(2)开启熔断的注解</p>
+<p>修改<code>user-consumer</code>的<code>com.itheima.UserConsumerApplication</code>,在该类上添加<code>@EnableCircuitBreaker</code>,代码如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114804.png" alt="1563121853130"></p>
+<p>注意：这里也可以使用<code>@SpringCloudApplication</code>,写了<code>@SpringCloudApplication</code>后，其他注解需要全部去掉。</p>
+<p>(3)服务降级处理</p>
+<p>在<code>user-consumer</code>的<code>com.itheima.controller.UserController</code>中添加降级处理方法，方法如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/****</span></span><br><span class="line"><span class="comment"> * 服务降级处理方法</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">failBack</span><span class="params">(Integer id)</span></span>&#123;</span><br><span class="line">    User user = <span class="keyword">new</span> User();</span><br><span class="line">    user.setUsername(<span class="string">&quot;服务降级,默认处理！&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span>  user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在有可能发生问题的方法上添加降级处理调用，例如在<code>queryById</code>方法上添加降级调用，代码如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114805.png" alt="1563122266205"></p>
+<p>(4)测试</p>
+<p>将服务全部停掉，启动<code>eureka-server</code>和<code>user-consumer</code>,然后请求<code>&lt;http://localhost:18082/consumer/1&gt;</code>测试效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114806.png" alt="1563122351298"></p>
+<h4 id="6-2-5-其他熔断策略配置"><a href="#6-2-5-其他熔断策略配置" class="headerlink" title="6.2.5 其他熔断策略配置"></a>6.2.5 其他熔断策略配置</h4><figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">1.</span> <span class="string">熔断后休眠时间：sleepWindowInMilliseconds</span></span><br><span class="line"><span class="meta">2.</span> <span class="string">熔断触发最小请求次数：requestVolumeThreshold</span></span><br><span class="line"><span class="meta">3.</span> <span class="string">熔断触发错误比例阈值：errorThresholdPercentage</span></span><br><span class="line"><span class="meta">4.</span> <span class="string">熔断超时时间：timeoutInMilliseconds</span></span><br></pre></td></tr></table></figure>
+<p>配置如下：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 配置熔断策略：</span></span><br><span class="line"><span class="attr">hystrix:</span></span><br><span class="line">  <span class="attr">command:</span></span><br><span class="line">    <span class="attr">default:</span></span><br><span class="line">      <span class="attr">circuitBreaker:</span></span><br><span class="line">        <span class="comment"># 强制打开熔断器 默认false关闭的。测试配置是否生效</span></span><br><span class="line">        <span class="attr">forceOpen:</span> <span class="literal">false</span></span><br><span class="line">        <span class="comment"># 触发熔断错误比例阈值，默认值50%</span></span><br><span class="line">        <span class="attr">errorThresholdPercentage:</span> <span class="number">50</span></span><br><span class="line">        <span class="comment"># 熔断后休眠时长，默认值5秒</span></span><br><span class="line">        <span class="attr">sleepWindowInMilliseconds:</span> <span class="number">10000</span></span><br><span class="line">        <span class="comment"># 熔断触发最小请求次数，默认值是20</span></span><br><span class="line">        <span class="attr">requestVolumeThreshold:</span> <span class="number">10</span></span><br><span class="line">      <span class="attr">execution:</span></span><br><span class="line">        <span class="attr">isolation:</span></span><br><span class="line">          <span class="attr">thread:</span></span><br><span class="line">            <span class="comment"># 熔断超时设置，默认为1秒</span></span><br><span class="line">            <span class="attr">timeoutInMilliseconds:</span> <span class="number">2000</span></span><br></pre></td></tr></table></figure>
+<p>(1)超时时间测试</p>
+<p>a.修改<code>user-provider</code>的<code>com.itheima.controller.UserController</code>的<code>findById</code>方法，让它休眠3秒钟。</p>
+<p>b.修改<code>user-consumer</code>的application.yml，设置超时时间5秒，此时不会熔断。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114807.png" alt="1563125744650"></p>
+<p>c.如果把超时时间改成2000，此时就会熔断。</p>
+<p>(2)熔断触发最小请求次数测试</p>
+<p>a.修改<code>user-provider</code>的<code>com.itheima.controller.UserController</code>,在方法中制造异常，代码如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114808.png" alt="1563126432239"></p>
+<p>b.3次并发请求<code>&lt;http://localhost:18082/consumer/1&gt;</code>，会触发熔断</p>
+<p>再次请求<code>&lt;http://localhost:18082/consumer/2&gt;</code>的时候，也会熔断，5秒钟会自动恢复。</p>
+<p>并发请求建议使用<code>jmeter</code>工具。</p>
+<h4 id="6-2-5-扩展-服务降级的fallback方法："><a href="#6-2-5-扩展-服务降级的fallback方法：" class="headerlink" title="6.2.5 扩展-服务降级的fallback方法："></a>6.2.5 扩展-服务降级的fallback方法：</h4><!--注意：因为熔断的降级逻辑方法跟正常逻辑方法一样，必须保证相同的参数列表和返回值相同-->
+<p>两种编写方式：编写在类上，编写在方法上。在类的上边对类的所有方法都生效。在方法上，仅对当前方法有效。</p>
+<p>(1)方法上服务降级的fallback兜底方法</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">使用HystrixCommon注解，定义</span></span><br><span class="line"><span class="meta">@HystrixCommand(fallbackMethod</span>=<span class="string">&quot;failBack&quot;)用来声明一个降级逻辑的fallback兜底方法</span></span><br></pre></td></tr></table></figure>
+<p>(2)类上默认服务降级的fallback兜底方法</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">刚才把fallback写在了某个业务方法上，如果方法很多，可以将FallBack配置加在类上，实现默认FallBack</span></span><br><span class="line"><span class="meta">@DefaultProperties(defaultFallback</span>=<span class="string">”defaultFailBack“)，在类上，指明统一的失败降级方法；</span></span><br></pre></td></tr></table></figure>
+<p>(3)案例</p>
+<p>a.在<code>user-consumer</code>的<code>com.itheima.controller.UserController</code>类中添加一个全局熔断方法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/****</span></span><br><span class="line"><span class="comment"> * 全局的服务降级处理方法</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">defaultFailBack</span><span class="params">()</span></span>&#123;</span><br><span class="line">    User user = <span class="keyword">new</span> User();</span><br><span class="line">    user.setUsername(<span class="string">&quot;Default-服务降级,默认处理！&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span>  user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>b.在<code>queryById</code>方法上将原来的<code>@HystrixCommand</code>相关去掉，并添加<code>@HystrixCommand</code>注解：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@HystrixCommand</span></span><br><span class="line"><span class="meta">@GetMapping(value = &quot;/&#123;id&#125;&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">queryById</span><span class="params">(<span class="meta">@PathVariable(value = &quot;id&quot;)</span>Integer id)</span></span>&#123;</span><br><span class="line">    <span class="comment">//...略</span></span><br><span class="line">    <span class="keyword">return</span>  user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>c.在<code>user-consumer</code>的<code>com.itheima.controller.UserController</code>类上添加<code>@DefaultProperties(defaultFallback = &quot;defaultFailBack&quot;)</code></p>
+<p>d.测试访问<code>&lt;http://localhost:18082/consumer/1&gt;</code>，效果如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114809.png" alt="1563127220002"></p>
+<p><code>com.itheima.controller.UserController</code>完整代码：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211209114810.png" alt="1563127319873"></p>
+<h3 id="6-3-小结"><a href="#6-3-小结" class="headerlink" title="6.3 小结"></a>6.3 小结</h3><ul>
+<li><p>Hystrix的作用:用于隔离访问远程服务、第三方库、防止出现级联失败也就是雪崩效应。</p>
+</li>
+<li><p>理解雪崩效应:</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.微服务中，一个请求可能需要多个微服务接口才能实现，会形成复杂的调用链路。</span></span><br><span class="line"><span class="attr">2.如果某服务出现异常，请求阻塞，用户得不到响应，容器中线程不会释放，于是越来越多用户请求堆积，越来越多线程阻塞。</span></span><br><span class="line"><span class="attr">3.单服务器支持线程和并发数有限，请求如果一直阻塞，会导致服务器资源耗尽，从而导致所有其他服务都不可用，从而形成雪崩效应；</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>知道熔断器的3个状态以及3个状态的切换过程</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.Closed：关闭状态，所有请求正常访问</span></span><br><span class="line"><span class="attr">2.Open：打开状态，所有请求都会被降级。</span></span><br><span class="line">  <span class="attr">Hystrix会对请求情况计数，当一定时间失败请求百分比达到阈(yu：四声)值(极限值)，则触发熔断，断路器完全关闭</span></span><br><span class="line">  <span class="attr">默认失败比例的阈值是50%，请求次数最低不少于20次</span></span><br><span class="line"><span class="meta">3.Half</span> <span class="string">Open：半开状态</span></span><br><span class="line">  <span class="attr">Open状态不是永久的，打开一会后会进入休眠时间(默认5秒)。休眠时间过后会进入半开状态。</span></span><br><span class="line">  <span class="attr">半开状态：熔断器会判断下一次请求的返回状况，如果成功，熔断器切回closed状态。如果失败，熔断器切回open状态。</span></span><br><span class="line"><span class="attr">threshold</span> <span class="string">reached 到达阈(yu：四声)值</span></span><br><span class="line"><span class="attr">under</span> <span class="string">threshold  阈值以下</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>能理解什么是线程隔离，什么是服务降级</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.线程隔离：是指Hystrix为每个依赖服务调用一个小的线程池，如果线程池用尽，调用立即被拒绝，默认不采用排队。</span></span><br><span class="line"><span class="attr">2.服务降级(兜底方法)：优先保证核心服务，而非核心服务不可用或弱可用。触发Hystrix服务降级的情况：线程池已满、请求超时。</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>能实现一个局部方法熔断案例</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.定义一个局部处理熔断的方法failBack()</span></span><br><span class="line"><span class="meta">2.在指定方法上使用@HystrixCommand(fallbackMethod</span> = <span class="string">&quot;failBack&quot;)配置调用</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>能实现全局方法熔断案例</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">1.定义一个全局处理熔断的方法defaultFailBack()</span></span><br><span class="line"><span class="meta">2.在类上使用@DefaultProperties(defaultFallback</span> = <span class="string">&quot;defaultFailBack&quot;)配置调用</span></span><br><span class="line"><span class="attr">3.在指定方法上使用@HystrixCommand</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://lvxueyang.vip/post/36cabde6.html">http://lvxueyang.vip/post/36cabde6.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/SpringCloud/">SpringCloud</a></div><div class="post_share"><div class="social-share" data-image="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212120.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/3e4f120b.html"><img class="prev-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082110.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">RabbitMQ-day01</div></div></a></div><div class="next-post pull-right"><a href="/post/ff7d07a2.html"><img class="next-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">传值健康day02</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/afc3ec5c.html" title="SpringCloud-day02"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082041.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-08</div><div class="title">SpringCloud-day02</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC1%E5%A4%A9-SpringCloud"><span class="toc-text">第1天 SpringCloud</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87"><span class="toc-text">学习目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%88%9D%E8%AF%86Spring-Cloud"><span class="toc-text">1 初识Spring Cloud</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E7%9B%AE%E6%A0%87"><span class="toc-text">1.1 目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E8%AE%B2%E8%A7%A3"><span class="toc-text">1.2 讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-1-%E6%8A%80%E6%9C%AF%E6%9E%B6%E6%9E%84%E6%BC%94%E5%8F%98"><span class="toc-text">1.2.1 技术架构演变</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-2-SpringCloud%E7%AE%80%E4%BB%8B"><span class="toc-text">1.2.2 SpringCloud简介</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E5%B0%8F%E7%BB%93"><span class="toc-text">1.3 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-text">2 服务调用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%9B%AE%E6%A0%87"><span class="toc-text">2.1 目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E8%AE%B2%E8%A7%A3"><span class="toc-text">2.2 讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-1-RPC%E5%92%8CHTTP"><span class="toc-text">2.2.1 RPC和HTTP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-2-Spring%E7%9A%84RestTemplate"><span class="toc-text">2.2.2 Spring的RestTemplate</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%B0%8F%E7%BB%93"><span class="toc-text">2.3 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%A8%A1%E6%8B%9F%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B8%9A%E5%8A%A1%E5%9C%BA%E6%99%AF"><span class="toc-text">3 模拟微服务业务场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%9B%AE%E6%A0%87"><span class="toc-text">3.1 目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E8%AE%B2%E8%A7%A3"><span class="toc-text">3.2 讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-1-%E5%88%9B%E5%BB%BA%E7%88%B6%E5%B7%A5%E7%A8%8B"><span class="toc-text">3.2.1 创建父工程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-2-%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E6%8F%90%E4%BE%9B%E8%80%85-producer-%E5%B7%A5%E7%A8%8B"><span class="toc-text">3.2.2 创建服务提供者(producer)工程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-3-%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9%E8%80%85-consumer-%E5%B7%A5%E7%A8%8B"><span class="toc-text">3.2.3 创建服务消费者(consumer)工程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-4-%E6%80%9D%E8%80%83%E9%97%AE%E9%A2%98"><span class="toc-text">3.2.4 思考问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%B0%8F%E7%BB%93"><span class="toc-text">3.3 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83-Spring-Cloud-Eureka"><span class="toc-text">4 注册中心 Spring Cloud Eureka</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E7%9B%AE%E6%A0%87"><span class="toc-text">4.1 目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E8%AE%B2%E8%A7%A3"><span class="toc-text">4.2 讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-2-1-Eureka-%E7%AE%80%E4%BB%8B"><span class="toc-text">4.2.1 Eureka 简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-2-2-%E5%8E%9F%E7%90%86%E5%9B%BE"><span class="toc-text">4.2.2 原理图</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-2-3-%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B"><span class="toc-text">4.2.3 入门案例</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-3-1-%E6%90%AD%E5%BB%BAeureka-server%E5%B7%A5%E7%A8%8B"><span class="toc-text">4.2.3.1 搭建eureka-server工程</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-3-2-%E6%9C%8D%E5%8A%A1%E6%8F%90%E4%BE%9B%E8%80%85-%E6%B3%A8%E5%86%8C%E6%9C%8D%E5%8A%A1"><span class="toc-text">4.2.3.2 服务提供者-注册服务</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-3-3-%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9%E8%80%85-%E6%B3%A8%E5%86%8C%E6%9C%8D%E5%8A%A1%E4%B8%AD%E5%BF%83"><span class="toc-text">4.2.3.3 服务消费者-注册服务中心</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-3-4-%E6%B6%88%E8%B4%B9%E8%80%85%E9%80%9A%E8%BF%87Eureka%E8%AE%BF%E9%97%AE%E6%8F%90%E4%BE%9B%E8%80%85"><span class="toc-text">4.2.3.4 消费者通过Eureka访问提供者</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-2-4-Eureka%E8%AF%A6%E8%A7%A3"><span class="toc-text">4.2.4 Eureka详解</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-4-1-%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84"><span class="toc-text">4.2.4.1 基础架构</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-4-2-Eureka%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-text">4.2.4.2 Eureka客户端</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-2-4-3-%E5%A4%B1%E6%95%88%E5%89%94%E9%99%A4%E5%92%8C%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4"><span class="toc-text">4.2.4.3 失效剔除和自我保护</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E5%B0%8F%E7%BB%93"><span class="toc-text">4.3 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-Spring-Cloud-Ribbon"><span class="toc-text">5 负载均衡 Spring Cloud Ribbon</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E7%9B%AE%E6%A0%87"><span class="toc-text">5.1 目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E8%AE%B2%E8%A7%A3"><span class="toc-text">5.2 讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-1-Ribbon-%E7%AE%80%E4%BB%8B"><span class="toc-text">5.2.1 Ribbon 简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-2-%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B"><span class="toc-text">5.2.2 入门案例</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#5-2-2-1-%E5%A4%9A%E4%B8%AA%E6%9C%8D%E5%8A%A1%E9%9B%86%E7%BE%A4"><span class="toc-text">5.2.2.1 多个服务集群</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-2-2-2-%E5%BC%80%E5%90%AF%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-text">5.2.2.2 开启负载均衡</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-2-2-3-%E5%85%B6%E4%BB%96%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AD%96%E7%95%A5%E9%85%8D%E7%BD%AE"><span class="toc-text">5.2.2.3 其他负载均衡策略配置</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-3-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E6%BA%90%E7%A0%81%E8%B7%9F%E8%B8%AA%E6%8E%A2%E7%A9%B6"><span class="toc-text">5.2.3 负载均衡源码跟踪探究</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E5%B0%8F%E7%BB%93"><span class="toc-text">5.3 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%86%94%E6%96%AD%E5%99%A8-Spring-Cloud-Hystrix"><span class="toc-text">6 熔断器 Spring Cloud Hystrix</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E7%9B%AE%E6%A0%87"><span class="toc-text">6.1 目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E8%AE%B2%E8%A7%A3"><span class="toc-text">6.2 讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-1-Hystrix-%E7%AE%80%E4%BB%8B"><span class="toc-text">6.2.1 Hystrix 简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-2-%E9%9B%AA%E5%B4%A9%E6%95%88%E5%BA%94"><span class="toc-text">6.2.2 雪崩效应</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-3-%E7%86%94%E6%96%AD%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90"><span class="toc-text">6.2.3 熔断原理分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-4-%E5%B1%80%E9%83%A8%E7%86%94%E6%96%AD%E6%A1%88%E4%BE%8B"><span class="toc-text">6.2.4 局部熔断案例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-5-%E5%85%B6%E4%BB%96%E7%86%94%E6%96%AD%E7%AD%96%E7%95%A5%E9%85%8D%E7%BD%AE"><span class="toc-text">6.2.5 其他熔断策略配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-5-%E6%89%A9%E5%B1%95-%E6%9C%8D%E5%8A%A1%E9%99%8D%E7%BA%A7%E7%9A%84fallback%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-text">6.2.5 扩展-服务降级的fallback方法：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E5%B0%8F%E7%BB%93"><span class="toc-text">6.3 小结</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><p><a style="margin-inline:5px"target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://img.shields.io/badge/CDN-%E5%8F%88%E6%8B%8D%E4%BA%91-blue" title="又拍云提供CDN加速" alt="又拍云"></a><a style="margin-inline:5px"target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为 Hexo" alt="HEXO"></a><a style="margin-inline:5px"target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用 Butterfly" alt="Butterfly"></a><a style="margin-inline:5px"target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用 Jsdelivr 为静态资源提供CDN加速" alt="Jsdelivr"></a><a style="margin-inline:5px"target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由 GitHub 托管" alt="GitHub"></a><a style="margin-inline:5px"target="_blank"href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" alt="img" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><div class="aplayer no-destroy" data-id="7520334743" data-server="tencent" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-preload="none" data-autoplay="true" muted></div><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script async data-pjax src="/js/randombg.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><div class="aplayer" data-id="2495595989" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-autoplay="true" data-preload="none"></div><link rel="stylesheet" href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css"><script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = [
+  'title',
+  '#config-diff',
+  '#body-wrap',
+  '#rightside-config-hide',
+  '#rightside-config-show',
+  '.js-pjax'
+]
+
+if (false) {
+  pjaxSelectors.unshift('meta[property="og:image"]', 'meta[property="og:title"]', 'meta[property="og:url"]')
+}
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.removeEventListener('scroll', window.tocScrollFn)
+  window.removeEventListener('scroll', scrollCollect)
+
+  typeof preloader === 'object' && preloader.initLoading()
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // Analytics
+  if (false) {
+    MtaH5.pgv()
+  }
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+
+  typeof preloader === 'object' && preloader.endLoading()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>function history_calendar_injector_config(){
+                var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+                var item_html = '<div class="card-widget card-history"><div class="card-content"><div class="item-headline"><i class="fas fa-clock fa-spin"></i><span>那年今日</span></div><div id="history-baidu" style="height: 100px;overflow: hidden"><div class="history_swiper-container" id="history-container" style="width: 100%;height: 100%"><div class="swiper-wrapper" id="history_container_wrapper" style="height:20px"></div></div></div></div>';
+                console.log('已挂载history_calendar')
+                // parent_div_git.innerHTML=item_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",item_html) // 有报错，但不影响使用(支持pjax跳转)
+            }if( document.getElementsByClassName('sticky_layout')[0] && (location.pathname ==='/'|| '/' ==='all')){
+
+            history_calendar_injector_config()
+        } </script><script data-pjax  src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script><script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-card-history/baiduhistory/js/main.js"></script><script data-pjax>
+  function butterfly_clock_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-clock/clock/images/weather/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_injector_config();
+  }
+  </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax src="https://cdn.jsdelivr.net/npm/hexo-butterfly-clock/lib/clock.min.js"></script><!-- hexo injector body_end end --></body></html>
