@@ -1,0 +1,860 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HDFS集群管理与运维 | 牧马人的忧伤</title><meta name="keywords" content="HDFS,Hadoop,大数据"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="HDFS集群管理与运维HDFS数据迁移解决方案数据迁移指的是一种大规模量级的数据转移，转移的过程中往往会跨机房、跨集群 ，数据迁移规模的不同会导致整个数据迁移的周期也不尽相同 。  在HDFS中，同样有许多需要数据迁移的场景，比如冷热数据集群之间的数据转化， 或者HDFS数据的双机房备份等等 。因为涉及跨机房 、跨集群，所以数据迁移不会是一个简单的操作。 数据迁移使用场景 冷热集群数据同步、分类存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HDFS集群管理与运维">
+<meta property="og:url" content="http://www.lvxueyang.vip/post/f9e87748.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="HDFS集群管理与运维HDFS数据迁移解决方案数据迁移指的是一种大规模量级的数据转移，转移的过程中往往会跨机房、跨集群 ，数据迁移规模的不同会导致整个数据迁移的周期也不尽相同 。  在HDFS中，同样有许多需要数据迁移的场景，比如冷热数据集群之间的数据转化， 或者HDFS数据的双机房备份等等 。因为涉及跨机房 、跨集群，所以数据迁移不会是一个简单的操作。 数据迁移使用场景 冷热集群数据同步、分类存">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg">
+<meta property="article:published_time" content="2021-11-09T14:49:00.000Z">
+<meta property="article:modified_time" content="2021-11-17T06:36:48.336Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="HDFS">
+<meta property="article:tag" content="Hadoop">
+<meta property="article:tag" content="大数据">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/f9e87748"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'HDFS集群管理与运维',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-11-17 14:36:48'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">HDFS集群管理与运维</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-11-09T14:49:00.000Z" title="发表于 2021-11-09 22:49:00">2021-11-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-11-17T06:36:48.336Z" title="更新于 2021-11-17 14:36:48">2021-11-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/">Hadoop3.0从入门到源码</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/HDFS/">HDFS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">14.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>49分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="HDFS集群管理与运维"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="HDFS集群管理与运维"><a href="#HDFS集群管理与运维" class="headerlink" title="HDFS集群管理与运维"></a>HDFS集群管理与运维</h1><h1 id="HDFS数据迁移解决方案"><a href="#HDFS数据迁移解决方案" class="headerlink" title="HDFS数据迁移解决方案"></a>HDFS数据迁移解决方案</h1><p>数据迁移指的是一种大规模量级的数据转移，转移的过程中往往会跨机房、跨集群 ，数据迁移规模的不同会导致整个数据迁移的周期也不尽相同 。 </p>
+<p>在HDFS中，同样有许多需要数据迁移的场景，比如冷热数据集群之间的数据转化， 或者HDFS数据的双机房备份等等 。因为涉及跨机房 、跨集群，所以数据迁移不会是一个简单的操作。</p>
+<h2 id="数据迁移使用场景"><a href="#数据迁移使用场景" class="headerlink" title="数据迁移使用场景"></a>数据迁移使用场景</h2><ul>
+<li><strong>冷热集群数据同步、分类存储</strong></li>
+<li><strong>集群数据整体搬迁</strong></li>
+</ul>
+<p>当公司的业务迅速的发展,导致当前的服务器数量资源出现临时紧张的时候,为了更高效的利用资源,会将原A机房数据整体迁移到B机房的,原因可能是B机房机器多,而且B机房本身开销较A机房成本低些等；</p>
+<ul>
+<li><strong>数据的准实时同步</strong></li>
+</ul>
+<p>数据准实时同步的目的在于数据的双备份可用,比如某天A集群突然宣告不允许再使用了,此时可以将线上使用集群直接切向B的同步集群,因为B集群实时同步A集群数据,拥有完全一致的真实数据和元数据信息,所以对于业务方使用而言是不会受到任何影响的。</p>
+<h2 id="数据迁移要素考量"><a href="#数据迁移要素考量" class="headerlink" title="数据迁移要素考量"></a>数据迁移要素考量</h2><ul>
+<li><strong>Bandwidth-带宽</strong></li>
+</ul>
+<p>带宽用的多了,会影响到线上业务的任务运行,带宽用的少了又会导致数据同步过慢的问题。</p>
+<ul>
+<li><strong>Performance-性能</strong></li>
+</ul>
+<p>是采用简单的单机程序?还是多线程的性能更佳的分布式程序?</p>
+<ul>
+<li><strong>Data-Increment-增量同步</strong></li>
+</ul>
+<p>当TB,PB级别的数据需要同步的时候,如果每次以全量的方式去同步数据,结果一定是非常糟糕。如果仅针对变化的增量数据进行同步将会是不错的选择。可以配合HDFS快照等技术实现增量数据同步。</p>
+<ul>
+<li> <strong>Syncable-数据迁移的同步性</strong></li>
+</ul>
+<p>数据迁移的过程中需要保证周期内数据是一定能够同步完的,不能差距太大.比如A集群7天内的增量数据,我只要花半天就可以完全同步到B集群,然后我又可以等到下周再次进行同步.最可怕的事情在于A集群的7天内的数据,我的程序花了7天还同步不完,然后下一个周期又来了,这样就无法做到准实时的一致性.其实7天还是一个比较大的时间,最好是能达到按天同步.</p>
+<h2 id="HDFS分布式拷贝工具：DistCp"><a href="#HDFS分布式拷贝工具：DistCp" class="headerlink" title="HDFS分布式拷贝工具：DistCp"></a>HDFS分布式拷贝工具：DistCp</h2><h3 id="DistCp介绍"><a href="#DistCp介绍" class="headerlink" title="DistCp介绍"></a>DistCp介绍</h3><p>DistCp是Apache Hadoop中的一种流行工具，在hadoop-tools工程下，作为独立子工程存在。其定位就是用于数据迁移的，定期在集群之间和集群内部备份数据。（在备份过程中，每次运行DistCp都称为一个备份周期。）尽管性能相对较慢，但它的普及程度已经越来越高。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109213618.png" alt="image-20211109213611347"></p>
+<p>DistCp底层使用MapReduce在群集之间或并行在同一群集内复制文件。执行复制的MapReduce只有mapper阶段。它涉及两个步骤：</p>
+<ul>
+<li>构建要复制的文件列表（称为复制列表）</li>
+<li>运行MapReduce作业以复制文件，并以复制列表为输入。</li>
+</ul>
+<h3 id="DistCp优势特性"><a href="#DistCp优势特性" class="headerlink" title="DistCp优势特性"></a>DistCp优势特性</h3><ul>
+<li>带宽限流</li>
+</ul>
+<p>DistCp可以通过命令参数 bandwidth 来为程序进行带宽限流。</p>
+<ul>
+<li>增量数据同步</li>
+</ul>
+<p>在DistCp中可以通过<strong>update</strong> 、<strong>append</strong> 和<strong>diff</strong> 这3个参数实现增量同步。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Append</td>
+<td>追加写目标路径下己存在的文件。</td>
+</tr>
+<tr>
+<td>Diff</td>
+<td>通过快照的diff对比信息来同步源端路径与目标路径。</td>
+</tr>
+<tr>
+<td>Update</td>
+<td>只拷贝不存在的文件或者目录 。</td>
+</tr>
+</tbody></table>
+<p>Update解决了新增文件、目录的同步。Append解决己存在文件的增量更新同步。 Diff解决删除或重命名类型文件的同步。</p>
+<ul>
+<li>高效的性能：分布式特性</li>
+</ul>
+<p>DistCp底层使用MapReduce执行数据同步，MapReduce本身是一类分布式程序。</p>
+<h3 id="DistCp命令"><a href="#DistCp命令" class="headerlink" title="DistCp命令"></a>DistCp命令</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109213933.png" alt="image-20211109213933022"></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ hadoop distcp</span><br><span class="line">usage: distcp OPTIONS [source_path...] &lt;target_path&gt;</span><br><span class="line">             </span><br><span class="line"> -append                   //拷贝文件时支持对现有文件进行追加写操作</span><br><span class="line"> -async                	//异步执行distcp拷贝任务</span><br><span class="line"> -bandwidth &lt;arg&gt;      	//对每个Map任务的带宽限速</span><br><span class="line"> -delete               	//删除相对于源端,目标端多出来的文件</span><br><span class="line"> -diff &lt;arg&gt;           	//通过快照diff信息进行数据的同步                  </span><br><span class="line"> -overwrite            	//以覆盖的方式进行拷贝，如果目标端文件已经存在，则直接覆盖</span><br><span class="line"> -p &lt;arg&gt;              	//拷贝数据时,扩展属性信息的保留，包括权限信息、块大小信息等等</span><br><span class="line"> -skipcrccheck             //拷贝数据时是否跳过cheacksum的校验</span><br><span class="line"> -update               	//拷贝数据时,只拷贝相对于源端 ，目标端不存在的文件数据</span><br></pre></td></tr></table></figure>
+
+<p>其中 <strong>source_path 、target_path 需要带上地址前缀以区分不同的集群</strong>：</p>
+<p>例如 ：hadoop distcp hdfs://nnl:8020/foo/a  hdfs://nn2:8020/bar/foo</p>
+<p>上面的命令表示从nnl集群拷贝／foo/a 路径下的数据到nn2集群的／bar/foo 路径下。</p>
+<h1 id="HDFS-NAMENODE-安全模式"><a href="#HDFS-NAMENODE-安全模式" class="headerlink" title="HDFS NAMENODE 安全模式"></a>HDFS NAMENODE 安全模式</h1><h2 id="场景：安全模式探究"><a href="#场景：安全模式探究" class="headerlink" title="场景：安全模式探究"></a>场景：安全模式探究</h2><p>HDFS集群在停机状态下，使用<strong>hdfs –daemon</strong>命令逐个进程启动集群，观察现象。</p>
+<p>首先启动namenode: hdfs –daemon start namenode。然后依次执行浏览文件系统和创建文件夹操作，现象如下，发现集群可以查看目录结构但是无法新增目录。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214053.png" alt="image-20211109214053433"></p>
+<p>打开HDFS集群web页面可以发现如下提示</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214133.png" alt="image-20211109214133718"></p>
+<p>提示说：已经汇报的数据块的比例没有达到阈值。阈值为总数量块的0.999。</p>
+<p>接下来，启动第一台机器上的Datanode进程：hdfs –daemon start datanode。继续查看页面提示信息。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214148.png" alt="image-20211109214147947"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214151.png" alt="image-20211109214151725"></p>
+<p>此时执行创建文件夹操作，发现可以创建成功了。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214200.png" alt="image-20211109214200355"></p>
+<p>  可以发现在安全模式下，我们可以浏览文件系统目录层次结构，但是却无法创建文件夹，安全模式下的文件系统似乎处于一种可读不可下的特殊状态。</p>
+<h2 id="安全模式概述"><a href="#安全模式概述" class="headerlink" title="安全模式概述"></a>安全模式概述</h2><p>Hadoop中的<strong>安全模式safe mode是NameNode的维护状态</strong>，在此状态下NameNode不允许对文件系统进行任何更改，可以接受读数据请求。</p>
+<p>在NameNode启动过程中，首先会从fsimage和edits日志文件加载文件系统状态。然后，等待DataNodes汇报可用的block信息。在此期间，NameNode保持在安全模式。随着DataNode的block汇报持续进行，当整个系统达到安全标准时，HDFS自动离开安全模式。在NameNode Web主页上会显示安全模式是打开还是关闭。</p>
+<p>如果HDFS处于安全模式下，不允许HDFS客户端进行任何修改文件的操作,包括上传文件，删除文件，重命名，创建文件夹,修改副本数等操作。</p>
+<h2 id="安全模式自动进入离开"><a href="#安全模式自动进入离开" class="headerlink" title="安全模式自动进入离开"></a>安全模式自动进入离开</h2><h3 id="自动进入时间"><a href="#自动进入时间" class="headerlink" title="自动进入时间"></a>自动进入时间</h3><p>HDFS集群启动时，当NameNode启动成功之后，此时集群就会自动进入安全模式。</p>
+<h3 id="自动离开条件"><a href="#自动离开条件" class="headerlink" title="自动离开条件"></a>自动离开条件</h3><p>安全模式相关的配置属性参数都在<strong>hdfs-default.xml</strong>中定义，如果需要覆盖任何值，请在hdfs-site.xml文件中重新覆盖定义。</p>
+<ul>
+<li><p>dfs.replication  </p>
+<p>  hdfs block的副本数据，默认3</p>
+</li>
+<li><p>dfs.replication.max </p>
+<p>  最大块副本数，默认512</p>
+</li>
+<li><p>dfs.namenode.replication.min</p>
+<p>  最小块副本数，默认1</p>
+</li>
+<li><p>dfs.namenode.safemode.threshold-pct</p>
+<p>  已汇报可用数据块数量占整体块数量的百分比阈值。默认<strong>0.999f。</strong></p>
+<p>  小于或等于0，则表示退出安全模式之前，不要等待特定百分比的块。大于1的值将使安全模式永久生效。</p>
+</li>
+<li><p>dfs.namenode.safemode.min.datanodes</p>
+<p>  指在退出安全模式之前必须存活的DataNode数量，默认0</p>
+</li>
+<li><p><strong>dfs.namenode.safemode.extension</strong> </p>
+<p>  达到阈值条件后持续扩展的时间。倒计时结束如果依然满足阈值条件，自动离开安全模式。默认<strong>30000毫秒</strong></p>
+</li>
+</ul>
+<h2 id="安全模式手动进入离开"><a href="#安全模式手动进入离开" class="headerlink" title="安全模式手动进入离开"></a>安全模式手动进入离开</h2><h3 id="手动获取安全模式状态信息"><a href="#手动获取安全模式状态信息" class="headerlink" title="手动获取安全模式状态信息"></a>手动获取安全模式状态信息</h3><p><code>hdfs dfsadmin -safemode get</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214746.png" alt="image-20211109214746625"></p>
+<h3 id="手动进入命令"><a href="#手动进入命令" class="headerlink" title="手动进入命令"></a>手动进入命令</h3><p><code>hdfs dfsadmin -safemode enter</code></p>
+<p><strong>手动进入安全模式对于集群维护或者升级的时候非常有用</strong>，因为这时候HDFS上的数据是只读的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214814.png" alt="image-20211109214814371"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214818.png" alt="image-20211109214818844"></p>
+<h3 id="手动离开命令"><a href="#手动离开命令" class="headerlink" title="手动离开命令"></a>手动离开命令</h3><p><code>hdfs dfsadmin -safemode leave</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214838.png" alt="image-20211109214838590"></p>
+<h1 id="HDFS优化方案"><a href="#HDFS优化方案" class="headerlink" title="HDFS优化方案"></a>HDFS优化方案</h1><h2 id="短路本地读取：Short-Circuit-Local-Reads"><a href="#短路本地读取：Short-Circuit-Local-Reads" class="headerlink" title="短路本地读取：Short Circuit Local Reads"></a>短路本地读取：Short Circuit Local Reads</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在HDFS中，不管是Local Reads（DFSClient和Datanode在同一个节点）还是Remote Reads（DFSClient和Datanode不在同一个节点），底层处理方式都是一样的，都是先由Datanode读取数据，然后再通过RPC（基于TCP）把数据传给DFSClient。这样处理是比较简单的，但是性能会受到一些影响，因为需要Datanode在中间做一次中转。</p>
+<p>尤其Local Reads的时候，既然DFSClient和数据是在一个机器上面，那么很自然的想法，就是让DFSClient绕开Datanode自己去读取数据。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109214929.png" alt="image-20211109214929626"></p>
+<p>所谓的“短路”读取绕过了**<code>DataNode</code><strong>，从而允许客户端直接读取文件</strong>。显然，这仅在客户端与数据位于同一机器的情况下才可行。短路读取为许多应用提供了显着的性能提升。</p>
+<h3 id="短路本地读取"><a href="#短路本地读取" class="headerlink" title="短路本地读取"></a>短路本地读取</h3><p>在<strong>HDFS-2246</strong>这个JIRA中，工程师们的想法是既然读取数据DFSClient和数据在同一台机器上，那么Datanode就把数据在文件系统中的路径，从什么地方开始读(offset)和需要读取多少(length)等信息告诉DFSClient，然后DFSClient去打开文件自己读取。想法很好，问题在于配置复杂以及安全问题。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109215015.png" alt="image-20211109215014978"></p>
+<p>首先是配置问题，因为是<strong>让DFSClient自己打开文件读取数据</strong>，那么就需要配置一个白名单，定义哪些用户拥有访问Datanode的数据目录权限。如果有新用户加入，那么就得修改白名单。需要注意的是，这里是允许客户端访问Datanode的数据目录，也就意味着，任何用户拥有了这个权限，就可以访问目录下其他数据，从而导致了安全漏洞。因此，<strong>这个实现已经不建议使用了</strong>。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109215025.png" alt="image-20211109215025212"></p>
+<h3 id="短路本地读取安全性改进"><a href="#短路本地读取安全性改进" class="headerlink" title="短路本地读取安全性改进"></a>短路本地读取安全性改进</h3><p>在<strong>HDFS-347</strong>中，提出了一种新的解决方案，让短路本地读取数据更加安全。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109215043.png" alt="image-20211109215043445"></p>
+<p>在Linux中，有个技术叫做<strong>Unix Domain Socket</strong>。Unix Domain Socket是一种进程间的通讯方式，它使得同一个机器上的两个进程能以Socket的方式通讯。它带来的另一大好处是，利用它两个进程除了可以传递普通数据外，还可以在进程间传递文件描述符。</p>
+<p>假设机器上的两个用户A和B，A拥有访问某个文件的权限而B没有，而B又需要访问这个文件。借助Unix Domain Socket，可以让A打开文件得到一个文件描述符，然后把文件描述符传递给B，B就能读取文件里面的内容了即使它没有相应的权限。在HDFS的场景里面，A就是Datanode，B就是DFSClient，需要读取的文件就是Datanode数据目录中的某个文件。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109215053.png" alt="image-20211109215052930"></p>
+<p>这个方案在安全上就比上一个方案上好一些，至少它只允许DFSClient读取它需要的文件。</p>
+<h3 id="短路本地读取配置"><a href="#短路本地读取配置" class="headerlink" title="短路本地读取配置"></a>短路本地读取配置</h3><h4 id="libhadoop-so"><a href="#libhadoop-so" class="headerlink" title="libhadoop.so"></a>libhadoop.so</h4><p>因为Java不能直接操作Unix Domain Socket，所以<strong>需要安装Hadoop的native包libhadoop.so</strong>。在编译Hadoop源码的时候可以通过编译native模块获取。可以用如下命令来检查native包是否安装好。</p>
+<p><code>hadoop checknative</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109215151.png" alt="image-20211109215151100"></p>
+<h4 id="hdfs-site-xml"><a href="#hdfs-site-xml" class="headerlink" title="hdfs-site.xml"></a>hdfs-site.xml</h4><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.client.read.shortcircuit<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.domain.socket.path<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>/var/lib/hadoop-hdfs/dn_socket<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<p><code>dfs.client.read.shortcircuit</code>是打开短路本地读取功能的开关，<code>dfs.domain.socket.path</code>是Datanode和DFSClient之间沟通的Socket的本地路径。</p>
+<h2 id="HDFS-Block负载平衡器：Balancer"><a href="#HDFS-Block负载平衡器：Balancer" class="headerlink" title="HDFS Block负载平衡器：Balancer"></a>HDFS Block负载平衡器：Balancer</h2><h3 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h3><p>HDFS数据可能并不总是在DataNode之间均匀分布。一个常见的原因是向现有群集中添加了新的DataNode。HDFS提供了一个Balancer程序，分析block放置信息并且在整个DataNode节点之间平衡数据，直到被视为平衡为止。</p>
+<p>所谓的<strong>平衡指的是每个DataNode的利用率（节点上已用空间与节点总容量之比）与集群的利用率（集群上已用空间与集群总容量的比）相差不超过给定阈值百分比</strong>。 平衡器无法在单个DataNode上的各个卷之间进行平衡。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109215251.png" alt="image-20211109215251680"></p>
+<h3 id="命令行配置和运行"><a href="#命令行配置和运行" class="headerlink" title="命令行配置和运行"></a>命令行配置和运行</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109215304.png" alt="image-20211109215304447"></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">-threshold  10                 	//集群平衡的条件，datanode间磁盘使用率相差阈值，区间选择：0~100</span><br><span class="line">-policy datanode               	//平衡策略，默认为datanode， 如果datanode平衡，则集群已平衡。</span><br><span class="line">-exclude  -f  /tmp/ip1.txt     //默认为空，指定该部分ip不参与balance， -f：指定输入为文件</span><br><span class="line">-include  -f  /tmp/ip2.txt     //默认为空，只允许该部分ip参与balance，-f：指定输入为文件</span><br><span class="line">-idleiterations  5             	//迭代 5</span><br></pre></td></tr></table></figure>
+
+<h4 id="设置平衡数据传输带宽"><a href="#设置平衡数据传输带宽" class="headerlink" title="设置平衡数据传输带宽"></a>设置平衡数据传输带宽</h4><p>命令：**<code>hdfs dfsadmin -setBalancerBandwidth  newbandwidth</code>**</p>
+<p>其中newbandwidth是每个DataNode在平衡操作期间可以使用的最大网络带宽量，以每秒字节数为单位。</p>
+<p>比如：<code>hdfs dfsadmin -setBalancerBandwidth 104857600 </code></p>
+<h4 id="默认运行balancer"><a href="#默认运行balancer" class="headerlink" title="默认运行balancer"></a>默认运行balancer</h4><p>命令：**<code>hdfs balancer</code>**</p>
+<p>此时将会以默认参数进行数据块的平衡操作。</p>
+<h4 id="修改阈值运行balancer"><a href="#修改阈值运行balancer" class="headerlink" title="修改阈值运行balancer"></a>修改阈值运行balancer</h4><p>命令：**<code>hdfs balancer -threshold 5</code>**</p>
+<p>Balancer将以阈值5％运行（默认值10%），这意味着程序将确保每个DataNode上的磁盘使用量与群集中的总体使用量相差不超过5％。例如，如果集群中所有DataNode的总体使用率是集群磁盘总存储容量的40％，则程序将确保每个DataNode的磁盘使用率在该DataNode磁盘存储容量的35％至45％之间。</p>
+<h2 id="磁盘均衡器：HDFS-Disk-Balancer"><a href="#磁盘均衡器：HDFS-Disk-Balancer" class="headerlink" title="磁盘均衡器：HDFS Disk Balancer"></a>磁盘均衡器：HDFS Disk Balancer</h2><h3 id="背景-2"><a href="#背景-2" class="headerlink" title="背景"></a>背景</h3><p>相比较于个人PC，服务器一般可以通过挂载多块磁盘来扩大单机的存储能力。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109215602.png" alt="image-20211109215602331"></p>
+<p>在Hadoop HDFS中，DataNode负责最终数据block的存储，在所在机器上的磁盘之间分配数据块。当写入新block时，DataNodes将根据选择策略（<strong>循环策略</strong>或<strong>可用空间策略</strong>）来选择block的磁盘（卷）。</p>
+<p><strong>循环策略</strong>：它将新block均匀分布在可用磁盘上。默认此策略。</p>
+<p><strong>可用空间策略</strong>：此策略将数据写入具有更多可用空间（按百分比）的磁盘。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109215617.png" alt="image-20211109215617173"></p>
+<p>但是，在长期运行的群集中采用循环策略时，DataNode有时会不均匀地填充其存储目录（磁盘/卷），从而导致某些磁盘已满而其他磁盘却很少使用的情况。发生这种情况的原因可能是由于大量的写入和删除操作，也可能是由于更换了磁盘。</p>
+<p>另外，如果我们使用基于可用空间的选择策略，则每个新写入将进入新添加的空磁盘，从而使该期间的其他磁盘处于空闲状态。这将在新磁盘上创建瓶颈。</p>
+<p>因此，需要一种Intra DataNode Balancing（DataNode内数据块的均匀分布）来解决Intra-DataNode偏斜（磁盘上块的不均匀分布），这种偏斜是由于磁盘更换或随机写入和删除而发生的。</p>
+<p>因此，Hadoop 3.0中引入了一个名为Disk Balancer的工具，该工具专注于在DataNode内分发数据。</p>
+<h3 id="HDFS-Disk-Balancer简介"><a href="#HDFS-Disk-Balancer简介" class="headerlink" title="HDFS Disk Balancer简介"></a>HDFS Disk Balancer简介</h3><p><strong>HDFS disk balancer</strong>是Hadoop 3中引入的命令行工具，用于平衡DataNode中的数据在磁盘之间分布不均匀问题。 这里要特别注意，HDFS disk balancer与HDFS Balancer是不同的： </p>
+<p>HDFS disk balancer针对给定的DataNode进行操作，并将块从一个磁盘移动到另一个磁盘,是DataNode内部数据在不同磁盘间平衡；</p>
+<p>HDFS Balancer平衡了DataNode节点之间的分布。</p>
+<h3 id="HDFS-Disk-Balancer功能"><a href="#HDFS-Disk-Balancer功能" class="headerlink" title="HDFS Disk Balancer功能"></a>HDFS Disk Balancer功能</h3><p>HDFS Disk balancer支持两个主要功能，即<strong>报告</strong>和<strong>平衡</strong>。</p>
+<h4 id="数据传播报告"><a href="#数据传播报告" class="headerlink" title="数据传播报告"></a>数据传播报告</h4><p>为了定义一种方法来衡量集群中哪些计算机遭受数据分布不均的影响，HDFS磁盘平衡器定义了HDFS <strong>Volume Data Density metric</strong>（卷/磁盘数据密度度量标准）和<strong>Node Data Density metric</strong>（节点数据密度度量标准）。</p>
+<p>HDFS卷数据密度度量标准能够比较数据在给定节点的不同卷上的分布情况。</p>
+<p>节点数据密度度量允许在节点之间进行比较。</p>
+<ul>
+<li><strong>Volume data density metric计算过程</strong></li>
+</ul>
+<p>假设有一台具有四个卷/磁盘的计算机-Disk1，Disk2，Disk3，Disk4，各个磁盘使用情况：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Disk1</strong></th>
+<th><strong>Disk2</strong></th>
+<th><strong>Disk3</strong></th>
+<th><strong>Disk4</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>capacity</strong></td>
+<td>200 GB</td>
+<td>300 GB</td>
+<td>350 GB</td>
+<td>500 GB</td>
+</tr>
+<tr>
+<td><strong>dfsUsed</strong></td>
+<td>100 GB</td>
+<td>76 GB</td>
+<td>300 GB</td>
+<td>475 GB</td>
+</tr>
+<tr>
+<td><strong>dfsUsedRatio</strong></td>
+<td>0.5</td>
+<td>0.25</td>
+<td>0.85</td>
+<td>0.95</td>
+</tr>
+<tr>
+<td><strong>volumeDataDensity</strong></td>
+<td>0.20</td>
+<td>0.45</td>
+<td>-0.15</td>
+<td>-0.24</td>
+</tr>
+</tbody></table>
+<p><strong>Total capacity</strong>= 200 + 300 + 350 + 500 = 1350 GB</p>
+<p><strong>Total Used</strong>= 100 + 76 + 300 + 475 = 951 GB</p>
+<p>因此，每个卷/磁盘上的理想存储为：</p>
+<p><strong>Ideal storage</strong> = total Used ÷ total capacity= 951÷1350 = 0.70 </p>
+<p>也就是每个磁盘应该保持在 70%理想存储容量。</p>
+<p><strong>VolumeDataDensity</strong> = idealStorage – dfs Used Ratio</p>
+<p>比如Disk1的卷数据密度= 0.70-0.50 = 0.20。其他Disk以此类推。</p>
+<p><strong>volumeDataDensity的正值表示磁盘未充分利用，而负值表示磁盘相对于当前理想存储目标的利用率过高。</strong></p>
+<ul>
+<li> <strong>Node Data Density计算过程</strong></li>
+</ul>
+<p>Node Data Density（节点数据密度）= 该节点上所有卷/磁盘volume data density绝对值的总和。</p>
+<p>上述例子中的节点数据密度=|0.20|+|0.45|+|-0.15|+|-0.24| =1.04</p>
+<p>较低的node Data Density值表示该机器节点具有较好的扩展性，而较高的值表示节点具有更倾斜的数据分布。</p>
+<p>一旦有了volumeDataDensity和nodeDataDensity，就可以找到集群中数据分布倾斜的节点，或者可以获取给定节点的volumeDataDensity。</p>
+<h4 id="磁盘平衡"><a href="#磁盘平衡" class="headerlink" title="磁盘平衡"></a>磁盘平衡</h4><p>当指定某个DataNode节点进行disk数据平衡，就可以先计算或读取当前的volumeDataDensity（磁盘数据密度）。有了这些信息，我们可以轻松地确定哪些卷已超量配置，哪些卷已不足。为了将数据从一个卷移动到DataNode中的另一个卷，Hadoop开发实现了基于RPC协议的Disk Balancer。</p>
+<h3 id="HDFS-Disk-Balancer开启"><a href="#HDFS-Disk-Balancer开启" class="headerlink" title="HDFS Disk Balancer开启"></a>HDFS Disk Balancer开启</h3><p>HDFS Disk Balancer通过创建计划进行操作，该计划是一组语句，描述应在两个磁盘之间移动多少数据，然后在DataNode上执行该组语句。计划包含多个移动步骤。计划中的每个移动步骤都具有目标磁盘，源磁盘的地址。移动步骤还具有要移动的字节数。该计划是针对可操作的DataNode执行的。</p>
+<p><strong>默认情况下，Hadoop群集上已经启用了Disk Balancer功能</strong>。通过在hdfs-site.xml中调整<strong>dfs.disk.balancer.enabled</strong>参数值，选择在Hadoop中是否启用磁盘平衡器。</p>
+<h3 id="HDFS-Disk-Balancer相关命令"><a href="#HDFS-Disk-Balancer相关命令" class="headerlink" title="HDFS Disk Balancer相关命令"></a>HDFS Disk Balancer相关命令</h3><h4 id="Plan计划"><a href="#Plan计划" class="headerlink" title="Plan计划"></a>Plan计划</h4><p>命令：<code>hdfs diskbalancer -plan &lt;datanode&gt;</code></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">-out	//控制计划文件的输出位置</span><br><span class="line">-bandwidth	//设置用于运行Disk Balancer的最大带宽。默认带宽10 MB/s。</span><br><span class="line">–thresholdPercentage  //定义磁盘开始参与数据重新分配或平衡操作的值。默认的thresholdPercentage值为10％，这意味着仅当磁盘包含的数据比理想存储值多10％或更少时，磁盘才用于平衡操作。</span><br><span class="line">-maxerror	//它允许用户在中止移动步骤之前为两个磁盘之间的移动操作指定要忽略的错误数。</span><br><span class="line">-v	//详细模式，指定此选项将强制plan命令在stdout上显示计划的摘要。</span><br><span class="line">-fs	//此选项指定要使用的NameNode。如果未指定，则Disk Balancer将使用配置中的默认NameNode。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109220052.png" alt="image-20211109220052702"></p>
+<h4 id="Execute执行"><a href="#Execute执行" class="headerlink" title="Execute执行"></a>Execute执行</h4><p>命令：<code>hdfs diskbalancer -execute &lt;JSON file path&gt;</code></p>
+<p>execute命令针对为其生成计划的DataNode执行计划。</p>
+<h4 id="Query查询"><a href="#Query查询" class="headerlink" title="Query查询"></a>Query查询</h4><p>命令：<code>hdfs diskbalancer -query &lt;datanode&gt;</code></p>
+<p>query命令从运行计划的DataNode获取HDFS磁盘平衡器的当前状态。</p>
+<h4 id="Cancel取消"><a href="#Cancel取消" class="headerlink" title="Cancel取消"></a>Cancel取消</h4><p>命令：<code>hdfs diskbalancer -cancel &lt;JSON file path&gt;</code></p>
+<p><code>hdfs diskbalancer -cancel planID node &lt;nodename&gt;</code></p>
+<p>cancel命令取消运行计划。</p>
+<h4 id="Report汇报"><a href="#Report汇报" class="headerlink" title="Report汇报"></a>Report汇报</h4><p>命令：<code>hdfs diskbalancer -fs https://namenode.uri -report &lt;file://</code>&gt;</p>
+<h2 id="纠删码技术：Erasure-Coding"><a href="#纠删码技术：Erasure-Coding" class="headerlink" title="纠删码技术：Erasure Coding"></a>纠删码技术：Erasure Coding</h2><h3 id="背景：3副本策略弊端"><a href="#背景：3副本策略弊端" class="headerlink" title="背景：3副本策略弊端"></a>背景：3副本策略弊端</h3><p>为了提供容错能力，HDFS会根据replication factor（复制因子）在不同的DataNode上复制文件块。<strong>默认复制因子为3</strong>（注意这里的3指的是1+2=3，不是额外3个），则原始块除外，还将有额外两个副本。每个副本使用100％的存储开销，因此导致200％的存储开销。这些副本也消耗其他资源，例如网络带宽。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109220239.png" alt="image-20211109220239772"></p>
+<p>在<strong>复制因子为N时，存在N-1个容错能力，但存储效率仅为1/N</strong>。</p>
+<p>这种复制增加了存储开销，并且似乎很昂贵。因此，HDFS使用<strong>Erasure Coding（纠删码）</strong>代替复制，以提供相同级别的容错能力，并且存储开销不超过50％。</p>
+<p>Erasure Coding文件的复制因子始终为1，用户无法对其进行更改。</p>
+<h3 id="Erasure-Coding（EC）简介"><a href="#Erasure-Coding（EC）简介" class="headerlink" title="Erasure Coding（EC）简介"></a>Erasure Coding（EC）简介</h3><p><strong>纠删码技术（Erasure coding）</strong>简称EC，是一种编码容错技术。最早用于通信行业，数据传输中的数据恢复。它通过对数据进行分块，然后计算出校验数据，使得各个部分的数据产生关联性。当一部分数据块丢失时，可以通过剩余的数据块和校验块计算出丢失的数据块。</p>
+<p>Hadoop 3.0 之后引入了纠删码技术（Erasure Coding），它可以提高50%以上的存储利用率，并且保证数据的可靠性。</p>
+<p>存储系统RAID使用纠删码。RAID通过<strong>striping（条带化）</strong>实现纠删码，也就是说，将逻辑上连续的数据（例如文件）划分为较小的单位（bit, byte, or block），并将连续的单位存储在不同的磁盘上。</p>
+<p>对于原始数据集的每个条带，都会根据纠删码算法来计算并存储一定数量的奇偶校验单元，该过程称为<strong>编码</strong>。</p>
+<p>任何条带化单元中的错误都可以根据剩余数据和奇偶校验单元从计算中恢复，此过程称为<strong>解码</strong>。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109220304.png" alt="image-20211109220303988"></p>
+<h3 id="Reed-Solomon（RS）码"><a href="#Reed-Solomon（RS）码" class="headerlink" title="Reed-Solomon（RS）码"></a>Reed-Solomon（RS）码</h3><h4 id="RS码介绍"><a href="#RS码介绍" class="headerlink" title="RS码介绍"></a>RS码介绍</h4><p><strong>Reed-Solomon（RS）码</strong>是存储系统较为常用的一种纠删码，它有两个参数k和m，记为RS(k，m)。如下图所示，k个数据块组成一个向量被乘上一个生成矩阵（Generator Matrix）GT从而得到一个码字（codeword）向量，该向量由k个数据块和m个校验块构成。如果一个数据块丢失，可以用(GT)-1乘以码字向量来恢复出丢失的数据块。RS(k，m)最多可容忍m个块（包括数据块和校验块）丢失。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109220344.png" alt="image-20211109220344305"></p>
+<h4 id="RS码通俗解释"><a href="#RS码通俗解释" class="headerlink" title="RS码通俗解释"></a>RS码通俗解释</h4><p>比如有 7、8、9 三个原始数据，通过矩阵乘法，计算出来两个校验数据 50、122。这时原始数据加上校验数据，一共五个数据：7、8、9、50、122，可以任意丢两个，然后通过算法进行恢复。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109220408.png" alt="image-20211109220408326"></p>
+<h3 id="Hadoop-EC架构"><a href="#Hadoop-EC架构" class="headerlink" title="Hadoop EC架构"></a>Hadoop EC架构</h3><p>为了支持纠删码，HDFS体系结构进行了一些更改调整。</p>
+<ul>
+<li>Namenode扩展</li>
+</ul>
+<p>条带化的HDFS文件在<strong>逻辑</strong>上由<strong>block group（块组）</strong>组成，每个块组包含一定数量的内部块。这允许在块组级别而不是块级别进行文件管理。</p>
+<ul>
+<li>客户端扩展</li>
+</ul>
+<p>客户端的读写路径得到了增强，可以<strong>并行处理</strong>块组中的多个内部块。</p>
+<ul>
+<li>Datanode扩展</li>
+</ul>
+<p>DataNode运行一个附加的ErasureCodingWorker（<strong>ECWorker</strong>）任务，以对失败的纠删编码块进行后台恢复。 NameNode检测到失败的EC块，然后NameNode选择一个DataNode进行恢复工作。</p>
+<ul>
+<li>纠删编码策略</li>
+</ul>
+<p>为了适应异构的工作负载，允许HDFS群集中的文件和目录具有不同的复制和纠删码策略。纠删码策略封装了如何对文件进行编码/解码。默认情况下启用<strong>RS-6-3-1024k</strong>策略， RS表示编码器算法Reed-Solomon，6 、3中表示数据块和奇偶校验块的数量，1024k表示条带化单元的大小。</p>
+<p>目录上还支持默认的<strong>REPLICATION</strong>方案。它只能在目录上设置，以强制目录采用3倍复制方案，而不继承其祖先的纠删码策略。此策略可以使3x复制方案目录与纠删码目录交错。REPLICATION始终处于启用状态。</p>
+<p>此外也支持用户通过XML文件定义自己的EC策略，Hadoop conf目录中有一个名为user_ec_policies.xml.template的示例EC策略XML文件，用户可以参考该文件。</p>
+<ul>
+<li>Intel ISA-L</li>
+</ul>
+<p>英特尔ISA-L代表英特尔智能存储加速库。 ISA-L是针对存储应用程序而优化的低级功能的开源集合。它包括针对Intel AVX和AVX2指令集优化的快速块Reed-Solomon类型擦除代码。 HDFS纠删码可以利用ISA-L加速编码和解码计算。</p>
+<h3 id="Erasure-Coding部署方式"><a href="#Erasure-Coding部署方式" class="headerlink" title="Erasure Coding部署方式"></a>Erasure Coding部署方式</h3><h4 id="集群和硬件配置"><a href="#集群和硬件配置" class="headerlink" title="集群和硬件配置"></a>集群和硬件配置</h4><p>编码和解码工作会消耗HDFS客户端和DataNode上的额外<strong>CPU</strong>。</p>
+<p>纠删码文件也分布在整个机架上，以实现机架容错。这意味着在读写条带化文件时，大多数操作都是在机架上进行的。因此，<strong>网络带宽</strong>也非常重要。</p>
+<p>对于机架容错，拥有<strong>足够数量的机架</strong>也很重要，每个机架所容纳的块数不超过EC奇偶校验块的数。</p>
+<p>机架数量=（数据块+奇偶校验块）/奇偶校验块后取整。比如对于EC策略RS（6,3），这意味着最少3个机架（由（6 + 3）/ 3 = 3计算），理想情况下为9个或更多，以处理计划内和计划外的停机。对于机架数少于奇偶校验单元数的群集，HDFS无法维持机架容错能力，但仍将尝试在多个节点之间分布条带化文件以保留节点级容错能力。因此，建议设置具有类似数量的DataNode的机架。</p>
+<h4 id="纠删码策略设置"><a href="#纠删码策略设置" class="headerlink" title="纠删码策略设置"></a>纠删码策略设置</h4><p>纠删码策略由参数<code>dfs.namenode.ec.system.default.policy</code>指定，默认是RS-6-3-1024k，其他策略默认是禁用的。可以通过<code>hdfs ec [-enablePolicy -policy &lt;policyName&gt;]</code>命令启用策略集。</p>
+<h4 id="启用英特尔ISA-L"><a href="#启用英特尔ISA-L" class="headerlink" title="启用英特尔ISA-L"></a>启用英特尔ISA-L</h4><p>默认RS编解码器的HDFS本机实现利用Intel ISA-L库来改善编码和解码计算。要启用和使用Intel ISA-L，需要执行三个步骤。</p>
+<p>建立ISA-L库；</p>
+<p>使用ISA-L支持构建Hadoop；</p>
+<p>使用-Dbundle.isal将isal.lib目录的内容复制到最终的tar文件中。使用tar文件部署Hadoop。确保ISA-L在HDFS客户端和DataNode上可用。</p>
+<h3 id="EC命令"><a href="#EC命令" class="headerlink" title="EC命令"></a>EC命令</h3><p>HDFS提供了一个ec子命令来执行与纠删码有关的管理命令。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109220650.png" alt="image-20211109220650226"></p>
+<ul>
+<li><p><code>[-setPolicy -path &lt;path&gt; [-policy &lt;policy&gt;] [-replicate]]</code></p>
+<p>  在指定路径的目录上设置擦除编码策略。</p>
+<p>  path：HDFS中的目录。这是必填参数。设置策略<strong>仅影响新创建的文件，而不影响现有文件</strong>。</p>
+<p>  policy：用于此目录下文件的擦除编码策略。默认RS-6-3-1024k策略。</p>
+<p>  -replicate在目录上应用默认的REPLICATION方案，强制目录采用3x复制方案。</p>
+<p>  -replicate和-policy <policy>是可选参数。不能同时指定它们。</p>
+</li>
+<li><p><code>[-getPolicy -path &lt; path &gt;]</code></p>
+<p>  获取指定路径下文件或目录的擦除编码策略的详细信息。</p>
+</li>
+<li><p><code>[-unsetPolicy -path &lt; path &gt;]</code></p>
+<p>  取消设置先前对目录上的setPolicy的调用所设置的擦除编码策略。如果该目录从祖先目录继承了擦除编码策略，则unsetPolicy是no-op。在没有显式策略集的目录上取消策略将不会返回错误。</p>
+</li>
+<li><p><code>[-listPolicies]</code></p>
+<p>  列出在HDFS中注册的所有（启用，禁用和删除）擦除编码策略。只有启用的策略才适合与setPolicy命令一起使用。</p>
+</li>
+<li><p><code>[-addPolicies -policyFile &lt;文件&gt;]</code></p>
+<p>  添加用户定义的擦除编码策略列表。</p>
+</li>
+<li><p><code>[-listCodecs]</code></p>
+<p>  获取系统中支持的擦除编码编解码器和编码器的列表。</p>
+</li>
+<li><p><code>[-removePolicy -policy &lt;policyName&gt;]</code></p>
+<p>  删除用户定义的擦除编码策略。</p>
+</li>
+<li><p><code>[-enablePolicy -policy &lt;policyName&gt;]</code></p>
+<p>  启用擦除编码策略。</p>
+</li>
+<li><p><code>[-disablePolicy -policy &lt;policyName&gt;]</code></p>
+<p>  禁用擦除编码策略。</p>
+</li>
+</ul>
+<h1 id="HDFS动态节点管理"><a href="#HDFS动态节点管理" class="headerlink" title="HDFS动态节点管理"></a>HDFS动态节点管理</h1><h2 id="背景-3"><a href="#背景-3" class="headerlink" title="背景"></a>背景</h2><p>已有HDFS集群容量已经不能满足存储数据的需求，需要在原有集群基础上动态添加新的DataNode节点。就是俗称的<strong>动态扩容</strong>。</p>
+<p>旧的服务器需要进行退役更换，暂停服务，需要在当下的集群中停止某些机器上HDFS的服务，俗称<strong>动态缩容</strong>。</p>
+<h2 id="动态扩容、节点上线"><a href="#动态扩容、节点上线" class="headerlink" title="动态扩容、节点上线"></a>动态扩容、节点上线</h2><h3 id="新机器基础环境准备"><a href="#新机器基础环境准备" class="headerlink" title="新机器基础环境准备"></a>新机器基础环境准备</h3><h4 id="主机名、IP"><a href="#主机名、IP" class="headerlink" title="主机名、IP"></a>主机名、IP</h4><p>确保新机器<strong>IP</strong>和已有HDFS集群所属同一网段</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221233.png" alt="image-20211109221233431"></p>
+<p>新机器系统<strong>hostname</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221244.png" alt="image-20211109221244520"></p>
+<h4 id="Hosts映射"><a href="#Hosts映射" class="headerlink" title="Hosts映射"></a>Hosts映射</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221257.png" alt="image-20211109221256931"></p>
+<p>集群所有节点保持hosts文件统一</p>
+<h4 id="防火墙、时间同步"><a href="#防火墙、时间同步" class="headerlink" title="防火墙、时间同步"></a>防火墙、时间同步</h4><p>关闭防火墙</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221319.png" alt="image-20211109221318957"></p>
+<p>集群时间同步</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221335.png" alt="image-20211109221335629"></p>
+<h4 id="SSH免密登录"><a href="#SSH免密登录" class="headerlink" title="SSH免密登录"></a>SSH免密登录</h4><p>为了后续脚本一键启动关闭集群方便，设置NameNode到新机器的免密登录</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221354.png" alt="image-20211109221353917"></p>
+<h4 id="JDK环境配置"><a href="#JDK环境配置" class="headerlink" title="JDK环境配置"></a>JDK环境配置</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221406.png" alt="image-20211109221406397"></p>
+<h3 id="Hadoop配置"><a href="#Hadoop配置" class="headerlink" title="Hadoop配置"></a>Hadoop配置</h3><h4 id="NameNode节点配置"><a href="#NameNode节点配置" class="headerlink" title="NameNode节点配置"></a>NameNode节点配置</h4><p>修改namenode节点workers配置文件，增加新节点主机名，便于后续一键启停。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221431.png" alt="image-20211109221431723"></p>
+<h4 id="新机器配置"><a href="#新机器配置" class="headerlink" title="新机器配置"></a>新机器配置</h4><p>从namenode节点复制hadoop安装包到新节点，<strong>注意不包括hadoop.tmp.dir指定的数据存储目录</strong>。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221452.png" alt="image-20211109221452834"></p>
+<p>新机器上配置hadoop环境变量</p>
+<p><code>vim /etc/profile</code></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> HADOOP_HOME=/<span class="built_in">export</span>/server/hadoop-3.1.4</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HADOOP_HOME</span>/bin:<span class="variable">$HADOOP_HOME</span>/sbin</span><br></pre></td></tr></table></figure>
+
+<p><code>source /etc/profile</code></p>
+<h3 id="手动启动DataNode进程"><a href="#手动启动DataNode进程" class="headerlink" title="手动启动DataNode进程"></a>手动启动DataNode进程</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221535.png" alt="image-20211109221535753"></p>
+<h3 id="Hadoop-Web页面查看"><a href="#Hadoop-Web页面查看" class="headerlink" title="Hadoop Web页面查看"></a>Hadoop Web页面查看</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221548.png" alt="image-20211109221548169"></p>
+<h3 id="DataNode负载均衡服务"><a href="#DataNode负载均衡服务" class="headerlink" title="DataNode负载均衡服务"></a>DataNode负载均衡服务</h3><p>新加入的节点，没有数据块的存储，使得集群整体来看负载不均衡。因此最后还需要对hdfs负载设置均衡。首先设置数据传输带宽。</p>
+<p>hdfs dfsadmin -setBalancerBandwidth 104857600</p>
+<p>然后启动Balancer，等待集群自均衡完成即可。</p>
+<p><code>hdfs balancer -threshold 5</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221608.png" alt="image-20211109221608650"></p>
+<h2 id="动态缩容、节点下线"><a href="#动态缩容、节点下线" class="headerlink" title="动态缩容、节点下线"></a>动态缩容、节点下线</h2><h3 id="添加退役节点"><a href="#添加退役节点" class="headerlink" title="添加退役节点"></a>添加退役节点</h3><p>在namenode机器的hdfs-site.xml配置文件中需要提前配置dfs.hosts.exclude属性，该属性指向的文件就是所谓的黑名单列表，会被namenode排除在集群之外。如果文件内容为空，则意味着不禁止任何机器。</p>
+<p>提前配置好的目的是让namenode启动的时候就能加载到该属性，只不过还没有指定任何机器。否则就需要重启namenode才能加载，因此这样的操作我们称之为<strong>具有前瞻性的操作</strong>。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.hosts.exclude<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/export/server/hadoop-3.1.4/etc/hadoop/excludes<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>编辑dfs.hosts.exclude属性指向的excludes文件，添加需要退役的主机名称。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221647.png" alt="image-20211109221647280"></p>
+<p>注意：<strong>如果副本数是3，服役的节点小于等于3，是不能退役成功的，需要修改副本数后才能退役。</strong></p>
+<h3 id="刷新集群"><a href="#刷新集群" class="headerlink" title="刷新集群"></a>刷新集群</h3><p>在namenode所在的机器刷新节点：<code>hdfs dfsadmin -refreshNodes</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221714.png" alt="image-20211109221714197"></p>
+<p>等待退役节点状态为decommissioned（所有块已经复制完成）</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221754.png" alt="image-20211109221754116"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221757.png" alt="image-20211109221757554"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221801.png" alt="image-20211109221801508"></p>
+<h3 id="手动关闭DataNode进程"><a href="#手动关闭DataNode进程" class="headerlink" title="手动关闭DataNode进程"></a>手动关闭DataNode进程</h3><p><code>hdfs --daemon stop datanode</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221818.png" alt="image-20211109221818553"></p>
+<h3 id="DataNode负载均衡服务-1"><a href="#DataNode负载均衡服务-1" class="headerlink" title="DataNode负载均衡服务"></a>DataNode负载均衡服务</h3><p>如果需要可以对已有的HDFS集群进行负载均衡服务。</p>
+<p><code>hdfs balancer -threshold 5</code></p>
+<h2 id="黑白名单机制"><a href="#黑白名单机制" class="headerlink" title="黑白名单机制"></a>黑白名单机制</h2><h3 id="白名单"><a href="#白名单" class="headerlink" title="白名单"></a>白名单</h3><p>所谓的<strong>白名单</strong>指的是<strong>允许</strong>哪些机器加入到当前的HDFS集群中，是一种准入机制。</p>
+<p>白名单由dfs.hosts参数指定，该参数位于hdfs-site.xml。默认值为空。</p>
+<p>dfs.hosts指向文件，该文件包含允许连接到namenode的主机列表。必须指定文件的完整路径名。<strong>如果该值为空，则允许所有主机准入</strong>。</p>
+<h3 id="黑名单"><a href="#黑名单" class="headerlink" title="黑名单"></a>黑名单</h3><p>所谓的<strong>黑名单</strong>指的是<strong>禁止</strong>哪些机器加入到当前的HDFS集群中，是一种禁入机制。</p>
+<p>黑名单由dfs.hosts.exclude参数指定，该参数位于hdfs-site.xml。默认值为空。</p>
+<p>dfs.hosts.exclude指向文件，该文件包含不允许连接到名称节点的主机列表。必须指定文件的完整路径名。<strong>如果该值为空，则不禁止任何主机加入</strong>。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221916.png" alt="image-20211109221916891"></p>
+<h1 id="HDFS-High-Availability（HA）高可用"><a href="#HDFS-High-Availability（HA）高可用" class="headerlink" title="HDFS High Availability（HA）高可用"></a>HDFS High Availability（HA）高可用</h1><h2 id="High-Availability背景知识"><a href="#High-Availability背景知识" class="headerlink" title="High Availability背景知识"></a>High Availability背景知识</h2><h3 id="单点故障、高可用"><a href="#单点故障、高可用" class="headerlink" title="单点故障、高可用"></a>单点故障、高可用</h3><p><strong>单点故障</strong>（英语：single point of failure，缩写<strong>SPOF</strong>）是指系统中某一点一旦失效，就会让整个系统无法运作，换句话说，单点故障即会整体故障。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109221949.png" alt="image-20211109221949651"></p>
+<p><strong>高可用性</strong>（英语：high availability，缩写为 <strong>HA</strong>），IT术语，指系统无中断地执行其功能的能力，代表系统的可用性程度。是进行系统设计时的准则之一。高可用性系统意味着系统服务可以更长时间运行，通常通过提高系统的容错能力来实现。</p>
+<p>高可用性或者高可靠度的系统不会希望有单点故障造成整体故障的情形。一般可以透过冗余的方式增加多个相同机能的部件，只要这些部件没有同时失效，系统（或至少部分系统）仍可运作，这会让可靠度提高。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109222000.png" alt="image-20211109222000598"></p>
+<h3 id="高可用如何实现"><a href="#高可用如何实现" class="headerlink" title="高可用如何实现"></a>高可用如何实现</h3><h4 id="主备集群"><a href="#主备集群" class="headerlink" title="主备集群"></a>主备集群</h4><p>解决单点故障，实现系统服务高可用的核心并不是让故障永不发生，而是让故障的发生对业务的影响降到最小。因为软硬件故障是难以避免的问题。</p>
+<p>当下企业中成熟的做法就是给单点故障的位置设置备份，形成主备架构。通俗描述就是<strong>当主挂掉，备份顶上</strong>，短暂的中断之后继续提供服务。</p>
+<p>常见的是<strong>一主一备</strong>架构，当然也可以一主多备。备份越多，容错能力越强，与此同时，冗余也越大，浪费资源。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109222039.png" alt="image-20211109222038957"></p>
+<h4 id="Active、Standby"><a href="#Active、Standby" class="headerlink" title="Active、Standby"></a>Active、Standby</h4><p><strong>Active</strong>：主角色。活跃的角色，代表正在对外提供服务的角色服务。任意时间有且只有一个active对外提供服务。</p>
+<p><strong>Standby</strong>：备份角色。需要和主角色保持数据、状态同步，并且时刻准备切换成主角色（当主角色挂掉或者出现故障时），对外提供服务，保持服务的可用性。</p>
+<h3 id="可用性评判标准—x个9"><a href="#可用性评判标准—x个9" class="headerlink" title="可用性评判标准—x个9"></a>可用性评判标准—x个9</h3><p>在系统的高可用性里有个衡量其可靠性的标准——<strong>X****个9</strong>，这个X是代表数字3-5。X个9表示在系统1年时间的使用过程中，系统可以正常使用时间与总时间（1年）之比。</p>
+<ul>
+<li> <strong>3个9</strong>：(1-99.9%)<em>365</em>24=8.76小时，表示该系统在连续运行1年时间里最多可能的业务中断时间是8.76小时。</li>
+<li><strong>4个9</strong>：(1-99.99%)<em>365</em>24=0.876小时=52.6分钟，表示该系统在连续运行1年时间里最多可能的业务中断时间是52.6分钟。</li>
+<li><strong>5个9</strong>：(1-99.999%)<em>365</em>24*60=5.26分钟，表示该系统在连续运行1年时间里最多可能的业务中断时间是5.26分钟。</li>
+</ul>
+<p>可以看出，9越多，系统的可靠性越强，能够容忍的业务中断时间越少，但是要付出的成本更高。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109222149.png" alt="image-20211109222148957"></p>
+<h3 id="HA系统设计核心问题"><a href="#HA系统设计核心问题" class="headerlink" title="HA系统设计核心问题"></a>HA系统设计核心问题</h3><h4 id="脑裂问题"><a href="#脑裂问题" class="headerlink" title="脑裂问题"></a>脑裂问题</h4><p><strong>脑裂</strong>(split-brain)是指“大脑分裂”,本是医学名词。在HA集群中，脑裂指的是当联系主备节点的”心跳线”断开时(即两个节点断开联系时)，本来为一个整体、动作协调的HA系统，就分裂成为两个独立的节点。由于相互失去了联系，主备节点之间像”裂脑人”一样，使得整个集群处于混乱状态。脑裂的严重后果：</p>
+<p>1）<strong>集群无主</strong>：都认为对方是状态好的，自己是备份角色，后果是无服务；</p>
+<p>2）<strong>集群多主</strong>：都认为对方是故障的，自己是主角色。相互争抢共享资源，结果会导致系统混乱，数据损坏。此外对于客户端访问也是一头雾水，找谁呢？</p>
+<p>避免脑裂问题的核心是：保持任意时刻系统有且只有一个主角色提供服务。</p>
+<h4 id="数据同步问题"><a href="#数据同步问题" class="headerlink" title="数据同步问题"></a>数据同步问题</h4><p>主备切换保证服务持续可用性的前提是主备节点之间的状态、数据是一致的，或者说准一致的。如果说备用的节点和主节点之间的数据差距过大，即使完成了主备切换的动作，那也是没有意义的。</p>
+<p>数据同步常见做法是：<strong>通过日志重演操作记录</strong>。主角色正常提供服务，发生的事务性操作通过日志记录，备用角色读取日志重演操作。</p>
+<h2 id="HDFS-NAMENODE单点故障问题"><a href="#HDFS-NAMENODE单点故障问题" class="headerlink" title="HDFS NAMENODE单点故障问题"></a>HDFS NAMENODE单点故障问题</h2><p>在Hadoop 2.0.0之前，<strong>NameNode是HDFS集群中的单点故障（SPOF）</strong>。每个群集只有一个NameNode，如果该计算机或进程不可用，则整个群集在整个NameNode重新启动或在另一台计算机上启动之前将不可用。</p>
+<p>NameNode的单点故障从两个方面影响了HDFS群集的总可用性：</p>
+<ul>
+<li>如果发生意外事件（例如机器崩溃），则在重新启动NameNode之前，群集将不可用。</li>
+<li>计划内的维护事件，例如NameNode计算机上的软件或硬件升级，将导致群集停机时间的延长。</li>
+</ul>
+<p>HDFS高可用性解决方案：在同一群集中运行两个（从3.0.0起，超过两个）冗余NameNode。这样可以在机器崩溃的情况下快速故障转移到新的NameNode，或者出于计划维护的目的由管理员发起的正常故障转移。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109222251.png" alt="image-20211109222251077"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109222255.png" alt="image-20211109222255352"></p>
+<h2 id="HDFS-HA解决方案—QJM"><a href="#HDFS-HA解决方案—QJM" class="headerlink" title="HDFS HA解决方案—QJM"></a>HDFS HA解决方案—QJM</h2><p>QJM全称<strong>Quorum Journal Manager</strong>，由cloudera公司提出，是Hadoop官方推荐的HDFS HA解决方案之一。</p>
+<p>QJM中，使用zookeeper中ZKFC来实现主备切换；使用Journal Node（JN）集群实现edits log的共享以达到数据同步的目的。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109222314.png" alt="image-20211109222314734"></p>
+<h3 id="QJM—主备切换、脑裂问题解决"><a href="#QJM—主备切换、脑裂问题解决" class="headerlink" title="QJM—主备切换、脑裂问题解决"></a>QJM—主备切换、脑裂问题解决</h3><h4 id="ZKFailoverController（zkfc）"><a href="#ZKFailoverController（zkfc）" class="headerlink" title="ZKFailoverController（zkfc）"></a>ZKFailoverController（zkfc）</h4><p>Apache ZooKeeper是一款高可用分布式协调服务软件，用于维护少量的协调数据。 Zookeeper的下列特性功能参与了HDFS的HA解决方案中：</p>
+<ul>
+<li><p>临时znode</p>
+<p>  如果一个znode节点是临时的，那么该znode的生命周期将和创建它的客户端的session绑定。客户端断开连接session结束，znode将会被自动删除。</p>
+</li>
+<li><p>Path路径唯一性</p>
+<p>  zookeeper中维持了一份类似目录树的数据结构。每个节点称之为Znode。Znode具有唯一性，不会重名。也可以理解为排他性。</p>
+</li>
+<li><p>监听机制</p>
+<p>  客户端可以针对znode上发生的事件设置监听，当事件发生触发条件，zk服务会把事件通知给设置监听的客户端。</p>
+</li>
+</ul>
+<p><strong>ZKFailoverController</strong>（ZKFC）是一个新组件，它是一个ZooKeeper客户端。运行NameNode的每台计算机也都运行ZKFC，ZKFC的主要职责：</p>
+<ul>
+<li><p>监视和管理NameNode健康状态</p>
+<p>  ZKFC通过命令定期ping本地负责监视的NameNode节点。</p>
+</li>
+<li><p>维持和ZooKeeper集群联系</p>
+<p>  如果本地NameNode运行状况良好，并且ZKFC看到当前没有其他节点持有锁znode，它将自己尝试获取该锁。如果成功，则表明它“赢得了选举”，并负责运行故障转移以使其本地NameNode处于Active状态。如果已经有其他节点持有锁，zkfc选举失败，则会对该节点注册监听，等待下次继续选举。</p>
+</li>
+</ul>
+<h4 id="Fencing隔离机制"><a href="#Fencing隔离机制" class="headerlink" title="Fencing隔离机制"></a>Fencing隔离机制</h4><p>故障转移过程也就是俗称的主备角色切换的过程，切换过程中最怕的就是脑裂的发送。因此需要<strong>Fencing机制</strong>来避免，将先前的Active节点隔离，然后将本地NameNode转换为Active状态。</p>
+<p>Hadoop公共库中对外提供了两种fenching实现，分别是sshfence和shellfence（缺省实现），其中sshfence是指通过ssh登陆目标节点上，使用命令fuser将进程杀死（通过tcp端口号定位进程pid，该方法比jps命令更准确），shellfence是指执行一个用户事先定义的shell命令（脚本）完成隔离。</p>
+<h3 id="QJM—主备数据同步问题解决"><a href="#QJM—主备数据同步问题解决" class="headerlink" title="QJM—主备数据同步问题解决"></a>QJM—主备数据同步问题解决</h3><p><strong>Journal Node（JN）集群</strong>是轻量级分布式系统，主要用于高速读写数据、存储数据。通常使用<strong>2N+1</strong>台JournalNode存储共享Edits Log（编辑日志）。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109222654.png" alt="image-20211109222654752"></p>
+<p>任何修改操作在 Active NN上执行时，JournalNode进程同时也会记录edits log到<strong>至少半数</strong>以上的JN中，这时 Standby NN 监测到JN 里面的同步log发生变化了会读取JN里面的edits log，然后重演操作记录同步到自己的目录镜像树里面，</p>
+<p>当发生故障Active NN挂掉后，Standby NN 会在它成为Active NN 前，读取所有的JN里面的修改日志，这样就能高可靠的保证与挂掉的NN的目录镜像树一致，然后无缝的接替它的职责，维护来自客户端请求，从而达到一个高可用的目的。</p>
+<h2 id="HDFS-HA环境搭建"><a href="#HDFS-HA环境搭建" class="headerlink" title="HDFS HA环境搭建"></a>HDFS HA环境搭建</h2><p>HA集群搭建的难度主要在于配置文件的编写，<strong>心细，心细，心细</strong>！</p>
+<h3 id="集群基础环境准备"><a href="#集群基础环境准备" class="headerlink" title="集群基础环境准备"></a>集群基础环境准备</h3><p>1.修改Linux主机名 <code>/etc/hostname</code></p>
+<p>2.修改IP <code>/etc/sysconfig/network-scripts/ifcfg-ens33</code></p>
+<p>3.修改主机名和IP的映射关系 <code>/etc/hosts</code></p>
+<p>4.关闭防火墙</p>
+<p>5.ssh免登陆</p>
+<p>6.安装JDK，配置环境变量等 <code>/etc/profile</code></p>
+<p>7.集群时间同步</p>
+<p>8.配置主备NN之间的互相免密登录</p>
+<h3 id="HA集群规划"><a href="#HA集群规划" class="headerlink" title="HA集群规划"></a>HA集群规划</h3><blockquote>
+<p>node1 namenode zkfc  datanode  zookeeper  journal node</p>
+<p>node2 namenode zkfc  datanode  zookeeper  journal node</p>
+<p>node3 datanode zookeeper journal node</p>
+</blockquote>
+<h3 id="上传解压Hadoop安装包"><a href="#上传解压Hadoop安装包" class="headerlink" title="上传解压Hadoop安装包"></a>上传解压Hadoop安装包</h3><p><code>hadoop-3.1.4-bin-snappy-CentOS7.tar.gz</code></p>
+<p><code>tar zxvf hadoop-3.1.4-bin-snappy-CentOS7.tar.gz -C /export/server/</code></p>
+<h3 id="配置Hadoop环境变量"><a href="#配置Hadoop环境变量" class="headerlink" title="配置Hadoop环境变量"></a>配置Hadoop环境变量</h3><p><code>export HADOOP_HOME=/export/server/hadoop-3.1.4</code></p>
+<p><code>export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin</code></p>
+<h3 id="修改Hadoop配置文件"><a href="#修改Hadoop配置文件" class="headerlink" title="修改Hadoop配置文件"></a>修改Hadoop配置文件</h3><h4 id="hadoop-env-sh"><a href="#hadoop-env-sh" class="headerlink" title="hadoop-env.sh"></a>hadoop-env.sh</h4><p><code>cd /export/server/hadoop-3.1.4/etc/Hadoop</code></p>
+<p><code>vim hadoop-env.sh</code></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> JAVA_HOME=/<span class="built_in">export</span>/server/jdk1.8.0_65</span><br><span class="line"><span class="built_in">export</span> HDFS_NAMENODE_USER=root</span><br><span class="line"><span class="built_in">export</span> HDFS_DATANODE_USER=root</span><br><span class="line"><span class="built_in">export</span> HDFS_JOURNALNODE_USER=root</span><br><span class="line"><span class="built_in">export</span> HDFS_ZKFC_USER=root</span><br></pre></td></tr></table></figure>
+
+<h4 id="core-site-xml"><a href="#core-site-xml" class="headerlink" title="core-site.xml"></a>core-site.xml</h4><p><code>vim core-site.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- HA集群名称，该值要和hdfs-site.xml中的配置保持一致 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.defaultFS<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://mycluster<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- hadoop本地磁盘存放数据的公共目录 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.tmp.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>/export/data/ha-hadoop<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- ZooKeeper集群的地址和端口--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>ha.zookeeper.quorum<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node1.itcast.cn:2181,node2.itcast.cn:2181,node3.itcast.cn:2181<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="hdfs-site-xml-1"><a href="#hdfs-site-xml-1" class="headerlink" title="hdfs-site.xml"></a>hdfs-site.xml</h4><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!--指定hdfs的nameservice为mycluster，需要和core-site.xml中的保持一致 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.nameservices<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>mycluster<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">&lt;!-- mycluster下面有两个NameNode，分别是nn1，nn2 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.namenodes.mycluster<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>nn1,nn2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- nn1的RPC通信地址 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.mycluster.nn1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node1.itcast.cn:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- nn1的http通信地址 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.mycluster.nn1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node1.itcast.cn:9870<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- nn2的RPC通信地址 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.mycluster.nn2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node2.itcast.cn:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">&lt;!-- nn2的http通信地址 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.mycluster.nn2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node2.itcast.cn:9870<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- 指定NameNode的edits元数据在JournalNode上的存放位置 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.shared.edits.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>qjournal://node1.itcast.cn:8485;node2.itcast.cn:8485;node3.itcast.cn:8485/mycluster<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">&lt;!-- 指定JournalNode在本地磁盘存放数据的位置 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.journalnode.edits.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>/export/data/journaldata<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- 开启NameNode失败自动切换 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.automatic-failover.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- 指定该集群出故障时，哪个实现类负责执行故障切换 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.client.failover.proxy.provider.mycluster<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	  <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- 配置隔离机制方法--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.fencing.methods<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">value</span>&gt;</span>sshfence<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!-- 使用sshfence隔离机制时需要ssh免登陆 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.fencing.ssh.private-key-files<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">value</span>&gt;</span>/root/.ssh/id_rsa<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span>	</span><br><span class="line">	</span><br><span class="line">	<span class="comment">&lt;!-- 配置sshfence隔离机制超时时间 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.fencing.ssh.connect-timeout<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>30000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="workers"><a href="#workers" class="headerlink" title="workers"></a>workers</h4><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">node1.itcast.cn</span><br><span class="line">node2.itcast.cn</span><br><span class="line">node3.itcast.cn</span><br></pre></td></tr></table></figure>
+
+<h3 id="集群同步安装包"><a href="#集群同步安装包" class="headerlink" title="集群同步安装包"></a>集群同步安装包</h3><p>在node1上：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /<span class="built_in">export</span>/server</span><br><span class="line">scp -r hadoop-3.1.4 root@node2:<span class="variable">$PWD</span></span><br><span class="line">scp -r hadoop-3.1.4 root@node3:<span class="variable">$PWD</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="HA集群初始化"><a href="#HA集群初始化" class="headerlink" title="HA集群初始化"></a>HA集群初始化</h3><h4 id="启动zk集群"><a href="#启动zk集群" class="headerlink" title="启动zk集群"></a>启动zk集群</h4><p><code>/export/server/zookeeper-3.4.6/bin/zkServer.sh start</code></p>
+<h4 id="手动启动JN集群"><a href="#手动启动JN集群" class="headerlink" title="手动启动JN集群"></a>手动启动JN集群</h4><p><code>hdfs --daemon start journalnode</code></p>
+<h4 id="Format-namenode"><a href="#Format-namenode" class="headerlink" title="Format namenode"></a>Format namenode</h4><p>在node1执行格式化namenode</p>
+<p><code>hdfs namenode –format</code></p>
+<p>在node1启动namenode进程</p>
+<p><code>hdfs --daemon start namenode</code></p>
+<p>在node2上进行namenode元数据同步</p>
+<p><code>hdfs namenode –bootstrapStandby</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223329.png" alt="image-20211109223329517"></p>
+<h4 id="格式化zkfc"><a href="#格式化zkfc" class="headerlink" title="格式化zkfc"></a>格式化zkfc</h4><p>注意，在哪台机器上执行，哪台机器就将成为第一次的Active NN</p>
+<p><code>hdfs zkfc –formatZK</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223350.png" alt="image-20211109223350497"></p>
+<h3 id="HA集群启动"><a href="#HA集群启动" class="headerlink" title="HA集群启动"></a>HA集群启动</h3><p>在node1上启动HDFS集群</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223408.png" alt="image-20211109223408843"></p>
+<h2 id="HDFS-HA效果演示"><a href="#HDFS-HA效果演示" class="headerlink" title="HDFS HA效果演示"></a>HDFS HA效果演示</h2><p>在node1上，显示namenode是active状态</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223432.png" alt="image-20211109223432165"></p>
+<p>在node2上，显示namenode是standby状态</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223441.png" alt="image-20211109223441022"></p>
+<h4 id="正常操作"><a href="#正常操作" class="headerlink" title="正常操作"></a>正常操作</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223454.png" alt="image-20211109223454714"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223459.png" alt="image-20211109223459244"></p>
+<p>Node2无法浏览，想一想为什么？</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223507.png" alt="image-20211109223507186"></p>
+<h4 id="模拟故障出现"><a href="#模拟故障出现" class="headerlink" title="模拟故障出现"></a>模拟故障出现</h4><p>在node1，手动kill杀死namenode进程。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223523.png" alt="image-20211109223523796"></p>
+<p>此时发现node2上的namenode切换成为Active状态 hdfs服务正常可用。</p>
+<h4 id="HA切换失败—错误解决"><a href="#HA切换失败—错误解决" class="headerlink" title="HA切换失败—错误解决"></a>HA切换失败—错误解决</h4><p>使用kill -9模拟JVM崩溃。或者重新启动计算机电源或拔出其网络接口以模拟另一种故障。另一个NameNode应在几秒钟内自动变为活动状态。检测故障并触发故障转移所需的时间取决于ha.zookeeper.session-timeout.ms的配置，但默认值为5秒。</p>
+<p>如果测试不成功，检查<strong>zkfc守护程序以及NameNode守护程序的日志</strong>，以便进一步诊断问题。如果错误信息如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223552.png" alt="image-20211109223552745"></p>
+<p>提示未找到fuser程序，导致无法进行fence，所以可以通过如下命令来安装，Psmisc软件包中包含了fuser程序（两个NN机器上都需要进行安装）</p>
+<p><code>yum install psmisc -y</code></p>
+<h1 id="HDFS-Federation联邦机制"><a href="#HDFS-Federation联邦机制" class="headerlink" title="HDFS Federation联邦机制"></a>HDFS Federation联邦机制</h1><h2 id="当前HDFS体系架构"><a href="#当前HDFS体系架构" class="headerlink" title="当前HDFS体系架构"></a>当前HDFS体系架构</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223624.png" alt="image-20211109223624551"></p>
+<p>当前的HDFS架构有两个主要的层：</p>
+<ul>
+<li><strong>命名空间（namespace）</strong></li>
+</ul>
+<p>HDFS体系结构中的命名空间层由文件，块和目录组成。该层支持与名称空间相关的文件系统操作，例如创建，删除，修改和列出文件和目录。</p>
+<ul>
+<li> <strong>块存储层（Block Storage）</strong></li>
+</ul>
+<p>块存储层包括两个部分：</p>
+<p>块管理： NameNode执行块管理。块管理通过处理注册和定期心跳来提供DataNode群集成员身份。它处理块报告并支持与块相关的操作，如创建，删除，修改或获取块位置。它还维护块的位置，副本位置。为未复制的块管理块复制，并在已复制的块中删除。</p>
+<p>存储： DataNode通过在本地文件系统上存储块并提供读/写访问权限来管理存储空间。</p>
+<h3 id="局限性"><a href="#局限性" class="headerlink" title="局限性"></a>局限性</h3><p>当下的HDFS体系结构仅允许单个NameNode维护文件系统名称空间。注意HA体系中虽然说允许多个NameNode，但是他们所维护的是同一套文件系统名称空间。这种体系目前存在着一些弊端和局限性：</p>
+<ul>
+<li>DataNode磁盘存储空间不够增加节点，NameNode内存不够是否可以无限扩容。一种是DataNode横向扩展机器增加节点，一种是纵向扩展单机加内存。</li>
+<li>由于名称空间和存储层的紧密耦合，NameNode的替代实现很困难。这限制了其他服务直接使用块存储。唯一的NameNode成了唯一入口。</li>
+<li>文件系统的操作还限于NameNode一次处理的任务数。因此，群集的性能取决于NameNode吞吐量。</li>
+<li>同样，由于使用单个名称空间，因此使用群集的占用者组织之间没有隔离。</li>
+</ul>
+<h2 id="HDFS-Federation架构"><a href="#HDFS-Federation架构" class="headerlink" title="HDFS Federation架构"></a>HDFS Federation架构</h2><h3 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h3><p><strong>Federation</strong>中文意思为联邦,联盟，是NameNode之间的Federation,也就是集群中会有多个NameNode。多个NameNode的情况意味着有多个namespace。注意，这区别于HA模式下的多NameNode，HA中它们是拥有着同一个namespace。</p>
+<p>Federation体系中多个namenode之间相互独立且不需要互相协调，各自分工，管理自己的区域。每个DataNode要向集群中所有的namenode注册，且周期性地向所有namenode发送心跳和块报告，并执行来自所有namenode的命令。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109223744.png" alt="image-20211109223744029"></p>
+<p>上图中，有多个NameNode，分别表示为NN1，NN2，.. NNn。NS1，NS2等是由它们各自的NameNode管理的多个名称空间。</p>
+<p>每个名称空间都有其自己的块池（block pool）（NS1具有Pool1，NS2具有Pool2，依此类推）。每个DataNode存储集群中所有块池的块。</p>
+<p>HDFS Federation体系结构中的<strong>块池是属于单个名称空间的块的集合</strong>。每个块池彼此独立地进行管理。在删除NameNode或名称空间时，DataNode中存在的相应块池也将被删除。在升级群集时，每个名称空间卷都作为一个单元进行升级。</p>
+<h3 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h3><ul>
+<li>命名空间可伸缩性</li>
+</ul>
+<p>使用Federation，可以水平扩展名称空间。这对大型群集或包含太多小文件的群集有利，因为向群集添加了更多的NameNode。</p>
+<ul>
+<li>性能</li>
+</ul>
+<p>由于文件系统操作不受单个NameNode吞吐量的限制，因此可以提高文件系统的性能。</p>
+<ul>
+<li>隔离</li>
+</ul>
+<p>由于有多个名称空间，它可以为使用群集的占用者组织提供隔离。</p>
+<h2 id="HDFS-Federation配置示例"><a href="#HDFS-Federation配置示例" class="headerlink" title="HDFS Federation配置示例"></a>HDFS Federation配置示例</h2><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.nameservices<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>ns1,ns2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.ns1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>nn-host1:rpc-port<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.ns1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>nn-host1:http-port<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.secondary.http-address.ns1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>snn-host1:http-port<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.ns2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>nn-host2:rpc-port<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.ns2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>nn-host2:http-port<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.secondary.http-address.ns2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>snn-host2:http-port<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  .... Other common configuration ...</span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="HDFS集群滚动升级"><a href="#HDFS集群滚动升级" class="headerlink" title="HDFS集群滚动升级"></a>HDFS集群滚动升级</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>HDFS滚动升级允许升级单个HDFS守护程序。例如，可以独立于NameNodes升级DataNodes。也可以独立于其他NameNodes升级单独NameNode。也可以独立于DataNodes和journal nodes升级NameNodes。</p>
+<h2 id="升级"><a href="#升级" class="headerlink" title="升级"></a>升级</h2><p>在Hadoop v2中，HDFS支持NameNode高可用（HA）和线路兼容性（wire compatibility）。这两个功能使升级HDFS变得可行，且不会导致HDFS停机。<strong>为了在不停机的情况下升级HDFS群集，必须使用HA设置群集</strong>。</p>
+<p>如果新软件版本中启用了任何新功能，则升级后可能无法与旧软件版本一起使用。在这种情况下，应按照以下步骤进行升级。</p>
+<p>禁用新功能、升级集群、启用新功能。</p>
+<p>请注意，仅从Hadoop-2.4.0起才支持滚动升级。</p>
+<h3 id="不停机升级"><a href="#不停机升级" class="headerlink" title="不停机升级"></a>不停机升级</h3><p>在HA群集中，有两个或多个NameNode（NN），许多DataNode（DN），一些JournalNode（JN）和一些ZooKeeperNode（ZKN）。JN相对稳定，在大多数情况下，升级HDFS时不需要升级。<strong>滚动升级过程中，仅针对NNs和DNs，JNS和ZKNs都没有</strong>。升级JN和ZKN可能会导致群集停机。</p>
+<h4 id="升级非联邦集群"><a href="#升级非联邦集群" class="headerlink" title="升级非联邦集群"></a>升级非联邦集群</h4><p>假设有两个名称节点NN1和NN2，其中NN1和NN2分别处于Active和StandBy状态。以下是升级HA群集的步骤：</p>
+<ul>
+<li>准备滚动升级</li>
+</ul>
+<p>运行<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-rollingUpgrade">hdfs dfsadmin -rollingUpgrade prepare</a> 以创建用于回滚的fsimage</p>
+<p>运行<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-rollingUpgrade">hdfs dfsadmin -rollingUpgrade query</a> 以检查回滚fsimage的状态。等待并重新运行命令，直到显示Proceeding with Rolling Upgrade信息。</p>
+<ul>
+<li>升级Active和StandBy NN</li>
+</ul>
+<p>关闭并升级NN2。</p>
+<p>启动NN2成为StandBy状态通过-rollingUpgrade started选项。</p>
+<p>从NN1到NN2的故障转移，以便NN2变为活动状态，而NN1变为待机状态。</p>
+<p>关闭并升级NN1。</p>
+<p>启动NN1成为StandBy状态通过-rollingUpgrade started选项。</p>
+<ul>
+<li>升级DN</li>
+</ul>
+<p>选择一小部分DN节点（例如，特定机架下的所有数据节点）。</p>
+<p>运行<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-shutdownDatanode">hdfs dfsadmin -shutdownDatanode  upgrade</a>以关闭所选的DN。</p>
+<p>运行<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-getDatanodeInfo">hdfs dfsadmin -getDatanodeInfo </a>进行检查，然后等待DN关闭。</p>
+<p>升级并重启DN节点。</p>
+<p>对子集中的所有选定DN节点并行执行以上步骤。</p>
+<p>重复上述步骤，直到升级群集中的所有DN节点。</p>
+<ul>
+<li>完成滚动升级</li>
+</ul>
+<p>运行<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-rollingUpgrade">hdfs dfsadmin -rollingUpgrade finalize</a>完成滚动升级。</p>
+<h4 id="升级联邦集群"><a href="#升级联邦集群" class="headerlink" title="升级联邦集群"></a>升级联邦集群</h4><p>在联邦集群中，有多个名称空间以及每个名称空间的一对Active和StandBy NN。升级联合群集的过程类似于升级非联邦群集的过程，不同之处在于</p>
+<p>为每个命名空间准备滚动升级</p>
+<p>升级每个命名空间的Active和StandBy NN</p>
+<p>升级DN</p>
+<p>完成每个命名空间的滚动升级</p>
+<h3 id="停机升级"><a href="#停机升级" class="headerlink" title="停机升级"></a>停机升级</h3><p>对于非HA群集，无法在没有停机的情况下升级HDFS，因为它需要重新启动NN。但是，DN仍可以滚动方式升级。</p>
+<h4 id="升级非HA集群"><a href="#升级非HA集群" class="headerlink" title="升级非HA集群"></a>升级非HA集群</h4><p>在非HA群集中，有一个NameNode（NN），SecondaryNameNode（SNN）和许多DataNodes（DN）。升级非HA群集的过程与升级HA群集的过程类似，不同之处在于，将升级非HA集群中的第2步“升级活动和备用NN升级”更改为以下内容：</p>
+<p><strong>升级NN和SNN</strong></p>
+<p>关闭SNN</p>
+<p>关闭并升级NN。</p>
+<p>使用-rollingUpgrade started 选项启动NN。</p>
+<p>升级并重新启动SNN</p>
+<h2 id="降级和回滚"><a href="#降级和回滚" class="headerlink" title="降级和回滚"></a>降级和回滚</h2><p>如果不希望使用升级版本，或者在某些不太可能的情况下，升级失败（由于较新版本中的错误），管理员可以选择将HDFS降级到升级前版本，或将HDFS回滚到升级前版本和升级前的状态。</p>
+<p>请注意，降级可以滚动方式进行，但不能回滚。回滚要求集群停机。</p>
+<p>还请注意，<strong>只有在开始滚动升级之后且终止升级之前，才可以进行降级和回滚</strong>。可以通过完成，降级或回滚来终止升级。因此，可能无法在完成或降级之后执行回滚，或者在完成后无法执行降级。</p>
+<h3 id="降级"><a href="#降级" class="headerlink" title="降级"></a>降级</h3><p>降级会将软件还原回升级前的版本，并保留用户数据。假设时间T是滚动升级开始时间，并且升级通过降级终止。然后，在T之前或之后创建的文件在HDFS中仍然可用。在T之前或之后删除的文件在HDFS中仍然被删除。</p>
+<p>仅当两个版本之间的namenode布局版本和datanode布局版本均未更改时，才可以将较新的版本降级为升级前的版本。</p>
+<p>在高可用性集群中，当正在进行从旧软件版本到新软件版本的滚动升级时，可以滚动方式将升级后的计算机降级到旧软件版本。与之前相同，假设NN1和NN2分别处于活动状态和待机状态。以下是在不停机的情况下进行降级的步骤：</p>
+<p>降级DN</p>
+<p>选择一小部分数据节点（例如，特定机架下的所有数据节点）。</p>
+<p>运行“ <a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-shutdownDatanode">hdfs dfsadmin -shutdownDatanode  upgrade</a> ”以关闭所选的数据<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-shutdownDatanode">节点</a>之一。</p>
+<p>运行“ <a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-getDatanodeInfo">hdfs dfsadmin -getDatanodeInfo </a> ”进行检查，然后等待数据<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-getDatanodeInfo">节点</a>关闭。</p>
+<p>降级并重新启动datanode。</p>
+<p>对子集中的所有选定数据节点并行执行以上步骤。</p>
+<p>重复上述步骤，直到集群中所有升级的数据节点降级。</p>
+<p>降级活动和备用NN</p>
+<p>关闭和降级NN2。</p>
+<p>正常启动NN2作为待机。</p>
+<p>从NN1到NN2的故障转移，以便NN2变为活动状态，而NN1变为待机状态。</p>
+<p>关闭并降级NN1。</p>
+<p>正常启动NN1作为待机。</p>
+<p>完成滚动降级</p>
+<p>运行“ <a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-rollingUpgrade">hdfs dfsadmin -rollingUpgrade finalize</a> ”以完成滚动降级。</p>
+<p>请注意，在降级名称节点之前，必须先降级数据节点，因为协议可以以向后兼容的方式更改，但不能向前兼容，即，旧的数据节点可以与新的名称节点对话，反之则不行。</p>
+<h3 id="回滚"><a href="#回滚" class="headerlink" title="回滚"></a>回滚</h3><p>回滚将软件还原到升级前的版本，但也将用户数据还原到升级前的状态。假设时间T是滚动升级开始时间，并且升级通过回滚终止。T之前创建的文件在HDFS中仍然可用，但T之后创建的文件不可用。T之前删除的文件在HDFS中仍然被删除，但是T之后删除的文件被恢复。</p>
+<p>始终支持从较新版本回滚到升级前版本。但是，这不能以滚动方式完成。它需要集群停机。假设NN1和NN2分别处于活动状态和待机状态。以下是回滚的步骤：</p>
+<p>回滚HDFS</p>
+<p>关闭所有NN和DN。</p>
+<p>在所有计算机上还原升级前的版本。</p>
+<p>开始NN1为活动的“ <a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#namenode_-rollingUpgrade">-rollingUpgrade回滚</a>”选项。</p>
+<p>在NN2上运行`-bootstrapStandby’并以待机状态正常启动。</p>
+<p>使用“ -rollback ”选项启动DN。</p>
+<h2 id="滚动升级相关命令"><a href="#滚动升级相关命令" class="headerlink" title="滚动升级相关命令"></a>滚动升级相关命令</h2><h3 id="dfsadmin-–rollingUpgrade"><a href="#dfsadmin-–rollingUpgrade" class="headerlink" title="dfsadmin –rollingUpgrade"></a>dfsadmin –rollingUpgrade</h3><p><code>hdfs dfsadmin -rollingUpgrade &lt;query|prepare|finalize&gt;</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109224302.png" alt="image-20211109224302655"></p>
+<h3 id="dfsadmin-–getDatanodeInfo"><a href="#dfsadmin-–getDatanodeInfo" class="headerlink" title="dfsadmin –getDatanodeInfo"></a>dfsadmin –getDatanodeInfo</h3><p><code>hdfs dfsadmin -getDatanodeInfo &lt;DATANODE_HOST:IPC_PORT</code>&gt;</p>
+<p>获取有关给定datanode的信息。该命令可以像Unix ping命令一样用于检查数据节点是否处于活动状态。</p>
+<h3 id="dfsadmin-–shutdownDatanode"><a href="#dfsadmin-–shutdownDatanode" class="headerlink" title="dfsadmin –shutdownDatanode"></a>dfsadmin –shutdownDatanode</h3><p><code>hdfs dfsadmin -shutdownDatanode &lt;DATANODE_HOST:IPC_PORT&gt; [upgrade]</code></p>
+<p>提交给定datanode的关闭请求。如果指定了可选的升级参数，则建议访问数据节点的客户端等待其重启，然后启用快速启动模式。如果重启不及时，客户端将超时并忽略数据节点。在这种情况下，快速启动模式也将被禁用。</p>
+<p>请注意，该命令不会等待数据节点关闭完成。<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-getDatanodeInfo">dfsadmin -getDatanodeInfo</a>命令可用于检查数据<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r3.1.4/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html#dfsadmin_-getDatanodeInfo">节点</a>关闭是否完成。</p>
+<h3 id="namenode-–rollingUpgrade"><a href="#namenode-–rollingUpgrade" class="headerlink" title="namenode –rollingUpgrade"></a>namenode –rollingUpgrade</h3><p><code>hdfs namenode -rollingUpgrade &lt;rollback|started&gt;</code></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211109224405.png" alt="image-20211109224405086"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/f9e87748.html">http://www.lvxueyang.vip/post/f9e87748.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/HDFS/">HDFS</a><a class="post-meta__tags" href="/tags/Hadoop/">Hadoop</a><a class="post-meta__tags" href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/287fd37b.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">HDFS架构原理</div></div></a></div><div class="next-post pull-right"><a href="/post/2b48177f.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Scala之运算符</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/60651487.html" title="HDFS数据安全与隐私保护"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-11</div><div class="title">HDFS数据安全与隐私保护</div></div></a></div><div><a href="/post/90f10c53.html" title="HDFS入门与应用开发"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-06</div><div class="title">HDFS入门与应用开发</div></div></a></div><div><a href="/post/c6918f16.html" title="HDFS数据存储与数据管理"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-06</div><div class="title">HDFS数据存储与数据管理</div></div></a></div><div><a href="/post/9c8272d8.html" title="HDFS核心源码分析"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-11</div><div class="title">HDFS核心源码分析</div></div></a></div><div><a href="/post/287fd37b.html" title="HDFS架构原理"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-10</div><div class="title">HDFS架构原理</div></div></a></div><div><a href="/post/d88c6908.html" title="大数据开篇与Hadoop搭建"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-27</div><div class="title">大数据开篇与Hadoop搭建</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E9%9B%86%E7%BE%A4%E7%AE%A1%E7%90%86%E4%B8%8E%E8%BF%90%E7%BB%B4"><span class="toc-text">HDFS集群管理与运维</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-text">HDFS数据迁移解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">数据迁移使用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB%E8%A6%81%E7%B4%A0%E8%80%83%E9%87%8F"><span class="toc-text">数据迁移要素考量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS%E5%88%86%E5%B8%83%E5%BC%8F%E6%8B%B7%E8%B4%9D%E5%B7%A5%E5%85%B7%EF%BC%9ADistCp"><span class="toc-text">HDFS分布式拷贝工具：DistCp</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DistCp%E4%BB%8B%E7%BB%8D"><span class="toc-text">DistCp介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DistCp%E4%BC%98%E5%8A%BF%E7%89%B9%E6%80%A7"><span class="toc-text">DistCp优势特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DistCp%E5%91%BD%E4%BB%A4"><span class="toc-text">DistCp命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS-NAMENODE-%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">HDFS NAMENODE 安全模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%EF%BC%9A%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%8E%A2%E7%A9%B6"><span class="toc-text">场景：安全模式探究</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%A6%82%E8%BF%B0"><span class="toc-text">安全模式概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E8%87%AA%E5%8A%A8%E8%BF%9B%E5%85%A5%E7%A6%BB%E5%BC%80"><span class="toc-text">安全模式自动进入离开</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E8%BF%9B%E5%85%A5%E6%97%B6%E9%97%B4"><span class="toc-text">自动进入时间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E7%A6%BB%E5%BC%80%E6%9D%A1%E4%BB%B6"><span class="toc-text">自动离开条件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%89%8B%E5%8A%A8%E8%BF%9B%E5%85%A5%E7%A6%BB%E5%BC%80"><span class="toc-text">安全模式手动进入离开</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E8%8E%B7%E5%8F%96%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E7%8A%B6%E6%80%81%E4%BF%A1%E6%81%AF"><span class="toc-text">手动获取安全模式状态信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E8%BF%9B%E5%85%A5%E5%91%BD%E4%BB%A4"><span class="toc-text">手动进入命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E7%A6%BB%E5%BC%80%E5%91%BD%E4%BB%A4"><span class="toc-text">手动离开命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88"><span class="toc-text">HDFS优化方案</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%AD%E8%B7%AF%E6%9C%AC%E5%9C%B0%E8%AF%BB%E5%8F%96%EF%BC%9AShort-Circuit-Local-Reads"><span class="toc-text">短路本地读取：Short Circuit Local Reads</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%AD%E8%B7%AF%E6%9C%AC%E5%9C%B0%E8%AF%BB%E5%8F%96"><span class="toc-text">短路本地读取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%AD%E8%B7%AF%E6%9C%AC%E5%9C%B0%E8%AF%BB%E5%8F%96%E5%AE%89%E5%85%A8%E6%80%A7%E6%94%B9%E8%BF%9B"><span class="toc-text">短路本地读取安全性改进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%AD%E8%B7%AF%E6%9C%AC%E5%9C%B0%E8%AF%BB%E5%8F%96%E9%85%8D%E7%BD%AE"><span class="toc-text">短路本地读取配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#libhadoop-so"><span class="toc-text">libhadoop.so</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#hdfs-site-xml"><span class="toc-text">hdfs-site.xml</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS-Block%E8%B4%9F%E8%BD%BD%E5%B9%B3%E8%A1%A1%E5%99%A8%EF%BC%9ABalancer"><span class="toc-text">HDFS Block负载平衡器：Balancer</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%83%8C%E6%99%AF-1"><span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E9%85%8D%E7%BD%AE%E5%92%8C%E8%BF%90%E8%A1%8C"><span class="toc-text">命令行配置和运行</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E5%B9%B3%E8%A1%A1%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E5%B8%A6%E5%AE%BD"><span class="toc-text">设置平衡数据传输带宽</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%BB%98%E8%AE%A4%E8%BF%90%E8%A1%8Cbalancer"><span class="toc-text">默认运行balancer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E9%98%88%E5%80%BC%E8%BF%90%E8%A1%8Cbalancer"><span class="toc-text">修改阈值运行balancer</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E5%9D%87%E8%A1%A1%E5%99%A8%EF%BC%9AHDFS-Disk-Balancer"><span class="toc-text">磁盘均衡器：HDFS Disk Balancer</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%83%8C%E6%99%AF-2"><span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HDFS-Disk-Balancer%E7%AE%80%E4%BB%8B"><span class="toc-text">HDFS Disk Balancer简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HDFS-Disk-Balancer%E5%8A%9F%E8%83%BD"><span class="toc-text">HDFS Disk Balancer功能</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E6%92%AD%E6%8A%A5%E5%91%8A"><span class="toc-text">数据传播报告</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E5%B9%B3%E8%A1%A1"><span class="toc-text">磁盘平衡</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HDFS-Disk-Balancer%E5%BC%80%E5%90%AF"><span class="toc-text">HDFS Disk Balancer开启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HDFS-Disk-Balancer%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="toc-text">HDFS Disk Balancer相关命令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Plan%E8%AE%A1%E5%88%92"><span class="toc-text">Plan计划</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Execute%E6%89%A7%E8%A1%8C"><span class="toc-text">Execute执行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Query%E6%9F%A5%E8%AF%A2"><span class="toc-text">Query查询</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Cancel%E5%8F%96%E6%B6%88"><span class="toc-text">Cancel取消</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Report%E6%B1%87%E6%8A%A5"><span class="toc-text">Report汇报</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%A0%E5%88%A0%E7%A0%81%E6%8A%80%E6%9C%AF%EF%BC%9AErasure-Coding"><span class="toc-text">纠删码技术：Erasure Coding</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%83%8C%E6%99%AF%EF%BC%9A3%E5%89%AF%E6%9C%AC%E7%AD%96%E7%95%A5%E5%BC%8A%E7%AB%AF"><span class="toc-text">背景：3副本策略弊端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Erasure-Coding%EF%BC%88EC%EF%BC%89%E7%AE%80%E4%BB%8B"><span class="toc-text">Erasure Coding（EC）简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Reed-Solomon%EF%BC%88RS%EF%BC%89%E7%A0%81"><span class="toc-text">Reed-Solomon（RS）码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#RS%E7%A0%81%E4%BB%8B%E7%BB%8D"><span class="toc-text">RS码介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RS%E7%A0%81%E9%80%9A%E4%BF%97%E8%A7%A3%E9%87%8A"><span class="toc-text">RS码通俗解释</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hadoop-EC%E6%9E%B6%E6%9E%84"><span class="toc-text">Hadoop EC架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Erasure-Coding%E9%83%A8%E7%BD%B2%E6%96%B9%E5%BC%8F"><span class="toc-text">Erasure Coding部署方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E5%92%8C%E7%A1%AC%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="toc-text">集群和硬件配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%A0%E5%88%A0%E7%A0%81%E7%AD%96%E7%95%A5%E8%AE%BE%E7%BD%AE"><span class="toc-text">纠删码策略设置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E7%94%A8%E8%8B%B1%E7%89%B9%E5%B0%94ISA-L"><span class="toc-text">启用英特尔ISA-L</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EC%E5%91%BD%E4%BB%A4"><span class="toc-text">EC命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E5%8A%A8%E6%80%81%E8%8A%82%E7%82%B9%E7%AE%A1%E7%90%86"><span class="toc-text">HDFS动态节点管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF-3"><span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E6%89%A9%E5%AE%B9%E3%80%81%E8%8A%82%E7%82%B9%E4%B8%8A%E7%BA%BF"><span class="toc-text">动态扩容、节点上线</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E6%9C%BA%E5%99%A8%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-text">新机器基础环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%90%8D%E3%80%81IP"><span class="toc-text">主机名、IP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Hosts%E6%98%A0%E5%B0%84"><span class="toc-text">Hosts映射</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99%E3%80%81%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="toc-text">防火墙、时间同步</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SSH%E5%85%8D%E5%AF%86%E7%99%BB%E5%BD%95"><span class="toc-text">SSH免密登录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JDK%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-text">JDK环境配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hadoop%E9%85%8D%E7%BD%AE"><span class="toc-text">Hadoop配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#NameNode%E8%8A%82%E7%82%B9%E9%85%8D%E7%BD%AE"><span class="toc-text">NameNode节点配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B0%E6%9C%BA%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="toc-text">新机器配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E5%90%AF%E5%8A%A8DataNode%E8%BF%9B%E7%A8%8B"><span class="toc-text">手动启动DataNode进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hadoop-Web%E9%A1%B5%E9%9D%A2%E6%9F%A5%E7%9C%8B"><span class="toc-text">Hadoop Web页面查看</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DataNode%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E6%9C%8D%E5%8A%A1"><span class="toc-text">DataNode负载均衡服务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E7%BC%A9%E5%AE%B9%E3%80%81%E8%8A%82%E7%82%B9%E4%B8%8B%E7%BA%BF"><span class="toc-text">动态缩容、节点下线</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E9%80%80%E5%BD%B9%E8%8A%82%E7%82%B9"><span class="toc-text">添加退役节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E6%96%B0%E9%9B%86%E7%BE%A4"><span class="toc-text">刷新集群</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E5%85%B3%E9%97%ADDataNode%E8%BF%9B%E7%A8%8B"><span class="toc-text">手动关闭DataNode进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DataNode%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E6%9C%8D%E5%8A%A1-1"><span class="toc-text">DataNode负载均衡服务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E6%9C%BA%E5%88%B6"><span class="toc-text">黑白名单机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%99%BD%E5%90%8D%E5%8D%95"><span class="toc-text">白名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-text">黑名单</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS-High-Availability%EF%BC%88HA%EF%BC%89%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="toc-text">HDFS High Availability（HA）高可用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#High-Availability%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86"><span class="toc-text">High Availability背景知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E7%82%B9%E6%95%85%E9%9A%9C%E3%80%81%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="toc-text">单点故障、高可用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E5%8F%AF%E7%94%A8%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0"><span class="toc-text">高可用如何实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4"><span class="toc-text">主备集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Active%E3%80%81Standby"><span class="toc-text">Active、Standby</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E7%94%A8%E6%80%A7%E8%AF%84%E5%88%A4%E6%A0%87%E5%87%86%E2%80%94x%E4%B8%AA9"><span class="toc-text">可用性评判标准—x个9</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HA%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="toc-text">HA系统设计核心问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%84%91%E8%A3%82%E9%97%AE%E9%A2%98"><span class="toc-text">脑裂问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98"><span class="toc-text">数据同步问题</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS-NAMENODE%E5%8D%95%E7%82%B9%E6%95%85%E9%9A%9C%E9%97%AE%E9%A2%98"><span class="toc-text">HDFS NAMENODE单点故障问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS-HA%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E2%80%94QJM"><span class="toc-text">HDFS HA解决方案—QJM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#QJM%E2%80%94%E4%B8%BB%E5%A4%87%E5%88%87%E6%8D%A2%E3%80%81%E8%84%91%E8%A3%82%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-text">QJM—主备切换、脑裂问题解决</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ZKFailoverController%EF%BC%88zkfc%EF%BC%89"><span class="toc-text">ZKFailoverController（zkfc）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Fencing%E9%9A%94%E7%A6%BB%E6%9C%BA%E5%88%B6"><span class="toc-text">Fencing隔离机制</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#QJM%E2%80%94%E4%B8%BB%E5%A4%87%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-text">QJM—主备数据同步问题解决</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS-HA%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">HDFS HA环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-text">集群基础环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HA%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92"><span class="toc-text">HA集群规划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E4%BC%A0%E8%A7%A3%E5%8E%8BHadoop%E5%AE%89%E8%A3%85%E5%8C%85"><span class="toc-text">上传解压Hadoop安装包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEHadoop%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-text">配置Hadoop环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9Hadoop%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">修改Hadoop配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#hadoop-env-sh"><span class="toc-text">hadoop-env.sh</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#core-site-xml"><span class="toc-text">core-site.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#hdfs-site-xml-1"><span class="toc-text">hdfs-site.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#workers"><span class="toc-text">workers</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E5%90%8C%E6%AD%A5%E5%AE%89%E8%A3%85%E5%8C%85"><span class="toc-text">集群同步安装包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HA%E9%9B%86%E7%BE%A4%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">HA集群初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8zk%E9%9B%86%E7%BE%A4"><span class="toc-text">启动zk集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E5%90%AF%E5%8A%A8JN%E9%9B%86%E7%BE%A4"><span class="toc-text">手动启动JN集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Format-namenode"><span class="toc-text">Format namenode</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96zkfc"><span class="toc-text">格式化zkfc</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HA%E9%9B%86%E7%BE%A4%E5%90%AF%E5%8A%A8"><span class="toc-text">HA集群启动</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS-HA%E6%95%88%E6%9E%9C%E6%BC%94%E7%A4%BA"><span class="toc-text">HDFS HA效果演示</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A3%E5%B8%B8%E6%93%8D%E4%BD%9C"><span class="toc-text">正常操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A8%A1%E6%8B%9F%E6%95%85%E9%9A%9C%E5%87%BA%E7%8E%B0"><span class="toc-text">模拟故障出现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HA%E5%88%87%E6%8D%A2%E5%A4%B1%E8%B4%A5%E2%80%94%E9%94%99%E8%AF%AF%E8%A7%A3%E5%86%B3"><span class="toc-text">HA切换失败—错误解决</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS-Federation%E8%81%94%E9%82%A6%E6%9C%BA%E5%88%B6"><span class="toc-text">HDFS Federation联邦机制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BD%93%E5%89%8DHDFS%E4%BD%93%E7%B3%BB%E6%9E%B6%E6%9E%84"><span class="toc-text">当前HDFS体系架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B1%80%E9%99%90%E6%80%A7"><span class="toc-text">局限性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS-Federation%E6%9E%B6%E6%9E%84"><span class="toc-text">HDFS Federation架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B-1"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A5%BD%E5%A4%84"><span class="toc-text">好处</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS-Federation%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B"><span class="toc-text">HDFS Federation配置示例</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HDFS%E9%9B%86%E7%BE%A4%E6%BB%9A%E5%8A%A8%E5%8D%87%E7%BA%A7"><span class="toc-text">HDFS集群滚动升级</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%87%E7%BA%A7"><span class="toc-text">升级</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E5%81%9C%E6%9C%BA%E5%8D%87%E7%BA%A7"><span class="toc-text">不停机升级</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%87%E7%BA%A7%E9%9D%9E%E8%81%94%E9%82%A6%E9%9B%86%E7%BE%A4"><span class="toc-text">升级非联邦集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%87%E7%BA%A7%E8%81%94%E9%82%A6%E9%9B%86%E7%BE%A4"><span class="toc-text">升级联邦集群</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%9C%E6%9C%BA%E5%8D%87%E7%BA%A7"><span class="toc-text">停机升级</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%87%E7%BA%A7%E9%9D%9EHA%E9%9B%86%E7%BE%A4"><span class="toc-text">升级非HA集群</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%8D%E7%BA%A7%E5%92%8C%E5%9B%9E%E6%BB%9A"><span class="toc-text">降级和回滚</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%8D%E7%BA%A7"><span class="toc-text">降级</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E6%BB%9A"><span class="toc-text">回滚</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BB%9A%E5%8A%A8%E5%8D%87%E7%BA%A7%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="toc-text">滚动升级相关命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#dfsadmin-%E2%80%93rollingUpgrade"><span class="toc-text">dfsadmin –rollingUpgrade</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dfsadmin-%E2%80%93getDatanodeInfo"><span class="toc-text">dfsadmin –getDatanodeInfo</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dfsadmin-%E2%80%93shutdownDatanode"><span class="toc-text">dfsadmin –shutdownDatanode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#namenode-%E2%80%93rollingUpgrade"><span class="toc-text">namenode –rollingUpgrade</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

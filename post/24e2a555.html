@@ -1,0 +1,437 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RocketMQ高级实战 | 牧马人的忧伤</title><meta name="keywords" content="消息队列,RocketMQ"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 生产者1.1 Tags的使用一个应用尽可能用一个Topic，而消息子类型则可以用tags来标识。tags可以由应用自由设置，只有生产者在发送消息设置了tags，消费方在订阅消息时才可以利用tags通过broker做消息过滤：message.setTags(“TagA”)。 1.2 Keys的使用每个消息在业务层面的唯一标识码要设置到keys字段，方便将来定位消息丢失问题。服务器会为每个消息创">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ高级实战">
+<meta property="og:url" content="http://www.lvxueyang.vip/post/24e2a555.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="1. 生产者1.1 Tags的使用一个应用尽可能用一个Topic，而消息子类型则可以用tags来标识。tags可以由应用自由设置，只有生产者在发送消息设置了tags，消费方在订阅消息时才可以利用tags通过broker做消息过滤：message.setTags(“TagA”)。 1.2 Keys的使用每个消息在业务层面的唯一标识码要设置到keys字段，方便将来定位消息丢失问题。服务器会为每个消息创">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg">
+<meta property="article:published_time" content="2021-08-06T23:47:00.000Z">
+<meta property="article:modified_time" content="2022-01-05T14:50:37.789Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="消息队列">
+<meta property="article:tag" content="RocketMQ">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/24e2a555"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'RocketMQ高级实战',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-01-05 22:50:37'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">RocketMQ高级实战</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-06T23:47:00.000Z" title="发表于 2021-08-07 07:47:00">2021-08-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-05T14:50:37.789Z" title="更新于 2022-01-05 22:50:37">2022-01-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">消息队列</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/">RocketMQ</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">9.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>30分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="RocketMQ高级实战"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="1-生产者"><a href="#1-生产者" class="headerlink" title="1. 生产者"></a>1. 生产者</h1><h2 id="1-1-Tags的使用"><a href="#1-1-Tags的使用" class="headerlink" title="1.1 Tags的使用"></a>1.1 Tags的使用</h2><p>一个应用尽可能用一个Topic，而消息子类型则可以用tags来标识。tags可以由应用自由设置，只有生产者在发送消息设置了tags，消费方在订阅消息时才可以利用tags通过broker做消息过滤：message.setTags(“TagA”)。</p>
+<h2 id="1-2-Keys的使用"><a href="#1-2-Keys的使用" class="headerlink" title="1.2 Keys的使用"></a>1.2 Keys的使用</h2><p>每个消息在业务层面的唯一标识码要设置到keys字段，方便将来定位消息丢失问题。服务器会为每个消息创建索引（哈希索引,通过对key进行hash计算，索引表存入位置由取模取），应用可以通过topic、key来查询这条消息内容，以及消息被谁消费。由于是哈希索引，请务必保证key尽可能唯一，这样可以避免潜在的哈希冲突。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 订单Id</span></span><br><span class="line">String orderId = <span class="string">&quot;20034568923546&quot;</span>;</span><br><span class="line">message.setKeys(orderId);</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-3-日志的打印"><a href="#1-3-日志的打印" class="headerlink" title="1.3 日志的打印"></a>1.3 日志的打印</h2><p>消息发送成功或者失败要打印消息日志，务必要打印SendResult和key字段。send消息方法只要不抛异常，就代表发送成功。发送成功会有多个状态，在sendResult里定义。<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041706525.png" alt="image.png"><br>以下对每个状态进行说明：</p>
+<ul>
+<li><strong>SEND_OK</strong></li>
+</ul>
+<p>消息发送成功。要注意的是消息发送成功也不意味着它是可靠的。要确保不会丢失任何消息，还应启用同步Master服务器或同步刷盘，即SYNC_MASTER或SYNC_FLUSH。</p>
+<ul>
+<li><strong>FLUSH_DISK_TIMEOUT</strong></li>
+</ul>
+<p>消息发送成功但是服务器刷盘超时。此时消息已经进入服务器队列（内存），只有服务器宕机，消息才会丢失。消息存储配置参数中可以设置刷盘方式和同步刷盘时间长度。<br>如果Broker服务器设置了刷盘方式为同步刷盘，即FlushDiskType=<strong>SYNC_FLUSH</strong>（默认为异步刷盘方式），当Broker服务器未在同步刷盘时间内（<strong>默认为5s</strong>）完成刷盘，则将返回该状态——刷盘超时。</p>
+<ul>
+<li><strong>FLUSH_SLAVE_TIMEOUT</strong></li>
+</ul>
+<p>消息发送成功，但是服务器同步到Slave时超时。此时消息已经进入服务器队列，只有服务器宕机，消息才会丢失。<br>如果Broker服务器的角色是同步Master，即SYNC_MASTER（默认是异步Master即ASYNC_MASTER），并且从Broker服务器未在同步刷盘时间（默认为5秒）内完成与主服务器的同步，则将返回该状态——数据同步到Slave服务器超时。</p>
+<ul>
+<li><strong>SLAVE_NOT_AVAILABLE</strong></li>
+</ul>
+<p>消息发送成功，但是此时Slave不可用。<br>如果Broker服务器的角色是同步Master，即<strong>SYNC_MASTER</strong>（默认是异步Master服务器即ASYNC_MASTER），但没有配置slave Broker服务器，则将返回该状态——无Slave服务器可用。</p>
+<h2 id="1-4-消息发送失败处理方式"><a href="#1-4-消息发送失败处理方式" class="headerlink" title="1.4 消息发送失败处理方式"></a>1.4 消息发送失败处理方式</h2><p>  Producer的send方法本身支持内部重试，重试逻辑如下：</p>
+<ul>
+<li>至多重试2次（同步发送为2次，异步发送为0次）。</li>
+<li>如果发送失败，则轮转到下一个Broker。这个方法的总耗时时间不超过sendMsgTimeout设置的值，默认10s。</li>
+<li>如果本身向broker发送消息产生超时异常，就不会再重试。</li>
+</ul>
+<pre><code>以上策略也是在一定程度上保证了消息可以发送成功。如果业务对消息可靠性要求比较高，建议应用增加相应的重试逻辑：比如调用send同步方法发送失败时，则尝试将消息存储到db，然后由后台线程定时重试，确保消息一定到达Broker。
+</code></pre>
+<p>上述db重试方式为什么没有集成到MQ客户端内部做，而是要求应用自己去完成，主要基于以下几点考虑：</p>
+<ol>
+<li>MQ的客户端设计为无状态模式，方便任意的水平扩展，且对机器资源的消耗仅仅是cpu、内存、网络。</li>
+<li>如果MQ客户端内部集成一个KV存储模块，那么数据只有同步落盘才能较可靠，而同步落盘本身性能开销较大，所以通常会采用异步落盘，又由于应用关闭过程不受MQ运维人员控制，可能经常会发生 kill -9 这样暴力方式关闭，造成数据没有及时落盘而丢失。</li>
+<li>Producer所在机器的可靠性较低，一般为虚拟机，不适合存储重要数据。综上，建议重试过程交由应用来控制。</li>
+</ol>
+<h2 id="1-5-选择oneway形式发送"><a href="#1-5-选择oneway形式发送" class="headerlink" title="1.5 选择oneway形式发送"></a>1.5 选择oneway形式发送</h2><p>通常消息的发送是这样一个过程：</p>
+<ul>
+<li>客户端发送请求到服务器</li>
+<li>服务器处理请求</li>
+<li>服务器向客户端返回应答</li>
+</ul>
+<p>所以，一次消息发送的耗时时间是上述三个步骤的总和，而某些场景要求耗时非常短，但是对可靠性要求并不高，例如日志收集类应用，此类应用可以采用oneway形式调用，<strong>oneway形式只发送请求不等待应答</strong>，而发送请求在客户端实现层面仅仅是一个操作系统系统调用的开销，即将数据写入客户端的socket缓冲区，此过程耗时通常在<strong>微秒级</strong>。</p>
+<h1 id="2-消费者"><a href="#2-消费者" class="headerlink" title="2. 消费者"></a>2. 消费者</h1><h2 id="2-1-消费过程幂等"><a href="#2-1-消费过程幂等" class="headerlink" title="2.1 消费过程幂等"></a>2.1 消费过程幂等</h2><p>RocketMQ无法避免消息重复（Exactly-Once），所以如果业务对消费重复非常敏感，务必要在业务层面进行去重处理。<br>可以借助关系数据库进行去重。首先需要确定消息的唯一键，可以是msgId，也可以是消息内容中的唯一标识字段，例如订单Id等。<br>在消费之前判断唯一键是否在关系数据库中存在。如果不存在则插入，并消费，否则跳过。（实际过程要考虑原子性问题，判断是否存在可以尝试插入，如果报主键冲突，则插入失败，直接跳过）msgId一定是全局唯一标识符，但是实际使用中，可能会存在相同的消息有两个不同msgId的情况（消费者主动重发、因客户端重投机制导致的重复等），这种情况就需要使业务字段进行重复消费。</p>
+<h2 id="2-2-消费速度慢的处理方式"><a href="#2-2-消费速度慢的处理方式" class="headerlink" title="2.2 消费速度慢的处理方式"></a>2.2 消费速度慢的处理方式</h2><ul>
+<li><strong>提高消费并行度</strong></li>
+</ul>
+<p>绝大部分消息消费行为都属于 IO 密集型，即可能是操作数据库，或者调用 RPC，这类消费行为的消费速度在于后端数据库或者外系统的吞吐量。<br>通过增加消费并行度，可以提高总的消费吞吐量，但是并行度增加到一定程度，<strong>反而会下降</strong>。<br>所以，应用必须要设置合理的并行度。 如下有几种修改消费并行度的方法：<br>同一个 ConsumerGroup 下，通过增加 Consumer 实例数量来提高并行度（需要注意的是超过订阅队列数的 Consumer 实例无效）。可以通过加机器，或者在已有机器启动多个进程的方式。<br>提高单个 Consumer 的消费并行线程，通过修改参数 consumeThreadMin、consumeThreadMax实现。丢弃部分不重要的消息</p>
+<ul>
+<li><strong>批量方式消费</strong></li>
+</ul>
+<p>某些业务流程如果支持批量方式消费，则可以很大程度上提高消费吞吐量。<br>例如订单扣款类应用，一次处理一个订单耗时 1 s，一次处理 10 个订单可能也只耗时 2 s，这样即可大幅度提高消费的吞吐量，通过设置 consumer的 consumeMessageBatchMaxSize 返个参数，默认是 1，即一次只消费一条消息，例如设置为 N，那么每次消费的消息数小于等于 N。</p>
+<ul>
+<li><strong>跳过非重要消息</strong></li>
+</ul>
+<p>发生消息堆积时，如果消费速度一直追不上发送速度，如果业务对数据要求不高的话，可以选择丢弃不重要的消息。<br>例如，当某个队列的消息数堆积到100000条以上，则尝试丢弃部分或全部消息，这样就可以快速追上发送消息的速度。示例代码如下：<br>​</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ConsumeConcurrentlyStatus <span class="title">consumeMessage</span><span class="params">(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context)</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">long</span> offset = msgs.get(<span class="number">0</span>).getQueueOffset();</span><br><span class="line">    </span><br><span class="line">    String maxOffset = msgs.get(<span class="number">0</span>).getProperty(Message.PROPERTY_MAX_OFFSET);</span><br><span class="line">    <span class="keyword">long</span> diff = Long.parseLong(maxOffset) - offset;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (diff &gt; <span class="number">100000</span>) &#123; </span><br><span class="line">        <span class="comment">// TODO 消息堆积情况的特殊处理</span></span><br><span class="line">        <span class="keyword">return</span> ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// TODO 正常消费过程</span></span><br><span class="line">    <span class="keyword">return</span> ConsumeConcurrentlyStatus.CONSUME_SUCCESS; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-3-优化每条消息消费过程"><a href="#2-3-优化每条消息消费过程" class="headerlink" title="2.3 优化每条消息消费过程"></a>2.3 优化每条消息消费过程</h2><p>举例如下，某条消息的消费过程如下：</p>
+<ul>
+<li>根据消息从 DB 查询【数据 1】</li>
+<li>根据消息从 DB 查询【数据 2】</li>
+<li>复杂的业务计算</li>
+<li>向 DB 插入【数据 3】 </li>
+<li>向 DB 插入【数据 4】 </li>
+</ul>
+<p>这条消息的消费过程中有4次与 DB的 交互，如果按照每次 5ms 计算，那么总共耗时 20ms，假设业务计算耗时 5ms，那么总过耗时 25ms，所以如果能把 4 次 DB 交互优化为 2 次，那么总耗时就可以优化到 15ms，即总体性能提高了 40%。所以应用如果对时延敏感的话，可以把DB部署在SSD硬盘，相比于SCSI磁盘，前者的RT会小很多。</p>
+<h2 id="2-4-消费打印日志"><a href="#2-4-消费打印日志" class="headerlink" title="2.4 消费打印日志"></a>2.4 消费打印日志</h2><p>如果消息量较少，建议在消费入口方法打印消息，消费耗时等，方便后续排查问题。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ConsumeConcurrentlyStatus <span class="title">consumeMessage</span><span class="params">(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context)</span> </span>&#123; </span><br><span class="line">   </span><br><span class="line">    log.info(<span class="string">&quot;RECEIVE_MSG_BEGIN: &quot;</span> + msgs.toString());</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// TODO 正常消费过程</span></span><br><span class="line">    <span class="keyword">return</span> ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果能打印每条消息消费耗时，那么在排查消费慢等线上问题时，会更方便。</p>
+<h2 id="2-5-其他消费建议"><a href="#2-5-其他消费建议" class="headerlink" title="2.5 其他消费建议"></a>2.5 其他消费建议</h2><p><strong>1 关于消费者和订阅</strong><br>第一件需要注意的事情是，不同的消费组可以独立的消费一些 topic，并且每个消费组都有自己的消费偏移量。<br>确保同一组内的<strong>每个消费者订阅信息保持一致</strong>。</p>
+<p><strong>2 关于有序消息</strong><br>消费者将锁定每个消息队列，以确保他们被逐个消费，虽然这将会导致性能下降，但是当你关心消息顺序的时候会很有用。<br>我们不建议抛出异常，你可以返回ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT 作为替代。</p>
+<p><strong>3 关于并发消费</strong><br>顾名思义，消费者将并发消费这些消息，建议你使用它来获得良好性能，我们不建议抛出异常，你可以返回 ConsumeConcurrentlyStatus.RECONSUME_LATER 作为替代。</p>
+<p><strong>4 关于消费状态Consume Status</strong><br>对于并发的消费监听器，你可以返回 RECONSUME_LATER 来通知消费者现在不能消费这条消息，并且希望可以稍后重新消费它。然后，你可以继续消费其他消息。对于有序的消息监听器，因为你关心它的顺序，所以不能跳过消息，但是你可以返回SUSPEND_CURRENT_QUEUE_A_MOMENT 告诉消费者等待片刻。</p>
+<p><strong>5 关于Blocking</strong><br>不建议阻塞监听器，因为它会阻塞线程池，并最终可能会终止消费进程</p>
+<p><strong>6 关于线程数设置</strong><br>消费者使用 ThreadPoolExecutor 在内部对消息进行消费，所以你可以通过设置setConsumeThreadMin 或 setConsumeThreadMax 来改变它。</p>
+<p><strong>7 关于消费位点</strong><br>当建立一个新的消费组时，需要决定是否需要消费已经存在于 Broker 中的历史消息。<br>CONSUME_FROM_LAST_OFFSET 将会忽略历史消息，并消费之后生成的任何消息。<br>CONSUME_FROM_FIRST_OFFSET 将会消费每个存在于 Broker 中的信息。<br>也可以使用 CONSUME_FROM_TIMESTAMP 来消费在指定时间戳后产生的消息。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> MQClientException </span>&#123;</span><br><span class="line">    DefaultMQPushConsumer consumer = <span class="keyword">new</span> DefaultMQPushConsumer(<span class="string">&quot;consumer_grp_15_01&quot;</span>); </span><br><span class="line">    consumer.setNamesrvAddr(<span class="string">&quot;node1:9886&quot;</span>); </span><br><span class="line">    consumer.subscribe(<span class="string">&quot;tp_demo_15&quot;</span>, <span class="string">&quot;*&quot;</span>);</span><br><span class="line">    <span class="comment">// 以下三个选一个使用，如果是根据时间戳进行消费，则需要设置时间戳 </span></span><br><span class="line">    <span class="comment">// 从第一个消息开始消费，从头开始</span></span><br><span class="line">    consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET); </span><br><span class="line">    <span class="comment">// 从最后一个消息开始消费，不消费历史消息 </span></span><br><span class="line">    consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET); </span><br><span class="line">    <span class="comment">// 从指定的时间戳开始消费 </span></span><br><span class="line">    consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_TIMESTAMP); </span><br><span class="line">    <span class="comment">// 指定时间戳的值 </span></span><br><span class="line">    consumer.setConsumeTimestamp(<span class="string">&quot;&quot;</span>); </span><br><span class="line">    consumer.setMessageListener(<span class="keyword">new</span> MessageListenerConcurrently() &#123; </span><br><span class="line">        <span class="meta">@Override</span> </span><br><span class="line">        <span class="function"><span class="keyword">public</span> ConsumeConcurrentlyStatus <span class="title">consumeMessage</span><span class="params">(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context)</span> </span>&#123; </span><br><span class="line">            <span class="comment">// TODO 处理消息的业务逻辑</span></span><br><span class="line">            <span class="keyword">return</span> ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</span><br><span class="line">            <span class="comment">// return ConsumeConcurrentlyStatus.RECONSUME_LATER; </span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    consumer.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="3-Broker"><a href="#3-Broker" class="headerlink" title="3. Broker"></a>3. Broker</h1><h2 id="3-1-Broker-角色"><a href="#3-1-Broker-角色" class="headerlink" title="3.1 Broker 角色"></a>3.1 Broker 角色</h2><p>Broker 角色分为 ASYNC_MASTER（异步主机）、SYNC_MASTER（同步主机）以及SLAVE（从机）。如果对消息的可靠性要求比较严格，可以采用 SYNC_MASTER加SLAVE的部署方式。如果对消息可靠性要求不高，可以采用ASYNC_MASTER加SLAVE的部署方式。如果只是测试方便，则可以选择仅<br>ASYNC_MASTER或仅SYNC_MASTER的部署方式。</p>
+<h2 id="3-2-FlushDiskType"><a href="#3-2-FlushDiskType" class="headerlink" title="3.2 FlushDiskType"></a>3.2 FlushDiskType</h2><pre><code>SYNC_FLUSH（同步刷新）相比于ASYNC_FLUSH（异步处理）会损失很多性能，但是也更可靠，所以需要根据实际的业务场景做好权衡。
+</code></pre>
+<h2 id="3-3-Broker-配置"><a href="#3-3-Broker-配置" class="headerlink" title="3.3 Broker 配置"></a>3.3 Broker 配置</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041707286.png" alt="image.png"></p>
+<h1 id="4-NameServer"><a href="#4-NameServer" class="headerlink" title="4. NameServer"></a>4. NameServer</h1><p>RocketMQ的架构图：<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041707762.png" alt="image.png"><br>NameServer的设计：</p>
+<ol>
+<li>NameServer互相独立，彼此<strong>没有</strong>通信关系，单台NameServer挂掉，不影响其他NameServer。 </li>
+<li>NameServer不去连接别的机器，<strong>不主动推消息</strong>。 </li>
+<li>单个Broker（Master、Slave）<strong>与所有NameServer</strong>进行定时注册，以便告知NameServer自己还活着。<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Broker每隔<span class="number">30</span>秒向所有NameServer发送心跳，心跳包含了自身的topic配置信息。</span><br><span class="line">NameServer每隔<span class="number">10</span>秒，扫描所有还存活的broker连接，如果某个连接的最后更新时间</span><br><span class="line">与当前时间差值超过<span class="number">2</span>分钟，则断开此连接，NameServer也会断开此broker下所有与</span><br><span class="line">slave的连接。同时更新topic与队列的对应关系，但不通知生产者和消费者。</span><br><span class="line">Broker slave 同步或者异步从Broker master 上拷贝数据。</span><br></pre></td></tr></table></figure></li>
+<li>Consumer随机与一个NameServer建立长连接，如果该NameServer断开，则从NameServer列表中查找下一个进行连接。<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Consumer主要从NameServer中根据Topic查询Broker的地址，查到就会缓存到客户</span><br><span class="line">端，并向提供Topic服务的Master、Slave建立长连接，且定时向Master、Slave发送心跳。</span><br><span class="line">如果Broker宕机，则NameServer会将其剔除，而Consumer端的定时任务</span><br><span class="line">MQClientInstance.<span class="keyword">this</span>.updateTopicRouteInfoFromNameServer 每<span class="number">30</span>秒执行一</span><br><span class="line">次，将Topic对应的Broker地址拉取下来，此地址只有Slave地址了，此时Consumer从Slave上消费。</span><br><span class="line">消费者与Master和Slave都建有连接，在不同场景有不同的消费规则。</span><br></pre></td></tr></table></figure></li>
+<li>Producer随机与一个NameServer建立长连接，<strong>每隔30秒</strong>（此处时间可配置）从NameServer获取Topic的最新队列情况，如果某个Broker Master宕机，Producer最多30秒才能感知，<strong>在这个期间，发往该broker master的消息失败</strong>。Producer向提供Topic服务的Master建立长连接，且定时向Master发送心跳。<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">生产者与所有的master连接，但不能向slave写入。</span><br><span class="line">客户端是先从NameServer寻址的，得到可用Broker的IP和端口信息，然后据此信息连接broker。</span><br></pre></td></tr></table></figure>
+综上所述，NameServer在RocketMQ中的作用：</li>
+<li>NameServer 用来保存活跃的 broker 列表，包括 Master 和 Slave 。 </li>
+<li>NameServer 用来保存所有 topic 和该 topic 所有队列的列表。</li>
+<li>NameServer 用来保存所有 broker 的 Filter 列表。</li>
+<li>命名服务器为客户端，包括生产者，消费者和命令行客户端提供最新的路由信息。</li>
+</ol>
+<p><strong>RocketMQ为什么不使用ZooKeeper而自己开发NameServer？ **<br>在</strong>服务发现领域**，ZooKeeper 根本就不能算是最佳的选择。</p>
+<ol>
+<li><p>注册中心是CP还是AP系统?<br>在分布式系统中，即使是对等部署的服务，因为请求到达的时间，硬件的状态，操作系统的调度，虚拟机的GC等，任何一个时间点，这些对等部署的节点状态也不可能完全一致，而流量不一致的情况下，只要注册中心在A承诺的时间内（例如1s内）将数据收敛到一致状态（即满足最终一致），流量将很快趋于统计学意义上的一致，所以注册中心以最终一致的模型设计在生产实践中完全可以接受。</p>
+</li>
+<li><p>分区容忍及可用性需求分析<br>实践中，注册中心不能因为自身的任何原因破坏服务之间本身的可连通性，这是注册中心设计应该遵循的铁律！<br>在CAP的权衡中，注册中心的可用性比数据强一致性更宝贵，所以整体设计更应该偏向AP，而非CP，数据不一致在可接受范围，而P下舍弃A却完全违反了注册中心不能因为自身的任何原因破坏服务本身的可连通性的原则。</p>
+</li>
+<li><p>服务规模、容量、服务联通性<br>当数据中心服务规模超过一定数量，作为注册中心的ZooKeeper性能堪忧。<br>在服务发现和健康监测场景下，随着服务规模的增大，无论是应用频繁发布时的服务注册带来的写请求，还是刷毫秒级的服务健康状态带来的写请求，还是恨不能整个数据中心的机器或者容器皆与注册中心有长连接带来的连接压力上，ZooKeeper很快就会力不从心，而ZooKeeper的写并不是可扩展的，不可以通过加节点解决水平扩展性问题。</p>
+</li>
+<li><p>注册中心需要持久存储和事务日志么？<br>需要，也不需要。</p>
+</li>
+</ol>
+<p>在服务发现场景中，其最核心的数据——实时的健康的服务的地址列表，真的需要数据持久化么？<br>不需要</p>
+<p>在服务发现中，服务调用发起方更关注的是其要调用的服务的实时的地址列表和实时健康状态，每次发起调用时，并不关心要调用的服务的历史服务地址列表、过去的健康状态。<br>但是一个完整的生产可用的注册中心，除了服务的实时地址列表以及实时的健康状态之外，还会存储一些服务的元数据信息，例如服务的版本，分组，所在的数据中心，权重，鉴权策略信息，服务标签等元数据，这些数据需要持久化存储，并且注册中心应该提供对这些元数据的检索的能力。</p>
+<ol start="5">
+<li>服务健康检查<br>   使用ZooKeeper作为服务注册中心时，服务的健康检测绑定在了ZooKeeper对于Session的健康监测上，或者说绑定在TCP长链接活性探测上了。<br>   ZK与服务提供者机器之间的TCP长链接活性探测正常的时候，该服务就是健康的么？<br>   答案当然是否定的！注册中心应该提供更丰富的健康监测方案，服务的健康与否的逻辑应该开放给服务提供方自己定义，而不是一刀切搞成了TCP活性检测！</li>
+</ol>
+<p>健康检测的一大基本设计原则就是尽可能真实的反馈服务本身的真实健康状态，否则一个不敢被服务调用者相信的健康状态判定结果还不如没有健康检测。</p>
+<ol start="6">
+<li>注册中心的容灾考虑<br>   如果注册中心（Registry）本身完全宕机了，服务调用链路应该受到影响么？<br>   不应该受到影响。</li>
+</ol>
+<p>服务调用（请求响应流）链路应该是弱依赖注册中心，必须仅在服务发布，机器上下线，服务扩缩容等必要时才依赖注册中心。<br>这需要注册中心仔细的设计自己提供的客户端，客户端中应该有针对注册中心服务完全不可用时做容灾的手段，例如设计客户端缓存数据机制就是行之有效的手段。另外，注册中心的健康检查机制也要仔细设计以便在这种情况不会出现诸如推空等情况的出现。</p>
+<p>ZooKeeper的原生客户端并没有这种能力，所以利用ZooKeeper实现注册中心的时候我们一定要问自己，如果把ZooKeeper所有节点全干掉，你生产上的所有服务调用链路能不受任何影响么？</p>
+<ol start="7">
+<li>你有没有ZooKeeper的专家可依靠？</li>
+</ol>
+<ul>
+<li>难以掌握的Client/Session状态机</li>
+<li>难以承受的异常处理</li>
+</ul>
+<p>阿里巴巴是不是完全没有使用 ZooKeeper？<br>并不是。</p>
+<p>熟悉阿里巴巴技术体系的都知道，其实阿里巴巴维护了目前国内最大规模的ZooKeeper集群，整体规模有近千台的ZooKeeper服务节点。<br>在粗粒度分布式锁，分布式选主，主备高可用切换等不需要高TPS支持的场景下有不可替代的作用，而这些需求往往多集中在大数据、离线任务等相关的业务领域，因为大数据领域，讲究分割数据集，并且大部分时间分任务多进程/线程并行处理这些数据集，但是总是有一些点上需要将这些任务和进程统一协调，这时候就是ZooKeeper发挥巨大作用的用武之地。</p>
+<p>但是在交易场景交易链路上，在主业务数据存取，大规模服务发现、大规模健康监测等方面有天然的短板，应该竭力避免在这些场景下引入ZooKeeper，在阿里巴巴的生产实践中，应用对ZooKeeper申请使用的时候要进行严格的场景、容量、SLA需求的评估。<br>对于ZooKeeper，大数据使用，服务发现不用。</p>
+<h1 id="5-客户端配置"><a href="#5-客户端配置" class="headerlink" title="5. 客户端配置"></a>5. 客户端配置</h1><p>相对于RocketMQ的Broker集群，生产者和消费者都是客户端。<br>本节主要描述生产者和消费者公共的行为配置。<br>DefaultMQProducer、TransactionMQProducer、DefaultMQPushConsumer、DefaultMQPullConsumer都继承于ClientConfig类，ClientConfig为客户端的公共配置类。<br>客户端的配置都是get、set形式，每个参数都可以用spring来配置，也可以在代码中配置。<br>例如namesrvAddr这个参数可以这样配置，producer.setNamesrvAddr(“192.168.0.1:9876”)，其他参数同理。</p>
+<h2 id="5-1-客户端寻址方式"><a href="#5-1-客户端寻址方式" class="headerlink" title="5.1 客户端寻址方式"></a>5.1 客户端寻址方式</h2><p>RocketMQ可以令客户端找到Name Server, 然后通过Name Server再找到Broker。如下所示有多种配置方式，优先级由高到低，高优先级会覆盖低优先级。</p>
+<ul>
+<li>代码中指定Name Server地址，多个namesrv地址之间用<strong>分号</strong>分割</li>
+</ul>
+<p>producer.setNamesrvAddr(“192.168.0.1:9876;192.168.0.2:9876”);<br>consumer.setNamesrvAddr(“192.168.0.1:9876;192.168.0.2:9876”);</p>
+<ul>
+<li>Java启动参数中指定Name Server地址</li>
+</ul>
+<p>-Drocketmq.namesrv.addr=192.168.0.1:9876;192.168.0.2:9876<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041707985.png" alt="image.png"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.rocketmq.client.exception.MQBrokerException; </span><br><span class="line"><span class="keyword">import</span> org.apache.rocketmq.client.exception.MQClientException; </span><br><span class="line"><span class="keyword">import</span> org.apache.rocketmq.client.producer.DefaultMQProducer;</span><br><span class="line"><span class="keyword">import</span> org.apache.rocketmq.client.producer.SendResult; </span><br><span class="line"><span class="keyword">import</span> org.apache.rocketmq.common.message.Message; </span><br><span class="line"><span class="keyword">import</span> org.apache.rocketmq.remoting.exception.RemotingException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyProducer1</span> </span>&#123; </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> MQClientException, RemotingException, InterruptedException, MQBrokerException </span>&#123; </span><br><span class="line">        DefaultMQProducer producer = <span class="keyword">new</span> DefaultMQProducer(<span class="string">&quot;producer_grp_17_02&quot;</span>); </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 不使用代码指定，在启动参数中指定 </span></span><br><span class="line">        <span class="comment">// producer.setNamesrvAddr(&quot;node1:9876&quot;); </span></span><br><span class="line">        </span><br><span class="line">        producer.start();</span><br><span class="line">        Message message = <span class="keyword">new</span> Message(<span class="string">&quot;tp_demo_17&quot;</span>, <span class="string">&quot;hello lagou&quot;</span>.getBytes());</span><br><span class="line">        SendResult sendResult = producer.send(message);</span><br><span class="line">        System.out.println(sendResult.getSendStatus());</span><br><span class="line">        System.out.println(sendResult.getMsgId()); </span><br><span class="line">        System.out.println(sendResult.getOffsetMsgId());</span><br><span class="line">        producer.shutdown(); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>环境变量指定Name Server地址</li>
+</ul>
+<p>export NAMESRV_ADDR=192.168.0.1:9876;192.168.0.2:9876<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041708938.png" alt="image.png"><br>代码同上，但是需要重启Idea，一定是关闭之后再启动，让它加载该环境变量。<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041708146.png" alt="image.png"><br>上图中没有设置VM Options，但是设置了环境变量，运行代码看效果：<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041708107.png" alt="image.png"><br>​</p>
+<ul>
+<li>HTTP静态服务器寻址（默认）</li>
+</ul>
+<p>该静态地址，客户端第一次会10s后调用，然后每个2分钟调用一次。<br>客户端启动后，会定时访问一个静态HTTP服务器，地址如下：                <a target="_blank" rel="noopener" href="http://jmenv.tbsite.net:8080/rocketmq/nsaddr%EF%BC%8C%E6%AD%A4URL%E6%98%AFrocketmq%E6%BA%90%E7%A0%81%E4%B8%AD%E5%90%AF%E5%8A%A8%E6%97%B6%E9%BB%98%E8%AE%A4%E4%BC%9A%E8%AE%BF%E9%97%AE%E7%9A%84http%E6%9C%8D%E5%8A%A1%E5%9C%B0%E5%9D%80%EF%BC%88%E5%8F%AF%E8%83%BD%E4%B8%BAtaobao%E5%86%85%E9%83%A8%E6%B5%8B%E8%AF%95%E5%9C%B0%E5%9D%80%EF%BC%89%E8%8E%B7%E5%8F%96nameserver%E5%9C%B0%E5%9D%80%EF%BC%8C%E8%BF%99%E4%B8%AAURL%E7%9A%84%E8%BF%94%E5%9B%9E%E5%86%85%E5%AE%B9%E5%A6%82%E4%B8%8B%EF%BC%9A">http://jmenv.tbsite.net:8080/rocketmq/nsaddr，此URL是rocketmq源码中启动时默认会访问的http服务地址（可能为taobao内部测试地址）获取nameserver地址，这个URL的返回内容如下：</a><br>192.168.0.1:9876;192.168.0.2:9876<br>源码：<br>org.apache.rocketmq.common.MixAll.java中：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041708669.png" alt="image.png"><br>没有设置VM Options，也没有设置环境变量。<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041708024.png" alt="image.png"><br>同时开发一个服务，让客户端来访问：<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041708147.png" alt="image.png"><br>启动springboot项目，访问浏览器：<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041708029.png" alt="image.png"><br>修改/etc/hosts文件：<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041708096.png" alt="image.png"><br>在不设置nameserver地址时，依然可以访问，发送消息。<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041708856.png" alt="image.png"><br>推荐使用HTTP静态服务器寻址方式，好处是客户端部署简单，且Name Server集群可以热升级。因为只需要修改域名解析，客户端不需要重启。</p>
+<h2 id="5-2-客户端的公共配置"><a href="#5-2-客户端的公共配置" class="headerlink" title="5.2 客户端的公共配置"></a>5.2 客户端的公共配置</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041711339.png" alt="image.png"></p>
+<h2 id="5-3-Producer配置"><a href="#5-3-Producer配置" class="headerlink" title="5.3 Producer配置"></a>5.3 Producer配置</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041710571.png" alt="image.png"><br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041710494.png" alt="image.png"></p>
+<h2 id="5-4-PushConsumer配置"><a href="#5-4-PushConsumer配置" class="headerlink" title="5.4 PushConsumer配置"></a>5.4 PushConsumer配置</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041710285.png" alt="image.png"></p>
+<h2 id="5-5-PullConsumer配置"><a href="#5-5-PullConsumer配置" class="headerlink" title="5.5 PullConsumer配置"></a>5.5 PullConsumer配置</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041710368.png" alt="image.png"></p>
+<h2 id="5-6-Message数据结构"><a href="#5-6-Message数据结构" class="headerlink" title="5.6 Message数据结构"></a>5.6 Message数据结构</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041710928.png" alt="image.png"></p>
+<h1 id="6-系统配置"><a href="#6-系统配置" class="headerlink" title="6. 系统配置"></a>6. 系统配置</h1><p>本小节主要介绍系统（JVM/OS）相关的配置。</p>
+<h2 id="6-1-JVM选项"><a href="#6-1-JVM选项" class="headerlink" title="6.1 JVM选项"></a>6.1 JVM选项</h2><p>设置Xms和Xmx一样大，防止JVM重新调整堆空间大小影响性能。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">-server -Xms8g -Xmx8g -Xmn4g</span><br></pre></td></tr></table></figure>
+<p>设置DirectByteBuffer内存大小。当DirectByteBuffer占用达到这个值，就会触发Full GC。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">-XX:MaxDirectMemorySize=15g</span><br></pre></td></tr></table></figure>
+<p>如果不太关心RocketMQ的启动时间，可以设置pre-touch，这样在JVM启动的时候就会分配完整的页空间。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">-XX:+AlwaysPreTouch</span><br></pre></td></tr></table></figure>
+<p>禁用偏向锁可能减少JVM的停顿，因为偏向锁在线程需要获取锁之前会判断当前线程是否拥有锁，如果拥有，就不用再去获取锁了。<br>在并发小的时候使用偏向锁有利于提升JVM效率，在高并发场合禁用掉。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">-XX:-UseBiasedLocking</span><br></pre></td></tr></table></figure>
+<p>推荐使用JDK1.8的G1垃圾回收器：<br>当在G1的GC日志中看到 to-space overflow 或者 to-space exhausted 的时候，表示G1没有足够的内存使用的（可能是 survivor 区不够了，可能是老年代不够了，也可能是两者都不够了），这时候表示Java堆占用大小已经达到了最大值。比如： 924.897: [GC pause (G1 Evacuation Pause)  (mixed) (to-space exhausted), 0.1957310 secs] 924.897: [GC pause (G1 Evacuation Pause) (mixed) (to-space overflow), 0.1957310 secs] 为了解决这个问题，请尝试做以下调整：</p>
+<ol>
+<li>增加预留内存：增大参数 -XX:G1ReservePercent 的值（相应的增加堆内存）来增加预留内存；</li>
+<li>更早的开始标记周期：减小 -XX:InitiatingHeapOccupancyPercent 参数的值，以更早的开始标记周期；</li>
+<li>增加并发收集线程数：增大 -XX:ConcGCThreads 参数值，以增加并行标记线程数。</li>
+</ol>
+<p>对G1而言，大小超过region大小50%的对象将被认为是大对象，这种大对象将直接被分配到老年代的humongous regions中，humongous regions是连续的region集合，StartsHumongous表记集合从那里开始，ContinuesHumongous标记连续集合。</p>
+<p>在分配大对象之前，将会检查标记阈值，如果有必要的话，还会启动并发周期。<br>死亡的大对象会在标记周期的清理阶段和发生Full GC的时候被清理。<br>为了减少复制开销，任何转移阶段都不包含大对象的复制。在Full GC时，G1在原地压缩大对象。<br>因为每个独立的humongous regions只包含一个大对象，因此从大对象的结尾到它占用的最后一个region的结尾的那部分空间时没有被使用的，对于那些大小略大于region整数倍的对象，这些没有被使用的内存将导致内存碎片化。<br>如果你看到因为大对象的分配导致不断的启动并发收集，并且这种分配使得老年代碎片化不断加剧，那么请增加-XX:G1HeapRegionSize参数的值，这样的话，大对象将不再被G1认为是大对象，它会走普通对象的分配流程。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"># G1回收器将堆空间划分为<span class="number">1024</span>个region，此选项指定堆空间region的大小</span><br><span class="line">-XX:+UseG1GC -XX:G1HeapRegionSize=16m</span><br><span class="line">-XX:G1ReservePercent=<span class="number">25</span> </span><br><span class="line">-XX:InitiatingHeapOccupancyPercent=<span class="number">30</span></span><br></pre></td></tr></table></figure>
+<p>上述设置可能有点儿激进，但是对于生产环境，性能很好。<br>-XX:MaxGCPauseMillis(GC停顿时间)不要设置的太小，否则JVM会使用小的年轻代空间以达到此设置的值，同时引起很频繁的minor GC。<br>推荐使用GC log文件：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">-XX:+UseGCLogFileRotation </span><br><span class="line">-XX:NumberOfGCLogFiles=<span class="number">5</span></span><br><span class="line">-XX:GCLogFileSize=30m</span><br></pre></td></tr></table></figure>
+<p>如果写GC文件增加了Broker的延迟，可以考虑将GC log文件写到内存文件系统：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">-Xloggc:/dev/shm/mq_gc_%p.log123</span><br></pre></td></tr></table></figure>
+<h2 id="6-2-Linux内核参数"><a href="#6-2-Linux内核参数" class="headerlink" title="6.2 Linux内核参数"></a>6.2 Linux内核参数</h2><p>os.sh脚本在bin文件夹中列出了许多内核参数，可以进行微小的更改然后用于生产用途。下面的参数需要注意，更多细节请参考/proc/sys/vm/*的文档</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"># 获取内核参数值</span><br><span class="line">sysctl vm.extra_free_kbytes</span><br><span class="line"></span><br><span class="line"># 设置内核参数值 </span><br><span class="line">sudo sysctl -w vm.overcommit_memory=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>vm.extra_free_kbytes</strong>，告诉VM在后台回收（kswapd）启动的阈值与直接回收（通过分配进程）的阈值之间保留额外的可用内存。RocketMQ使用此参数来避免内存分配中的长延迟。（与具体内核版本相关）</p>
+</li>
+<li><p><strong>vm.min_free_kbytes</strong>，如果将其设置为低于1024KB，将会巧妙的将系统破坏，并且系统在高负载下容易出现死锁。</p>
+</li>
+<li><p><strong>vm.max_map_count</strong>，限制一个进程可能具有的最大内存映射区域数。RocketMQ将使用mmap加载CommitLog和ConsumeQueue，因此建议将为此参数设置较大的值。</p>
+</li>
+<li><p><strong>vm.swappiness</strong>，定义内核交换内存页面的积极程度。较高的值会增加攻击性，较低的值会减少交换量。建议将值设置为10来避免交换延迟。</p>
+</li>
+<li><p><strong>File descriptor limits</strong>，RocketMQ需要为文件（CommitLog和ConsumeQueue）和网络连接打开文件描述符。我们建议设置文件描述符的值为655350。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">echo <span class="string">&#x27;* hard nofile 655350&#x27;</span> &gt;&gt; /etc/security/limits.conf</span><br></pre></td></tr></table></figure></li>
+<li><p>Disk scheduler，RocketMQ建议使用I/O截止时间调度器，它试图为请求提供有保证的延迟。</p>
+</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041710751.png" alt="image.png"></p>
+<h1 id="7-动态扩缩容"><a href="#7-动态扩缩容" class="headerlink" title="7. 动态扩缩容"></a>7. 动态扩缩容</h1><h2 id="7-1-动态增减Namesrv机器"><a href="#7-1-动态增减Namesrv机器" class="headerlink" title="7.1 动态增减Namesrv机器"></a>7.1 动态增减Namesrv机器</h2><p>NameServer是RocketMQ集群的协调者，集群的各个组件是通过NameServer获取各种属性和地址信息的。<br>主要功能包括两部分：</p>
+<ol>
+<li><p>一个各个Broker定期上报自己的状态信息到NameServer； </p>
+</li>
+<li><p>另一个是各个客户端，包括Producer、Consumer，以及命令行工具，通过NameServer获取最新的状态信息。<br>所以，在启动Broker、生产者和消费者之前，必须告诉它们NameServer的地址，为了提高可靠性，建议启动多个NameServer。NameServer占用资源不多，可以和Broker部署在同一台机器。有多个NameServer后，减少某个NameServer不会对其他组件产生影响。<br>有四种种方式可设置NameServer的地址，下面按优先级由高到低依次介绍：<br>1）通过代码设置，比如在Producer中，通过<code>Producer.setNamesrvAddr（&quot;name-server1-ip：port；name-server2-ip：port&quot;）</code>来设置。<br>在mqadmin命令行工具中，是通过-n name-server-ip1：port；name-server-ip2：port参数来设置的，如果自定义了命令行工具，也可以通过<code>defaultMQAdminExt.setNamesrvAddr（&quot;nameserver1-ip：port；name-server2-ip：port&quot;）</code>来设置。</p>
+<p>2）使用Java启动参数设置，对应的option是rocketmq.namesrv.addr。<br>3）通过Linux环境变量设置，在启动前设置变量：NAMESRV_ADDR。<br>4）通过HTTP服务来设置，当上述方法都没有使用，程序会向一个HTTP地址发送请求来获取NameServer地址，默认的URL是<a target="_blank" rel="noopener" href="http://jmenv.tbsite.net:8080/rocketmq/nsaddr">http://jmenv.tbsite.net:8080/rocketmq/nsaddr</a> （淘宝的测试地址），通过rocketmq.namesrv.domain参数来覆盖jmenv.tbsite.net；通过rocketmq.namesrv.domain.subgroup参数来覆盖nsaddr。<br>第4种方式看似繁琐，但它是唯一支持动态增加NameServer，无须重启其他组件的方式。使用这种方式后其他组件会每隔2分钟请求一次该URL，获取最新的NameServer地址。</p>
+</li>
+</ol>
+<h2 id="7-2-动态增减Broker机器"><a href="#7-2-动态增减Broker机器" class="headerlink" title="7.2 动态增减Broker机器"></a>7.2 动态增减Broker机器</h2><p>由于业务增长，需要对集群进行扩容的时候，可以动态增加Broker角色的机器。只增加Broker不会对原有的Topic产生影响，原来创建好的Topic中数据的读写依然在原来的那些Broker上进行。<br>集群扩容后，一是可以把新建的Topic指定到新的Broker机器上，均衡利用资源；另一种方式是通过updateTopic命令更改现有的Topic配置，在新加的Broker上创建新的队列。比如TestTopic是现有的一个Topic，因为数据量增大需要扩容，新增的一个Broker机器地址是192.168.0.1:10911，这个时候执行下面的命令：<br><code>sh./bin/mqadmin updateTopic-b 192.168.0.1:10911 -t TestTopic -n 192.168.0.100:9876</code>，结果是在新增的Broker机器上，为TestTopic新创建了8个读写队列。<br><code>mqadmin updateTopic -b &lt;arg&gt; | -c &lt;arg&gt; [-h] [-n &lt;arg&gt;] [-o &lt;arg&gt;] [-p &lt;arg&gt;] [-r&lt;arg&gt;] [-s &lt;arg&gt;] -t &lt;arg&gt; [-u &lt;arg&gt;] [-w &lt;arg&gt;]</code></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]# mqadmin topicStatus -n localhost:9876 -t tp_demo_07 </span><br><span class="line">[root@node1 ~]# mqadmin updateTopic -b node2:10911 -t tp_demo_07 -n &#x27;node1:9876;node2:9876&#x27; -w 8 -r 8 </span><br><span class="line">[root@node1 ~]# mqadmin topicStatus -n localhost:9876 -t tp_demo_07</span><br></pre></td></tr></table></figure>
+<p>如果因为业务变动或者置换机器需要减少Broker，此时该如何操作呢？减少Broker要看是否有持续运行的Producer，当一个Topic只有一个Master Broker，停掉这个Broker后，消息的发送肯定会受到影响，需要在停止这个Broker前，停止发送消息。<br>当某个Topic有多个Master Broker，停了其中一个，这时候是否会丢失消息呢？<br>答案和Producer使用的发送消息的方式有关，如果使用同步方式send（msg）发送，在DefaultMQProducer内部有个自动重试逻辑，其中一个Broker停了，会自动向另一个Broker发消息，不会发生丢消息现象。如果使用异步方式发送send（msg，callback），或者用sendOneWay方式，会丢失切换过程中的消息。因为在异步和sendOneWay这两种发送方式下，Producer.setRetryTimesWhenSendFailed设置不起作用，发送失败不会重试。DefaultMQProducer默认每30秒到NameServer请求最新的路由消息，Producer如果获取不到已停止的Broker下的队列信息，后续就自动不再向这些队列发送消息。<br>如果Producer程序能够暂停，在有一个Master和一个Slave的情况下也可以顺利切换。可以关闭Producer后关闭Master Broker，这个时候所有的读取都会被定向到Slave机器，消费消息不受影响。把Master Broker机器置换完后，基于原来的数据启动这个Master Broker，然后再启动Producer程序正常发送消息。</p>
+<p>用Linux的kill pid命令就可以正确地关闭Broker，BrokerController下有个shutdown函数，这个函数被加到了ShutdownHook里，当用Linux的kill命令时（不能用kill-9），shutdown函数会先被执行。也可以通过RocketMQ提供的工具（mqshutdown broker）来关闭Broker，它们的原理是一样的。</p>
+<h1 id="8-各种故障对消息的影响"><a href="#8-各种故障对消息的影响" class="headerlink" title="8. 各种故障对消息的影响"></a>8. 各种故障对消息的影响</h1><p>我们期望消息队列集群一直可靠稳定地运行，但有时候故障是难免的，本节我们列出可能的故障情况，看看如何处理：<br>1）Broker正常关闭，启动；<br>2）Broker异常Crash，然后启动；<br>3）OS Crash，重启；<br>4）机器断电，但能马上恢复供电；<br>5）磁盘损坏；<br>6）CPU、主板、内存等关键设备损坏。<br>假设现有的RocketMQ集群，每个Topic都配有多Master角色的Broker供写入，并且每个Master都至少有一个Slave机器（用两台物理机就可以实现上述配置），我们来看看在上述情况下消息的可靠性情况。<br>第1种情况属于可控的软件问题，内存中的数据不会丢失。如果重启过程中有持续运行的Consumer，Master机器出故障后，Consumer会自动重连到对应的Slave机器，不会有消息丢失和偏差。当Master角色的机器重启以后，Consumer又会重新连接到Master机器（注意在启动Master机器的时候，如果Consumer正在从Slave消费消息，不要停止Consumer。假如此时先停止Consumer后再启动Master机器，然后再启动Consumer，这个时候Consumer就会去读Master机器上已经滞后的offset值，造成消息大量重复）。</p>
+<p>如果第1种情况出现时有持续运行的Producer，一台Master出故障后，Producer只能向Topic下其他的Master机器发送消息，如果Producer采用同步发送方式，不会有消息丢失。<br>第2、3、4种情况属于软件故障，内存的数据可能丢失，所以刷盘策略不同，造成的影响也不同，如果Master、Slave都配置成SYNC_FLUSH，可以达到和第1种情况相同的效果。<br>第5、6种情况属于硬件故障，发生第5、6种情况的故障，原有机器的磁盘数据可能会丢失。如果Master和Slave机器间配置成同步复制方式，某一台机器发生5或6的故障，也可以达到消息不丢失的效果。如果Master和Slave机器间是异步复制，两次Sync间的消息会丢失。</p>
+<p>总的来说，当设置成：</p>
+<p>1）多Master，每个Master带有Slave；<br>2）主从之间设置成SYNC_MASTER；<br>3）Producer用同步方式写；<br>4）刷盘策略设置成SYNC_FLUSH。<br>   就可以消除单点依赖，即使某台机器出现极端故障也不会丢消息。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/24e2a555.html">http://www.lvxueyang.vip/post/24e2a555.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">消息队列</a><a class="post-meta__tags" href="/tags/RocketMQ/">RocketMQ</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/a2a0d8af.html"><img class="prev-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165211.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">RocketMQ源码分析</div></div></a></div><div class="next-post pull-right"><a href="/post/6c8d3ef3.html"><img class="next-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165211.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">RocketMQ高级特性及原理(上)</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/b443baad.html" title="RocketMQ架构与实战"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165211.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-07</div><div class="title">RocketMQ架构与实战</div></div></a></div><div><a href="/post/a79e00d0.html" title="RockeqMQ的简单使用"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-07</div><div class="title">RockeqMQ的简单使用</div></div></a></div><div><a href="/post/f7c58321.html" title="RocketMQ集群与运维"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165211.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-07</div><div class="title">RocketMQ集群与运维</div></div></a></div><div><a href="/post/a2a0d8af.html" title="RocketMQ源码分析"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165211.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-07</div><div class="title">RocketMQ源码分析</div></div></a></div><div><a href="/post/6b84bdfb.html" title="RocketMQ的简单案例-模拟下单和支付"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165209.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-07</div><div class="title">RocketMQ的简单案例-模拟下单和支付</div></div></a></div><div><a href="/post/6c8d3ef3.html" title="RocketMQ高级特性及原理(上)"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165211.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-07</div><div class="title">RocketMQ高级特性及原理(上)</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E7%94%9F%E4%BA%A7%E8%80%85"><span class="toc-text">1. 生产者</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-Tags%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-text">1.1 Tags的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-Keys%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-text">1.2 Keys的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-%E6%97%A5%E5%BF%97%E7%9A%84%E6%89%93%E5%8D%B0"><span class="toc-text">1.3 日志的打印</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E5%A4%B1%E8%B4%A5%E5%A4%84%E7%90%86%E6%96%B9%E5%BC%8F"><span class="toc-text">1.4 消息发送失败处理方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-%E9%80%89%E6%8B%A9oneway%E5%BD%A2%E5%BC%8F%E5%8F%91%E9%80%81"><span class="toc-text">1.5 选择oneway形式发送</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%B6%88%E8%B4%B9%E8%80%85"><span class="toc-text">2. 消费者</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E6%B6%88%E8%B4%B9%E8%BF%87%E7%A8%8B%E5%B9%82%E7%AD%89"><span class="toc-text">2.1 消费过程幂等</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E6%B6%88%E8%B4%B9%E9%80%9F%E5%BA%A6%E6%85%A2%E7%9A%84%E5%A4%84%E7%90%86%E6%96%B9%E5%BC%8F"><span class="toc-text">2.2 消费速度慢的处理方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E4%BC%98%E5%8C%96%E6%AF%8F%E6%9D%A1%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E8%BF%87%E7%A8%8B"><span class="toc-text">2.3 优化每条消息消费过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E6%B6%88%E8%B4%B9%E6%89%93%E5%8D%B0%E6%97%A5%E5%BF%97"><span class="toc-text">2.4 消费打印日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-%E5%85%B6%E4%BB%96%E6%B6%88%E8%B4%B9%E5%BB%BA%E8%AE%AE"><span class="toc-text">2.5 其他消费建议</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Broker"><span class="toc-text">3. Broker</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-Broker-%E8%A7%92%E8%89%B2"><span class="toc-text">3.1 Broker 角色</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-FlushDiskType"><span class="toc-text">3.2 FlushDiskType</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-Broker-%E9%85%8D%E7%BD%AE"><span class="toc-text">3.3 Broker 配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-NameServer"><span class="toc-text">4. NameServer</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-text">5. 客户端配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AF%BB%E5%9D%80%E6%96%B9%E5%BC%8F"><span class="toc-text">5.1 客户端寻址方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9A%84%E5%85%AC%E5%85%B1%E9%85%8D%E7%BD%AE"><span class="toc-text">5.2 客户端的公共配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-3-Producer%E9%85%8D%E7%BD%AE"><span class="toc-text">5.3 Producer配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-4-PushConsumer%E9%85%8D%E7%BD%AE"><span class="toc-text">5.4 PushConsumer配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-5-PullConsumer%E9%85%8D%E7%BD%AE"><span class="toc-text">5.5 PullConsumer配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-6-Message%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-text">5.6 Message数据结构</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE"><span class="toc-text">6. 系统配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-1-JVM%E9%80%89%E9%A1%B9"><span class="toc-text">6.1 JVM选项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-2-Linux%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0"><span class="toc-text">6.2 Linux内核参数</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E5%8A%A8%E6%80%81%E6%89%A9%E7%BC%A9%E5%AE%B9"><span class="toc-text">7. 动态扩缩容</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#7-1-%E5%8A%A8%E6%80%81%E5%A2%9E%E5%87%8FNamesrv%E6%9C%BA%E5%99%A8"><span class="toc-text">7.1 动态增减Namesrv机器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-2-%E5%8A%A8%E6%80%81%E5%A2%9E%E5%87%8FBroker%E6%9C%BA%E5%99%A8"><span class="toc-text">7.2 动态增减Broker机器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E5%90%84%E7%A7%8D%E6%95%85%E9%9A%9C%E5%AF%B9%E6%B6%88%E6%81%AF%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-text">8. 各种故障对消息的影响</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

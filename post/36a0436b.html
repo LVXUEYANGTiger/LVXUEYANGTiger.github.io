@@ -1,0 +1,474 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ElasticSearch之入门使用 | 牧马人的忧伤</title><meta name="keywords" content="搜索引擎,Elasticsearch"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Elasticsearch是基于Lucene的全文检索引擎，本质也是存储和检索数据。ES中的很多概念与MySQL类似 我们可以按照关系型数据库的经验去理解。  1. 核心概念 **索引(index) **  类似的数据放在一个索引，非类似的数据放不同索引， 一个索引也可以理解成一个关系型数据库。   **类型(type) **  代表document属于index中的哪个类别（type）也有一种说">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch之入门使用">
+<meta property="og:url" content="http://www.lvxueyang.vip/post/36a0436b.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="Elasticsearch是基于Lucene的全文检索引擎，本质也是存储和检索数据。ES中的很多概念与MySQL类似 我们可以按照关系型数据库的经验去理解。  1. 核心概念 **索引(index) **  类似的数据放在一个索引，非类似的数据放不同索引， 一个索引也可以理解成一个关系型数据库。   **类型(type) **  代表document属于index中的哪个类别（type）也有一种说">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg">
+<meta property="article:published_time" content="2022-01-04T11:30:20.126Z">
+<meta property="article:modified_time" content="2022-01-04T11:46:17.843Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="搜索引擎">
+<meta property="article:tag" content="Elasticsearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/36a0436b"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ElasticSearch之入门使用',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-01-04 19:46:17'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">ElasticSearch之入门使用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-04T11:30:20.126Z" title="发表于 2022-01-04 19:30:20">2022-01-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-04T11:46:17.843Z" title="更新于 2022-01-04 19:46:17">2022-01-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/">搜索引擎</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/Elasticsearch/">Elasticsearch</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">5.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>21分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ElasticSearch之入门使用"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>Elasticsearch是基于Lucene的全文检索引擎，本质也是存储和检索数据。ES中的很多概念与MySQL类似 我们可以按照关系型数据库的经验去理解。 </p>
+<h1 id="1-核心概念"><a href="#1-核心概念" class="headerlink" title="1. 核心概念"></a>1. 核心概念</h1><ul>
+<li>**索引(index) **</li>
+</ul>
+<p>类似的数据放在一个索引，非类似的数据放不同索引， 一个索引也可以理解成一个关系型数据库。 </p>
+<ul>
+<li>**类型(type) **</li>
+</ul>
+<p>代表document属于index中的哪个类别（type）也有一种说法一种type就像是数据库的表，<br>比如dept表，user表。<br>注意ES每个大版本之间区别很大：<br>ES 5.x中一个index可以有多种type。<br>ES 6.x中一个index只能有一种type。<br>ES 7.x以后 要逐渐移除type这个概念。 </p>
+<ul>
+<li>**映射(mapping) **</li>
+</ul>
+<p>mapping定义了每个字段的类型等信息。相当于关系型数据库中的表结构。<br>常用数据类型：text、keyword、number、array、range、boolean、date、geo_point、ip、 nested、object<br><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html#_multi_fifields_2">https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html#_multi_fifields_2</a></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032120307.png" alt="image-20220103212019205"></p>
+<h1 id="2-Elasticsearch-API介绍"><a href="#2-Elasticsearch-API介绍" class="headerlink" title="2. Elasticsearch API介绍"></a>2. Elasticsearch API介绍</h1><p>Elasticsearch提供了Rest风格的API，即http请求接口，而且也提供了各种语言的客户端API。 </p>
+<ul>
+<li>Rest风格API </li>
+</ul>
+<p>文档地址：<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html</a></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032120592.png" alt="image-20220103212052532"></p>
+<ul>
+<li>客户端API </li>
+</ul>
+<p>Elasticsearch支持的语言客户端非常多：<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/client/index.html%EF%BC%8C%E6%88%91%E4%BB%AC%E5%9C%A8%E5%AE%9E%E6%88%98%E6%97%B6%E5%B0%86%E4%BD%BF%E7%94%A8%E5%88%B0Java%E5%AE%A2%E6%88%B7%E7%AB%AFAPI%E3%80%82">https://www.elastic.co/guide/en/elasticsearch/client/index.html，我们在实战时将使用到Java客户端API。</a></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032121857.png" alt="image-20220103212135804"></p>
+<p>ElasticSearch没有自带图形化界面，我们可以通过安装ElasticSearch的图形化插件，完成图形化界面的效果，完成索引数据的查看,比如可视化插件Kibana。 </p>
+<h1 id="3-安装配置kibana"><a href="#3-安装配置kibana" class="headerlink" title="3. 安装配置kibana"></a>3. 安装配置kibana</h1><p>Kibana是一个基于Node.js的Elasticsearch索引库数据统计工具，可以利用Elasticsearch的聚合功能，生成各种图表，如柱形图，线状图，饼图等。 而且还提供了操作Elasticsearch索引数据的控制台，并且提供了一定的API提示，非常有利于我们学习Elasticsearch的语法。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032121472.png" alt="image-20220103212159391"></p>
+<p><strong>1)下载Kibana</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032123574.png" alt="image-20220103212315523"></p>
+<p>Kibana与操作系统</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032123332.png" alt="image-20220103212357268"></p>
+<p>**2) 安装kibana **<br>root账户下操作<br><code>tar -zxvf kibana-7.3.0-linux-x86_64.tar.gz </code><br><code>mv /root/kibana-7.3.0-linux-x86_64 /usr/kibana/</code><br>改变es目录拥有者账号</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chown -R estest /usr/kibana/</span><br></pre></td></tr></table></figure>
+<p>还需要设置访问权限</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chmod -R 777 /usr/kibana/</span><br></pre></td></tr></table></figure>
+<p>修改配置文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /usr/kibana/config/kibana.yml</span><br></pre></td></tr></table></figure>
+<p>修改端口，访问ip,elasticsearch服务器ip</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">server.port: 5601 </span><br><span class="line">server.host: &quot;0.0.0.0&quot; </span><br><span class="line"><span class="meta">#</span><span class="bash"> The URLs of the Elasticsearch instances to use <span class="keyword">for</span> all your queries.</span> </span><br><span class="line">elasticsearch.hosts: [&quot;http://192.168.211.136:9200&quot;]</span><br></pre></td></tr></table></figure>
+<p>配置完成启动：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">切换用户</span><br><span class="line">su estest </span><br><span class="line">./bin/kibana(路径：/usr/kibana)</span><br></pre></td></tr></table></figure>
+<p>没有error错误启动成功：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032124170.png" alt="image-20220103212446111"></p>
+<p>访问ip:5601，即可看到安装成功</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032125746.png" alt="image-20220103212525688"></p>
+<p>已全部安装完成，然后可以接入数据使用了。</p>
+<p><strong>3) kidbana使用页面</strong><br>选择左侧的DevTools菜单，即可进入控制台页面：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032126772.png" alt="image-20220103212620727"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032126520.png" alt="image-20220103212641466"></p>
+<p>在页面右侧，我们就可以输入请求，访问Elasticsearch了。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032127485.png" alt="image-20220103212716436"></p>
+<p>**4 )扩展kibana dev tools快捷键： **<br><code>ctrl+enter</code> 提交请求<br><code>ctrl+i</code> 自动缩进</p>
+<h1 id="4-Elasticsearch集成IK分词器"><a href="#4-Elasticsearch集成IK分词器" class="headerlink" title="4. Elasticsearch集成IK分词器"></a>4. Elasticsearch集成IK分词器</h1><p><strong>1. 集成IK分词器</strong><br>IKAnalyzer是一个开源的，基于java语言开发的轻量级的中文分词工具包。从2006年12月推出1.0版开始，IKAnalyzer已经推出 了3个大版本。最初，它是以开源项目Lucene为应用主体的，结合词典分词和文法分析算法的中文分词组件。新版本的IKAnalyzer3.0则发展为 面向Java的公用分词组件，独立于Lucene项目，同时提供了对Lucene的默认优化实现。<br>IK分词器3.0的特性如下：<br>1）采用了特有的“正向迭代最细粒度切分算法“，具有60万字/秒的高速处理能力。<br>2）采用了多子处理器分析模式，支持：英文字母（IP地址、Email、URL）、数字（日期，常用中文数量词，罗马数字，科学计数法），中文词汇（姓名、地名处理）等分词处理。<br>3）支持个人词条的优化的词典存储，更小的内存占用。<br>4）支持用户词典扩展定义。<br>5）针对Lucene全文检索优化的查询分析器IKQueryParser；采用歧义分析算法优化查询关键字的搜索排列组合，能极大的提高Lucene检索的命中率。 </p>
+<p><strong>下载地址：</strong><br><a target="_blank" rel="noopener" href="https://github.com/medcl/elasticsearch-analysis-ik/releases/tag/v7.3.0">https://github.com/medcl/elasticsearch-analysis-ik/releases/tag/v7.3.0</a></p>
+<p>**下载插件并安装(安装方式一) **<br>1）在elasticsearch的bin目录下执行以下命令,es插件管理器会自动帮我们安装，然后等待安装完成：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/usr/elasticsearch/bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.3.0/elasticsearch-analysis-ik-7.3.0.zip</span><br></pre></td></tr></table></figure>
+<p>2）下载完成后会提示 Continue with installation?输入 y即可完成安装 。<br>3）重启Elasticsearch 和Kibana。</p>
+<p>**上传安装包安装 (安装方式二) **<br>1）在elasticsearch安装目录的plugins目录下新建 analysis-ik 目录。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">新建analysis-ik文件夹</span></span><br><span class="line">mkdir analysis-ik</span><br><span class="line"><span class="meta">#</span><span class="bash">切换至 analysis-ik文件夹下</span></span><br><span class="line">cd analysis-ik</span><br><span class="line"><span class="meta">#</span><span class="bash">上传资料中的 elasticsearch-analysis-ik-7.3.0.zip</span> </span><br><span class="line"><span class="meta">#</span><span class="bash">解压</span> </span><br><span class="line">unzip elasticsearch-analysis-ik-7.3.3.zip</span><br><span class="line"><span class="meta">#</span><span class="bash">解压完成后删除zip</span> </span><br><span class="line">rm -rf elasticsearch-analysis-ik-7.3.0.zip</span><br></pre></td></tr></table></figure>
+<p>2）重启Elasticsearch 和Kibana。</p>
+<p><strong>测试案例</strong><br>IK分词器有两种分词模式：ik_max_word和ik_smart模式。<br>1）ik_max_word (常用)<br>  会将文本做最细粒度的拆分<br>2）ik_smart<br>  会做最粗粒度的拆分<br>  大家先不管语法，我们先在Kibana测试一波输入下面的请求：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _analyze &#123; </span><br><span class="line">   <span class="attr">&quot;analyzer&quot;</span>: <span class="string">&quot;ik_max_word&quot;</span>,</span><br><span class="line">   <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;南京市长江大桥&quot;</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ik_max_word 分词模式运行得到结果：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">#! Elasticsearch built-in security features are not enabled. Without authentication, your cluster could be accessible to anyone. See https:<span class="comment">//www.elastic.co/guide/en/elasticsearch/reference/7.13/security-minimal-setup.html to enable security.</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;tokens&quot;</span> : [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;token&quot;</span> : <span class="string">&quot;南京市&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;start_offset&quot;</span> : <span class="number">0</span>,</span><br><span class="line">      <span class="attr">&quot;end_offset&quot;</span> : <span class="number">3</span>,</span><br><span class="line">      <span class="attr">&quot;type&quot;</span> : <span class="string">&quot;CN_WORD&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;position&quot;</span> : <span class="number">0</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;token&quot;</span> : <span class="string">&quot;南京&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;start_offset&quot;</span> : <span class="number">0</span>,</span><br><span class="line">      <span class="attr">&quot;end_offset&quot;</span> : <span class="number">2</span>,</span><br><span class="line">      <span class="attr">&quot;type&quot;</span> : <span class="string">&quot;CN_WORD&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;position&quot;</span> : <span class="number">1</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;token&quot;</span> : <span class="string">&quot;市长&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;start_offset&quot;</span> : <span class="number">2</span>,</span><br><span class="line">      <span class="attr">&quot;end_offset&quot;</span> : <span class="number">4</span>,</span><br><span class="line">      <span class="attr">&quot;type&quot;</span> : <span class="string">&quot;CN_WORD&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;position&quot;</span> : <span class="number">2</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;token&quot;</span> : <span class="string">&quot;长江大桥&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;start_offset&quot;</span> : <span class="number">3</span>,</span><br><span class="line">      <span class="attr">&quot;end_offset&quot;</span> : <span class="number">7</span>,</span><br><span class="line">      <span class="attr">&quot;type&quot;</span> : <span class="string">&quot;CN_WORD&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;position&quot;</span> : <span class="number">3</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;token&quot;</span> : <span class="string">&quot;长江&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;start_offset&quot;</span> : <span class="number">3</span>,</span><br><span class="line">      <span class="attr">&quot;end_offset&quot;</span> : <span class="number">5</span>,</span><br><span class="line">      <span class="attr">&quot;type&quot;</span> : <span class="string">&quot;CN_WORD&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;position&quot;</span> : <span class="number">4</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;token&quot;</span> : <span class="string">&quot;大桥&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;start_offset&quot;</span> : <span class="number">5</span>,</span><br><span class="line">      <span class="attr">&quot;end_offset&quot;</span> : <span class="number">7</span>,</span><br><span class="line">      <span class="attr">&quot;type&quot;</span> : <span class="string">&quot;CN_WORD&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;position&quot;</span> : <span class="number">5</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _analyze</span><br><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;analyzer&quot;</span>: <span class="string">&quot;ik_smart&quot;</span>, </span><br><span class="line">  <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;南京市长江大桥&quot;</span> </span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ik_smart分词模式运行得到结果：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">#! Elasticsearch built-in security features are not enabled. Without authentication, your cluster could be accessible to anyone. See https:<span class="comment">//www.elastic.co/guide/en/elasticsearch/reference/7.13/security-minimal-setup.html to enable security.</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;tokens&quot;</span> : [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;token&quot;</span> : <span class="string">&quot;南京市&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;start_offset&quot;</span> : <span class="number">0</span>,</span><br><span class="line">      <span class="attr">&quot;end_offset&quot;</span> : <span class="number">3</span>,</span><br><span class="line">      <span class="attr">&quot;type&quot;</span> : <span class="string">&quot;CN_WORD&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;position&quot;</span> : <span class="number">0</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;token&quot;</span> : <span class="string">&quot;长江大桥&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;start_offset&quot;</span> : <span class="number">3</span>,</span><br><span class="line">      <span class="attr">&quot;end_offset&quot;</span> : <span class="number">7</span>,</span><br><span class="line">      <span class="attr">&quot;type&quot;</span> : <span class="string">&quot;CN_WORD&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;position&quot;</span> : <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><strong>如果现在假如江大桥是一个人名，是南京市市长，那么上面的分词显然是不合理的，该怎么办？</strong></p>
+<p><strong>2 扩展词典使用 **<br><strong>扩展词</strong>：就是不想让哪些词被分开，让他们分成一个词。比如上面的</strong>江大桥 **<br>**自定义扩展词库 **<br>1）进入到 config/analysis-ik/(<strong>插件命令安装方式</strong>) 或 plugins/analysis-ik/config(<strong>安装包安装方式</strong>) 目录下, 新增自定义词典</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">vim lagou_ext_dict.dic</span><br></pre></td></tr></table></figure>
+<p>输入 ：江大桥<br>2）将我们自定义的扩展词典文件添加到IKAnalyzer.cfg.xml配置中<br>vim IKAnalyzer.cfg.xml </p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">properties</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">&quot;http://java.sun.com/dtd/properties.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">comment</span>&gt;</span>IK Analyzer 扩展配置<span class="tag">&lt;/<span class="name">comment</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--用户可以在这里配置自己的扩展字典 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;ext_dict&quot;</span>&gt;</span>lagou_ext_dict.dic<span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line"></span><br><span class="line">         <span class="comment">&lt;!--用户可以在这里配置自己的扩展停止词字典--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;ext_stopwords&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--用户可以在这里配置远程扩展字典 --&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- &lt;entry key=&quot;remote_ext_dict&quot;&gt;words_location&lt;/entry&gt; --&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--用户可以在这里配置远程扩展停止词字典--&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- &lt;entry key=&quot;remote_ext_stopwords&quot;&gt;words_location&lt;/entry&gt; --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>3）重启Elasticsearch。</p>
+<p>**3 停用词典使用 **<br><strong>停用词</strong>：有些词在文本中出现的频率非常高。但对本文的语义产生不了多大的影响。例如英文的a、 an、the、of等。或中文的”的、了、呢等”。这样的词称为停用词。停用词经常被过滤掉，不会被进行索引。在检索的过程中，如果用户的查询词中含有停用词，系统会自动过滤掉。停用词可以加快索引的速度，减少索引库文件的大小。 </p>
+<p>**自定义停用词库 **<br>1）进入到 confifig/analysis-ik/(<strong>插件命令安装方式</strong>) 或 plugins/analysis-ik/confifig(<strong>安装包安装方式</strong>) 目录下, 新增自定义词典。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">vim lagou_stop_dict.dic</span><br></pre></td></tr></table></figure>
+<p>输入</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">的</span><br><span class="line">了</span><br><span class="line">啊</span><br></pre></td></tr></table></figure>
+<p>2）将我们自定义的停用词典文件添加到IKAnalyzer.cfg.xml配置中。<br>3）重启Elasticsearch。</p>
+<p>**4 同义词典使用 **<br>   语言博大精深，有很多相同意思的词，我们称之为同义词，比如“番茄”和“西红柿”，“馒头”和“馍”等。在搜索的时候，我们输入的可能是“番茄”，但是应该把含有“西红柿”的数据一起查询出来，这种情况叫做同义词查询。<br>    注意：扩展词和停用词是在索引的时候使用，而同义词是检索时候使用。<br>**配置IK同义词 **<br>Elasticsearch 自带一个名为 synonym 的同义词 filter。为了能让 IK 和 synonym 同时工作，我们需要定义新的 analyzer，用 IK 做 tokenizer，synonym 做 fifilter。听上去很复杂，实际上要做的只是加一段配置。<br>1）创建/confifig/analysis-ik/synonym.txt 文件，输入一些同义词并存为 utf-8 格式。例如</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">lagou,拉勾</span><br><span class="line">china,中国</span><br></pre></td></tr></table></figure>
+<p>1）创建索引时，使用同义词配置，示例模板如下</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032132674.png" alt="image-20220103213216612"></p>
+<p>以上配置定义了ik_sync_max_word和ik_sync_smart这两个新的 analyzer，对应 IK 的 ik_max_word 和 ik_smart 两种分词策略。ik_sync_max_word和 ik_sync_smart都会使用 synonym fifilter 实现同义词转换<br>3）到此，索引创建模板中同义词配置完成，搜索时指定分词为ik_sync_max_word或ik_sync_smart。<br>4）案例</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /lagou-es-synonym </span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123; </span><br><span class="line">    <span class="attr">&quot;analysis&quot;</span>: &#123; </span><br><span class="line">      <span class="attr">&quot;filter&quot;</span>: &#123; </span><br><span class="line">        <span class="attr">&quot;word_sync&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;synonym&quot;</span>, </span><br><span class="line">          <span class="attr">&quot;synonyms_path&quot;</span>: <span class="string">&quot;analysis-ik/synonym.txt&quot;</span> </span><br><span class="line">          </span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;analyzer&quot;</span>: &#123; </span><br><span class="line">          <span class="attr">&quot;ik_sync_max_word&quot;</span>: &#123; </span><br><span class="line">            <span class="attr">&quot;filter&quot;</span>: [ <span class="string">&quot;word_sync&quot;</span> ],</span><br><span class="line">            <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;custom&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;tokenizer&quot;</span>: <span class="string">&quot;ik_max_word&quot;</span> </span><br><span class="line">             &#125;,</span><br><span class="line">             <span class="attr">&quot;ik_sync_smart&quot;</span>: &#123; </span><br><span class="line">               <span class="attr">&quot;filter&quot;</span>: [ <span class="string">&quot;word_sync&quot;</span> ],</span><br><span class="line">               <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;custom&quot;</span>, <span class="attr">&quot;tokenizer&quot;</span>: <span class="string">&quot;ik_smart&quot;</span></span><br><span class="line">               &#125; </span><br><span class="line">          </span><br><span class="line">        &#125; </span><br><span class="line">      </span><br><span class="line">    &#125; </span><br><span class="line">    </span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;properties&quot;</span>: &#123; </span><br><span class="line">      <span class="attr">&quot;name&quot;</span>: &#123; </span><br><span class="line">        <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;analyzer&quot;</span>: <span class="string">&quot;ik_sync_max_word&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;search_analyzer&quot;</span>: <span class="string">&quot;ik_sync_max_word&quot;</span> </span><br><span class="line">        </span><br><span class="line">      &#125; </span><br><span class="line">      </span><br><span class="line">    &#125; </span><br><span class="line">    </span><br><span class="line">  &#125; </span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>插入数据</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /lagou-es-synonym/_doc/<span class="number">1</span> </span><br><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;name&quot;</span>:<span class="string">&quot;拉勾是中国专业的互联网招聘平台&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用同义词”lagou”或者“china”进行搜索</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /lagou-es-synonym/_doc/_search </span><br><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;query&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;match&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;name&quot;</span>: <span class="string">&quot;lagou&quot;</span> </span><br><span class="line">    &#125; </span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032130221.png" alt="image-20220103213005161"></p>
+<h1 id="5-索引操作（创建、查看、删除）"><a href="#5-索引操作（创建、查看、删除）" class="headerlink" title="5. 索引操作（创建、查看、删除）"></a>5. 索引操作（创建、查看、删除）</h1><p>**1. 创建索引库 **<br>Elasticsearch采用Rest风格API，因此其API就是一次http请求，你可以用任何工具发起http请求<br>语法</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /索引名称</span><br><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123; </span><br><span class="line">    <span class="attr">&quot;属性名&quot;</span>: <span class="string">&quot;属性值&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>settings：就是索引库设置，其中可以定义索引库的各种属性 比如分片数副本数等，目前我们可以不设置，都走默认</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032133177.png" alt="image-20220103213319126"></p>
+<p>可以看到索引创建成功了。</p>
+<p><strong>2. 判断索引是否存在</strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">HEAD /索引名称</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032133062.png" alt="image-20220103213346012"></p>
+<p>**3.查看索引 **<br>Get请求可以帮我们查看索引的相关属性信息，格式： </p>
+<ul>
+<li>查看单个索引<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /索引名称</span><br><span class="line"></span><br><span class="line">示例</span><br><span class="line">GET /lagou-company-index</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032134700.png" alt="image-20220103213415649"></p>
+<ul>
+<li>批量查看索引<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /索引名称<span class="number">1</span>,索引名称<span class="number">2</span>,索引名称<span class="number">3</span>,...</span><br><span class="line"></span><br><span class="line">示例 </span><br><span class="line">GET /lagou-company-index,lagou-employee-index</span><br></pre></td></tr></table></figure>
+<img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032134629.png" alt="image-20220103213453575"></li>
+</ul>
+<ul>
+<li>查看所有索引<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET _all</span><br></pre></td></tr></table></figure>
+<img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032135454.png" alt="image-20220103213522400"></li>
+</ul>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /_cat/indices?v</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032135061.png" alt="image-20220103213542008"></p>
+<p>绿色：索引的所有分片都正常分配。<br>黄色：至少有一个副本没有得到正确的分配。<br>红色：至少有一个主分片没有得到正确的分配。</p>
+<p><strong>4. 打开索引</strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /索引名称/_open</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032136401.png" alt="image-20220103213611361"></p>
+<p><strong>5.关闭索引</strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /索引名称/_close</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032136696.png" alt="image-20220103213628653"></p>
+<p>**6. 删除索引库 **<br>删除索引使用DELETE请求</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">DELETE /索引名称<span class="number">1</span>,索引名称<span class="number">2</span>,索引名称<span class="number">3.</span>..</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032136067.png" alt="image-20220103213654029"></p>
+<p>再次查看，返回索引不存在。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032137573.png" alt="image-20220103213716507"></p>
+<h1 id="6-映射操作"><a href="#6-映射操作" class="headerlink" title="6. 映射操作"></a>6. 映射操作</h1><p>   索引创建之后，等于有了关系型数据库中的database。Elasticsearch7.x取消了索引type类型的设置，不允许指定类型，默认为_doc，但字段仍然是有的，我们需要设置字段的约束信息，叫做字段映射 （mapping）<br>字段的约束包括但不限于： </p>
+<ul>
+<li>字段的数据类型 </li>
+<li>是否要存储 </li>
+<li>是否要索引 </li>
+<li>分词器 </li>
+</ul>
+<p>我们一起来看下创建的语法。<br><strong>1.创建映射字段</strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /索引库名/_mapping </span><br><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;字段名&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;类型&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;index&quot;</span>: <span class="literal">true</span>，</span><br><span class="line">      <span class="string">&quot;store&quot;</span>: <span class="literal">true</span>， </span><br><span class="line">      <span class="string">&quot;analyzer&quot;</span>: <span class="string">&quot;分词器&quot;</span> </span><br><span class="line">    &#125; </span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/7.3/mapping-params.html">https://www.elastic.co/guide/en/elasticsearch/reference/7.3/mapping-params.html</a><br>字段名：任意填写，下面指定许多属性，例如：</p>
+<ul>
+<li>type：类型，可以是text、long、short、date、integer、object等 </li>
+<li>index：是否索引，默认为true </li>
+<li>store：是否存储，默认为false </li>
+<li>analyzer：指定分词器</li>
+</ul>
+<p>发起请求：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /lagou-company-index </span><br><span class="line">PUT /lagou-company-index/_mapping/ </span><br><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;name&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;analyzer&quot;</span>: <span class="string">&quot;ik_max_word&quot;</span> </span><br><span class="line">       &#125;,</span><br><span class="line">       <span class="attr">&quot;job&quot;</span>: &#123;</span><br><span class="line">         <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span>,</span><br><span class="line">         <span class="attr">&quot;analyzer&quot;</span>: <span class="string">&quot;ik_max_word&quot;</span> </span><br><span class="line">         </span><br><span class="line">       &#125;,</span><br><span class="line">       <span class="attr">&quot;logo&quot;</span>: &#123;</span><br><span class="line">         <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span>,</span><br><span class="line">         <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;false&quot;</span> </span><br><span class="line">         </span><br><span class="line">       &#125;,</span><br><span class="line">       <span class="attr">&quot;payment&quot;</span>: &#123; </span><br><span class="line">         <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;float&quot;</span></span><br><span class="line">        &#125; </span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>响应结果:</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032138875.png" alt="image-20220103213821827"></p>
+<p>上述案例中，就给lagou-company-index这个索引库设置了4个字段：<br>name：企业名称<br>job: 需求岗位<br>logo：logo图片地址<br>payment：薪资<br>并且给这些字段设置了一些属性，至于这些属性对应的含义，我们在后续会详细介绍。</p>
+<p>**2.映射属性详解 **<br>1）type<br>Elasticsearch中支持的数据类型非常丰富：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032138556.png" alt="image-20220103213854502"></p>
+<p><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/7.3/mapping-types.html">https://www.elastic.co/guide/en/elasticsearch/reference/7.3/mapping-types.html</a></p>
+<p>说几个关键的： </p>
+<ul>
+<li>String类型，又分两种： <ul>
+<li>text：可分词，不可参与聚合 </li>
+<li>keyword：不可分词，数据会作为完整字段进行匹配，可以参与聚合 </li>
+</ul>
+</li>
+<li>Numerical：数值类型，分两类 <ul>
+<li>基本数据类型：long、interger、short、byte、double、flfloat、half_flfloat </li>
+<li>浮点数的高精度类型：scaled_float </li>
+</ul>
+</li>
+</ul>
+<p>需要指定一个精度因子，比如10或100。elasticsearch会把真实值乘以这个因子后存储，取出时再还原。 </p>
+<ul>
+<li>Date：日期类型 </li>
+</ul>
+<p>elasticsearch可以对日期格式化为字符串存储，但是建议我们存储为毫秒值，存储为long，节省空间。</p>
+<ul>
+<li>Array：数组类型 </li>
+</ul>
+<p>进行匹配时，任意一个元素满足，都认为满足排序时，如果升序则用数组中的最小值来排序，如果降序则用数组中的最大值来排序 </p>
+<ul>
+<li>Object：对象<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  name:<span class="string">&quot;Jack&quot;</span>, </span><br><span class="line">  age:<span class="number">21</span>,</span><br><span class="line">  girl:&#123;</span><br><span class="line">    name: <span class="string">&quot;Rose&quot;</span>,</span><br><span class="line">    age:<span class="number">21</span> </span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+如果存储到索引库的是对象类型，例如上面的girl，会把girl变成两个字段：girl.name和girl.age。</li>
+</ul>
+<p>2）index<br>index影响字段的索引情况。<br>true：字段会被索引，则可以用来进行搜索。默认值就是true 。<br>false：字段不会被索引，不能用来搜索 。<br>index的默认值就是true，也就是说你不进行任何配置，所有字段都会被索引。<br>但是有些字段是我们不希望被索引的，比如企业的logo图片地址，就需要手动设置index为false。<br>3）store<br>是否将数据进行独立存储。<br>原始的文本会存储在 _source 里面，默认情况下其他提取出来的字段都不是独立存储的，是从_source 里面提取出来的。当然你也可以独立的存储某个字段，只要设置store:true即可，获取独立存储的字段要比从_source中解析快得多，但是也会占用更多的空间，所以要根据实际业务需求来设置，默认为false。<br>4）analyzer：指定分词器<br>一般我们处理中文会选择ik分词器 ik_max_word ik_smart。</p>
+<p>**3.查看映射关系 **</p>
+<ul>
+<li><p>查看单个索引映射关系</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /索引名称/_mapping</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032140105.png" alt="image-20220103214021047"></p>
+</li>
+<li><p>查看所有索引映射关系</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET _mapping</span><br><span class="line"></span><br><span class="line">GET _all/_mapping</span><br></pre></td></tr></table></figure></li>
+<li><p>修改索引映射关系</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /索引库名/_mapping </span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;字段名&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;类型&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;index&quot;</span>: <span class="literal">true</span>， </span><br><span class="line">      <span class="string">&quot;store&quot;</span>: <span class="literal">true</span>，</span><br><span class="line">      <span class="string">&quot;analyzer&quot;</span>: <span class="string">&quot;分词器&quot;</span> </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意:修改映射增加字段   做其它更改只能删除索引  重新建立映射。</p>
+</li>
+</ul>
+<p>**4.一次性创建索引和映射 **<br>刚才 的案例中我们是把创建索引库和映射分开来做，其实也可以在创建索引库的同时，直接制定索引库中的索引，基本语法：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">put /索引库名称</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>:&#123; </span><br><span class="line">    <span class="attr">&quot;索引库属性名&quot;</span>:<span class="string">&quot;索引库属性值&quot;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>:&#123;</span><br><span class="line">    <span class="attr">&quot;properties&quot;</span>:&#123;</span><br><span class="line">      <span class="attr">&quot;字段名&quot;</span>:&#123;</span><br><span class="line">        <span class="attr">&quot;映射属性名&quot;</span>:<span class="string">&quot;映射属性值&quot;</span> </span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>案例</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /lagou-employee-index </span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;&#125;, </span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;name&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;analyzer&quot;</span>: <span class="string">&quot;ik_max_word&quot;</span> </span><br><span class="line">      &#125; </span><br><span class="line">    &#125; </span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="7-文档增删改查及局部更新"><a href="#7-文档增删改查及局部更新" class="headerlink" title="7. 文档增删改查及局部更新"></a>7. 文档增删改查及局部更新</h1><p>  文档，即索引库中的数据，会根据规则创建索引，将来用于搜索。可以类比做数据库中的一行数据。<br>**1. 新增文档 **<br> 新增文档时，涉及到id的创建方式，手动指定或者自动生成。<br>新增文档（手动指定id）</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /索引名称/_doc/&#123;id&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /lagou-company-index/_doc/<span class="number">1</span> </span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;name&quot;</span> : <span class="string">&quot;百度&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;job&quot;</span> : <span class="string">&quot;小度用户运营经理&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;payment&quot;</span> : <span class="string">&quot;30000&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;logo&quot;</span> : <span class="string">&quot;http://www.lgstatic.com/thubnail_120x120/i/image/M00/21/3E/CgpFT1kVdzeAJNbU AABJB7x9sm8374.png&quot;</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032140796.png" alt="image-20220103214047749"></p>
+<p>新增文档（自动生成id）</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /索引名称/_doc</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;field&quot;</span>:<span class="string">&quot;value&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032141729.png" alt="image-20220103214115680"></p>
+<p>可以看到结果显示为： created ，代表创建成功。<br> 另外，需要注意的是，在响应结果中有个 _id 字段，这个就是这条文档数据的 唯一标识 ，以后的增删改查都依赖这个_id作为唯一标示，这里是Elasticsearch帮我们随机生成的id。</p>
+<p><strong>2. 查看单个文档</strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /索引名称/_doc/&#123;id&#125;</span><br><span class="line"></span><br><span class="line">示例</span><br><span class="line">GET /lagou-company-index/_doc/<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032142397.png" alt="image-20220103214202343"></p>
+<p>文档元数据解读：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032142354.png" alt="image-20220103214255285"></p>
+<p><strong>3. 查看所有文档</strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /索引名称/_search </span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;query&quot;</span>:&#123;</span><br><span class="line">    <span class="attr">&quot;match_all&quot;</span>: &#123;</span><br><span class="line">    &#125; </span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>**4. _source定制返回结果 **<br>某些业务场景下，我们不需要搜索引擎返回_source_中的所有字段，可以使用source进行定制，如下，多个字段之间使用逗号分隔</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">GET /lagou-company-index/_doc/<span class="number">1</span>?_source=name,job</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032143692.png" alt="image-20220103214323640"></p>
+<p>**5. 更新文档（全部更新） **<br>把刚才新增的请求方式改为PUT，就是修改了，不过修改必须指定id<br>id对应文档存在，则修改<br>id对应文档不存在，则新增<br>比如，我们把使用id为3，不存在，则应该是新增</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;_index&quot;</span> : <span class="string">&quot;lagou-company-index&quot;</span>, </span><br><span class="line">  <span class="attr">&quot;_type&quot;</span> : <span class="string">&quot;_doc&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;_id&quot;</span> : <span class="string">&quot;3&quot;</span>, </span><br><span class="line">  <span class="attr">&quot;_version&quot;</span> : <span class="number">1</span>, </span><br><span class="line">  <span class="attr">&quot;result&quot;</span> :</span><br><span class="line">  <span class="string">&quot;created&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;_shards&quot;</span> : &#123; </span><br><span class="line">    <span class="attr">&quot;total&quot;</span> : <span class="number">2</span>,</span><br><span class="line">    <span class="attr">&quot;successful&quot;</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="attr">&quot;failed&quot;</span> : <span class="number">0</span> </span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;_seq_no&quot;</span> : <span class="number">2</span>,</span><br><span class="line">  <span class="attr">&quot;_primary_term&quot;</span> : <span class="number">1</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到是 created ，是新增。<br>我们再次执行刚才的请求，不过把数据改一下</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032144486.png" alt="image-20220103214425437"></p>
+<p>可以看到结果是： updated ，显然是更新数据。</p>
+<p><strong>6. 更新文档（局部更新）</strong><br>        Elasticsearch可以使用PUT或者POST对文档进行更新(全部更新)，如果指定ID的文档已经存在，则执行更新操作。<br><strong>注意：</strong>Elasticsearch执行更新操作的时候，Elasticsearch首先将旧的文档标记为删除状态，然后添加新的文档，旧的文档不会立即消失，但是你也无法访问，Elasticsearch会在你继续添加更多数据的时候在后台清理已经标记为删除状态的文档。<br>全部更新，是直接把之前的老数据，标记为删除状态，然后，再添加一条更新的（使用PUT或者 POST）<br>局域更新，只是修改某个字段（使用POST）</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /索引名/_update/&#123;id&#125; </span><br><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;doc&quot;</span>:&#123;</span><br><span class="line">    <span class="attr">&quot;field&quot;</span>:<span class="string">&quot;value&quot;</span> </span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032144056.png" alt="image-20220103214446004"></p>
+<p>**7. 删除文档 **<br>根据id进行删除：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">DELETE /索引名/_doc/&#123;id&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201032145544.png" alt="image-20220103214502488"></p>
+<p>可以看到结果是： deleted ，显然是删除数据。</p>
+<ul>
+<li><p>根据查询条件进行删除</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /索引库名/_delete_by_query </span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;query&quot;</span>: &#123; </span><br><span class="line">    <span class="attr">&quot;match&quot;</span>: &#123; </span><br><span class="line">      <span class="attr">&quot;字段名&quot;</span>: <span class="string">&quot;搜索关键字&quot;</span></span><br><span class="line">    &#125; </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>示例：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST /lagou-company-index/_delete_by_query </span><br><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;query&quot;</span>:&#123;</span><br><span class="line">    <span class="attr">&quot;match&quot;</span>:&#123;</span><br><span class="line">      <span class="attr">&quot;name&quot;</span>:<span class="string">&quot;1&quot;</span> </span><br><span class="line">    &#125; </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;took&quot;</span> : <span class="number">14</span>,</span><br><span class="line">  <span class="attr">&quot;timed_out&quot;</span> : <span class="literal">false</span>,</span><br><span class="line">  <span class="attr">&quot;total&quot;</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">&quot;deleted&quot;</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">&quot;batches&quot;</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">&quot;version_conflicts&quot;</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">&quot;noops&quot;</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">&quot;retries&quot;</span> : &#123; </span><br><span class="line">    <span class="attr">&quot;bulk&quot;</span> : <span class="number">0</span>,</span><br><span class="line">    <span class="attr">&quot;search&quot;</span> : <span class="number">0</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;throttled_millis&quot;</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">&quot;requests_per_second&quot;</span> : <span class="number">-1.0</span>,</span><br><span class="line">  <span class="attr">&quot;throttled_until_millis&quot;</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">&quot;failures&quot;</span> : [ ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>删除所有文档</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST 索引名/_delete_by_query </span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;query&quot;</span>: &#123; </span><br><span class="line">    <span class="attr">&quot;match_all&quot;</span>: &#123;</span><br><span class="line">    &#125; </span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>**8. 文档的全量替换、强制创建 **</p>
+<ul>
+<li>全量替换 <ul>
+<li>语法与创建文档是一样的，如果文档id不存在，那么就是创建；如果文档id已经存在，那么就是全量替换操作，替换文档的json串内容； </li>
+<li>文档是不可变的，如果要修改文档的内容，第一种方式就是全量替换，直接对文档重新建立索引，替换里面所有的内容，elasticsearch会将老的文档标记为deleted，然后新增我们给定的一个文档，当我们创建越来越多的文档的时候，elasticsearch会在适当的时机在后台自动删除标记为deleted的文档 。</li>
+</ul>
+</li>
+<li>强制创建<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /index/_doc/&#123;id&#125;?op_type=create &#123;&#125;</span><br><span class="line">PUT /index/_doc/&#123;id&#125;/_create &#123;&#125;</span><br></pre></td></tr></table></figure>
+如果id 存在就会报错 。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/36a0436b.html">http://www.lvxueyang.vip/post/36a0436b.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/">搜索引擎</a><a class="post-meta__tags" href="/tags/Elasticsearch/">Elasticsearch</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/5a1f6e0b.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">ElasticSearch之深度应用及原理剖析</div></div></a></div><div class="next-post pull-right"><a href="/post/b0f534d5.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">ElasticSearch基础</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/7a41cdc3.html" title="ElasticSearch之企业级高可用分布式集群"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch之企业级高可用分布式集群</div></div></a></div><div><a href="/post/844c8e8e.html" title="ElasticSearch之数据模型构建"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch之数据模型构建</div></div></a></div><div><a href="/post/24cc40e3.html" title="ElasticSearch之搜索实战"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch之搜索实战</div></div></a></div><div><a href="/post/b0f534d5.html" title="ElasticSearch基础"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch基础</div></div></a></div><div><a href="/post/5a1f6e0b.html" title="ElasticSearch之深度应用及原理剖析"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch之深度应用及原理剖析</div></div></a></div><div><a href="/post/61fde8f7.html" title="ElasticSearch高级应用"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch高级应用</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">1. 核心概念</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Elasticsearch-API%E4%BB%8B%E7%BB%8D"><span class="toc-text">2. Elasticsearch API介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEkibana"><span class="toc-text">3. 安装配置kibana</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Elasticsearch%E9%9B%86%E6%88%90IK%E5%88%86%E8%AF%8D%E5%99%A8"><span class="toc-text">4. Elasticsearch集成IK分词器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E7%B4%A2%E5%BC%95%E6%93%8D%E4%BD%9C%EF%BC%88%E5%88%9B%E5%BB%BA%E3%80%81%E6%9F%A5%E7%9C%8B%E3%80%81%E5%88%A0%E9%99%A4%EF%BC%89"><span class="toc-text">5. 索引操作（创建、查看、删除）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E6%98%A0%E5%B0%84%E6%93%8D%E4%BD%9C"><span class="toc-text">6. 映射操作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E6%96%87%E6%A1%A3%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5%E5%8F%8A%E5%B1%80%E9%83%A8%E6%9B%B4%E6%96%B0"><span class="toc-text">7. 文档增删改查及局部更新</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

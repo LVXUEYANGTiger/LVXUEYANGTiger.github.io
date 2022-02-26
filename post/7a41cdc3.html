@@ -1,0 +1,392 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ElasticSearch之企业级高可用分布式集群 | 牧马人的忧伤</title><meta name="keywords" content="搜索引擎,Elasticsearch"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="第1节 核心概念 集群（Cluster）   一个Elasticsearch集群由多个节点（Node）组成，每个集群都有一个共同的集群名称作为标识 。  节点（Node）   一个Elasticsearch实例即一个Node，一台机器可以有多个实例，正常使用下每个实例都应该会部署在不同的机器上。Elasticsearch的配置文件中可以通过node.master、node.data来设置节点类型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch之企业级高可用分布式集群">
+<meta property="og:url" content="http://www.lvxueyang.vip/post/7a41cdc3.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="第1节 核心概念 集群（Cluster）   一个Elasticsearch集群由多个节点（Node）组成，每个集群都有一个共同的集群名称作为标识 。  节点（Node）   一个Elasticsearch实例即一个Node，一台机器可以有多个实例，正常使用下每个实例都应该会部署在不同的机器上。Elasticsearch的配置文件中可以通过node.master、node.data来设置节点类型。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg">
+<meta property="article:published_time" content="2022-01-04T11:30:20.120Z">
+<meta property="article:modified_time" content="2022-01-05T13:11:05.047Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="搜索引擎">
+<meta property="article:tag" content="Elasticsearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/7a41cdc3"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ElasticSearch之企业级高可用分布式集群',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-01-05 21:11:05'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">ElasticSearch之企业级高可用分布式集群</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-04T11:30:20.120Z" title="发表于 2022-01-04 19:30:20">2022-01-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-05T13:11:05.047Z" title="更新于 2022-01-05 21:11:05">2022-01-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/">搜索引擎</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/Elasticsearch/">Elasticsearch</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">6.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>20分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ElasticSearch之企业级高可用分布式集群"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="第1节-核心概念"><a href="#第1节-核心概念" class="headerlink" title="第1节 核心概念"></a>第1节 核心概念</h1><ul>
+<li>集群（Cluster） </li>
+</ul>
+<p>一个Elasticsearch集群由多个节点（Node）组成，每个集群都有一个共同的集群名称作为标识 。</p>
+<ul>
+<li><p>节点（Node） </p>
+<ul>
+<li>一个Elasticsearch实例即一个Node，一台机器可以有多个实例，正常使用下每个实例都应该会部署在不同的机器上。Elasticsearch的配置文件中可以通过node.master、node.data来设置节点类型。 </li>
+<li>node.master：表示节点是否具有成为主节点的资格 。<ul>
+<li>true代表的是有资格竞选主节点。 </li>
+<li>false代表的是没有资格竞选主节点 。</li>
+</ul>
+</li>
+<li>node.data：表示节点是否存储数据。</li>
+</ul>
+</li>
+<li><p>Node节点组合 </p>
+<ul>
+<li>主节点+数据节点（master+data） 默认。<ul>
+<li>节点既有成为主节点的资格，又存储数据。<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">node.master: <span class="literal">true</span></span><br><span class="line">node.data: <span class="literal">true</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>  数据节点（data） </p>
+</li>
+</ul>
+<p>节点没有成为主节点的资格，不参与选举，只会存储数据。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">node.master: <span class="literal">false</span> </span><br><span class="line">node.data: <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>客户端节点（client） </li>
+</ul>
+<p>不会成为主节点，也不会存储数据，主要是针对海量请求的时候可以进行负载均衡。</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">node.master:</span> <span class="literal">false</span> </span><br><span class="line"><span class="attr">node.data:</span> <span class="literal">false</span> </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>分片 </li>
+</ul>
+<p>每个索引有1个或多个分片，每个分片存储不同的数据。分片可分为主分片（primary shard）和复制分片（replica shard），复制分片是主分片的拷贝。默认每个主分片有一个复制分片，每个索引的复制分片的数量可以动态地调整，复制分片从不与它的主分片在同一个节点上 。</p>
+<ul>
+<li>副本 </li>
+</ul>
+<p>这里指主分片的副本分片（主分片的拷贝）。</p>
+<p>提高恢复能力：当主分片挂掉时，某个复制分片可以变成主分片；<br>提高性能：get 和 search 请求既可以由主分片又可以由复制分片处理；</p>
+<h1 id="第2节-Elasticsearch分布式架构"><a href="#第2节-Elasticsearch分布式架构" class="headerlink" title="第2节 Elasticsearch分布式架构"></a>第2节 Elasticsearch分布式架构</h1><p>Elasticseasrch的架构遵循其基本概念：一个采用Restful API标准的高扩展性和高可用性的实时数据分析的全文搜索引擎。 </p>
+<h2 id="2-1-分布式架构特性"><a href="#2-1-分布式架构特性" class="headerlink" title="2.1 分布式架构特性"></a>2.1 分布式架构特性</h2><ul>
+<li>高扩展性：体现在Elasticsearch添加节点非常简单，新节点无需做复杂的配置，只要配置好集群信息将会被集群自动发现。 </li>
+<li>高可用性：因为Elasticsearch是分布式的，每个节点都会有备份，所以宕机一两个节点也不会出现问题，集群会通过备份进行自动复盘。 </li>
+<li>实时性：使用倒排索引来建立存储结构，搜索时常在百毫秒内就可完成。</li>
+</ul>
+<p><strong>分层：</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041208531.png" alt="image-20220104120804398"></p>
+<p><strong>第一层 —— Gateway：</strong><br>Elasticsearch支持的索引快照的存储格式，es默认是先把索引存放到内存中，当内存满了之后再持久化到本地磁盘。gateway对索引快照进行存储，当Elasticsearch关闭再启动的时候，它就会从这个gateway里面读取索引数据；支持的格式有：本地的Local FileSystem、分布式的Shared FileSystem、 Hadoop的文件系统HDFS、Amazon（亚马逊)的S3。 </p>
+<p><strong>第二层 —— Lucene框架：</strong><br>Elasticsearch基于Lucene（基于Java开发）框架。 </p>
+<p>第三层 —— Elasticsearch数据的加工处理方式：<br>Index Module（创建Index模块）、Search Module（搜索模块）、Mapping（映射）、River 代表 es的一个数据源（运行在Elasticsearch集群内部的一个插件，主要用来从外部获取获取异构数据，然后在Elasticsearch里创建索引；常见的插件有RabbitMQ River、Twitter River）。</p>
+<p><strong>第四层 —— Elasticsearch发现机制、脚本：</strong><br>Discovery 是Elasticsearch自动发现节点的机制的模块，Zen Discovery和 EC2 discovery。EC2：亚马逊弹性计算云 EC2 discovery主要在亚马云平台中使用。Zen Discovery作用就相当于solrcloud中的zookeeper。zen Discovery 从功能上可以分为两部分，第一部分是集群刚启动时的选主，或者是新加入集群的节点发现当前集群的Master。第二部分是选主完成后，Master 和 Folower 的相互探活。<br> Scripting 是脚本执行功能，有这个功能能很方便对查询出来的数据进行加工处理。<br> 3rd Plugins 表示Elasticsearch支持安装很多第三方的插件，例如elasticsearch-ik分词插件、elasticsearch-sql sql插件。 </p>
+<p><strong>第五层 —— Elasticsearch的交互方式：</strong><br>有Thrift、Memcached、Http三种协议，默认的是用Http协议传输 。</p>
+<p><strong>第六层 —— Elasticsearch的API支持模式：</strong><br>RESTFul Style API风格的API接口标准是当下十分流行的。Elasticsearch作为分布式集群，客户端到服务端，节点与节点间通信有TCP和Http通信协议，底层实现为Netty框架。</p>
+<h2 id="2-2-解析Elasticsearch的分布式架构"><a href="#2-2-解析Elasticsearch的分布式架构" class="headerlink" title="2.2 解析Elasticsearch的分布式架构"></a>2.2 解析Elasticsearch的分布式架构</h2><p>**分布式架构的透明隐藏特性 **<br>Elasticsearch是一个分布式系统，隐藏了复杂的处理机制<br>分片机制：将文本数据切割成n个小份存储在不同的节点上，减少大文件存储在单个节点上对设备带来的压力。<br>分片的副本：在集群中某个节点宕掉后，通过副本可以快速对缺失数据进行复盘。</p>
+<ul>
+<li>集群发现机制（cluster discovery）：在当前启动了一个Elasticsearch进程，在启动第二个Elasticsearch进程时，这个进程将作为一个node自动就发现了集群，并自动加入,前提是这些node都必须配置一套集群信息。 </li>
+<li>Shard负载均衡：例如现在由10个 shard （分片），集群中由三个节点，Elasticsearch会进行均衡的分配，以保持每个节点均衡的负载请求。 </li>
+</ul>
+<p>**扩容机制 **</p>
+<ul>
+<li>垂直扩容：用新机器替换已有的机器，服务器台数不变容量增加。 </li>
+<li>水平扩容：直接增加新机器，服务器台数和容量都增加。 </li>
+</ul>
+<p>**rebalance **<br>增加或减少节点时会自动负载 </p>
+<p>**主节点 **<br>主节点的主要职则是和集群操作的相关内容，如创建或删除索引，跟踪哪些节点是集群的一部分，并决定哪些分片分配给相关的节点。稳定的主节点对集群的健康是非常重要的。 </p>
+<p>**节点对等 **<br>每个节点都能接受请求，每个节点接受到请求后都能把该请求路由到有相关数据的其它节点上，接受原始请求的节点负责采集数据并返回给客户端。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041217712.png" alt="image-20220104121715638"></p>
+<h1 id="第3节-集群环境搭建"><a href="#第3节-集群环境搭建" class="headerlink" title="第3节 集群环境搭建"></a>第3节 集群环境搭建</h1><p>我们搭建一个三个节点的集群环境，为了学习方便，我这边只在一台服务器上来演示主从环境。<br>调整虚拟机内存到<strong>3g</strong>以上</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041217489.png" alt="image-20220104121734439"></p>
+<p>**一、节点搭建 **<br>elasticsearch.yml配置文件说明：<br>配置说明：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041217840.png" alt="image-20220104121757768"></p>
+<p>我们要只需要在之前的基础上，打开配置文件elasticsearch.yml，添加如下配置：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">my-es</span> <span class="comment">#集群名称 --- </span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">node-1</span> <span class="comment"># 节点名称</span></span><br><span class="line"><span class="attr">node.master:</span> <span class="literal">true</span> <span class="comment">#当前节点是否可以被选举为master节点，是：true、否：false --- </span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span> </span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9200</span> </span><br><span class="line"><span class="attr">transport.port:</span> <span class="number">9300</span> <span class="comment"># --- #初始化一个新的集群时需要此配置来选举master </span></span><br><span class="line"><span class="attr">cluster.initial_master_nodes:</span> [<span class="string">&quot;node-1&quot;</span>,<span class="string">&quot;node-2&quot;</span>,<span class="string">&quot;node-3&quot;</span>] </span><br><span class="line"><span class="comment">#写入候选主节点的设备地址 ---</span></span><br><span class="line"><span class="attr">discovery.seed_hosts:</span> [<span class="string">&quot;127.0.0.1:9300&quot;</span>, <span class="string">&quot;127.0.0.1:9301&quot;</span>,<span class="string">&quot;127.0.0.1:9302&quot;</span>]</span><br><span class="line"><span class="attr">http.cors.enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">http.cors.allow-origin:</span> <span class="string">&quot;*&quot;</span></span><br></pre></td></tr></table></figure>
+<p>修改完配置文件之后，一定要把之前的<strong>data目录下node数据删除</strong>再重新服务即可。</p>
+<p>**二、第二节点配置 **</p>
+<ol>
+<li>拷贝原来的ES节点elasticsearch 并命名为elasticsearch1，并授权 。<br><code>cp elasticsearch/ elasticsearch1 -rf </code><br><code>chown -R estest elasticsearch1 </code><br>进入elasticsearch1目录config文件夹，修改elasticsearch.yml配置文件并保存。<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 修改node.name 和 http.port transport.port</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">node-2</span> </span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9201</span> </span><br><span class="line"><span class="attr">transport.port:</span> <span class="number">9301</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#启动从环境1 一定要用estest用户来执行</span></span><br><span class="line"><span class="built_in">cd</span> bin/</span><br><span class="line">./elasticsearch</span><br></pre></td></tr></table></figure></li>
+<li>第三节点配置<br>拷贝第一个节点 并命名为elasticsearch2，并授权<br><code>chown -R estest elasticsearch2 </code><br>进入elasticsearch2目录config文件夹，修改elasticsearch.yml配置文件并保存。</li>
+</ol>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 修改node.name 和 http.port transport.port</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">node-3</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9202</span></span><br><span class="line"><span class="attr">transport.port:</span> <span class="number">9302</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment">#启动从环境1 一定要用estest用户来执行 </span></span><br><span class="line"><span class="string">cd</span> <span class="string">bin/</span></span><br><span class="line"><span class="string">./elasticsearch</span></span><br></pre></td></tr></table></figure>
+<p>简单验证<br><a target="_blank" rel="noopener" href="http://192.168.211.136:9200/_cat/health?v">http://192.168.211.136:9200/_cat/health?v</a></p>
+<p>**三、Elasticsearch Head插件介绍及安装 和 验证主从环境 **<br> Elasticsearch Head插件介绍及安装<br>elasticsearch-head是一个界面化的集群操作和管理工具，可以对集群进行傻瓜式操作。你可以通过插件把它集成到ES。<br>es-head主要有三个方面的操作： </p>
+<ol>
+<li>显示集群的拓扑 能够快速访问并显示集群的状态,并且能够执行索引和节点级别操作。 </li>
+<li>搜索接口能够查询集群中原始json或表格格式的检索数据。</li>
+<li>有一个输入窗口,允许任意调用RESTful API。<br>官方的文档： <a target="_blank" rel="noopener" href="https://github.com/mobz/elasticsearch-head">https://github.com/mobz/elasticsearch-head</a> 。</li>
+</ol>
+<p>1.安装步骤<br>ealsticsearch只是后端提供各种api，那么怎么直观的使用它呢？elasticsearch-head将是一款专门针对于elasticsearch的客户端工具 elasticsearch-head配置包，下载地址：<a target="_blank" rel="noopener" href="https://github.com/mobz/elasticsearch-head">https://github.com/mobz/elasticsearch-head</a><br>elasticsearch-head是一个基于node.js的前端工程。<br>    1. nodejs安装</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">wget https://nodejs.org/dist/v10.15.3/node-v10.15.3-linux-x64.tar.xz //下载</span><br><span class="line">tar xf node-v10.15.3-linux-x64.tar.xz // 解压</span><br><span class="line"><span class="built_in">cd</span> node-v10.15.3-linux-x64/ // 进入解压目录</span><br><span class="line">./bin/node -v // 执行node命令 查看版本 </span><br><span class="line">v10.15.3</span><br></pre></td></tr></table></figure>
+<p>解压文件的 bin 目录底下包含了 node、npm 等命令，我们可以使用 ln 命令来设置软连接：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">ln -s /root/node-v10.15.3-linux-x64/bin/npm /usr/<span class="built_in">local</span>/bin/ </span><br><span class="line">ln -s /root/node-v10.15.3-linux-x64/bin/node /usr/<span class="built_in">local</span>/bin/</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>phantomjs安装配置<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span></span><br><span class="line">wget https://github.com/Medium/phantomjs/releases/download/v2.1.1/phantomjs-2.1.1-linux-x86_64.tar.bz2 </span><br><span class="line"></span><br><span class="line"><span class="comment">#注意安装 </span></span><br><span class="line">yum install -y bzip2 </span><br><span class="line">tar -jxvf phantomjs-2.1.1-linux-x86_64.tar.bz2 </span><br><span class="line"></span><br><span class="line">vim /etc/profile </span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/<span class="built_in">local</span>/phantomjs-2.1.1-linux-x86_64/bin </span><br><span class="line"><span class="comment">#注意环境变量$Path移动在最前面</span></span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure></li>
+<li>elasticsearch-head安装<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">npm install -g grunt-cli</span><br><span class="line">npm install grunt</span><br><span class="line">npm install grunt-contrib-clean </span><br><span class="line">npm install grunt-contrib-concat </span><br><span class="line">npm install grunt-contrib-watch</span><br><span class="line">npm install grunt-contrib-connect</span><br><span class="line">yum -y install git </span><br><span class="line">git <span class="built_in">clone</span> git://github.com/mobz/elasticsearch-head.git </span><br><span class="line"><span class="built_in">cd</span> elasticsearch-head</span><br><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org</span><br></pre></td></tr></table></figure></li>
+<li>elasticsearch-head发现主机 并连接 elasticsearch.yml配置文件修改：<br>如果之前设置过 可以忽略这一步<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">http.cors.enabled:</span><br><span class="line">true</span><br><span class="line">http.cors.allow-origin: &quot;*&quot;</span><br></pre></td></tr></table></figure></li>
+<li>启动<br>在 elasticsearch-head 中执行命令<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm run start</span><br><span class="line">如果启动出错 则把第三步中的依赖再安装一遍</span><br></pre></td></tr></table></figure></li>
+<li>启动完成后，我们用Elasticsearch head查看，主从环境配置正常。</li>
+</ol>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041220224.png" alt="image-202201122057162"></p>
+<ol start="7">
+<li>在kibana中建立下面的索引<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /lagou-employee-index </span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;settings&quot;</span>: &#123;&#125;,</span><br><span class="line">     <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">       <span class="attr">&quot;properties&quot;</span>: &#123; </span><br><span class="line">         <span class="attr">&quot;name&quot;</span>: &#123; </span><br><span class="line">           <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span></span><br><span class="line">         &#125;</span><br><span class="line">       &#125;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /lagou-company-index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;number_of_shards&quot;</span>: <span class="string">&quot;2&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;number_of_replicas&quot;</span>: <span class="string">&quot;2&quot;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;name&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041220024.png" alt="image-20220104122033970"></li>
+</ol>
+<h1 id="第4节-集群规划"><a href="#第4节-集群规划" class="headerlink" title="第4节 集群规划"></a>第4节 集群规划</h1><h2 id="4-1-我们需要多大规模的集群"><a href="#4-1-我们需要多大规模的集群" class="headerlink" title="4.1 我们需要多大规模的集群"></a>4.1 我们需要多大规模的集群</h2><p><strong>需要从以下两个方面考虑：</strong><br>1）当前的数据量有多大？数据增长情况如何？<br>2）你的机器配置如何？cpu、多大内存、多大硬盘容量？</p>
+<p><strong>推算的依据：</strong><br>Elasticsearch JVM heap 最大可以设置32G 。<br>30G heap 大概能处理的数据量 10 T。如果内存很大如128G，可在一台机器上运行多个ES节点实例。<br>备注：集群规划满足当前数据规模+适量增长规模即可，后续可按需扩展。</p>
+<p><strong>两类应用场景：</strong><br>A. 用于构建业务搜索功能模块，且多是垂直领域的搜索。数据量级几千万到数十亿级别。一般2-4台机器的规模。<br>B. 用于大规模数据的实时OLAP（联机处理分析），经典的如ELK Stack，数据规模可能达到千亿或更多。几十到上百节点的规模。</p>
+<h2 id="4-2-集群中的节点角色如何分配"><a href="#4-2-集群中的节点角色如何分配" class="headerlink" title="4.2 集群中的节点角色如何分配"></a>4.2 集群中的节点角色如何分配</h2><p><strong>节点角色：</strong><br><strong>Master</strong><br>node.master: true 节点可以作为主节点。</p>
+<p><strong>DataNode</strong><br>node.data: true 默认是数据节点。</p>
+<p>**Coordinate node **协调节点，一个节点只作为接收请求、转发请求到其他节点、汇总各个节点返回数据等功能的节点，就叫协调节点，如果仅担任协调节点，将上两个配置设为false。<br>说明：一个节点可以充当一个或多个角色，默认三个角色都有。</p>
+<p><strong>节点角色如何分配：</strong><br>A. 小规模集群，不需严格区分。<br>B. 中大规模集群（十个以上节点），应考虑单独的角色充当。特别并发查询量大，查询的合并量大，可以增加独立的协调节点。角色分开的好处是分工分开，不互影响。如不会因协调角色负载过高而影响数据节点的能力。</p>
+<h2 id="4-3-如何避免脑裂问题"><a href="#4-3-如何避免脑裂问题" class="headerlink" title="4.3 如何避免脑裂问题"></a>4.3 如何避免脑裂问题</h2><p><strong>脑裂问题</strong>：<br>       一个集群中只有一个A主节点，A主节点因为需要处理的东西太多或者网络过于繁忙，从而导致其他从节点ping不通A主节点，这样其他从节点就会认为A主节点不可用了，就会重新选出一个新的主节点B。过了一会A主节点恢复正常了，这样就出现了两个主节点，导致一部分数据来源于A主节点，另外一部分数据来源于B主节点，出现数据不一致问题，这就是<strong>脑裂</strong>。</p>
+<p>6.x和之前版本 尽量避免脑裂，需要添加最小数量的主节点配置：</p>
+<blockquote>
+<p>discovery.zen.minimum_master_nodes:** (有master资格节点数/2) + 1</p>
+</blockquote>
+<p>这个参数控制的是，选举主节点时需要看到最少多少个具有master资格的活节点，才能进行选举。官方的推荐值是(N/2)+1，其中N是具有master资格的节点的数量。<br>     在新版7.X的ES中，对es的集群发现系统做了调整，不再有discovery.zen.minimum_master_nodes这个控制集群脑裂的配置，转而由集群自主控制，并且新版在启动一个新的集群的时候需要有cluster.initial_master_nodes初始化集群列表。<br>    在es7中，discovery.zen.* 开头的参数，有些已经失效。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041223967.png" alt="image-20220104122355901"></p>
+<p><strong>常用做法（中大规模集群）：</strong><br>1）Master 和 dataNode 角色分开，配置奇数个master，如3。<br>2）单播发现机制，配置master资格节点(5.0之前)：<br>    discovery.zen.ping.multicast.enabled: false ——关闭多播发现机制，默认是关闭的 。<br>3）延长ping master的等待时长 。<br>    discovery.zen.ping_timeout: 30（默认值是3秒）——其他节点ping主节点多久时间没有响应就认为主节点不可用了。<br>es7中换成了 discovery.request_peers_timeout。</p>
+<h2 id="4-4-索引应该设置多少个分片"><a href="#4-4-索引应该设置多少个分片" class="headerlink" title="4.4 索引应该设置多少个分片"></a>4.4 索引应该设置多少个分片</h2><p>说明：分片数指定后不可变，除非重建索引。<br><strong>分片设置的可参考原则：</strong><br>ElasticSearch推荐的最大JVM堆空间是30<del>32G, 所以把你的分片最大容量限制为30GB, 然后再对分片数量做合理估算. 例如, 你认为你的数据能达到200GB, 推荐你最多分配7到8个分片。<br>在开始阶段, 一个好的方案是根据你的节点数量按照1.5</del>3倍的原则来创建分片. 例如,如果你有3个节点,则推荐你创建的分片数最多不超过9(3x3)个。当性能下降时，增加节点，ES会平衡分片的放置。<br>对于基于日期的索引需求, 并且对索引数据的搜索场景非常少. 也许这些索引量将达到成百上千, 但每个索引的数据量只有1GB甚至更小. 对于这种类似场景, 建议只需要为索引分配1个分片。如日志管理就是一个日期的索引需求，日期索引会很多，但每个索引存放的日志数据量就很少。</p>
+<h2 id="4-5-分片应该设置几个副本"><a href="#4-5-分片应该设置几个副本" class="headerlink" title="4.5 分片应该设置几个副本"></a>4.5 分片应该设置几个副本</h2><p>副本设置基本原则：<br>为保证高可用，副本数设置为2即可。要求集群至少要有3个节点，来分开存放主分片、副本。如发现并发量大时，查询性能会下降，可增加副本数，来提升并发查询能力。<br><strong>注意：</strong>新增副本时主节点会自动协调，然后拷贝数据到新增的副本节点,副本数是可以随时调整的！</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_temp_index/_settings </span><br><span class="line">&#123; </span><br><span class="line">  <span class="attr">&quot;number_of_replicas&quot;</span>: <span class="number">1</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="第5节-分布式集群调优策略"><a href="#第5节-分布式集群调优策略" class="headerlink" title="第5节 分布式集群调优策略"></a>第5节 分布式集群调优策略</h1><p>拉勾网是一家专注于互联网垂直招聘的互联网公司，我们在生产环境的多个场景下都使用到了Elasticsearch，比如针对C端个人用户的职位搜索、针对B端企业用户的简历搜索，另外也在后台日志分析平台（ELK）中应用到，所部署的Elasticsearch版本上覆盖了2.x、5.x、6.x和7.x多个版本。在拉勾网数据总量达百亿级documents，日增量近1T（近1百万document）的高并发海量数据场景下，研发和运维团队积累了丰富的Elasticsearch调优经验。拉勾网生产环境Elasticsearch集群有多套，但节点数并没有很多，针对C端个人用户的职位搜索只有7个实例节点，ELK日志平台中Elasticsearch实例节点数也仅仅只有4个，考虑到资金投入、当前及未来一定时间内数据的增量情况等，研发和运维团队在竭尽所能的通过调优方式保证Elasticsearch正常高效运转。<br>接下来，我们从Index(写)和Search(读)两个方面给大家分享调优经验。</p>
+<h2 id="5-1-Index-写-调优"><a href="#5-1-Index-写-调优" class="headerlink" title="5.1 Index(写)调优"></a>5.1 Index(写)调优</h2><p>   拉勾网的职位数据和简历数据，首先都是进入MySQL集群的，我们从MySQL的原始表里面抽取并存储到ES 的Index，而MySQL的原始数据也是经常在变化的，所以快速写入Elasticsearch、以保持Elasticsearch和MySQL的数据及时同步也是很重要的。<br>拉勾网的工程师主要是下面几个方面优化来提高写入的速度：</p>
+<h3 id="5-1-1-副本数置0"><a href="#5-1-1-副本数置0" class="headerlink" title="5.1.1 副本数置0"></a>5.1.1 副本数置0</h3><p>如果是集群首次灌入数据,可以将副本数设置为0，写入完毕再调整回去，这样副本分片只需要拷贝，节省了索引过程。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_temp_index/_settings</span><br><span class="line">&#123;</span><br><span class="line"> <span class="attr">&quot;number_of_replicas&quot;</span>: <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-1-2-自动生成doc-ID"><a href="#5-1-2-自动生成doc-ID" class="headerlink" title="5.1.2 自动生成doc ID"></a>5.1.2 自动生成doc ID</h3><p>通过Elasticsearch写入流程可以看出，如果写入doc时如果外部指定了id，则Elasticsearch会先尝试读取原来doc的版本号，以判断是否需要更新。这会涉及一次读取磁盘的操作，通过自动生成doc ID可以避免这个环节。</p>
+<h3 id="5-1-3-合理设置mappings"><a href="#5-1-3-合理设置mappings" class="headerlink" title="5.1.3 合理设置mappings"></a>5.1.3 合理设置mappings</h3><p> 将不需要建立索引的字段index属性设置为not_analyzed或no。对字段不分词，或者不索引，可以减少很多运算操作，降低CPU占用。 尤其是binary类型，默认情况下占用CPU非常高，而这种类型进行分词通常没有什么意义。</p>
+<p>减少字段内容长度，如果原始数据的大段内容无须全部建立 索引，则可以尽量减少不必要的内容。<br>使用不同的分析器（analyzer），不同的分析器在索引过程中 运算复杂度也有较大的差异。</p>
+<h3 id="5-1-4-调整-source字段"><a href="#5-1-4-调整-source字段" class="headerlink" title="5.1.4 调整_source字段"></a>5.1.4 调整_source字段</h3><p><code>_ source</code> <em>字段用于存储</em> doc <em>原始数据，对于部分不需要存储的字段，可以通过</em> includes excludes_过滤，或者将source禁用，一般用于索引和数据分离，这样可以降低 I/O 的压力，不过实际场景中大多不会禁用_source。</p>
+<h3 id="5-1-5-对analyzed的字段禁用norms"><a href="#5-1-5-对analyzed的字段禁用norms" class="headerlink" title="5.1.5 对analyzed的字段禁用norms"></a>5.1.5 对analyzed的字段禁用norms</h3><p>   Norms用于在搜索时计算doc的评分，如果不需要评分，则可以将其禁用：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="string">&quot;title&quot;</span>: &#123; </span><br><span class="line">  <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;string&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;norms&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;enabled&quot;</span>: <span class="literal">false</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-1-6-调整索引的刷新间隔"><a href="#5-1-6-调整索引的刷新间隔" class="headerlink" title="5.1.6 调整索引的刷新间隔"></a>5.1.6 调整索引的刷新间隔</h3><p>该参数缺省是1s，强制ES每秒创建一个新segment，从而保证新写入的数据近实时的可见、可被搜索到。比如该参数被调整为30s，降低了刷新的次数，把刷新操作消耗的系统资源释放出来给index操作使用。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /my_index/_settings</span><br><span class="line">&#123;</span><br><span class="line"> <span class="attr">&quot;index&quot;</span> : &#123;</span><br><span class="line">      <span class="attr">&quot;refresh_interval&quot;</span>: <span class="string">&quot;30s&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这种方案以牺牲可见性的方式，提高了index操作的性能</strong>。</p>
+<h3 id="5-1-7-批处理"><a href="#5-1-7-批处理" class="headerlink" title="5.1.7 批处理"></a>5.1.7 批处理</h3><p>批处理把多个index操作请求合并到一个batch中去处理，和mysql的jdbc的bacth有类似之处。如图：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041228902.png" alt="image-20220104122847859"></p>
+<p>比如每批1000个documents是一个性能比较好的size。每批中多少document条数合适，受很多因素影响而不同，如单个document的大小等。ES官网建议通过在单个node、单个shard做性能基准测试来确定这个参数的最优值。</p>
+<p><strong>5.1.8 Document的路由处理</strong><br>当对一批中的documents进行index操作时，该批index操作所需的线程的个数由要写入的目的shard的个数决定。看下图：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041229447.png" alt="image-20220104122919405"></p>
+<p>上图中，有2批documents写入ES, 每批都需要写入4个shard，所以总共需要8个线程。如果能减少shard的个数，那么耗费的线程个数也会减少。例如下图，两批中每批的shard个数都只有2个，总共线程消耗个数4个，减少一半。<br>默认的routing就是_id_，也可以在发送请求的时候，手动指定一个_routing value_，比如说_put /index/_doc/id?<strong>routing=user_id</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041230179.png" alt="image-20220104123055137"></p>
+<p><strong>值得注意</strong>的是线程数虽然降低了，但是<strong>单批的处理耗时可能增加</strong>了。和提高刷新间隔方法类似，这有可能会延长数据不见的时间。</p>
+<h2 id="5-2-Search-读-调优"><a href="#5-2-Search-读-调优" class="headerlink" title="5.2 Search(读)调优"></a>5.2 Search(读)调优</h2><p>在存储的Document条数超过<strong>10亿</strong>条后，我们如何进行搜索调优。</p>
+<h3 id="5-2-1-数据分组"><a href="#5-2-1-数据分组" class="headerlink" title="5.2.1 数据分组"></a>5.2.1 数据分组</h3><p>很多人拿ES用来存储日志，日志的索引管理方式一般基于日期的，基于天、周、月、年建索引。如下图，基于天建索引：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041231010.png" alt="image-20220104123120965"></p>
+<p>​     当搜索单天的数据，只需要查询一个索引的shards就可以。当需要查询多天的数据时，需要查询多个索引的shards。这种方案其实和数据库的分表、分库、分区查询方案相比，思路类似，小数据范围查询而不是大海捞针。<br> 开始的方案是建一个index，当数据量增大的时候，就扩容增加index的shard的个数。当shards增大时，要搜索的shards个数也随之显著上升。基于数据分组的思路，可以基于client进行数据分组，每一个client只需依赖自己的index的数据shards进行搜索，而不是所有的数据shards，大大提高了搜索的性能，如下图:</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041231274.png" alt="image-20220104123150237"></p>
+<h3 id="5-2-2-使用Filter替代Query"><a href="#5-2-2-使用Filter替代Query" class="headerlink" title="5.2.2 使用Filter替代Query"></a>5.2.2 使用Filter替代Query</h3><p>在搜索时候使用Query，需要为Document的相关度打分。使用Filter，没有打分环节处理，做的事情更少，而且fifilter理论上更快一些。<br>如果搜索不需要打分，可以直接使用filter查询。如果部分搜索需要打分，建议使用’bool’查询。这种方式可以把打分的查询和不打分的查询组合在一起使用，如：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">GET /_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;query&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;bool&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;must&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;term&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;user&quot;</span>: <span class="string">&quot;kimchy&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;filter&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;term&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;tag&quot;</span>: <span class="string">&quot;tech&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-2-3-ID字段定义为keyword"><a href="#5-2-3-ID字段定义为keyword" class="headerlink" title="5.2.3 ID字段定义为keyword"></a>5.2.3 ID字段定义为keyword</h3><p>一般情况，如果ID字段<strong>不会</strong>被用作Range 类型搜索字段，都可以定义成keyword类型。这是因为keyword会被优化，以便进行terms查询。Integers等数字类的mapping类型，会被优化来进行range类型搜索。<br>将integers改成keyword类型之后，搜索性能大约能提升**30%**。</p>
+<h3 id="5-2-4-别让用户的无约束的输入拖累了ES集群的性能"><a href="#5-2-4-别让用户的无约束的输入拖累了ES集群的性能" class="headerlink" title="5.2.4 别让用户的无约束的输入拖累了ES集群的性能"></a>5.2.4 别让用户的无约束的输入拖累了ES集群的性能</h3><p>拉勾工程师通过监控发现所有node的CPU 使用及其负载突然异常飙高。通过对<strong>Slow Logs</strong>分析发现，用户查询输入的条件中夹带了很多’OR’语句以及通配符“*”开头的字符串，如下图</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041232984.png" alt="image-20220104123220870"></p>
+<p>为了不让用户无约束的查询语句拖累ES集群的查询性能，可以限制用户用来查询的keywords。对于可以用来查询的keyworkds，也可以写成文档来帮助用户更正确的使用。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/7a41cdc3.html">http://www.lvxueyang.vip/post/7a41cdc3.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/">搜索引擎</a><a class="post-meta__tags" href="/tags/Elasticsearch/">Elasticsearch</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/61fde8f7.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">ElasticSearch高级应用</div></div></a></div><div class="next-post pull-right"><a href="/post/844c8e8e.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">ElasticSearch之数据模型构建</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/36a0436b.html" title="ElasticSearch之入门使用"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch之入门使用</div></div></a></div><div><a href="/post/844c8e8e.html" title="ElasticSearch之数据模型构建"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch之数据模型构建</div></div></a></div><div><a href="/post/24cc40e3.html" title="ElasticSearch之搜索实战"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch之搜索实战</div></div></a></div><div><a href="/post/b0f534d5.html" title="ElasticSearch基础"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch基础</div></div></a></div><div><a href="/post/5a1f6e0b.html" title="ElasticSearch之深度应用及原理剖析"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch之深度应用及原理剖析</div></div></a></div><div><a href="/post/61fde8f7.html" title="ElasticSearch高级应用"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-04</div><div class="title">ElasticSearch高级应用</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC1%E8%8A%82-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">第1节 核心概念</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC2%E8%8A%82-Elasticsearch%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84"><span class="toc-text">第2节 Elasticsearch分布式架构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84%E7%89%B9%E6%80%A7"><span class="toc-text">2.1 分布式架构特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E8%A7%A3%E6%9E%90Elasticsearch%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84"><span class="toc-text">2.2 解析Elasticsearch的分布式架构</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC3%E8%8A%82-%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">第3节 集群环境搭建</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC4%E8%8A%82-%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92"><span class="toc-text">第4节 集群规划</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E5%A4%9A%E5%A4%A7%E8%A7%84%E6%A8%A1%E7%9A%84%E9%9B%86%E7%BE%A4"><span class="toc-text">4.1 我们需要多大规模的集群</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E9%9B%86%E7%BE%A4%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9%E8%A7%92%E8%89%B2%E5%A6%82%E4%BD%95%E5%88%86%E9%85%8D"><span class="toc-text">4.2 集群中的节点角色如何分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E8%84%91%E8%A3%82%E9%97%AE%E9%A2%98"><span class="toc-text">4.3 如何避免脑裂问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-%E7%B4%A2%E5%BC%95%E5%BA%94%E8%AF%A5%E8%AE%BE%E7%BD%AE%E5%A4%9A%E5%B0%91%E4%B8%AA%E5%88%86%E7%89%87"><span class="toc-text">4.4 索引应该设置多少个分片</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-5-%E5%88%86%E7%89%87%E5%BA%94%E8%AF%A5%E8%AE%BE%E7%BD%AE%E5%87%A0%E4%B8%AA%E5%89%AF%E6%9C%AC"><span class="toc-text">4.5 分片应该设置几个副本</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC5%E8%8A%82-%E5%88%86%E5%B8%83%E5%BC%8F%E9%9B%86%E7%BE%A4%E8%B0%83%E4%BC%98%E7%AD%96%E7%95%A5"><span class="toc-text">第5节 分布式集群调优策略</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-Index-%E5%86%99-%E8%B0%83%E4%BC%98"><span class="toc-text">5.1 Index(写)调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-1-%E5%89%AF%E6%9C%AC%E6%95%B0%E7%BD%AE0"><span class="toc-text">5.1.1 副本数置0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-2-%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90doc-ID"><span class="toc-text">5.1.2 自动生成doc ID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-3-%E5%90%88%E7%90%86%E8%AE%BE%E7%BD%AEmappings"><span class="toc-text">5.1.3 合理设置mappings</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-4-%E8%B0%83%E6%95%B4-source%E5%AD%97%E6%AE%B5"><span class="toc-text">5.1.4 调整_source字段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-5-%E5%AF%B9analyzed%E7%9A%84%E5%AD%97%E6%AE%B5%E7%A6%81%E7%94%A8norms"><span class="toc-text">5.1.5 对analyzed的字段禁用norms</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-6-%E8%B0%83%E6%95%B4%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%B7%E6%96%B0%E9%97%B4%E9%9A%94"><span class="toc-text">5.1.6 调整索引的刷新间隔</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-7-%E6%89%B9%E5%A4%84%E7%90%86"><span class="toc-text">5.1.7 批处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-Search-%E8%AF%BB-%E8%B0%83%E4%BC%98"><span class="toc-text">5.2 Search(读)调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-1-%E6%95%B0%E6%8D%AE%E5%88%86%E7%BB%84"><span class="toc-text">5.2.1 数据分组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-2-%E4%BD%BF%E7%94%A8Filter%E6%9B%BF%E4%BB%A3Query"><span class="toc-text">5.2.2 使用Filter替代Query</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-3-ID%E5%AD%97%E6%AE%B5%E5%AE%9A%E4%B9%89%E4%B8%BAkeyword"><span class="toc-text">5.2.3 ID字段定义为keyword</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-4-%E5%88%AB%E8%AE%A9%E7%94%A8%E6%88%B7%E7%9A%84%E6%97%A0%E7%BA%A6%E6%9D%9F%E7%9A%84%E8%BE%93%E5%85%A5%E6%8B%96%E7%B4%AF%E4%BA%86ES%E9%9B%86%E7%BE%A4%E7%9A%84%E6%80%A7%E8%83%BD"><span class="toc-text">5.2.4 别让用户的无约束的输入拖累了ES集群的性能</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

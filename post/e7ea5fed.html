@@ -1,0 +1,469 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>运算法和运算器 | 牧马人的忧伤</title><meta name="keywords" content="计算机组成原理"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1.1 数据与文字的表示方式1.1.1 数据格式1.定点数表示法将数据分为纯整数和纯小数两类，用n+1位表示一个定点数，xn为符号位，放在最左边，0表示正号，1表示负号。故一个数 x 可以表示为 x&#x3D;xnxn−1…x1x0 x为纯小数：0≤|x|≤1−2−n x为纯整数：0≤|x|≤2n−1 计算机中多采用定点纯整数表示，将定点数表示的运算简称整数运算。  2.浮点数表示法小数点随着阶码的不同而浮">
+<meta property="og:type" content="article">
+<meta property="og:title" content="运算法和运算器">
+<meta property="og:url" content="http://www.lvxueyang.vip/post/e7ea5fed.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="1.1 数据与文字的表示方式1.1.1 数据格式1.定点数表示法将数据分为纯整数和纯小数两类，用n+1位表示一个定点数，xn为符号位，放在最左边，0表示正号，1表示负号。故一个数 x 可以表示为 x&#x3D;xnxn−1…x1x0 x为纯小数：0≤|x|≤1−2−n x为纯整数：0≤|x|≤2n−1 计算机中多采用定点纯整数表示，将定点数表示的运算简称整数运算。  2.浮点数表示法小数点随着阶码的不同而浮">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg">
+<meta property="article:published_time" content="2022-01-05T08:20:12.546Z">
+<meta property="article:modified_time" content="2022-01-05T12:05:40.534Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="计算机组成原理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/e7ea5fed"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '运算法和运算器',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-01-05 20:05:40'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">运算法和运算器</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-05T08:20:12.546Z" title="发表于 2022-01-05 16:20:12">2022-01-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-05T12:05:40.534Z" title="更新于 2022-01-05 20:05:40">2022-01-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/">计算机组成原理</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>16分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="运算法和运算器"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="1-1-数据与文字的表示方式"><a href="#1-1-数据与文字的表示方式" class="headerlink" title="1.1 数据与文字的表示方式"></a>1.1 数据与文字的表示方式</h1><h2 id="1-1-1-数据格式"><a href="#1-1-1-数据格式" class="headerlink" title="1.1.1 数据格式"></a>1.1.1 数据格式</h2><h3 id="1-定点数表示法"><a href="#1-定点数表示法" class="headerlink" title="1.定点数表示法"></a>1.定点数表示法</h3><p>将数据分为纯整数和纯小数两类，用n+1位表示一个定点数，xn为符号位，放在最左边，0表示正号，1表示负号。故一个数 x 可以表示为 x=xnxn−1…x1x0</p>
+<p>x为纯小数：0≤|x|≤1−2−n</p>
+<p>x为纯整数：0≤|x|≤2n−1</p>
+<p>计算机中多采用定点纯整数表示，将定点数表示的运算简称整数运算。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631306.png" alt="img"></p>
+<h3 id="2-浮点数表示法"><a href="#2-浮点数表示法" class="headerlink" title="2.浮点数表示法"></a>2.浮点数表示法</h3><p>小数点随着阶码的不同而浮动，数的范围和精度分别表示。</p>
+<p>格式：N=Re.M</p>
+<p>M称为浮点数的<strong>尾数</strong>，e 称为<strong>指数</strong>，是一个整数，R是<strong>基数</strong>，一般隐式表示（通常2或10）。在机器中，尾数用定点小数形式表示，指数用定点整数形式表示，称为<strong>阶码</strong>。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631325.png" alt="img"></p>
+<h3 id="3-浮点数表示范围"><a href="#3-浮点数表示范围" class="headerlink" title="3. 浮点数表示范围"></a>3. 浮点数表示范围</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631526.png" alt="img"></p>
+<h3 id="4-浮点数的规格化"><a href="#4-浮点数的规格化" class="headerlink" title="4. 浮点数的规格化"></a>4. 浮点数的规格化</h3><p><strong>规格化形式：</strong></p>
+<ul>
+<li>基数 r = 2 ，尾数最高位为 1</li>
+<li>基数 r = 4 ，尾数最高 2 位不全为 0</li>
+<li>基数 r = 8 ，尾数最高 3 位不全为 0</li>
+</ul>
+<p>基数不同，浮点数的规格化形式不同。</p>
+<p><strong>规格化方式：</strong></p>
+<ul>
+<li>r = 2 左规 尾数左移 1 位，阶码减 1<br>     右规 尾数右移 1 位，阶码加 1</li>
+<li>r = 4 左规 尾数左移 2 位，阶码减 1<br>     右规 尾数右移 2 位，阶码加 1</li>
+<li>r = 8 左规 尾数左移 3 位，阶码减 1<br>     右规 尾数右移 3 位，阶码加 1</li>
+</ul>
+<p>基数 r 越大，可表示的浮点数的范围越大，基数 r 越大，浮点数的精度降低。<br><strong>举例：</strong></p>
+<blockquote>
+<p>1.设 m = 4，n = 10，r = 2，求尾数规格化后的浮点数表示范围。</p>
+</blockquote>
+<p><strong>最大正数</strong> = 2+1111∗0.1111111111=215∗(1−2−10)</p>
+<p><strong>最小正数</strong> = 2−1111∗0.1000000000=2−15∗(2−1)=2−16 （尾数第一位规格化后必须为1）</p>
+<p><strong>最大负数</strong> = 2−1111∗−0.1000000000=−2−15∗2−1=−2−16</p>
+<p><strong>最小负数</strong> – 2+1111∗−0.1111111111=−215∗(1−2−10)</p>
+<blockquote>
+<p>例 6.13 将 x = + 19/128 写成二进制定点数、浮点数及在定点机和浮点机中的机器数形式。其中数值部分均取 10 位，数符取 1 位，浮点数阶码取 5 位（含1位阶符），尾数规格化。</p>
+</blockquote>
+<p><strong>x的二进制表示:</strong> 设 x = + 19/128</p>
+<p><strong>二进制形式：</strong> x=0.0010011</p>
+<p><strong>定点表示：</strong> x=0.0010011000</p>
+<p><strong>浮点规格化：</strong> x=0.1001100000∗2−10</p>
+<p><strong>定点机中：</strong> 原补反[x]原=[x]补=[x]反=0.0010011000</p>
+<p><strong>浮点机中：</strong><br>原；[x]原=1,0010；0.1001100000<br>补；[x]补=1,1110；0.1001100000<br>反；[x]反=1,1101；0.1001100000</p>
+<h3 id="5-十进制数表示"><a href="#5-十进制数表示" class="headerlink" title="5. 十进制数表示"></a>5. 十进制数表示</h3><ol>
+<li>字符串形式<br> 即一个字节存放一个十进制的数位或符号位，还需要存放该数在主存中的起始地址和该数的位数。</li>
+<li>压缩的十进制数串形式<br> 即一个字节存放两个十进制的数位或符号位即BCD码(压缩)，即一个字节存放两个十进制的数位或符号位即BCD码(压缩)。</li>
+</ol>
+<h2 id="1-1-2数的机器码表示"><a href="#1-1-2数的机器码表示" class="headerlink" title="1.1.2数的机器码表示"></a>1.1.2数的机器码表示</h2><h3 id="1-原码表示法"><a href="#1-原码表示法" class="headerlink" title="1. 原码表示法"></a>1. 原码表示法</h3><h4 id="1-数学定义"><a href="#1-数学定义" class="headerlink" title="(1) 数学定义"></a>(1) 数学定义</h4><ul>
+<li><p>整数：</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631212.png" alt="img"></p>
+</li>
+</ul>
+<p>整数的第一位为符号位，用 “,”隔开，0表示正数，1表示负数,x为真值，n为整数的位数。</p>
+<ul>
+<li><p>小数：</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631214.png" alt="img"></p>
+</li>
+</ul>
+<h4 id="2-举例"><a href="#2-举例" class="headerlink" title="(2) 举例"></a>(2) 举例</h4><p>原[x]原=1.001  x=−0.001</p>
+<p>原[x]原=0.101  x=+0.101</p>
+<p>原[x]原=1,110  x=−110</p>
+<p>原[x]原=0,011  x=+011</p>
+<p>结论：有逗号表示整数，有小数点表示小数，符号前的数表示符号，0表示正数，1表示负数。</p>
+<h4 id="3-特点"><a href="#3-特点" class="headerlink" title="(3) 特点"></a>(3) 特点</h4><p>简单、直观，但是在加法运算时由于符号位的存在，不能简单地按位相加，<strong>“+0”和“-0”的原码不同</strong>。</p>
+<h3 id="2-补码表示法"><a href="#2-补码表示法" class="headerlink" title="2.补码表示法"></a>2.补码表示法</h3><h4 id="1-补的概念"><a href="#1-补的概念" class="headerlink" title="(1) 补的概念"></a>(1) 补的概念</h4><ul>
+<li>以时钟为例，在时钟上进行运算相当于是模12下的运算。如果要-3，有两种途径：把指针向后拨3位（-3）或者向前拨9位（+9），故可以用这种方式将减法转换成加法，我们称+9是-3在模12下的补数。</li>
+<li>结论：<ol>
+<li>一个负数加上“模”就是它的补数（如-3+12=9，表示-3在模为12下的补数是9）。</li>
+<li>一个正数和一个负数互为补数时，他们绝对值之和即为模数（相当于结论1的逆运算）。</li>
+<li>正数的补数就是其本身。</li>
+<li><strong>“+0”和“-0”的补码相同</strong></li>
+</ol>
+</li>
+</ul>
+<h4 id="2-补码的定义"><a href="#2-补码的定义" class="headerlink" title="(2) 补码的定义"></a>(2) 补码的定义</h4><p>（勘误：下方公式的下标应该为“补”）</p>
+<ul>
+<li>整数：</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631192.png" alt="img"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631003.png" alt="img"></p>
+<ul>
+<li>小数：</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631624.png" alt="img"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631933.png" alt="img"></p>
+<h4 id="4-快速求补码"><a href="#4-快速求补码" class="headerlink" title="(4) 快速求补码"></a>(4) 快速求补码</h4><p>当真值为<strong>负数</strong>时，补码可以用原码忽略符号位每位取反后末位+1得到，再将符号位填1。</p>
+<p>如：x = -1010,取反得0101,+1得0110,加上符号位得补码：1,0110。</p>
+<p>原因如下：</p>
+<p>根据补码的最初定义，补[x]补=2n+1+x，假设x是个4位负数，用 −x1x2x3x4 表示，那么公式可以写成 补[x]补=25–x1x2x3x4=100000–x1x2x3x4=11111+00001–x1x2x3x4 ，而对于 11111−x1x2x3x4 就可以看成 1x1¯x2¯x3¯x4¯ ，然后再加上一个 00001 。即除符号位外，每位取反，末位+1。</p>
+<p>所以，已知x的补码，也可以很容易地求得-x的补码，即整体取反+1。树状数组的关键函数lowbit用于求一个数从末尾开始的第一个1所在位置的十进制数，其实现方式就是x &amp; -x，用的就是这里的原理。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631303.png" alt="img"></p>
+<h3 id="3-反码表示法"><a href="#3-反码表示法" class="headerlink" title="3.反码表示法"></a>3.反码表示法</h3><h4 id="1-定义"><a href="#1-定义" class="headerlink" title="(1) 定义"></a>(1) 定义</h4><p>（勘误：下方公式的下标应该为“反”）</p>
+<ul>
+<li><p>整数：</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631829.png" alt="img"></p>
+</li>
+<li><p>小数：</p>
+</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631570.png" alt="img"></p>
+<p>即 当真值为负数时，反码可以用原码除符号位外每位取反得到，正数反码不变，<strong>“+0”和“-0”的反码不同</strong>。</p>
+<h3 id="4-三种表示法小结"><a href="#4-三种表示法小结" class="headerlink" title="4. 三种表示法小结"></a>4. 三种表示法小结</h3><ul>
+<li>最高位为符号位，书写上用“,”（整数） 或“.”（小数）将数值部分和符号位隔开。</li>
+<li>对于正数，原码 = 补码 = 反码。</li>
+<li>对于负数 ，<strong>原码</strong>符号位为 1，数值位不变，原码除符号位外取反后得<strong>反码</strong>，反码末位+1得<strong>补码</strong>，补码符号位取反得<strong>移码</strong>，补码连同符号位取反后+1得相反数的补码。</li>
+</ul>
+<p>一字节空间可以表示的范围：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631573.png" alt="img"></p>
+<p>疑问：加蓝处为何为-128？</p>
+<p>答：二进制代码10000000表示负数，忽略符号位取反后+1得到其补码也为1000000，如果按照原码的定义，10000000表示-0，但是补码没有“+0”和“-0”之分，补码的0全用00000000表示，多出的“-0”用于表示-128，所以补码比其他都多一个最小数。</p>
+<h3 id="5-移码表示法"><a href="#5-移码表示法" class="headerlink" title="5.移码表示法"></a>5.移码表示法</h3><h4 id="1-定义-1"><a href="#1-定义-1" class="headerlink" title="(1) 定义"></a>(1) 定义</h4><p>由于符号位存在，补码很难直接判断真值大小。</p>
+<p>移[x]移=2n+x(2n&gt;x≥−2n)x为真值，n为整数的位数。</p>
+<p>移x=10100,[x]移=25+10100=1,10100</p>
+<p>移x=−10100,[x]移=25−10100=0,01100</p>
+<p><strong>移码与补码只差一个符号位，符号位取反两者就能相互转换。</strong></p>
+<p>证明：</p>
+<p>正数：补[x]补=0,x 移[x]移=2n+x，相当于在第n为 +1，即在符号位取反。</p>
+<p>负数：补移[x]补=2n+1+x=(2n+x)+2n=[x]移+2n，也相当于符号位取反。</p>
+<h4 id="2-特点"><a href="#2-特点" class="headerlink" title="(2) 特点"></a>(2) 特点</h4><p>移移[+0]移=[−0]移</p>
+<p>最小真值的移码为全 0,用移码表示浮点数的阶码,能方便地判断浮点数的阶码大小。</p>
+<h3 id="6-IEEE754标准"><a href="#6-IEEE754标准" class="headerlink" title="6. IEEE754标准"></a>6. IEEE754标准</h3><p>IEEE二进位浮点数算术标准（IEEE Standard for Floating-Point Arithmetic）的标准编号,它规定了浮点数在计算机当中的存储方式以及算术标准等。</p>
+<p>浮点格式可分为符号位s，指数位e以及尾数位f三部分。</p>
+<p>规定了单精度（32）和双精度（64）两种基本格式（还有其他特殊格式不做介绍），规定尾数用原码，阶码用移码表示，但是不完全等同与移码，真值和阶码的转换为：单精度 E=e+127 ，双精度 E=e+1023 , E 为阶码， e 为指数真值。<strong>尾数域最高位总是1</strong>，隐藏在小数点左边不显示。</p>
+<p><strong>在IEEE-754 标准下，浮点数一共分为：</strong></p>
+<ul>
+<li>NaN：即Not a Number。非数的指数位全部为1 同时尾数位不全为0。在此前提下，根据尾数位首位是否为1，NaN 还可以分为SNaN 和QNaN 两类。前者参与运算时将会发生异常。</li>
+<li>无穷数：指数位全部为1 同时尾数位全为0，根据符号决定正负。</li>
+<li>规格化数：指数位不全为1 同时尾不全为0。此时浮点数的隐含位有效，其值为1。</li>
+<li>非规格化数：指数位全为0 且尾数位不全为0。此时隐含位有效，值为0。另外需要注意，以单精度时为例，真实指数E 并非0-127=-127，而是-126，这样一来就与规格化下最小真实指数E=1-127=-126 达成统一，形成过度。</li>
+<li>0 ：指数位与尾数位都全为0，根据符号位决定正负。</li>
+</ul>
+<h2 id="1-1-3字符与字符串的表示方法"><a href="#1-1-3字符与字符串的表示方法" class="headerlink" title="1.1.3字符与字符串的表示方法"></a>1.1.3字符与字符串的表示方法</h2><p>符号数据:字符信息用数据表示，如ASCII等;<br>ASCII:用一个字节来表示,低7位用来编码(128),最高位为校验位，<br>字符串的存放方法：可以从低位到高位存放也可以从高位到低位存放。</p>
+<h2 id="1-1-4-汉字的表示方法"><a href="#1-1-4-汉字的表示方法" class="headerlink" title="1.1.4 汉字的表示方法"></a>1.1.4 汉字的表示方法</h2><h3 id="1-汉字的输入编码"><a href="#1-汉字的输入编码" class="headerlink" title="1. 汉字的输入编码"></a>1. 汉字的输入编码</h3><p><strong>数字编码 拼音码 字形编码</strong></p>
+<h3 id="2-汉字内码"><a href="#2-汉字内码" class="headerlink" title="2.汉字内码"></a>2.汉字内码</h3><p>汉字信息的存储，交换和检索的机内代码，两个字节组成，每个字节高位都为1(区别于英文字符)。</p>
+<h3 id="汉字字模码"><a href="#汉字字模码" class="headerlink" title="汉字字模码"></a>汉字字模码</h3><p>用点阵表示汉字字形，形成汉字库。</p>
+<blockquote>
+<p>输入编码用于输入，汉字内码用于计算机内部处理，字模码用于汉字输出。</p>
+</blockquote>
+<h2 id="1-1-5-校验码（奇偶校验）"><a href="#1-1-5-校验码（奇偶校验）" class="headerlink" title="1.1.5 校验码（奇偶校验）"></a>1.1.5 校验码（奇偶校验）</h2><p>设x=x0x1…xn−1是一个n位字，奇校验位C定义为：c¯=x0⨁x1⨁…⨁xn−1,即只有x中有奇数个1时才会使得c = 0。<br><strong>奇偶校验码只能检测奇数个错误，无法检测偶数个错误，更不能提供错误的位置。</strong></p>
+<h1 id="1-2定点加减法运算"><a href="#1-2定点加减法运算" class="headerlink" title="1.2定点加减法运算"></a>1.2定点加减法运算</h1><h2 id="1-2-1-补码加法"><a href="#1-2-1-补码加法" class="headerlink" title="1.2.1 补码加法"></a>1.2.1 补码加法</h2><p>公式：补补补[x]补+[y]补=[x+y]补</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631411.jpeg" alt="img"></p>
+<p><strong>补码加法特点：</strong> 符号位一起参与运算，在模 2n+1 下运算，即溢出舍去。</p>
+<h2 id="1-2-2-补码减法"><a href="#1-2-2-补码减法" class="headerlink" title="1.2.2 补码减法"></a>1.2.2 补码减法</h2><p>公式： 补补补补补[x−y]补=[x]补–[y]补=[x]补+[−y]补</p>
+<p><strong>已知y的补求-y的补方法：</strong> 连同符号位取反后末尾+1。</p>
+<h2 id="1-2-3-溢出概念与检测方法"><a href="#1-2-3-溢出概念与检测方法" class="headerlink" title="1.2.3 溢出概念与检测方法"></a>1.2.3 溢出概念与检测方法</h2><h3 id="1-定义-2"><a href="#1-定义-2" class="headerlink" title="1.定义"></a>1.定义</h3><p>定点整数机器中，数的表示范围|x|&lt;2n−1 ，在运算过程中出现大于字长绝对值的现象称为溢出。两个正数相加，结果大于机器字长所能表示的最大正数（变成负数），称为<strong>正溢</strong>。两个负数相加，结果小于所能表示的最小负数，称为<strong>负溢</strong>。</p>
+<h3 id="2-双符号位法判断溢出"><a href="#2-双符号位法判断溢出" class="headerlink" title="2.双符号位法判断溢出"></a>2.双符号位法判断溢出</h3><p>补[x]补=2n+2+x(mod2n+2)</p>
+<p>补补补[x]补+[y]补=[x+y]补(mod2n+2)</p>
+<p><strong>规则：</strong> 两个符号位一起参与模2n+2下的运算，符号位为11表示负数，00表示正数，01和10表示溢出，最高符号位表示正确的符号，01为正溢，10为负溢。</p>
+<h3 id="3-单符号判断溢出"><a href="#3-单符号判断溢出" class="headerlink" title="3.单符号判断溢出"></a>3.单符号判断溢出</h3><p>当符号位产生进位而最高有效位没进位时发生负溢，当符号位无进位而最高有效位进位时发生正溢。</p>
+<h2 id="1-2-4-基本的二进制加法-减法器"><a href="#1-2-4-基本的二进制加法-减法器" class="headerlink" title="1.2.4 基本的二进制加法/减法器"></a>1.2.4 基本的二进制加法/减法器</h2><p><a target="_blank" rel="noopener" href="http://fangkaipeng.com/wp-content/uploads/2021/03/wp_editor_md_22d5fa44ba5fb58849daf4fe6edfc67e.jpg"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631352.jpeg" alt="img"></a></p>
+<p>由n个1位的全加器（FA）串联组成，全加器包含三个输入（两个加数，一个前驱进位数）和两个输出（结果和进位）。M为方式控制输入线，M=0时做加法，M=1时做减法。</p>
+<p><strong>减法实现：</strong> 通过 补补补[A−B]补=[A]补+[−B]补 实现，-B的补码就是B连同符号位取反后+1，电路中通过一个异或门将B与1异或实现每位取反，C0输入1实现末尾+1。</p>
+<h1 id="1-3-定点乘法运算"><a href="#1-3-定点乘法运算" class="headerlink" title="1.3 定点乘法运算"></a>1.3 定点乘法运算</h1><h3 id="1-3-1-不带符号的列阵乘法器"><a href="#1-3-1-不带符号的列阵乘法器" class="headerlink" title="1.3.1 不带符号的列阵乘法器"></a>1.3.1 不带符号的列阵乘法器</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631770.jpeg" alt="img"></p>
+<p>如图，设A=am−1…a1a0 以及 B=bn−1…b1b0 ,在二进制的乘法中被乘数 A 和乘数 B 产生 m+n 位乘积 P=pm+n−1…p1p0=∑i=0m−1∑j=0n−1(aibj)2i+j，其中每个aibj称为一个<strong>被加数</strong>。</p>
+<p>对于m∗n 个被加数可以用m∗n 个与门并行产生：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631721.jpeg" alt="img"></p>
+<p>产生被加数后需要将其按照上述P的计算公式加起来，可以用一组并行的加法器实现，即列阵乘法器：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631049.jpeg" alt="img"></p>
+<h3 id="1-3-2-带符号的列阵乘法器"><a href="#1-3-2-带符号的列阵乘法器" class="headerlink" title="1.3.2 带符号的列阵乘法器"></a>1.3.2 带符号的列阵乘法器</h3><p>求补方法：从右往左扫描，遇到第一个“1”，将1左边的所有取反，右边连同自己不变，结果就是补码。</p>
+<p><strong>求补电路：</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631160.jpeg" alt="img"></p>
+<p>如图所示，C−1 始终保持0，E 为控制信号，为1表示进行求补操作。最下方输出的即求补后的结果。</p>
+<p>带符号的列阵乘法器含有三个求补器，其中两个为算前求补器，一个位算后求补器，结构如图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631241.jpeg" alt="img"></p>
+<p><strong>使用规则（考）：</strong></p>
+<ul>
+<li><p>用于原码列阵乘法器：忽略三个求补器，单独考虑符号位，使用原码输入到乘法列阵运算。</p>
+</li>
+<li><p>用于补码列阵乘法器：单独考虑两个乘数的符号位，将负数的数值部分求补后输入给乘法列阵运算，若符号位异或后为1，则将乘法列阵输出的结果求补后加上符号位，如果符号位为0则直接加上符号位。</p>
+</li>
+</ul>
+<p><strong>例题：</strong></p>
+<p>1.设x=+15，y=-13，用带求补器的<strong>原码</strong>阵列乘法器求出乘积x·y</p>
+<p>由于是原码列阵乘法器，首先求出x和y的原码：原，原[x]原=01111，[y]原=11101, 去掉符号位：，|x|=1111，|y|=1101, 符号位运算：0⨁1=1。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">            1 1 1 1</span><br><span class="line">×           1 1 0 1</span><br><span class="line">———————————————————</span><br><span class="line">            1 1 1 1</span><br><span class="line">          0 0 0 0</span><br><span class="line">        1 1 1 1</span><br><span class="line">+     1 1 1 1</span><br><span class="line">———————————————————</span><br><span class="line">    1 1 0 0 0 0 1 1</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<p>乘积符号为1，算后求补器输出11000011，原[x∗y]原=111000011，换算成二进制数真值是：<br>x∗y=(−11000011)2=(−195)10。</p>
+<p>2.设x=-15，y=-13，用带求补器的<strong>补码</strong>阵列乘法器求出乘积x·y。</p>
+<p>补码列阵乘法器，求出补码补，补[x]补=10001，[y]补=10011，乘积符号位运算：1⨁1=0。<br>忽略符号位后用算前求补器输出 ，|x|=1111，|y|=1101 。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">                1 1 1 1</span><br><span class="line">×               1 1 0 1</span><br><span class="line">———————————————————————</span><br><span class="line">                1 1 1 1</span><br><span class="line">              0 0 0 0</span><br><span class="line">            1 1 1 1</span><br><span class="line">＋         1 1 1 1</span><br><span class="line">———————————————————————</span><br><span class="line">        1 1 0 0 0 0 1 1</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<p>乘积符号为0，算后求补器输出 11000011，补[x∗y]补=011000011。<br>补码二进制数真值：<br>＋＋＋＋x∗y=0∗28＋1∗27＋1∗26＋1∗21＋1∗20=(+195)10<br>十进制数乘法验证：x∗y=(−15)∗(−13)=+195。</p>
+<h1 id="1-4-定点除法运算"><a href="#1-4-定点除法运算" class="headerlink" title="1.4 定点除法运算"></a>1.4 定点除法运算</h1><h2 id="1-4-1-原码除法算法原理"><a href="#1-4-1-原码除法算法原理" class="headerlink" title="1.4.1 原码除法算法原理"></a>1.4.1 原码除法算法原理</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631278.jpeg" alt="img"></p>
+<p>手算模拟除法：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631385.jpeg" alt="img"></p>
+<p>上图可以发现：人工除法时，人可以比较被除数（余数）和除数的大小来确定商1(够减）或商0（不够减)。<br>对于机器除法，余数为正表示够减，余数为负表示不够减。不够减时必须恢复原来余数，才能继续向下运算，这种叫做<strong>恢复余数法</strong>，由于有各种判断和恢复余数的操作，控制较为复杂，不常用。</p>
+<p><strong>计算机常用方法：加减交替法</strong></p>
+<p>余数为正，商1，下次除数右移做减法;余数为负，商0，下次除数右移做加法。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631561.jpeg" alt="img"></p>
+<h2 id="1-4-2-并行除法器"><a href="#1-4-2-并行除法器" class="headerlink" title="1.4.2 并行除法器"></a>1.4.2 并行除法器</h2><h3 id="1-可控加法减法单元（CAS）"><a href="#1-可控加法减法单元（CAS）" class="headerlink" title="1. 可控加法减法单元（CAS）"></a>1. 可控加法减法单元（CAS）</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631737.jpeg" alt="img"></p>
+<p>它有四个输出和四个输入端，输入线P=0 时，CAS做加法，p=1 时，CAS做减法。<br>CAS的输入输出关系可以用下式表示：<br>Si=Ai⨁(Bi⨁P)⨁Ci<br>Ci+1=(Ai+Ci)⨁(Bi⨁P)+AiCi</p>
+<p>P=1时：<br>Si=Ai⨁Bi⨁Ci<br>Ci+1=AiBi+BiCi+AiCi<br>P=0时：<br>Si=Ai⨁Bi¯⨁Ci<br>Ci+1=AiBi¯+Bi¯Ci+AiCi</p>
+<h3 id="2-加减交替的列阵除法器"><a href="#2-加减交替的列阵除法器" class="headerlink" title="2. 加减交替的列阵除法器"></a>2. 加减交替的列阵除法器</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631881.jpeg" alt="img"></p>
+<h3 id="3-例题说明"><a href="#3-例题说明" class="headerlink" title="3. 例题说明"></a>3. 例题说明</h3><p>x=−0.1011  y=−0.1101, 求原[x/y]原<br>原原补补[x]原=1.1011[y]原=1.1101[y∗]补=0.1101[−y∗]补=1.0011</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631785.jpeg" alt="img"></p>
+<h1 id="1-5-定点运算器的组成"><a href="#1-5-定点运算器的组成" class="headerlink" title="1.5 定点运算器的组成"></a>1.5 定点运算器的组成</h1><h2 id="1-5-1-逻辑运算"><a href="#1-5-1-逻辑运算" class="headerlink" title="1.5.1 逻辑运算"></a>1.5.1 逻辑运算</h2><h3 id="1-逻辑非运算"><a href="#1-逻辑非运算" class="headerlink" title="1. 逻辑非运算"></a>1. 逻辑非运算</h3><p>逻辑非也称<strong>求反</strong>， 对某数进行逻辑非就是按位求反，常用变量上加一横来表示。<br>x=x0x1x2…xn则 x¯=x0¯x1¯x2¯…xn¯<br>例：x1=01001011 x1¯=10110100</p>
+<h3 id="2-逻辑加运算"><a href="#2-逻辑加运算" class="headerlink" title="2. 逻辑加运算"></a>2. 逻辑加运算</h3><p>对两个数进行逻辑加就是按位求或，又称为<strong>逻辑或</strong>，常用“+”表示。</p>
+<p>例：x=10100001  y=10011011  x+y=10111011</p>
+<p>注意逻辑加是按位运算，所以<strong>没有进位！</strong></p>
+<h3 id="3-逻辑乘运算"><a href="#3-逻辑乘运算" class="headerlink" title="3.逻辑乘运算"></a>3.逻辑乘运算</h3><p>对两个数进行逻辑乘就是按位求与，又称为<strong>逻辑与</strong>，常用“·”表示。<br>例：x=10111001  y=11110011  x·y=10110001<br>注意逻辑乘是按位运算，所以<strong>没有进位！</strong></p>
+<h3 id="4-逻辑异或运算"><a href="#4-逻辑异或运算" class="headerlink" title="4.逻辑异或运算"></a>4.逻辑异或运算</h3><p>对两个数进行逻辑异或就是按位求它们的模2和，又称为<strong>按位加</strong>，常用“⨁”表示。<br>例：x=10101011  y=11001100  x⨁y=01100111<br>注意逻辑乘是按位运算，所以<strong>没有进位！</strong></p>
+<h2 id="1-5-2-多功能算术-逻辑运算单元（ALU）"><a href="#1-5-2-多功能算术-逻辑运算单元（ALU）" class="headerlink" title="1.5.2 多功能算术/逻辑运算单元（ALU）"></a>1.5.2 多功能算术/逻辑运算单元（ALU）</h2><h1 id="1-6-浮点运算方法和浮点运算器"><a href="#1-6-浮点运算方法和浮点运算器" class="headerlink" title="1.6 浮点运算方法和浮点运算器"></a>1.6 浮点运算方法和浮点运算器</h1><h2 id="1-6-1-浮点加减法"><a href="#1-6-1-浮点加减法" class="headerlink" title="1.6.1 浮点加减法"></a>1.6.1 浮点加减法</h2><h3 id="1-浮点加减法规则"><a href="#1-浮点加减法规则" class="headerlink" title="1.浮点加减法规则"></a>1.浮点加减法规则</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631840.jpeg" alt="img"></p>
+<h3 id="2-运算步骤"><a href="#2-运算步骤" class="headerlink" title="2. 运算步骤"></a>2. 运算步骤</h3><p><strong>0操作数的检查：</strong><br>检查x和y中是否存在0，如果存在0则无需计算，直接得出答案。</p>
+<p><strong>对阶：</strong><br>将两个浮点数的阶码用补码表示，做相减运算得出需要移动的位数。遵守 <code>小阶向大阶看齐</code> 的原则，即小阶的尾数向右移，每移一位，阶码+1。</p>
+<p><strong>尾数加减运算：</strong><br>与定点加减法运算一样，采用补码运算。</p>
+<p><strong>结果规格化：</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631187.jpeg" alt="img"></p>
+<p>上图可知：对于补码，规格化要求符号位和第一数位不同。</p>
+<ul>
+<li>左规<br>  结果是00.00…001…或者11.11…110…这种形式的，没有发生溢出，不断地将<strong>尾数</strong>相对小数点向左移动一位，阶码相应-1，直到符号位和第一数位不同为止。</li>
+<li>右规<br>  结果是01.xxxx或10.xxxx时，说明发生溢出，需要向右移动，01.xxxx向右移动一位变成00.xxxx，10.xxxx向右移动一位变成11.xxxx，阶码都相应+1。</li>
+</ul>
+<p><strong>舍入操作：</strong></p>
+<p>在对阶和右规过程中，可能出现尾数末尾丢失引起误差，需要考虑舍入。</p>
+<ul>
+<li>0舍1入：类似四舍五入，丢弃的最高位为1，则进1，否则直接舍去。</li>
+<li>朝0舍入：直接舍去。</li>
+<li>朝+无穷舍入：正数多余位不全为“0”则进1，负数则截尾。</li>
+<li>朝-无穷舍入：负数多余位不全为“0”则进1，正数则截尾。</li>
+</ul>
+<p><strong>溢出处理：</strong></p>
+<ul>
+<li>阶码上溢：超出阶码可能表示的最大值的正指数值，一般认为正无穷和负无穷。</li>
+<li>阶码下溢：超出阶码可能表示的最小值的负指数值，一般认为0。</li>
+<li>尾数上溢：尾数右移，阶码+1。</li>
+<li>尾数下溢：尾数右移时最低有效位从尾数域右端流出，需要进行舍入操作。</li>
+</ul>
+<p><strong>例子：</strong></p>
+<p>x=0.11.1∗210  y=0.1011∗201，求 x+y （除阶符、数符外，阶码取3位，尾数取6位）</p>
+<p>解：</p>
+<p>补[x]补=00,010;00.110100<br>补[y]补=00,001;00.101100</p>
+<ul>
+<li>对阶</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631383.jpeg" alt="img"></p>
+<ul>
+<li>尾数求和</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631507.jpeg" alt="img"></p>
+<ul>
+<li>右规</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201051631509.jpeg" alt="img"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/e7ea5fed.html">http://www.lvxueyang.vip/post/e7ea5fed.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/">计算机组成原理</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/dffce14c.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">中央处理器</div></div></a></div><div class="next-post pull-right"><a href="/post/bf4f929.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">存储系统</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/f4a1cbcb.html" title="计算机系统概论"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-05</div><div class="title">计算机系统概论</div></div></a></div><div><a href="/post/a78497ca.html" title="指令系统"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-05</div><div class="title">指令系统</div></div></a></div><div><a href="/post/e3130e3f.html" title="总线"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-05</div><div class="title">总线</div></div></a></div><div><a href="/post/2eb078d7.html" title="外围设备"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-05</div><div class="title">外围设备</div></div></a></div><div><a href="/post/d54f2670.html" title="计算机的发展及应用"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-05</div><div class="title">计算机的发展及应用</div></div></a></div><div><a href="/post/2558a5cb.html" title="IO概论"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-05</div><div class="title">IO概论</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-1-%E6%95%B0%E6%8D%AE%E4%B8%8E%E6%96%87%E5%AD%97%E7%9A%84%E8%A1%A8%E7%A4%BA%E6%96%B9%E5%BC%8F"><span class="toc-text">1.1 数据与文字的表示方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-1-%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F"><span class="toc-text">1.1.1 数据格式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%9A%E7%82%B9%E6%95%B0%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="toc-text">1.定点数表示法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B5%AE%E7%82%B9%E6%95%B0%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="toc-text">2.浮点数表示法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%B5%AE%E7%82%B9%E6%95%B0%E8%A1%A8%E7%A4%BA%E8%8C%83%E5%9B%B4"><span class="toc-text">3. 浮点数表示范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%B5%AE%E7%82%B9%E6%95%B0%E7%9A%84%E8%A7%84%E6%A0%BC%E5%8C%96"><span class="toc-text">4. 浮点数的规格化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%8D%81%E8%BF%9B%E5%88%B6%E6%95%B0%E8%A1%A8%E7%A4%BA"><span class="toc-text">5. 十进制数表示</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-2%E6%95%B0%E7%9A%84%E6%9C%BA%E5%99%A8%E7%A0%81%E8%A1%A8%E7%A4%BA"><span class="toc-text">1.1.2数的机器码表示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8E%9F%E7%A0%81%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="toc-text">1. 原码表示法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%95%B0%E5%AD%A6%E5%AE%9A%E4%B9%89"><span class="toc-text">(1) 数学定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%B8%BE%E4%BE%8B"><span class="toc-text">(2) 举例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%89%B9%E7%82%B9"><span class="toc-text">(3) 特点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%A1%A5%E7%A0%81%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="toc-text">2.补码表示法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%A1%A5%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-text">(1) 补的概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%A1%A5%E7%A0%81%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-text">(2) 补码的定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E5%BF%AB%E9%80%9F%E6%B1%82%E8%A1%A5%E7%A0%81"><span class="toc-text">(4) 快速求补码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8F%8D%E7%A0%81%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="toc-text">3.反码表示法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89"><span class="toc-text">(1) 定义</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%B8%89%E7%A7%8D%E8%A1%A8%E7%A4%BA%E6%B3%95%E5%B0%8F%E7%BB%93"><span class="toc-text">4. 三种表示法小结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E7%A7%BB%E7%A0%81%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="toc-text">5.移码表示法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89-1"><span class="toc-text">(1) 定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%89%B9%E7%82%B9"><span class="toc-text">(2) 特点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-IEEE754%E6%A0%87%E5%87%86"><span class="toc-text">6. IEEE754标准</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-3%E5%AD%97%E7%AC%A6%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95"><span class="toc-text">1.1.3字符与字符串的表示方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-4-%E6%B1%89%E5%AD%97%E7%9A%84%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95"><span class="toc-text">1.1.4 汉字的表示方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%B1%89%E5%AD%97%E7%9A%84%E8%BE%93%E5%85%A5%E7%BC%96%E7%A0%81"><span class="toc-text">1. 汉字的输入编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B1%89%E5%AD%97%E5%86%85%E7%A0%81"><span class="toc-text">2.汉字内码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%89%E5%AD%97%E5%AD%97%E6%A8%A1%E7%A0%81"><span class="toc-text">汉字字模码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-5-%E6%A0%A1%E9%AA%8C%E7%A0%81%EF%BC%88%E5%A5%87%E5%81%B6%E6%A0%A1%E9%AA%8C%EF%BC%89"><span class="toc-text">1.1.5 校验码（奇偶校验）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-2%E5%AE%9A%E7%82%B9%E5%8A%A0%E5%87%8F%E6%B3%95%E8%BF%90%E7%AE%97"><span class="toc-text">1.2定点加减法运算</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-1-%E8%A1%A5%E7%A0%81%E5%8A%A0%E6%B3%95"><span class="toc-text">1.2.1 补码加法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-2-%E8%A1%A5%E7%A0%81%E5%87%8F%E6%B3%95"><span class="toc-text">1.2.2 补码减法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-3-%E6%BA%A2%E5%87%BA%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95"><span class="toc-text">1.2.3 溢出概念与检测方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89-2"><span class="toc-text">1.定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%8F%8C%E7%AC%A6%E5%8F%B7%E4%BD%8D%E6%B3%95%E5%88%A4%E6%96%AD%E6%BA%A2%E5%87%BA"><span class="toc-text">2.双符号位法判断溢出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8D%95%E7%AC%A6%E5%8F%B7%E5%88%A4%E6%96%AD%E6%BA%A2%E5%87%BA"><span class="toc-text">3.单符号判断溢出</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-4-%E5%9F%BA%E6%9C%AC%E7%9A%84%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%8A%A0%E6%B3%95-%E5%87%8F%E6%B3%95%E5%99%A8"><span class="toc-text">1.2.4 基本的二进制加法&#x2F;减法器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-3-%E5%AE%9A%E7%82%B9%E4%B9%98%E6%B3%95%E8%BF%90%E7%AE%97"><span class="toc-text">1.3 定点乘法运算</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-1-%E4%B8%8D%E5%B8%A6%E7%AC%A6%E5%8F%B7%E7%9A%84%E5%88%97%E9%98%B5%E4%B9%98%E6%B3%95%E5%99%A8"><span class="toc-text">1.3.1 不带符号的列阵乘法器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-2-%E5%B8%A6%E7%AC%A6%E5%8F%B7%E7%9A%84%E5%88%97%E9%98%B5%E4%B9%98%E6%B3%95%E5%99%A8"><span class="toc-text">1.3.2 带符号的列阵乘法器</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-4-%E5%AE%9A%E7%82%B9%E9%99%A4%E6%B3%95%E8%BF%90%E7%AE%97"><span class="toc-text">1.4 定点除法运算</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-1-%E5%8E%9F%E7%A0%81%E9%99%A4%E6%B3%95%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86"><span class="toc-text">1.4.1 原码除法算法原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-2-%E5%B9%B6%E8%A1%8C%E9%99%A4%E6%B3%95%E5%99%A8"><span class="toc-text">1.4.2 并行除法器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8F%AF%E6%8E%A7%E5%8A%A0%E6%B3%95%E5%87%8F%E6%B3%95%E5%8D%95%E5%85%83%EF%BC%88CAS%EF%BC%89"><span class="toc-text">1. 可控加法减法单元（CAS）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%8A%A0%E5%87%8F%E4%BA%A4%E6%9B%BF%E7%9A%84%E5%88%97%E9%98%B5%E9%99%A4%E6%B3%95%E5%99%A8"><span class="toc-text">2. 加减交替的列阵除法器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BE%8B%E9%A2%98%E8%AF%B4%E6%98%8E"><span class="toc-text">3. 例题说明</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-5-%E5%AE%9A%E7%82%B9%E8%BF%90%E7%AE%97%E5%99%A8%E7%9A%84%E7%BB%84%E6%88%90"><span class="toc-text">1.5 定点运算器的组成</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-1-%E9%80%BB%E8%BE%91%E8%BF%90%E7%AE%97"><span class="toc-text">1.5.1 逻辑运算</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%80%BB%E8%BE%91%E9%9D%9E%E8%BF%90%E7%AE%97"><span class="toc-text">1. 逻辑非运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%80%BB%E8%BE%91%E5%8A%A0%E8%BF%90%E7%AE%97"><span class="toc-text">2. 逻辑加运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%80%BB%E8%BE%91%E4%B9%98%E8%BF%90%E7%AE%97"><span class="toc-text">3.逻辑乘运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%80%BB%E8%BE%91%E5%BC%82%E6%88%96%E8%BF%90%E7%AE%97"><span class="toc-text">4.逻辑异或运算</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-2-%E5%A4%9A%E5%8A%9F%E8%83%BD%E7%AE%97%E6%9C%AF-%E9%80%BB%E8%BE%91%E8%BF%90%E7%AE%97%E5%8D%95%E5%85%83%EF%BC%88ALU%EF%BC%89"><span class="toc-text">1.5.2 多功能算术&#x2F;逻辑运算单元（ALU）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-6-%E6%B5%AE%E7%82%B9%E8%BF%90%E7%AE%97%E6%96%B9%E6%B3%95%E5%92%8C%E6%B5%AE%E7%82%B9%E8%BF%90%E7%AE%97%E5%99%A8"><span class="toc-text">1.6 浮点运算方法和浮点运算器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-1-%E6%B5%AE%E7%82%B9%E5%8A%A0%E5%87%8F%E6%B3%95"><span class="toc-text">1.6.1 浮点加减法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%B5%AE%E7%82%B9%E5%8A%A0%E5%87%8F%E6%B3%95%E8%A7%84%E5%88%99"><span class="toc-text">1.浮点加减法规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%BF%90%E7%AE%97%E6%AD%A5%E9%AA%A4"><span class="toc-text">2. 运算步骤</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

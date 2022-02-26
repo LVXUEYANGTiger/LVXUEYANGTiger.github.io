@@ -1,0 +1,810 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>YARN框架概述与集群部署 | 牧马人的忧伤</title><meta name="keywords" content="Hadoop,大数据,YARN"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="YARN 框架概述YARN产生和发展简史Hadoop演进阶段数据、程序、运算资源（内存、cpu）三者组在一起，完成了数据的计算处理过程。在单机环境下，这些都不是太大问题。为了应对海量数据的场景，Hadoop出现并提供了分而治之的分布式处理思想。通过对Hadoop版本演进的简单回顾，可以让我们知道YARN的产生和发展简史，洞悉YARN发展进程。 很多Hadoop的早期用户使用Hadoop的方式与在众">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YARN框架概述与集群部署">
+<meta property="og:url" content="http://www.lvxueyang.vip/post/286e9c8d.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="YARN 框架概述YARN产生和发展简史Hadoop演进阶段数据、程序、运算资源（内存、cpu）三者组在一起，完成了数据的计算处理过程。在单机环境下，这些都不是太大问题。为了应对海量数据的场景，Hadoop出现并提供了分而治之的分布式处理思想。通过对Hadoop版本演进的简单回顾，可以让我们知道YARN的产生和发展简史，洞悉YARN发展进程。 很多Hadoop的早期用户使用Hadoop的方式与在众">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg">
+<meta property="article:published_time" content="2022-02-26T01:32:25.195Z">
+<meta property="article:modified_time" content="2022-02-25T07:08:30.629Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="Hadoop">
+<meta property="article:tag" content="大数据">
+<meta property="article:tag" content="YARN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/286e9c8d"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'YARN框架概述与集群部署',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-02-25 15:08:30'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">YARN框架概述与集群部署</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-02-25T07:08:30.629Z" title="更新于 2022-02-25 15:08:30">2022-02-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/">Hadoop3.0从入门到源码</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/YARN/">YARN</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">13.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>47分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="YARN框架概述与集群部署"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="YARN-框架概述"><a href="#YARN-框架概述" class="headerlink" title="YARN 框架概述"></a>YARN 框架概述</h1><h2 id="YARN产生和发展简史"><a href="#YARN产生和发展简史" class="headerlink" title="YARN产生和发展简史"></a>YARN产生和发展简史</h2><h3 id="Hadoop演进阶段"><a href="#Hadoop演进阶段" class="headerlink" title="Hadoop演进阶段"></a>Hadoop演进阶段</h3><p>数据、程序、运算资源（内存、cpu）三者组在一起，完成了数据的计算处理过程。在单机环境下，这些都不是太大问题。为了应对海量数据的场景，Hadoop出现并提供了分而治之的分布式处理思想。通过对Hadoop版本演进的简单回顾，可以让我们知道YARN的产生和发展简史，洞悉YARN发展进程。</p>
+<p>很多Hadoop的早期用户使用Hadoop的方式与在众多主机上运行桌面应用程序类似。</p>
+<ul>
+<li>在少量几个节点上手工建立一个集群；</li>
+<li>将数据载入Hadoop分布式文件系统（HDFS）；</li>
+<li>通过运行MapReduce任务来运算并获得结果；</li>
+<li>然后拆掉集群。</li>
+</ul>
+<p>这种方式的一部分原因是没有在Hadoop HDFS上持久存储数据的迫切需求，另一部分原因是没有共享数据和计算结果的动机。</p>
+<h4 id="阶段0：Ad-Hoc集群"><a href="#阶段0：Ad-Hoc集群" class="headerlink" title="阶段0：Ad Hoc集群"></a>阶段0：Ad <strong>Hoc集群</strong></h4><p><strong>Ad</strong> <strong>Hoc</strong>应当理解为专用、特定的意思（数仓领域中常理解为即席查询）。Ad Hoc集群时代标志着Hadoop集群的起源，集群以Ad Hoc、单用户方式建立。</p>
+<p>后来，随着私人集群的使用和Hadoop容错性的提高，持久的HDFS集群出现，并且实现了HDFS集群的共享，把常用和感兴趣的数据集载入HDFS共享集群中。当共享HDFS成为现实，还没实现共享的计算平台就成为关切对象。</p>
+<p>不同于HDFS，为多个组织的多个用户简单设置一个共享MapReduce集群并非易事。尤其是集群下的物理资源的共享很不理想。</p>
+<h4 id="阶段1：HOD集群"><a href="#阶段1：HOD集群" class="headerlink" title="阶段1：HOD集群"></a>阶段1：HOD集群</h4><p>为了解决集群条件下的多租户问题， Yahoo发展并且部署了称为“Hadoop on Demand”的平台。Hadoop On Demand (HOD)是一个能在大规模物理集群上供应虚拟Hadoop集群的系统。在已经分配的节点上， HOD会启动MapReduce和HDFS守护进程来响应用户数据和应用的请求。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356207.png" alt="img"></p>
+<p>HOD的主要特点是用户可以使用HOD来同时分配多个MapReduce集群。</p>
+<p>HOD的缺点包括：无法支持数据本地化、资源回收效率低、无动态扩容缩容能力，多租户共享延迟高等。</p>
+<h4 id="阶段2：共享计算集群"><a href="#阶段2：共享计算集群" class="headerlink" title="阶段2：共享计算集群"></a>阶段2：共享计算集群</h4><p>共享MapReduce计算集群和与之协同工作的共享HDFS是Hadoop 1.x版本里的主要架构。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356196.jpg" alt="img"></p>
+<p>这种共享计算架构的主要组件如下所示：</p>
+<p>JobTracker：一个中央守护进程，负责运行集群上的所有作业。</p>
+<p>TaskTracker：系统里的从进程，根据JobTracker的指令来执行任务。</p>
+<p>共享计算集群的主要弊端有JobTracker可扩展性瓶颈（JobTracker在内存中保存用户作业的数据）、JobTracker身兼多职（作业数据管理、作业状态记录、作业调度、）、可靠性和可用性欠缺（JobTracker单点故障）、计算模型的单一（不是所有问题都能MapReduce）。</p>
+<p>并且MapReduce框架本身也经历了很多变化。但是MapReduce被绑定到了集群的管理层，证明MapReduce的变化演变是比较困难的。</p>
+<h4 id="阶段4：YARN集群"><a href="#阶段4：YARN集群" class="headerlink" title="阶段4：YARN集群"></a><strong>阶段4：YARN集群</strong></h4><p>针对共享计算集群，JobTracker需要彻底地重写，才能解决扩展性的主要问题。但是，这种重写即使成功了，也不一定能解决平台和用户代码的耦合问题，也不能解决用户对非MapReduce编程模型的需求。如果不做重大的重新设计，集群可用性会继续被捆绑到整个系统的稳定性上。</p>
+<p>YARN闪亮登场了，一款被设计用以解决以往架构的需求和缺陷的资源管理和调度软件。经过之前的发展，Hadoop走下了不少的弯路，甚至跳进了一些深坑。因此对于YARN的每个重大决策背后都有完整的惨痛的历史。</p>
+<h3 id="对YARN的需求"><a href="#对YARN的需求" class="headerlink" title="对YARN的需求"></a>对YARN的需求</h3><p><strong>可扩展性</strong>：可以平滑的扩展至数万节点和并发的应用。</p>
+<p><strong>可维护性</strong>：保证集群软件的升级与用户应用程序完全解耦。</p>
+<p><strong>多租户</strong>：需要支持在同一集群中多个租户并存，同时支持多个租户间细颗粒度地共享单个节点。</p>
+<p><strong>位置感知</strong>：将计算移至数据所在位置。</p>
+<p><strong>高集群使用率</strong>：实现底层物理资源的高使用率。</p>
+<p><strong>安全和可审计的操作</strong>：继续以安全的、可审计的方式使用集群资源。</p>
+<p><strong>可靠性和可用性</strong>：具有高度可靠的用户交互、并支持高可用性</p>
+<p><strong>对编程模型多样化的支持</strong>：支持多样化的编程模型，需要演进为不仅仅以MapReduce为中心。</p>
+<p><strong>灵活的资源模型</strong>：支持各个节点的动态资源配置以及灵活的资源模型。</p>
+<p><strong>向后兼容</strong>：保持现有的MapReduce应用程序的向后兼容性。</p>
+<h2 id="YARN简介"><a href="#YARN简介" class="headerlink" title="YARN简介"></a>YARN简介</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356200.jpg" alt="img"></p>
+<p>Apache Hadoop YARN （Yet Another Resource Negotiator，另一种资源协调者）是一种新的 Hadoop 资源管理器，它是一个通用资源管理系统和调度平台，可为上层应用提供统一的资源管理和调度，它的引入为集群在利用率、资源统一管理和数据共享等方面带来了巨大好处。</p>
+<p>可以把Hadoop YARN理解为相当于一个分布式的操作系统平台，而MapReduce等计算程序则相当于运行于操作系统之上的应用程序，YARN为这些程序提供运算所需的资源（内存、cpu等）。</p>
+<p>YARN是一个分布式的资源管理系统，用以提高分布式的集群环境下的资源利用率，这些资源包括内存、IO、网络、磁盘等。其产生的原因是为了解决原MapReduce框架的不足。最初MapReduce的committer们还可以周期性的在已有的代码上进行修改，可是随着代码的增加以及原MapReduce框架设计的不足，在原MapReduce框架上进行修改变得越来越困难，所以MapReduce的committer们决定从架构上重新设计MapReduce,使下一代的MapReduce(MRv2/Yarn)框架具有更好的扩展性、可用性、可靠性、向后兼容性和更高的资源利用率以及能支持除了MapReduce计算框架外的更多的计算框架。</p>
+<h2 id="YARN与MRv1区别"><a href="#YARN与MRv1区别" class="headerlink" title="YARN与MRv1区别"></a>YARN与MRv1区别</h2><p>由于 MRv1（第一代MapReduce）在扩展性、可靠性、资源利用率和多框架等方面存在明显不足， Apache 开始尝试对 MapReduce 进行升级改造，于是诞生了更加先进的下一代 MapReduce 计算框架 MRv2。</p>
+<p>并且在MRv2中，将资源管理任务调度模块单独抽离出来，构建成了一个独立的通用资源管理系统 YARN，而MRv2则专注于数据的计算处理了。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356199.jpg" alt="img"> </p>
+<h3 id="MRv1-架构"><a href="#MRv1-架构" class="headerlink" title="MRv1 架构"></a>MRv1 架构</h3><p>在 Hadoop 1.0 中 MapReduce框架（MRv1，第一代MapReduce框架），和HDFS一样，MapReduce也是采用Master/Slave的架构，其架构如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356198.jpg" alt="img"></p>
+<p>MapReduce 包含四个组成部分，分别为Client，JobTracker，TaskTracker，Task。</p>
+<ul>
+<li>Client：客户端，每一个Job都会在用户端通过Client类，将应用程序以及参数配置Configuration打包成Jar文件存储在HDFS，并把路径提交到JobTracker的master服务，然后由master创建每一个Task（即MapTask和ReduceTask），将它们分发到各个TaskTracker服务中去执行。</li>
+<li>JobTracker：管理主节点，JobTracker负责资源监控和作业调度。JobTracker监控所有的TaskTracker与job的健康状况，一旦发现失败，就将相应的任务转移到其它节点；同时JobTracker会跟踪任务的执行进度，资源使用量等信息，并将这些信息告诉任务调度器，而调度器会在资源出现空闲时，选择合适的任务使用这些资源。在Hadoop中，任务调度器是一个可插拔的模块，用于可以根据自己的需要设计相应的调度器。</li>
+<li>TaskTracker：执行从节点，TaskTracker会周期性地通过HeartBeat将本节点上资源的使用情况和任务的运行进度汇报给JobTracker，同时执行JobTracker发送过来的命令 并执行相应的操作（如启动新任务，杀死任务等）。TaskTracker使用“slot”等量划分本节点上的资源量。“slot”代表计算资源（cpu，内存等） 。一个Task获取到一个slot之后才有机会运行，而Hadoop调度器的作用就是将各个TaskTracker上的空闲slot分配给Task使用。slot分为MapSlot和ReduceSlot两种，分别提供MapTask和ReduceTask使用。TaskTracker通过slot数目（可配置参数）限定Task的并发度。</li>
+<li>Task：计算任务，Task分为MapTask和Reduce Task两种，均由TaskTracker启动。HDFS以固定大小的block为基本单位存储数据，而对于MapReduce而言，其处理单位是split。split是一个逻辑概念，它只包含一些元数据信息，比如数据起始位置、数据长度、数据所在节点等。它的划分方法完全由用户自己决定。但需要注意的是，split的多少决定了MapTask的数目，因为每一个split只会交给一个MapTask处理。</li>
+</ul>
+<h3 id="MRv1-缺陷"><a href="#MRv1-缺陷" class="headerlink" title="MRv1 缺陷"></a>MRv1 缺陷</h3><p>在 Hadoop 1.0 中， JobTracker 由资源管理（由 TaskScheduler 模块实现）和作业控制（由</p>
+<p>JobTracker 中多个模块共同实现）两部分组成，Hadoop 对JobTracker 赋予的功能过多而造成负载过重。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356205.jpg" alt="img"></p>
+<p>Hadoop YARN 是在 MRv1 基础上演化而来的，它克服了 MRv1 中的各种局限性，概括为以下几个方面：</p>
+<ul>
+<li>扩展性差：在 MRv1 中， JobTracker 同时兼备了资源管理和作业控制两个功能，这成为系统的一个最大瓶颈，严重制约了 Hadoop 集群扩展性。</li>
+<li>可靠性差：MRv1 采用了 master/slave 结构，其中， master 存在单点故障问题，一旦它出现故障将导致整个集群不可用。</li>
+<li>资源利用率低： MRv1 采用了基于槽位的资源分配模型，槽位是一种粗粒度的资源划分单位，通常一个任务不会用完槽位对应的资源，且其他任务也无法使用这些空闲资源。此外， Hadoop 将槽位分为 Map Slot 和 Reduce Slot 两种，且不允许它们之间共享，常常会导致一种槽位资源紧张而另外一种闲置（比如一个作业刚刚提交时，只会运行 Map Task，此时 Reduce Slot 闲置）。</li>
+<li>无法支持多种计算框架：随着互联网高速发展， MapReduce 这种基于磁盘的离线计算框架已经不能满足应用要求，从而出现了一些新的计算框架，包括内存计算框架、流式计算框架和迭代式计算框架等，而 MRv1 不能支持多种计算框架并存。</li>
+</ul>
+<h3 id="YARN-架构"><a href="#YARN-架构" class="headerlink" title="YARN 架构"></a>YARN <strong>架构</strong></h3><p>为了克服以上几个缺点， Apache 开始尝试对 Hadoop 进行升级改造，进而诞生了更加先进的下一代 MapReduce 计算框架 MRv2。正是由于 MRv2 将资源管理功能抽象成了一个独立的通用系统 YARN，直接导致下一代 MapReduce 的核心从单一的计算框架 MapReduce转移为通用的资源管理系统 YARN。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356914.jpg" alt="img"></p>
+<p>YARN 实际上是一个弹性计算平台，它的目标已经不再局限于支持MapReduce 一种计算框架，而是朝着对多种框架进行统一管理的方向发展。</p>
+<h3 id="YARN-与-MRv1-区别"><a href="#YARN-与-MRv1-区别" class="headerlink" title="YARN 与 MRv1 区别"></a>YARN 与 MRv1 区别</h3><p>Hadoop2.0即第二代Hadoop，由分布式存储系统HDFS、并行计算框架MapReduce和分布式资源管理系统YARN三个系统组成，其中YARN是一个资源管理系统，负责集群资源管理和调度，MapReduce则是运行在YARN上的离线处理框架，称为MRv2(MapReduce的第二版)。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356249.jpg" alt="img"></p>
+<p>MRv1 主要由编程模型（由新旧 API 组成）、数据处理引擎（由 MapTask 和ReduceTask 组成）和运行时环境（由一个 JobTracker 和若干个 TaskTracker 组成）三部分组成，为了保证编程模型的向后兼容性， MRv2 重用了 MRv1 中的编程模型和数据处理引擎，但运行时环境被完全重写，具体如下。</p>
+<ul>
+<li><p>编程模型与数据处理引擎：MRv2 重用了 MRv1 中的编程模型和数据处理引擎。</p>
+<ul>
+<li>为了能够让用户应用程序平滑迁移到 Hadoop 2.0 中， MRv2 应尽可能保证编程接口的向后兼容性，但由于 MRv2 本身进行了改进和优化，它在向后兼容性方面存在少量问题。</li>
+<li>MapReduce 应用程序编程接口有两套，分别是新 API（mapredue）和旧 API（mapred） ， MRv2 可做到以下兼容性 ：采用 MRv1 旧 API 编写的应用程序，可直接使用之前的 JAR 包将程序运行在 MRv2 上；但采用 MRv1 新 API 编写的应用程序则不可以，需要使用 MRv2 编程库重新编译并修改不兼容的参数和返回值。</li>
+</ul>
+</li>
+<li><p>运行时环境：MRv1 的运行时环境主要由两类服务组成，分别是 JobTracker 和TaskTracker。</p>
+<ul>
+<li>JobTracker 负责资源和任务的管理与调度， TaskTracker 负责单个节点的资源管理和任务执行。 MRv1 将资源管理和应用程序管理两部分混杂在一起，使得它在扩展性、容错性和多框架支持等方面存在明显缺陷。</li>
+<li>MRv2 则通过将资源管理和应用程序管理两部分剥离开，分别由 YARN 和 ApplicationMaster 负责，其中， YARN 专管资源管理和调度，而 ApplicationMaster 则负责与具体应用程序相关的任务切分、任务调度和容错等。</li>
+</ul>
+</li>
+</ul>
+<h1 id="YARN-集群部署"><a href="#YARN-集群部署" class="headerlink" title="YARN 集群部署"></a>YARN 集群部署</h1><p>Apache Hadoop YARN 一种开源的分布式资源管理和作业调度技术，它是作为Apache Hadoop 的核心组件之一，负责将系统资源（计算、存储和网络资源）分配给运行在Hadoop集群中的各种应用程序，并对运行在各集群节点上的任务进行调度。在生产环境中，通常采用分布式模式安装部署YARN集群。</p>
+<h2 id="集群角色"><a href="#集群角色" class="headerlink" title="集群角色"></a>集群角色</h2><p>YARN集群是一个标准的<strong>Master/Slave 结构（主从结构）</strong>，其中ResourceManager（RM） 为Master， NodeManager（NM） 为 Slave。常见的是一主多从集群，也可以搭建RM的HA高可用集群。</p>
+<p>ResourceManager作为主节点，是集群所有可用资源的唯一仲裁者，通过NodeManage管理整个集群的资源，其核心职责是调度分配资源。NodeManage负责在每台具体的机器节点上管理资源。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356274.jpg" alt="img"></p>
+<h2 id="集群规划"><a href="#集群规划" class="headerlink" title="集群规划"></a>集群规划</h2><p>使用VMWare创建三台虚拟机，安装CentOS7.7 64位操作系统，设置主机名和IP地址，集群服务安装规划如下所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356281.jpg" alt="img"> </p>
+<p>安装YARN集群时，相关软件版本说明如下所示，其中Hadoop版本为3.1.4，在CentOS7系统下编译并支持snappy压缩。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356292.jpg" alt="img"> </p>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>在安装部署集群环境之前，首先对集群机器进行准备工作，具体如下说明。</p>
+<h3 id="软件目录结构"><a href="#软件目录结构" class="headerlink" title="软件目录结构"></a>软件目录结构</h3><p>三台机器创建软件目录相关结构，如下所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356499.jpg" alt="img"> </p>
+<ul>
+<li>目录【/export/software】：软件压缩包存储</li>
+<li>目录【/export/server】：软件安装</li>
+<li>目录【/export/data】：测试数据</li>
+</ul>
+<h3 id="关闭防火墙"><a href="#关闭防火墙" class="headerlink" title="关闭防火墙"></a>关闭防火墙</h3><p>关闭三台机器防火墙，命令如下所示</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">sudo systemctl stop firewalld</span><br><span class="line">sudo systemctl <span class="built_in">disable</span> firewalld</span><br></pre></td></tr></table></figure>
+
+<h3 id="禁用系统SELINUX"><a href="#禁用系统SELINUX" class="headerlink" title="禁用系统SELINUX"></a>禁用系统SELINUX</h3><p>三台机器禁用SELINUX，命令如下：</p>
+<p><code>sudo vim /etc/selinux/config</code></p>
+<p>将【SELINUX=enforcing】修改为【SELINUX=disabled】，重启虚拟机使之生效。</p>
+<h4 id="2-3-4-配置时间同步"><a href="#2-3-4-配置时间同步" class="headerlink" title="2.3.4  配置时间同步"></a>2.3.4  <strong>配置时间同步</strong></h4><p>此处采用同步阿里时间服务器，在每台机器安装ntpdate，与阿里服务同步，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">sudo yum -y install ntp ntpdate </span><br><span class="line">ntpd  ntp.aliyun.com </span><br></pre></td></tr></table></figure>
+
+<p>或则针对每台虚拟机，在VMWare中设置虚拟机与宿主机时间同步，截图如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356781.jpg" alt="img"></p>
+<h3 id="IP与主机名映射"><a href="#IP与主机名映射" class="headerlink" title="IP与主机名映射"></a>IP与主机名映射</h3><p>在三台机器上配置IP地址与主机名称映射，命令和内容如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">vim /etc/hosts</span><br></pre></td></tr></table></figure>
+
+<p>增加内容如下：</p>
+ <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">192.168.88.100    node1.itcast.cn    node1 </span><br><span class="line">192.168.88.101    node2.itcast.cn    node2 </span><br><span class="line">192.168.88.102    node3.itcast.cn    node3</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-6-SSH-无密钥登录"><a href="#2-3-6-SSH-无密钥登录" class="headerlink" title="2.3.6  SSH 无密钥登录"></a>2.3.6  <strong>SSH 无密钥登录</strong></h4><p>配置三台机器之间SSH无密钥登录，方便后续集群服务启动，具体命令如下：</p>
+<ul>
+<li>生成密钥，</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br></pre></td></tr></table></figure>
+
+<p>然后一直回车，默认生成密钥文件。</p>
+<ul>
+<li><p>执行命令，将公钥复制到其余3台机器上</p>
+  <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">ssh-copy-id node1.itcast.cn</span><br><span class="line">ssh-copy-id node2.itcast.cn</span><br><span class="line">ssh-copy-id node3.itcast.cn</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="安装JDK8"><a href="#安装JDK8" class="headerlink" title="安装JDK8"></a>安装JDK8</h3><p>在三台机器上安装JDK8，安装之前先卸载OPEN JDK，相关命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">rpm -qa|grep java</span><br><span class="line">rpm -e --nodeps java-1.8.0-openjdk-xxx</span><br></pre></td></tr></table></figure>
+
+<p>上传JDK8软件包并解压至【/export/server】目录，在【/etc/profile】配置环境变量：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> JAVA_HOME=/<span class="built_in">export</span>/server/jdk</span><br><span class="line"><span class="built_in">export</span> PATH=:<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+
+<p>执行如下命令生效：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure>
+
+<h2 id="HDFS-集群部署"><a href="#HDFS-集群部署" class="headerlink" title="HDFS 集群部署"></a>HDFS 集群部署</h2><p>在部署运行YARN集群之前，先配置HDFS集群，由于YARN集群其中后，运行应用程序时，默认情况下首先将应用程序相关信息（包括jar包、配置信息等等）上传至HDFS目录，同时应用运行时和完成时日志信息存储在HDFS。</p>
+<h3 id="step1、解压软件包"><a href="#step1、解压软件包" class="headerlink" title="step1、解压软件包"></a><strong>step1、解压软件包</strong></h3><p>在node1.itcast.cn机器上解压配置HDFS集群，再分发软件包到其他机器。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /export/software/</span></span><br><span class="line">[root@node1 software]<span class="comment"># rz</span></span><br><span class="line">[root@node1 software]<span class="comment"># tar -zxf hadoop-3.1.4-bin-snappy-CentOS7.tar.gz -C /export/server/</span></span><br></pre></td></tr></table></figure>
+
+<p>解压完成以后，创建hadoop软连接，方便后续软件版本升级和管理。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /export/server/</span></span><br><span class="line">[root@node1 server]<span class="comment"># ln -s hadoop-3.1.4 hadoop</span></span><br><span class="line">[root@node1 server]<span class="comment"># ll</span></span><br><span class="line">total 0</span><br><span class="line">lrwxrwxrwx  1 root root  12 Feb 23 21:35 hadoop -&gt; hadoop-3.1.4</span><br><span class="line">drwxr-xr-x  9 root root 149 Nov  4 17:57 hadoop-3.1.4</span><br><span class="line">lrwxrwxrwx. 1 root root  12 Sep  4 17:38 jdk -&gt; jdk1.8.0_241</span><br><span class="line">drwxr-xr-x. 7 root root 245 Dec 11  2019 jdk1.8.0_241</span><br></pre></td></tr></table></figure>
+
+<h3 id="step2、配置环境变量"><a href="#step2、配置环境变量" class="headerlink" title="step2、配置环境变量"></a><strong>step2、配置环境变量</strong></h3><p>在Hadoop中，bin和sbin目录下的脚本、etc/hadoop下的配置文件，有很多配置项都会使用到HADOOP_*这些环境变量。如果仅仅是配置了HADOOP_HOME，这些脚本会从HADOOP_HOME下通过追加相应的目录结构来确定COMMON、HDFS和YARN的类库路径。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">HADOOP_HOME：Hadoop软件的安装路径；</span><br><span class="line">HADOOP_CONF_DIR：Hadoop的配置文件路径；</span><br><span class="line">HADOOP_COMMON_HOME：Hadoop公共类库的路径；</span><br><span class="line">HADOOP_HDFS_HOME：Hadoop HDFS的类库路径；</span><br><span class="line">HADOOP_YARN_HOME：Hadoop YARN的类库路径；</span><br><span class="line">HADOOP_MAPRED_HOME：Hadoop MapReduce的类库路径；</span><br></pre></td></tr></table></figure>
+
+<p>编辑【/etc/profile】文件，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br></pre></td></tr></table></figure>
+
+<p>添加如下内容：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> HADOOP_HOME=/<span class="built_in">export</span>/server/hadoop</span><br><span class="line"><span class="built_in">export</span> HADOOP_CONF_DIR=<span class="variable">$HADOOP_HOME</span>/etc/hadoop</span><br><span class="line"><span class="built_in">export</span> HADOOP_COMMON_HOME=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_HDFS_HOME=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_YARN_HOME=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_MAPRED_HOME=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HADOOP_HOME</span>/bin:<span class="variable">$HADOOP_HOME</span>/sbin</span><br></pre></td></tr></table></figure>
+
+<p>执行如下命令生效：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure>
+
+<p>备注：三台机器都要配置环境变量，便使之生效，方便后续直接使用命令。</p>
+<h3 id="step3、hadoop-env-sh"><a href="#step3、hadoop-env-sh" class="headerlink" title="step3、hadoop-env.sh"></a><strong>step3、hadoop-env.sh</strong></h3><p>在Hadoop环境变量脚本配置JDK和HADOOP安装目录，命令和内容如下。</p>
+<p>执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vim /export/server/hadoop/etc/hadoop/hadoop-env.sh</span></span><br></pre></td></tr></table></figure>
+
+<p>修改内容如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> JAVA_HOME=/<span class="built_in">export</span>/server/jdk</span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/<span class="built_in">export</span>/server/hadoop</span><br></pre></td></tr></table></figure>
+
+<p>由于HADOOP 3开始，执行start-dfs.sh脚本启动HDFS服务时，默认使用非root普通用户，如果使用root用户启动，需要在【hadoop-env.sh】添加如下变量</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> HDFS_NAMENODE_USER=root</span><br><span class="line"><span class="built_in">export</span> HDFS_DATANODE_USER=root </span><br><span class="line"><span class="built_in">export</span> YARN_RESOURCEMANAGER_USER=root </span><br><span class="line"><span class="built_in">export</span> YARN_NODEMANAGER_USER=root</span><br></pre></td></tr></table></figure>
+
+<h3 id="step4、core-site-xml"><a href="#step4、core-site-xml" class="headerlink" title="step4、core-site.xml"></a><strong>step4、core-site.xml</strong></h3><p>配置Hadoop Common模块公共属性，编辑core-site.xml文件，命令和内容如下。</p>
+<p>执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vim /export/server/hadoop/etc/hadoop/core-site.xml </span></span><br></pre></td></tr></table></figure>
+
+<p>增加配置内容：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.defaultFS<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://node1.itcast.cn:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.tmp.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>/export/server/hadoop/datas/tmp<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.http.staticuser.user<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>root<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="step5、hdfs-site-xml"><a href="#step5、hdfs-site-xml" class="headerlink" title="step5、hdfs-site.xml"></a><strong>step5、hdfs-site.xml</strong></h3><p>配置HDFS分布式文件系统相关属性，具体命令和内容如下所示：</p>
+<p>执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vim /export/server/hadoop/etc/hadoop/hdfs-site.xml </span></span><br></pre></td></tr></table></figure>
+
+<p>增加配置内容：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 设定SNN运行主机和端口。--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.secondary.http-address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>node2.itcast.cn:9868<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="step6、workers"><a href="#step6、workers" class="headerlink" title="step6、workers"></a><strong>step6、workers</strong></h3><p>配置HDFS集群中从节点DataNode所运行机器，，具体命令和内容如下所示：</p>
+<p>执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vim /export/server/hadoop/etc/hadoop/workers </span></span><br></pre></td></tr></table></figure>
+
+<p>增加配置内容：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">node1.itcast.cn</span><br><span class="line">node2.itcast.cn</span><br><span class="line">node3.itcast.cn</span><br></pre></td></tr></table></figure>
+
+<h3 id="step7、分发配置"><a href="#step7、分发配置" class="headerlink" title="step7、分发配置"></a><strong>step7、分发配置</strong></h3><p>将node1.itcast.cn上配置好HDFS，分发到node2.itcast.cn和node3.itcast.cn，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /export/server/ </span></span><br><span class="line">[root@node1 server]<span class="comment"># scp -r hadoop-3.1.4 root@node2.itcast.cn:$PWD</span></span><br><span class="line">[root@node1 server]<span class="comment"># scp -r hadoop-3.1.4 root@node3.itcast.cn:$PWD</span></span><br></pre></td></tr></table></figure>
+
+<p>分发完成以后，在node2.itcast.cn和node3.itcast.cn上创建软连接：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node2 ~]<span class="comment"># cd /export/server/</span></span><br><span class="line">[root@node2 server]<span class="comment"># ln -s hadoop-3.1.4 hadoop</span></span><br><span class="line"></span><br><span class="line">[root@node3 ~]<span class="comment"># cd /export/server/</span></span><br><span class="line">[root@node3 server]<span class="comment"># ln -s hadoop-3.1.4 hadoop</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="step8、格式化HDFS"><a href="#step8、格式化HDFS" class="headerlink" title="step8、格式化HDFS"></a><strong>step8、格式化HDFS</strong></h3><p>第一次启动HDFS文件之前，先格式HDFS文件系统，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># hdfs namenode -format</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="step9、启动HDFS集群"><a href="#step9、启动HDFS集群" class="headerlink" title="step9、启动HDFS集群"></a><strong>step9、启动HDFS集群</strong></h3><p>在node1.itcast.cn上启动HDFS集群服务：NameNode和DataNodes，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># hdfs --daemon start namenode</span></span><br><span class="line">[root@node1 ~]<span class="comment"># hdfs --workers --daemon start datanode</span></span><br></pre></td></tr></table></figure>
+
+<p>查看各个机器上服务是否启动，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># for i in `seq 1 3`; do echo node$i.itcast.cn; ssh node$i.itcast.cn `which jps`; done</span></span><br></pre></td></tr></table></figure>
+
+<p>查看HDFS WEB UI，地址为：<a target="_blank" rel="noopener" href="http://node1.itcast.cn:9870/">http://node1.itcast.cn:9870/</a></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356102.jpg" alt="img"> </p>
+<p>至此HDFS集群搭建部署完成，接下来部署YARN集群，运行启动以后运行MapReduce程序。</p>
+<h2 id="YARN-集群部署-1"><a href="#YARN-集群部署-1" class="headerlink" title="YARN 集群部署"></a>YARN 集群部署</h2><p>在HDFS集群基础之上配置YARN集群，目前不考虑RM HA高可用，服务规划如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356197.jpg" alt="img"> </p>
+<h3 id="step1、yarn-site-xml"><a href="#step1、yarn-site-xml" class="headerlink" title="step1、yarn-site.xml"></a><strong>step1、yarn-site.xml</strong></h3><p>配置YARN集群相关属性，编辑文件和添加如下所示：</p>
+<p>执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vim /export/server/hadoop/etc/hadoop/yarn-site.xml </span></span><br></pre></td></tr></table></figure>
+
+<p>增加配置内容：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node2.itcast.cn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">          <span class="comment">&lt;!-- 容器虚拟内存与物理内存之间的比率。--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">                     <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.vmem-pmem-ratio<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">                     <span class="tag">&lt;<span class="name">value</span>&gt;</span>4<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>mapreduce_shuffle<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.log-aggregation-enable<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.log.server.url<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>http://node1.itcast.cn:19888/jobhistory/logs<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>上述属性文件中配置RM所在主机名称、日志聚集功能及运行MapReduce程序插件服务。</p>
+<h3 id="step2、mapred-site-xml"><a href="#step2、mapred-site-xml" class="headerlink" title="step2、mapred-site.xml"></a><strong>step2、mapred-site.xml</strong></h3><p>Hadoop YARN集群运行以后，运行MapReduce程序，所以需要配置MapReduce框架运行YARN上时相关属性，编辑文件和添加内容如下：</p>
+<p>执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vim /export/server/hadoop/etc/hadoop/mapred-site.xml </span></span><br></pre></td></tr></table></figure>
+
+<p>增加配置内容：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.framework.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>yarn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.application.classpath<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">value</span>&gt;</span>$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*:$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.jobhistory.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node1.itcast.cn:10020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.jobhistory.webapp.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node1.itcast.cn:19888<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中配置MapReduce运行环境YARN、历史服务器MRJobHistoryServer地址信息。此外，运行MapReduce在YARN上需要设置环境变量，在mapred-site.xml中添加如下内容：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.app.mapreduce.am.env<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>HADOOP_MAPRED_HOME=/export/server/hadoop<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.map.env<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>HADOOP_MAPRED_HOME=/export/server/hadoop<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.reduce.env<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>HADOOP_MAPRED_HOME=/export/server/hadoop<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="step3、同步配置"><a href="#step3、同步配置" class="headerlink" title="step3、同步配置"></a><strong>step3、同步配置</strong></h3><p>将YARN配置文件【yarn-site.xml】和MapReduce配置文件【mapred-site.xml】同步到node2.itcast.cn和node3.itcast.cn机器Hadoop安装目录中，命令如下所示：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /export/server/hadoop/etc/hadoop</span></span><br><span class="line">[root@node1 server]<span class="comment"># scp -r yarn-site.xml root@node2.itcast.cn:$PWD</span></span><br><span class="line">[root@node1 server]<span class="comment"># scp -r mapred-site.xml root@node3.itcast.cn:$PWD</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="step4、启动YARN集群"><a href="#step4、启动YARN集群" class="headerlink" title="step4、启动YARN集群"></a><strong>step4、启动YARN集群</strong></h3><p>在启动YARN集群之前，首先启动HDFS集群，再进行启动。在node2.itcast.cn上启动YARN服务组件，相关命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node2 ~]<span class="comment"># yarn --daemon start resourcemanager</span></span><br><span class="line">[root@node2 ~]<span class="comment"># yarn --workers --daemon start nodemanager</span></span><br></pre></td></tr></table></figure>
+
+<p>查看各个机器上服务是否启动，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node2 ~]<span class="comment"># for i in `seq 1 3`; do echo node$i.itcast.cn; ssh node$i.itcast.cn `which jps`; done</span></span><br></pre></td></tr></table></figure>
+
+<p>查看YARN WEB UI界面，地址：<a target="_blank" rel="noopener" href="http://node2.itcast.cn:8088/">http://node2.itcast.cn:8088/</a></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356204.jpg" alt="img"></p>
+<h3 id="step5、启动MR历史服务"><a href="#step5、启动MR历史服务" class="headerlink" title="step5、启动MR历史服务"></a><strong>step5、启动MR历史服务</strong></h3><p>启动MapReduce历史服务：MRJobHistoryServer，当MapReduce运行在YARN上完成以后，可以从历史服务查看MR运行状况，在node1.itcast.cn上启动，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># mapred --daemon start historyserver</span></span><br><span class="line">[root@node1 ~]<span class="comment"># jps</span></span><br><span class="line">3091 NameNode</span><br><span class="line">3909 JobHistoryServer</span><br><span class="line">3735 NodeManager</span><br><span class="line">3932 Jps</span><br><span class="line">3245 DataNode</span><br></pre></td></tr></table></figure>
+
+<h3 id="step6、运行词频统计"><a href="#step6、运行词频统计" class="headerlink" title="step6、运行词频统计"></a><strong>step6、运行词频统计</strong></h3><p>将官方提供词频统计WordCount程序运行在YARN集群上，首先准备数据，再提交运行。</p>
+<ul>
+<li>准备数据，命令如下：</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vim input.data</span></span><br></pre></td></tr></table></figure>
+
+<p>内容如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">hadoop hive hive spark flink</span><br><span class="line">hadoop flink flink spark flink spark hdfs</span><br><span class="line">hadoop flink flink spark</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>数据文件上传HDFS：</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># hdfs dfs -mkdir -p /datas</span></span><br><span class="line">[root@node1 ~]<span class="comment"># hdfs dfs -put input.data /datas</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>提交程序运行，命令如下：</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># yarn jar \</span></span><br><span class="line">/<span class="built_in">export</span>/server/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.4.jar \</span><br><span class="line">wordcount /datas/input.data /datas/output</span><br></pre></td></tr></table></figure>
+
+<p>查看YARN WEB UI监控页面，可以看到提交运行MapReduce程序。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356212.jpg" alt="img"></p>
+<ul>
+<li> 查看MapReduce程序运行结果：</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment">#  hdfs dfs -ls /datas/output</span></span><br><span class="line">Found 2 items</span><br><span class="line">-rw-r--r--   3 root supergroup          0 2021-02-24 21:05 /datas/output/_SUCCESS</span><br><span class="line">-rw-r--r--   3 root supergroup         39 2021-02-24 21:05 /datas/output/part-r-00000</span><br><span class="line">[root@node1 ~]<span class="comment"># </span></span><br><span class="line">[root@node1 ~]<span class="comment"># hdfs dfs -text /datas/output/part*          </span></span><br><span class="line">flink   6</span><br><span class="line">hadoop  3</span><br><span class="line">hdfs    1</span><br><span class="line">hive    2</span><br><span class="line">spark   4</span><br></pre></td></tr></table></figure>
+
+<p>当MapReduce程序运行在YARN上时，首先将程序jar包和相关配置信息上传到HDFS，针对上述应用存储目录如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356218.jpg" alt="img"> </p>
+<h2 id="RM-重启机制"><a href="#RM-重启机制" class="headerlink" title="RM 重启机制"></a>RM 重启机制</h2><p>在YARN中，如果配置单点的ResourceManager或RM HA发生故障转移时，RM重启功能可使其在重新启动后仍能正常运行，且最终的RM在停机时对用户不可见。RM有两种重新启动类型：</p>
+<ul>
+<li><p>不保留工作的RM重新启动</p>
+</li>
+<li><p>保留工作的RM重新启动</p>
+</li>
+</ul>
+<h3 id="不保留工作的RM重启"><a href="#不保留工作的RM重启" class="headerlink" title="不保留工作的RM重启"></a>不保留工作的RM重启</h3><p>在Hadoop-2.4.0版本实现，当Client提交一个application给RM时，RM会将该application的相关信息存储起来，具体存储的位置是可以在配置文件中指定的，可以存储到本地文件系统上，也可以存储到HDFS或者是Zookeeper上，此外RM也会保存application的最终状态信息(failed，killed，finished),如果是在安全环境下运行，RM还会保存相关证书文件。</p>
+<p>当RM被关闭后，NodeManager(以下简称NM)和Client由于发现连接不上RM，会不断的向RM发送消息，以便于能及时确认RM是否已经恢复正常，当RM重新启动后，它会发送一条re-sync(重新同步)的命令给所有的NM和ApplicationMaster(以下简称AM)，NM收到重新同步的命令后会杀死所有的正在运行的containers并重新向RM注册，从RM的角度来看，每台重新注册的NM跟一台新加入到集群中NM是一样的。</p>
+<p>AM收到重新同步的命令后会自行将自己杀掉。接下来，RM会将存储的关于application的相关信息读取出来，将在RM关闭之前最终状态为正在运行中的application重新提交运行。</p>
+<h3 id="保留工作的RM重启"><a href="#保留工作的RM重启" class="headerlink" title="保留工作的RM重启"></a>保留工作的RM重启</h3><p>从Hadoop-2.6.0开始增强了RM重启功能，与不保留工作不同的地方在于，RM会记录下container的整个生命周期的数据，包括application运行的相关数据，资源申请状况，队列资源使用状况等数据。</p>
+<p>当RM重启之后，会读取之前存储的关于application的运行状态的数据，同时发送re-sync的命令，与第一种方式不同的是，NM在接受到重新同步的命令后并不会杀死正在运行的containers，而是继续运行containers中的任务，同时将containers的运行状态发送给RM，之后，RM根据自己所掌握的数据重构container实例和相关的application运行状态，如此一来，就实现了在RM重启之后，紧接着RM关闭时任务的执行状态继续执行。</p>
+<h3 id="启用RM重启机制"><a href="#启用RM重启机制" class="headerlink" title="启用RM重启机制"></a>启用RM重启机制</h3><p>在YARN用户配置文件：yarn-site.xml配置启用RM重启功能，使用Zookeeper进行转态数据存储，相关操作命令和属性内容如下。</p>
+<p>执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vim /export/server/hadoop/etc/hadoop/yarn-site.xml </span></span><br></pre></td></tr></table></figure>
+
+<p>增加配置内容：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">	&lt;name&gt;hadoop.zk.address&lt;/name&gt;</span><br><span class="line">	&lt;value&gt;node1.itcast.cn:2181,node2.itcast.cn:2181,node3.itcast.cn:2181&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line"></span><br><span class="line">&lt;property&gt;</span><br><span class="line">	&lt;name&gt;yarn.resourcemanager.recovery.enabled&lt;/name&gt;</span><br><span class="line">	&lt;value&gt;<span class="literal">true</span>&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">	&lt;name&gt;yarn.resourcemanager.store.class&lt;/name&gt;</span><br><span class="line">	&lt;value&gt;org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于Zookeeper转态管理"><a href="#基于Zookeeper转态管理" class="headerlink" title="基于Zookeeper转态管理"></a>基于Zookeeper转态管理</h3><p>如果启用了RM的重启机制，升级为Active状态的RM会初始化RM内部状态和恢复先前活动RM留下的状态，这依赖于RM的重启特性。而之前提交到RM托管的作业会发起新的尝试请求。用户提交的应用可以考虑进行周期性的CheckPoint来避免任务丢失。</p>
+<p>RM的重启机制本质上是将RM内部的状态信息写入外部存储，在RM启动时会初始化状态信息的目录，当Application运行时会将相关的状态写入对应的目录下。如果RM发生故障切换，新的Active状态的RM会通过外部存储进行恢复。RM状态存储的实现是RMStateStore抽象类，YARN对RMStateStore提供了几种实例：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356530.jpg" alt="img"> </p>
+<p>从类继承图可以看出提供5种方式存储状态，比对如下：</p>
+<table>
+<thead>
+<tr>
+<th>状态存储方式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Memory</td>
+<td>MemoryRMStateStore是基于内存的状态存储实现，使用RMState对象存储RM所有的状态。</td>
+</tr>
+<tr>
+<td>ZooKeeper</td>
+<td>ZKRMStateStore是基于ZooKeeper的状态存储实现，支持RM的HA，只有基于ZooKeeper的状态存储支持隔离机制，能避免出现裂脑情况发生，允许有多个处于Active状态的RM同时编辑状态存储。建议在YARN的HA中使用。</td>
+</tr>
+<tr>
+<td>FileSystem</td>
+<td>FileSystemRMStateStore支持HDFS和基于本地FS的状态存储实现。不支持隔离机制。</td>
+</tr>
+<tr>
+<td>LevelDB</td>
+<td>LeveldbRMStateStore是基于LevelDB的状态存储实现，它比基于HDFS和ZooKeeper的状态存储库更轻巧。LevelDB支持更好的原子操作，每个状态更新的I/O操作更少，文件系统上的文件总数也少得多。不支持隔离机制。</td>
+</tr>
+<tr>
+<td>Null</td>
+<td>NullRMStateStore是一个空实现。</td>
+</tr>
+</tbody></table>
+<p>以ZKRMStateStore为例，活动RM的所有状态信息存储在ZooKeeper的rmstore/ZKRMStateRoot下，主要有ReservationSystemRoot、RMAppRoot、AMRMTokenSecretManagerRoot、EpochNode、RMDTSecretManagerRoot和RMVersionNode共6个ZNode。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356910.jpg" alt="img"> </p>
+<p>这6个ZNode的结构和作用主要涵盖了RM资源预留信息、应用信息，应用的Token信息，RM版本信息，如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356929.jpg" alt="img"> </p>
+<p>各种类型Znode节点说明如下：</p>
+<table>
+<thead>
+<tr>
+<th>ZNode名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ReservationSystemRoot</td>
+<td>RM的资源预留系统，对应的实现是ReservationSystem接口的子类。</td>
+</tr>
+<tr>
+<td>RMAppRoot</td>
+<td>Application信息，对应的实现是RMApp接口的子类。</td>
+</tr>
+<tr>
+<td>AMRMTokenSecretManagerRoot</td>
+<td>ApplicationAttempt的Token信息，RM会将每个Token保存在本地的内存中，直到应用程序运行完成为止，并保存到ZooKeeper存储以供重新启动。对应的实现是AMRMTokenSecretManager类。</td>
+</tr>
+<tr>
+<td>EpochNode</td>
+<td>RM的保存工作重启的时间信息。每次RM重新启动时，纪元都会增加。它用于确保ContainerId的唯一性。对应的实现是Epoch抽象类。</td>
+</tr>
+<tr>
+<td>RMDTSecretManagerRoot</td>
+<td>一个特定于RM的委托令牌保密管理器。保密管理器负责生成和接受每个令牌的密码。</td>
+</tr>
+<tr>
+<td>RMVersionNode</td>
+<td>RM的版本信息。</td>
+</tr>
+</tbody></table>
+<p>查看类【ZKRMStateStore】文档注释，可知不同ZNode节点功能</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356109.jpg" alt="img"></p>
+<h2 id="YARN-HA-集群"><a href="#YARN-HA-集群" class="headerlink" title="YARN HA 集群"></a>YARN HA 集群</h2><p>ResourceManager（RM）负责管理群集中的资源和调度应用程序（如MR、Spark等）。在Hadoop 2.4之前，YARN群集中的ResourceManager存在SPOF（Single Point of Failure，单点故障）。为了解决ResourceManager的单点问题，YARN设计了一套Active/Standby模式的ResourceManager HA（High Availability，高可用）架构。在运行期间有多个ResourceManager同时存在来增加冗余进而消除这个单点故障，并且只能有一个ResourceManager处于Active状态，其他的则处于Standby状态，当Active节点无法正常工作，其余Standby状态的几点则会通过竞争选举产生新的Active节点。</p>
+<h3 id="高可用-HA-架构"><a href="#高可用-HA-架构" class="headerlink" title="高可用 HA 架构"></a>高可用 HA 架构</h3><p>ResourceManager的HA通过ActiveStandby体系实现，其底层通过ZooKeeper集群来存储RM的状态信息、应用程序的状态。如果Active状态的RM遇到故障，会通过切换Standby状态的RM为Active来继续为集群提供正常服务。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356127.jpg" alt="img"> </p>
+<p>故障转移机制支持自动故障转移和手动故障转移两种方式实现。在生产环境中，自动故障转移应用更为广泛。</p>
+<ul>
+<li>第一种：手动故障转移</li>
+</ul>
+<p>当没有启用自动故障转移时，管理员必须手动将一个RM转换为活动状态。要从一个RM到另一个RM进行故障转移，需要先把Active状态的RM转换为Standby状态的RM，然后再将Standby状态的RM转换为Active状态的RM。这些操作可用yarn rmadmin 命令来完成。</p>
+<ul>
+<li>第二种：自定故障转移</li>
+</ul>
+<p>RM可以选择嵌入基于Zookeeper的ActiveStandbyElector（org.apache.hadoop.ha.ActiveStandbyElector类）来实现自动故障转移，以确定哪个RM应该是Active。当Active状态的RM发生故障或无响应时，另一个RM被自动选为Active，然后接管服务。YARN的故障转移不需要像HDFS那样运行单独的ZKFC守护程序，因为ActiveStandbyElector是一个嵌入在RM中充当故障检测器和Leader选举的线程，而不是单独的ZKFC守护进程。</p>
+<p>当有多个RM时，Clients和NMs通过读取yarn-site.xml配置找到所有ResourceManager。Clients、AM和NM会轮训所有的ResourceManager并进行连接，直到找着Active状态的RM。如果Active状态的RM也出现故障，它们就会继续查找，直到找着新的Active状态的RM。</p>
+<h3 id="故障转移原理"><a href="#故障转移原理" class="headerlink" title="故障转移原理"></a><strong>故障转移原理</strong></h3><p>YARN这个Active/Standby模式的RM HA架构在运行期间，会有多个RM同时存在，但只能有一个RM处于Active状态，其他的RM则处于Standby状态，当Active节点无法正常提供服务，其余Standby状态的RM则会通过竞争选举产生新的Active节点。以基于ZooKeeper这个自动故障切换为例，切换的步骤如下：</p>
+<ul>
+<li>主备切换，RM使用基于ZooKeeper实现的ActiveStandbyElector组件来确定RM的状态是Active或Standby。</li>
+<li>创建锁节点，在ZooKeeper上会创建一个叫做ActiveStandbyElectorLock的锁节点，所有的RM在启动的时候，都会去竞争写这个临时的Lock节点，而ZooKeeper能保证只有一个RM创建成功。创建成功的RM就切换为Active状态，并将信息同步存入到ActiveBreadCrumb这个永久节点，那些没有成功的RM则切换为Standby状态。</li>
+<li>注册Watcher监听，所有Standby状态的RM都会向/yarn-leader-election/cluster1/ActiveStandbyElectorLock节点注册一个节点变更的Watcher监听，利用临时节点的特性，能够快速感知到Active状态的RM的运行情况。</li>
+<li>准备切换，当Active状态的RM出现故障（如宕机或网络中断），其在ZooKeeper上创建的Lock节点随之被删除，这时其它各个Standby状态的RM都会受到ZooKeeper服务端的Watcher事件通知，然后开始竞争写Lock子节点，创建成功的变为Active状态，其他的则是Standby状态。</li>
+<li>Fencing(隔离)，在分布式环境中，机器经常出现假死的情况（常见的是GC耗时过长、网络中断或CPU负载过高）而导致无法正常对外进行及时响应。如果有一个处于Active状态的RM出现假死，其他的RM刚选举出来新的Active状态的RM，这时假死的RM又恢复正常，还认为自己是Active状态，这就是分布式系统的脑裂现象，即存在多个处于Active状态的RM，可以使用隔离机制来解决此类问题。</li>
+<li>YARN的Fencing机制是借助ZooKeeper数据节点的ACL权限控制来实现不同RM之间的隔离。这个地方改进的一点是，创建的根ZNode必须携带ZooKeeper的ACL信息，目的是为了独占该节点，以防止其他RM对该ZNode进行更新。借助这个机制假死之后的RM会试图去更新ZooKeeper的相关信息，但发现没有权限去更新节点数据，就把自己切换为Standby状态。</li>
+</ul>
+<h3 id="安装-Zookeeper-集群"><a href="#安装-Zookeeper-集群" class="headerlink" title="安装 Zookeeper 集群"></a>安装 Zookeeper 集群</h3><p>YARN HA高可用依赖于Zookeeper集群存储状态数据和自动故障转移，所以要配置安装部署Zookeeper集群，具体步骤如下：</p>
+<h4 id="step1、解压Zookeeper"><a href="#step1、解压Zookeeper" class="headerlink" title="step1、解压Zookeeper"></a>step1、解压Zookeeper</h4><p>上传Zookeeper软件至【/export/software】目录，解压至【/export/server】，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /export/software/</span></span><br><span class="line">[root@node1 software]<span class="comment"># rz</span></span><br><span class="line">[root@node1 software]<span class="comment"># tar -zxf zookeeper-3.4.6.tar.gz -C /export/server/</span></span><br></pre></td></tr></table></figure>
+
+<p>解压完成以后，创建zookeeper软连接，方便后续软件版本升级和管理。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /export/server/</span></span><br><span class="line">[root@node1 server]<span class="comment"># ln -s zookeeper-3.4.6 zookeeper</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="step2、配置zoo-cfg"><a href="#step2、配置zoo-cfg" class="headerlink" title="step2、配置zoo.cfg"></a>step2、配置zoo.cfg</h4><p>进入Zookeeper配置目录【conf】中，重命名【zoo_sample.cfg】为【 zoo.cfg】，添加配置内容，命令和内容如下所示：</p>
+<p>执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /export/server/zookeeper/conf/</span></span><br><span class="line">[root@node1 conf]<span class="comment"># mv zoo_sample.cfg zoo.cfg</span></span><br><span class="line">[root@node1 conf]<span class="comment"># vim zoo.cfg  </span></span><br></pre></td></tr></table></figure>
+
+<p>增加配置内容：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">tickTime=2000</span><br><span class="line">initLimit=10</span><br><span class="line">syncLimit=5</span><br><span class="line">dataDir=/<span class="built_in">export</span>/server/zookeeper/datas</span><br><span class="line">clientPort=2181</span><br><span class="line">server.1=node1.itcast.cn:2888:3888</span><br><span class="line">server.2=node2.itcast.cn:2888:3888</span><br><span class="line">server.3=node3.itcast.cn:2888:3888</span><br></pre></td></tr></table></figure>
+
+<p>创建数据存储目录，命令如下所示：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># mkdir -p /export/server/zookeeper/datas</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="step3、创建myid文件"><a href="#step3、创建myid文件" class="headerlink" title="step3、创建myid文件"></a><strong>step3、创建myid文件</strong></h4><p>Zookeeper搭建集群时，需要在数据存储目录中创建【myid】文件，其中写入服务进程编号，需要与【zoo.cfg】配置相匹配对应。</p>
+<ul>
+<li>node1.itcast.cn集群上，myid文件中值为1</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># echo &quot;1&quot; &gt; /export/server/zookeeper/datas/myid</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>node2.itcast.cn集群上，myid文件中值为2 </li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># echo &quot;2&quot; &gt; /export/server/zookeeper/datas/myid</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>node3.itcast.cn集群上，myid文件中值为3 </li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># echo &quot;3&quot; &gt; /export/server/zookeeper/datas/myid</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="step4、配置zkEnv-sh"><a href="#step4、配置zkEnv-sh" class="headerlink" title="step4、配置zkEnv.sh"></a>step4、配置zkEnv.sh</h4><p>默认情况下Zookerper服务启动时，日志文件【zookeeper.out】在执行命令目录中生成，可以配置日志文件放在Zookeeper安装目录中【logs】目录下，如下操作：</p>
+<p>执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vim /export/server/zookeeper/bin/zkEnv.sh</span></span><br></pre></td></tr></table></figure>
+
+<p>增加配置内容：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">ZOO_LOG_DIR=/<span class="built_in">export</span>/server/zookeeper/logs</span><br></pre></td></tr></table></figure>
+
+<p>创建日志目录，命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># mkdir -p /export/server/zookeeper/logs</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="step5、分发配置"><a href="#step5、分发配置" class="headerlink" title="step5、分发配置"></a><strong>step5、分发配置</strong></h4><p>将node1.itcast.cn上配置Zookeeper安装软件，分发到node2.itcast.cn和node3.itcast.cn中，具体命令如下所示：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /export/server/</span></span><br><span class="line">[root@node1 server]<span class="comment"># scp -r zookeeper-3.4.6 root@node2.itcast.cn:$PWD</span></span><br><span class="line">[root@node1 server]<span class="comment"># scp -r zookeeper-3.4.6 root@node3.itcast.cn:$PWD</span></span><br></pre></td></tr></table></figure>
+
+<p>分发完成以后，在node2.itcast.cn和node3.itcast.cn上创建软连接：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node2 ~]<span class="comment"># cd /export/server/</span></span><br><span class="line">[root@node2 server]<span class="comment"># ln -s zookeeper-3.4.6 zookeeper</span></span><br><span class="line"></span><br><span class="line">[root@node3 ~]<span class="comment"># cd /export/server/</span></span><br><span class="line">[root@node3 server]<span class="comment"># ln -s zookeeper-3.4.6 zookeeper</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="step6、启动集群"><a href="#step6、启动集群" class="headerlink" title="step6、启动集群"></a><strong>step6、启动集群</strong></h4><p>由于Zookeeper官方没有提供启动Zookeeper集群命令，如果想一次性启动Zookeeper服务，需要自己编写脚本启动，执行如下命令：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `seq 1 3`; <span class="keyword">do</span> <span class="built_in">echo</span> node<span class="variable">$i</span>.itcast.cn; ssh node<span class="variable">$i</span>.itcast.cn <span class="string">&quot;source /etc/profile; /export/server/zookeeper/bin/zkServer.sh start&quot;</span>; <span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p>启动完成以后，执行下面命令，查看集群状态：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `seq 1 3`; <span class="keyword">do</span> <span class="built_in">echo</span> node<span class="variable">$i</span>.itcast.cn; ssh node<span class="variable">$i</span>.itcast.cn <span class="string">&quot;source /etc/profile; /export/server/zookeeper/bin/zkServer.sh status&quot;</span>; <span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="HA-配置及测试"><a href="#HA-配置及测试" class="headerlink" title="HA 配置及测试"></a>HA 配置及测试</h3><p>Zookeeper集群配置安装部署启动完成以后，可以参考官方文档配置YARN HA。</p>
+<p>文档：<a target="_blank" rel="noopener" href="http://hadoop.apache.org/docs/r3.1.4/hadoop-yarn/hadoop-yarn-site/ResourceManagerHA.html">http://hadoop.apache.org/docs/r3.1.4/hadoop-yarn/hadoop-yarn-site/ResourceManagerHA.html</a></p>
+<p>注意：先关闭YARN集群，在node2.itcast.cn集群执行命令：stop-yarn.sh即可。</p>
+<p>YARN HA高可用部署配置，node2.itcast.cn和node3.itcast.cn为RM服务节点。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356135.jpg" alt="img"> </p>
+<h4 id="step1、配置yarn-site-xml"><a href="#step1、配置yarn-site-xml" class="headerlink" title="step1、配置yarn-site.xml"></a><strong>step1、配置yarn-site.xml</strong></h4><p>对YARN配置文件进行修改，删除某些配置，如下步骤操作。</p>
+<ul>
+<li>编辑文件</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]# vim /export/server/hadoop/etc/hadoop/yarn-site.xml </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>删除内容</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node2.itcast.cn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加内容</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.ha.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.cluster-id<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>cluster1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.ha.rm-ids<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>rm1,rm2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname.rm1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node2.itcast.cn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname.rm2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node3.itcast.cn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.webapp.address.rm1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node2.itcast.cn:8088<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.webapp.address.rm2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node3.itcast.cn:8088<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.ha.automatic-failover.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.zk.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>node1.itcast.cn:2181,node2.itcast.cn:2181,node3.itcast.cn:2181<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.recovery.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.store.class<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>同步配置文件</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /export/server/hadoop/etc/hadoop</span></span><br><span class="line">[root@node1 hadoop]<span class="comment"># scp -r yarn-site.xml root@node2.itcast.cn:$PWD</span></span><br><span class="line">[root@node1 hadoop]<span class="comment"># scp -r yarn-site.xml root@node3.itcast.cn:$PWD</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="step2、启动HA集群"><a href="#step2、启动HA集群" class="headerlink" title="step2、启动HA集群"></a><strong>step2、启动HA集群</strong></h4><p>当配置YARN为HA时，使用start-yarn.sh命令就会启动所有的RM，如下所示：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node2 ~]<span class="comment"># start-yarn.sh </span></span><br><span class="line">Starting resourcemanagers on [ node2.itcast.cn node3.itcast.cn]</span><br><span class="line">Starting nodemanagers</span><br></pre></td></tr></table></figure>
+
+<p>查看各个机器服务进程，其中node2和node3启动ResourceManager服务。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356446.jpg" alt="img"> </p>
+<p>此外可以使用YARN提供管理命令，查看RM运行状态</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">[root@node3 ~]<span class="comment"># yarn rmadmin -getAllServiceState</span></span><br><span class="line">node2.itcast.cn:8033                               standby   </span><br><span class="line">node3.itcast.cn:8033                               active   </span><br><span class="line">[root@node3 ~]<span class="comment"># yarn rmadmin -getServiceState rm1</span></span><br><span class="line">Standby</span><br><span class="line"></span><br><span class="line">[root@node3 ~]<span class="comment"># yarn rmadmin -getServiceState rm2</span></span><br><span class="line">active</span><br></pre></td></tr></table></figure>
+
+<p>使用WebUI查看RM状态：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356848.jpg" alt="img"> </p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356875.jpg" alt="img"> </p>
+<h4 id="step3、验证故障切换"><a href="#step3、验证故障切换" class="headerlink" title="step3、验证故障切换"></a>step3、验证故障切换</h4><ul>
+<li>查看HA状态</li>
+</ul>
+<p>当node3.itcast.cn节点的RM为Active状态、node2.itcast.cn节点的RM为Standby状态时，访问<a href="http://node2.itcast.cn:8088会自动跳转到http://node3.itcast.cn:8088中，表示YARN">http://node2.itcast.cn:8088会自动跳转到http://node3.itcast.cn:8088中，表示YARN</a> HA正确配置。</p>
+<ul>
+<li>自动故障切换</li>
+</ul>
+<p>强制杀死node3.itcast.cn节点的RM，基于ZooKeeper的ActiveStandbyElector自动故障转移策略将node2.itcast.cn节点的RM选举为Active状态，表示故障转移配置正确。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356087.jpg" alt="img"></p>
+<ul>
+<li> 手动故障切换</li>
+</ul>
+<p>在非自动故障切换的YARN集群下进行手动故障切换可以使用命令进行故障转移切换。手动故障切换命令yarn rmadmin -failover rm1 rm2是rm1（node2.itcast.cn）故障转移到rm2（node3.itcast.cn）。</p>
+<h1 id="YARN-架构组件及原理"><a href="#YARN-架构组件及原理" class="headerlink" title="YARN 架构组件及原理"></a>YARN 架构组件及原理</h1><p>YARN（Yet Another Resource Negotiator，另一种资源协调者） 是 Hadoop 2.0 中的资源管理系统，它的基本设计思想是将 MRv1 中的 JobTracker拆分成了两个独立的服务 ：一个全局的资源管理器 ResourceManager 和每个应用程序特有的ApplicationMaster。其中 ResourceManager 负责整个系统的资源管理和分配，而 ApplicationMaster负责单个应用程序的管理。</p>
+<h2 id="YARN-体系架构"><a href="#YARN-体系架构" class="headerlink" title="YARN 体系架构"></a><strong>YARN</strong> 体系架构</h2><h2 id="YARN组件及功能"><a href="#YARN组件及功能" class="headerlink" title="YARN组件及功能"></a>YARN组件及功能</h2><p>YARN 总体上仍然是 Master/Slave 结构（主从结构），在整个资源管理框架中， ResourceManager 为Master， NodeManager 为 Slave， ResourceManager 负责对各个 NodeManager 上的资源进行统一管理和调度。当用户提交一个应用程序时，需要提供一个用以跟踪和管理这个程序的ApplicationMaster，它负责向 ResourceManager 申请资源，并要求 NodeManger 启动可以占用一定资源的任务。由于不同的 ApplicationMaster 被分布到不同的节点上，因此它们之间不会相互影响。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356095.jpg" alt="img"></p>
+<p>上图描述了 YARN 的基本组成结构， YARN 主要由 ResourceManager、 NodeManager、ApplicationMaster（图中给出了 MapReduce 和 MPI 两种计算框架的 ApplicationMaster，分别为 MR AppMstr 和 MPI AppMstr）和 Container 等几个组件构成。</p>
+<table>
+<thead>
+<tr>
+<th>进程</th>
+<th>描述</th>
+<th>级别</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ResourceManager</td>
+<td>使用Scheduler（ResourceScheduler类）和ApplicationManager（RMAppManager类）分配群集资源。</td>
+<td>守护进程</td>
+</tr>
+<tr>
+<td>ApplicationMaster</td>
+<td>通过指示NodeManager创建或销毁Application的Container来管理Application的生命周期。一个Application只有一个ApplicationMaster进程。</td>
+<td>用户进程</td>
+</tr>
+<tr>
+<td>NodeManager</td>
+<td>通过在群集节点中创建和销毁容器来管理特定节点中的作业或工作流。</td>
+<td>守护进程</td>
+</tr>
+<tr>
+<td>Container</td>
+<td>Container是Yarn对计算资源的抽象，它其实是一组CPU和内存资源，所有的应用都会运行在Container中。</td>
+<td>用户进程</td>
+</tr>
+</tbody></table>
+<h3 id="ResourceManager"><a href="#ResourceManager" class="headerlink" title="ResourceManager"></a>ResourceManager</h3><p>RM（ResourceManager） 是一个全局的资源管理器，负责整个系统的资源管理和分配。它主要由两个组件构成：调度器（Scheduler）和应用程序管理器（Applications Manager， ASM）。</p>
+<ul>
+<li>调度器（Scheduler）：根据容量、队列等限制条件（如每个队列分配一定的资源，最多执行一定数量的作业等），将系统中的资源分配给各个正在运行的应用程序。<ul>
+<li>需要注意的是，该调度器是一个“纯调度器”，它不再从事任何与具体应用程序相关的工作，比如不负责监控或者跟踪应用的执行状态等，也不负责重新启动因应用执行失败或者硬件故障而产生的失败任务，这些均交由应用程序相关的 ApplicationMaster 完成。</li>
+<li>调度器仅根据各个应用程序的资源需求进行资源分配，而资源分配单位用一个抽象概念“资源容器”（Resource Container，简称 Container）表示， Container 是一个动态资源分配单位，它将内存、 CPU、磁盘、网络等资源封装在一起，从而限定每个任务使用的资源量。</li>
+<li>此外，该调度器是一个可插拔的组件，用户可根据自己的需要设计新的调度器， YARN 提供了多种直接可用的调度器，比如 FairScheduler 和 Capacity Scheduler 等。</li>
+</ul>
+</li>
+<li>应用程序管理器（Applications Manager）：负责管理整个系统中所有应用程序，包括应用程序提交、与调度器协商资源以启动 ApplicationMaster、监控 ApplicationMaster 运行状态并在失败时重新启动它等。</li>
+</ul>
+<h3 id="ApplicationMaster"><a href="#ApplicationMaster" class="headerlink" title="ApplicationMaster"></a>ApplicationMaster</h3><p>用户提交的每个应用程序均包含一个 AM，主要功能包括： </p>
+<ul>
+<li>与 RM 调度器协商以获取资源（用 Container 表示）；</li>
+<li>将得到的任务进一步分配给内部的任务；</li>
+<li>与 NM 通信以启动 / 停止任务；</li>
+<li>监控所有任务运行状态，并在任务运行失败时重新为任务申请资源以重启任务。</li>
+</ul>
+<p>当前YARN自带了两个AM实现，一个是用于演示AM编写方法的例程序distributedshell，它可以申请一定数目的 Container 以并行运行一个 Shell 命令或者 Shell 脚本 ；另一个是运行 MapReduce 应用程序的 AM—MRAppMaster，此外，一些其他的计算框架对应的 AM 正在开发中，比如 Spark、Flink 等。</p>
+<h3 id="NodeManager"><a href="#NodeManager" class="headerlink" title="NodeManager"></a>NodeManager</h3><p>NM（NodeManager） 是每个节点上的资源和任务管理器，一方面，它会定时地向 RM 汇报本节点上的资源使用情况和各个 Container 的运行状态；另一方面，它接收并处理来自 AM 的 Container启动 / 停止等各种请求。</p>
+<h3 id="Container"><a href="#Container" class="headerlink" title="Container"></a>Container</h3><p>Container 是 YARN 中的资源抽象，它封装了某个节点上的多维度资源，如内存、CPU、磁盘、网络等，当 AM 向 RM 申请资源时， RM 为 AM 返回的资源便是用 Container表示的。 YARN 会为每个任务分配一个 Container，且该任务只能使用该 Container 中描述的资源。需要注意的是， Container 不同于 MRv1 中的 slot，它是一个动态资源划分单位，是根据应用程序的需求动态生成的。当下， YARN 仅支持 CPU 和内存两种资源，且使用了轻量级资源隔离机制 Cgroups 进行资源隔离 。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356322.jpg" alt="img"> </p>
+<p>YARN支持各种数据处理引擎对HDFS中的数据进行批处理、交互式和流处理。在不同的场景中使用不同的框架，常见的包括MapReduce、Spark、Storm和Flink等Application。这种架构可以更好、更优雅地进行扩展。因此从一开始就内置了高可用性、安全性和多租户支持更多用户在大型集群上使用，新架构还将提高创新性，敏捷性和硬件利用率。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356773.jpg" alt="img"> </p>
+<p>此外，YARN提供以下功能：</p>
+<ul>
+<li>多租户：可以使用多个开放源代码和专有数据访问引擎来批量、交互式和实时访问同一数据集。多租户数据处理可提高企业在Hadoop投资上的回报。</li>
+<li>Docker容器化：可以使用Docker容器化来并行运行同一应用程序的多个版本。</li>
+<li>集群利用率：可以动态分配群集资源以提高资源利用率。</li>
+<li>多种资源类型：可以使用多种资源类型，例如CPU和内存。</li>
+<li>可扩展性：提高了数据中心的处理能力。YARN的ResourceManager仅专注于调度，并在集群扩展到管理数PB数据的数千个节点时保持同步。</li>
+<li>兼容性：Hadoop 1.x的MapReduce应用程序可在YARN上运行，而不会破坏现有流程。YARN与Hadoop的先前稳定版本保持API兼容性。</li>
+</ul>
+<h2 id="YARN-通信协议"><a href="#YARN-通信协议" class="headerlink" title="YARN 通信协议"></a>YARN 通信协议</h2><p>RPC 协议是连接各个组件的“大动脉”，了解不同组件之间的 RPC 协议有助于更深入地理解学习 YARN 框架。在 YARN 中，任何两个需相互通信的组件之间仅有一个 RPC 协议，而对于任何一个 RPC 协议，通信双方有一端是 Client，另一端为 Server，且 Client 总是主动连接 Server 的，因此， YARN 实际上采用的是拉式（pull-based）通信模型。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356727.jpg" alt="img"></p>
+<p>如上图所示，箭头指向的组件是 RPC Server，而箭头尾部的组件是 RPC Client， YARN 主要由以下几个 RPC 协议组成 ：</p>
+<ul>
+<li>JobClient（作业提交客户端 ）与 RM 之间的协议 —ApplicationClientProtocol ：JobClient 通过该 RPC 协议提交应用程序、查询应用程序状态等。</li>
+<li>Admin（管理员）与 RM 之间的通信协议—ResourceManagerAdministrationProtocol：Admin 通过该 RPC 协议更新系统配置文件，比如节点黑白名单、用户队列权限等。</li>
+<li>AM 与 RM 之间的协议—ApplicationMasterProtocol ： AM 通过该 RPC 协议向 RM注册和撤销自己，并为各个任务申请资源。</li>
+<li>AM 与 NM 之 间 的 协 议 —ContainerManagementProtocol ： AM 通 过 该 RPC 要 求NM 启动或者停止Container，获取各个 Container 的使用状态等信息。</li>
+<li>NM 与 RM 之间的协议—ResourceTracker： NM 通过该 RPC 协议向 RM 注册，并定时发送心跳信息汇报当前节点的资源使用情况和 Container 运行情况。</li>
+</ul>
+<p>为了提高 Hadoop 的向后兼容性和不同版本之间的兼容性， YARN 中的序列化框架采用了 Google 开源的 Protocol Buffers。</p>
+<h2 id="YARN-工作流程"><a href="#YARN-工作流程" class="headerlink" title="YARN 工作流程"></a>YARN 工作流程</h2><p>运行在Hadoop YARN 上的应用程序主要分为两类 ：短应用程序和长应用程序。</p>
+<ul>
+<li>短应用程序：指一定时间内（可能是秒级、分钟级或小时级，尽管天级别或者更长时间的也存在，但非常少）可运行完成并正常退出的应用程序，比如 MapReduce 作业、 Spark 作业等；</li>
+<li>长应用程序：指不出意外，永不终止运行的应用程序，通常是一些服务，比如 Storm Service（主要包括 Nimbus 和 Supervisor 两类服务）， Flink（包括 JobManager和 TaskManager两类服务） 等，而它们本身作为一个框架提供了编程接口供用户使用。</li>
+</ul>
+<p>尽管这两类应用程序作用不同，一类直接运行数据处理程序，一类用于部署服务（服务之上再运行数据处理程序），但运行在 YARN 上的流程是相同的。</p>
+<p>当用户向 YARN 中提交一个应用程序后， YARN 将分两个阶段运行该应用程序 ：第一个阶段是启动 ApplicationMaster ；第二个阶段是由 ApplicationMaster 创建应用程序，为它申请资源，并监控它的整个运行过程，直到运行完成。 </p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356824.png" alt="img"> </p>
+<p>如上图所示， YARN 的工作流程分为以下几个步骤：</p>
+<ul>
+<li>第1步、用户向YARN中提交应用程序，其中包括ApplicationMaster程序、启动ApplicationMaster 的命令、用户程序等。</li>
+<li>第2步、ResourceManager 为该应用程序分配第一个Container，并与对应的 NodeManager通信，要求它在这个 Container 中启动应用程序的 ApplicationMaster。</li>
+<li>第3步、ApplicationMaster 首先向 ResourceManager 注册，这样用户可以直接通过ResourceManage 查看应用程序的运行状态，然后它将为各个任务申请资源，并监控它的运行状态，直到运行结束，即重复步骤 4~7。</li>
+<li>第4步、ApplicationMaster 采用轮询的方式通过 RPC 协议向 ResourceManager 申请和领取资源。</li>
+<li>第5步、一旦 ApplicationMaster 申请到资源后，便与对应的 NodeManager 通信，要求它启动任务。</li>
+<li>第6步、NodeManager 为任务设置好运行环境（包括环境变量、 JAR 包、二进制程序等）后，将任务启动命令写到一个脚本中，并通过运行该脚本启动任务。</li>
+<li>第7步、各个任务通过某个 RPC 协议向 ApplicationMaster 汇报自己的状态和进度，以让 ApplicationMaster 随时掌握各个任务的运行状态，从而可以在任务失败时重新启动任务。在应用程序运行过程中，用户可随时通过 RPC 向 ApplicationMaster 查询应用程序的当前运行状态。</li>
+<li>第8步、应用程序运行完成后，ApplicationMaster 向 ResourceManager 注销并关闭自己。</li>
+</ul>
+<p>YARN 正是一个资源管理系统，它的出现弱化了计算框架之争，引入 YARN 这一层后，各种计算框架可各自发挥自己的优势，并由 YARN 进行统一管理，进而运行在一个大集群上。截至本书出版时，各种开源系统都在开发 YARN 版本，包括 MapReduce、 Spark、 Storm、 Flink等。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202251356847.jpg" alt="img"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/286e9c8d.html">http://www.lvxueyang.vip/post/286e9c8d.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Hadoop/">Hadoop</a><a class="post-meta__tags" href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a><a class="post-meta__tags" href="/tags/YARN/">YARN</a></div><div class="post_share"><div class="social-share" data-image="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/8ee0298.html"><img class="prev-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">MapReduce高阶编程</div></div></a></div><div class="next-post pull-right"><a href="/post/47be7482.html"><img class="next-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">MapReduce整体流程与核心源码解读</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/60651487.html" title="HDFS数据安全与隐私保护"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-11</div><div class="title">HDFS数据安全与隐私保护</div></div></a></div><div><a href="/post/90f10c53.html" title="HDFS入门与应用开发"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-06</div><div class="title">HDFS入门与应用开发</div></div></a></div><div><a href="/post/c6918f16.html" title="HDFS数据存储与数据管理"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-06</div><div class="title">HDFS数据存储与数据管理</div></div></a></div><div><a href="/post/9c8272d8.html" title="HDFS核心源码分析"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-11</div><div class="title">HDFS核心源码分析</div></div></a></div><div><a href="/post/287fd37b.html" title="HDFS架构原理"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-10</div><div class="title">HDFS架构原理</div></div></a></div><div><a href="/post/f9e87748.html" title="HDFS集群管理与运维"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-09</div><div class="title">HDFS集群管理与运维</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#YARN-%E6%A1%86%E6%9E%B6%E6%A6%82%E8%BF%B0"><span class="toc-text">YARN 框架概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#YARN%E4%BA%A7%E7%94%9F%E5%92%8C%E5%8F%91%E5%B1%95%E7%AE%80%E5%8F%B2"><span class="toc-text">YARN产生和发展简史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hadoop%E6%BC%94%E8%BF%9B%E9%98%B6%E6%AE%B5"><span class="toc-text">Hadoop演进阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B50%EF%BC%9AAd-Hoc%E9%9B%86%E7%BE%A4"><span class="toc-text">阶段0：Ad Hoc集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B51%EF%BC%9AHOD%E9%9B%86%E7%BE%A4"><span class="toc-text">阶段1：HOD集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B52%EF%BC%9A%E5%85%B1%E4%BA%AB%E8%AE%A1%E7%AE%97%E9%9B%86%E7%BE%A4"><span class="toc-text">阶段2：共享计算集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B54%EF%BC%9AYARN%E9%9B%86%E7%BE%A4"><span class="toc-text">阶段4：YARN集群</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9YARN%E7%9A%84%E9%9C%80%E6%B1%82"><span class="toc-text">对YARN的需求</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YARN%E7%AE%80%E4%BB%8B"><span class="toc-text">YARN简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YARN%E4%B8%8EMRv1%E5%8C%BA%E5%88%AB"><span class="toc-text">YARN与MRv1区别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MRv1-%E6%9E%B6%E6%9E%84"><span class="toc-text">MRv1 架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MRv1-%E7%BC%BA%E9%99%B7"><span class="toc-text">MRv1 缺陷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#YARN-%E6%9E%B6%E6%9E%84"><span class="toc-text">YARN 架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#YARN-%E4%B8%8E-MRv1-%E5%8C%BA%E5%88%AB"><span class="toc-text">YARN 与 MRv1 区别</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#YARN-%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2"><span class="toc-text">YARN 集群部署</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E8%A7%92%E8%89%B2"><span class="toc-text">集群角色</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92"><span class="toc-text">集群规划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-text">环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-text">软件目录结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-text">关闭防火墙</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A6%81%E7%94%A8%E7%B3%BB%E7%BB%9FSELINUX"><span class="toc-text">禁用系统SELINUX</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-4-%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="toc-text">2.3.4  配置时间同步</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IP%E4%B8%8E%E4%B8%BB%E6%9C%BA%E5%90%8D%E6%98%A0%E5%B0%84"><span class="toc-text">IP与主机名映射</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-6-SSH-%E6%97%A0%E5%AF%86%E9%92%A5%E7%99%BB%E5%BD%95"><span class="toc-text">2.3.6  SSH 无密钥登录</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85JDK8"><span class="toc-text">安装JDK8</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS-%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2"><span class="toc-text">HDFS 集群部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#step1%E3%80%81%E8%A7%A3%E5%8E%8B%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="toc-text">step1、解压软件包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step2%E3%80%81%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-text">step2、配置环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step3%E3%80%81hadoop-env-sh"><span class="toc-text">step3、hadoop-env.sh</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step4%E3%80%81core-site-xml"><span class="toc-text">step4、core-site.xml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step5%E3%80%81hdfs-site-xml"><span class="toc-text">step5、hdfs-site.xml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step6%E3%80%81workers"><span class="toc-text">step6、workers</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step7%E3%80%81%E5%88%86%E5%8F%91%E9%85%8D%E7%BD%AE"><span class="toc-text">step7、分发配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step8%E3%80%81%E6%A0%BC%E5%BC%8F%E5%8C%96HDFS"><span class="toc-text">step8、格式化HDFS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step9%E3%80%81%E5%90%AF%E5%8A%A8HDFS%E9%9B%86%E7%BE%A4"><span class="toc-text">step9、启动HDFS集群</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YARN-%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2-1"><span class="toc-text">YARN 集群部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#step1%E3%80%81yarn-site-xml"><span class="toc-text">step1、yarn-site.xml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step2%E3%80%81mapred-site-xml"><span class="toc-text">step2、mapred-site.xml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step3%E3%80%81%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE"><span class="toc-text">step3、同步配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step4%E3%80%81%E5%90%AF%E5%8A%A8YARN%E9%9B%86%E7%BE%A4"><span class="toc-text">step4、启动YARN集群</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step5%E3%80%81%E5%90%AF%E5%8A%A8MR%E5%8E%86%E5%8F%B2%E6%9C%8D%E5%8A%A1"><span class="toc-text">step5、启动MR历史服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step6%E3%80%81%E8%BF%90%E8%A1%8C%E8%AF%8D%E9%A2%91%E7%BB%9F%E8%AE%A1"><span class="toc-text">step6、运行词频统计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RM-%E9%87%8D%E5%90%AF%E6%9C%BA%E5%88%B6"><span class="toc-text">RM 重启机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E4%BF%9D%E7%95%99%E5%B7%A5%E4%BD%9C%E7%9A%84RM%E9%87%8D%E5%90%AF"><span class="toc-text">不保留工作的RM重启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E7%95%99%E5%B7%A5%E4%BD%9C%E7%9A%84RM%E9%87%8D%E5%90%AF"><span class="toc-text">保留工作的RM重启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E7%94%A8RM%E9%87%8D%E5%90%AF%E6%9C%BA%E5%88%B6"><span class="toc-text">启用RM重启机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8EZookeeper%E8%BD%AC%E6%80%81%E7%AE%A1%E7%90%86"><span class="toc-text">基于Zookeeper转态管理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YARN-HA-%E9%9B%86%E7%BE%A4"><span class="toc-text">YARN HA 集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E5%8F%AF%E7%94%A8-HA-%E6%9E%B6%E6%9E%84"><span class="toc-text">高可用 HA 架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB%E5%8E%9F%E7%90%86"><span class="toc-text">故障转移原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-Zookeeper-%E9%9B%86%E7%BE%A4"><span class="toc-text">安装 Zookeeper 集群</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#step1%E3%80%81%E8%A7%A3%E5%8E%8BZookeeper"><span class="toc-text">step1、解压Zookeeper</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#step2%E3%80%81%E9%85%8D%E7%BD%AEzoo-cfg"><span class="toc-text">step2、配置zoo.cfg</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#step3%E3%80%81%E5%88%9B%E5%BB%BAmyid%E6%96%87%E4%BB%B6"><span class="toc-text">step3、创建myid文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#step4%E3%80%81%E9%85%8D%E7%BD%AEzkEnv-sh"><span class="toc-text">step4、配置zkEnv.sh</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#step5%E3%80%81%E5%88%86%E5%8F%91%E9%85%8D%E7%BD%AE"><span class="toc-text">step5、分发配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#step6%E3%80%81%E5%90%AF%E5%8A%A8%E9%9B%86%E7%BE%A4"><span class="toc-text">step6、启动集群</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HA-%E9%85%8D%E7%BD%AE%E5%8F%8A%E6%B5%8B%E8%AF%95"><span class="toc-text">HA 配置及测试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#step1%E3%80%81%E9%85%8D%E7%BD%AEyarn-site-xml"><span class="toc-text">step1、配置yarn-site.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#step2%E3%80%81%E5%90%AF%E5%8A%A8HA%E9%9B%86%E7%BE%A4"><span class="toc-text">step2、启动HA集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#step3%E3%80%81%E9%AA%8C%E8%AF%81%E6%95%85%E9%9A%9C%E5%88%87%E6%8D%A2"><span class="toc-text">step3、验证故障切换</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#YARN-%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8F%8A%E5%8E%9F%E7%90%86"><span class="toc-text">YARN 架构组件及原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#YARN-%E4%BD%93%E7%B3%BB%E6%9E%B6%E6%9E%84"><span class="toc-text">YARN 体系架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YARN%E7%BB%84%E4%BB%B6%E5%8F%8A%E5%8A%9F%E8%83%BD"><span class="toc-text">YARN组件及功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ResourceManager"><span class="toc-text">ResourceManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ApplicationMaster"><span class="toc-text">ApplicationMaster</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NodeManager"><span class="toc-text">NodeManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Container"><span class="toc-text">Container</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YARN-%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE"><span class="toc-text">YARN 通信协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YARN-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">YARN 工作流程</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

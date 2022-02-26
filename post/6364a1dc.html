@@ -1,0 +1,901 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Redis源码之数据结构 | 牧马人的忧伤</title><meta name="keywords" content="Redis源码,c源码"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Redis字符串的实现实现字符串的要求 能支持丰富且高效的字符串操作，比如字符串追加、拷贝、比较、获取长度等； 能保存任意的二进制数据，比如图片等； 能尽可能地节省内存开销。  在C语言中可以使用char*字符数组来实现字符串。同时，C语言标准库string.h中也定义了多种字符串的操作函数，比如字符串比较函数strcmp、字符串长度计算函数strlen、字符串追加函数strcat等，这样就便于开">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis源码之数据结构">
+<meta property="og:url" content="http://www.lvxueyang.vip/post/6364a1dc.html">
+<meta property="og:site_name" content="牧马人的忧伤">
+<meta property="og:description" content="Redis字符串的实现实现字符串的要求 能支持丰富且高效的字符串操作，比如字符串追加、拷贝、比较、获取长度等； 能保存任意的二进制数据，比如图片等； 能尽可能地节省内存开销。  在C语言中可以使用char*字符数组来实现字符串。同时，C语言标准库string.h中也定义了多种字符串的操作函数，比如字符串比较函数strcmp、字符串长度计算函数strlen、字符串追加函数strcat等，这样就便于开">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg">
+<meta property="article:published_time" content="2022-01-15T08:24:44.935Z">
+<meta property="article:modified_time" content="2022-01-15T08:25:15.894Z">
+<meta property="article:author" content="YangShen">
+<meta property="article:tag" content="Redis源码">
+<meta property="article:tag" content="c源码">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/6364a1dc"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Redis源码之数据结构',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-01-15 16:25:15'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Redis源码之数据结构</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-15T08:24:44.935Z" title="发表于 2022-01-15 16:24:44">2022-01-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-15T08:25:15.894Z" title="更新于 2022-01-15 16:25:15">2022-01-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Redis%E6%BA%90%E7%A0%81/">Redis源码</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">28.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>93分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Redis源码之数据结构"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Redis字符串的实现"><a href="#Redis字符串的实现" class="headerlink" title="Redis字符串的实现"></a>Redis字符串的实现</h1><h2 id="实现字符串的要求"><a href="#实现字符串的要求" class="headerlink" title="实现字符串的要求"></a>实现字符串的要求</h2><ul>
+<li>能支持丰富且高效的字符串操作，比如字符串追加、拷贝、比较、获取长度等；</li>
+<li>能保存任意的二进制数据，比如图片等；</li>
+<li>能尽可能地节省内存开销。</li>
+</ul>
+<p>在C语言中可以使用<strong>char*字符数组</strong>来实现字符串。同时，C语言标准库string.h中也定义了多种字符串的操作函数，比如字符串比较函数strcmp、字符串长度计算函数strlen、字符串追加函数strcat等，这样就便于开发者直接调用这些函数来完成字符串操作。</p>
+<p><strong>Redis好像完全可以复用C语言中对字符串的实现呀？</strong></p>
+<p>但实际上，我们在使用C语言字符串时，经常需要手动检查和分配字符串空间，而这就会增加代码开发的工作量。而且，图片等数据还无法用字符串保存，也就限制了应用范围。</p>
+<p>Redis设计了<strong>简单动态字符串</strong>（Simple Dynamic String，SDS）的结构，用来表示字符串。相比于C语言中的字符串实现，SDS这种字符串的实现方式，会<strong>提升字符串的操作效率，并且可以用来保存二进制数据</strong>。</p>
+<h2 id="为什么Redis不用char-？"><a href="#为什么Redis不用char-？" class="headerlink" title="为什么Redis不用char*？"></a>为什么Redis不用char*？</h2><h3 id="char-的结构设计"><a href="#char-的结构设计" class="headerlink" title="char*的结构设计"></a>char*的结构设计</h3><p><code>char*</code>字符数组的结构很简单，就是<strong>一块连续的内存空间，依次存放了字符串中的每一个字符</strong>。比如，下图显示的就是字符串“redis”的<code>char*</code>数组结构。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151450512.png" alt="image-20220115145003467"></p>
+<p>从图中可以看到，字符数组的最后一个字符是“\0”，这个字符的作用是什么呢？其实，C语言在对字符串进行操作时，char*指针只是指向字符数组的起始位置，而<strong>字符数组的结尾位置就用“\0”表示，意思是指字符串的结束</strong>。</p>
+<p>这样一来，C语言标准库中字符串的操作函数，就会通过检查字符数组中是否有“\0”，来判断字符串是否结束。比如，strlen函数就是一种字符串操作函数，它可以返回一个字符串的长度。这个函数会遍历字符数组中的每一个字符，并进行计数，直到检查的字符为“\0”。此时，strlen函数会停止计数，返回已经统计到的字符个数。下图显示了strlen函数的执行流程：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151450900.png" alt="image-20220115145040837"></p>
+<p>我们再通过一段代码，来看下<strong>“\0”结束字符对字符串长度的影响</strong>。这里我创建了两个字符串变量a和b，分别给它们赋值为“red\0is”和“redis\0”。然后，我用strlen函数计算这两个字符串长度，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> *a = <span class="string">&quot;red\0is&quot;</span>;</span><br><span class="line">	<span class="keyword">char</span> *b = <span class="string">&quot;redis\0&quot;</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%lu\n&quot;</span>, <span class="built_in">strlen</span>(a));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%lu\n&quot;</span>, <span class="built_in">strlen</span>(b));</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当程序执行完这段代码后，输出的结果分别是3和5，表示a和b的长度分别是3个字符和5个字符。这是因为a中在“red”这3个字符后，就有了结束字符“\0”，而b中的结束字符是在“redis”5个字符后。</p>
+<p>也就是说，char*字符串以“\0”表示字符串的结束，其实会给我们保存数据带来一定的负面影响。如果我们要保存的数据中，本身就有“\0”，那么数据在“\0”处就会被截断，而这就<strong>不符合Redis希望能保存任意二进制数据的需求</strong>了。</p>
+<h3 id="操作函数复杂度"><a href="#操作函数复杂度" class="headerlink" title="操作函数复杂度"></a>操作函数复杂度</h3><p>而除了char*字符数组结构的设计问题以外，使用“\0”作为字符串的结束字符，虽然可以让字符串操作函数判断字符串的结束位置，但它也会带来另一方面的负面影响，也就是会导致操作函数的复杂度增加。</p>
+<p>我还是以strlen函数为例，该函数需要遍历字符数组中的每一个字符，才能得到字符串长度，所以这个操作函数的复杂度是O(N)。</p>
+<p>我们再来看另一个常用的操作函数：<strong>字符串追加函数strcat</strong>。strcat函数是将一个源字符串src追加到一个目标字符串的末尾。该函数的代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span> *<span class="title">strcat</span><span class="params">(<span class="keyword">char</span> *dest, <span class="keyword">const</span> <span class="keyword">char</span> *src)</span> </span>&#123;</span><br><span class="line">	<span class="comment">// 将目标字符串复制给tmp变量</span></span><br><span class="line">	<span class="keyword">char</span> *tmp = dest;</span><br><span class="line">	<span class="comment">// 用一个while循环遍历目标字符串，直到遇到“\0”跳出循环，指向目标字符串的末尾</span></span><br><span class="line">	<span class="keyword">while</span>(*dest)</span><br><span class="line">	    dest++;</span><br><span class="line">	<span class="comment">// 将源字符串中的每个字符逐一赋值到目标字符串中，直到遇到结束字符</span></span><br><span class="line">	<span class="keyword">while</span>((*dest++ = *src++) != <span class="string">&#x27;\0&#x27;</span> )</span><br><span class="line">	<span class="keyword">return</span> tmp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从代码中可以看到，strcat函数和strlen函数类似，复杂度都很高，也都需要先通过遍历字符串才能得到目标字符串的末尾。然后对于strcat函数来说，还要再遍历源字符串才能完成追加。另外，它在把源字符串追加到目标字符串末尾时，还需要确认目标字符串具有足够的可用空间，否则就无法追加。</p>
+<p>所以，这就要求开发人员在调用strcat时，要保证目标字符串有足够的空间，不然就需要开发人员动态分配空间，从而增加了编程的复杂度。而操作函数的复杂度一旦增加，就会影响字符串的操作效率，这就<strong>不符合Redis对字符串高效操作的需求</strong>了。</p>
+<h2 id="SDS的设计思想"><a href="#SDS的设计思想" class="headerlink" title="SDS的设计思想"></a>SDS的设计思想</h2><p>因为Redis是使用C语言开发的，所以为了保证能尽量复用C标准库中的字符串操作函数，Redis保留了使用字符数组来保存实际的数据。但是，和C语言仅用字符数组不同，Redis还专门设计了SDS（即简单动态字符串）的数据结构。</p>
+<h3 id="SDS结构设计"><a href="#SDS结构设计" class="headerlink" title="SDS结构设计"></a>SDS结构设计</h3><p>首先，SDS结构里包含了一个字符数组buf[]，用来保存实际数据。同时，SDS结构里还包含了三个元数据，分别是<strong>字符数组现有长度len</strong>、<strong>分配给字符数组的空间长度alloc</strong>，以及<strong>SDS类型flags</strong>。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151454846.png" alt="image-20220115145452805"></p>
+<p>另外，如果你在Redis源码中查找过SDS的定义，那你可能会看到，Redis使用typedef给char*类型定义了一个别名，这个别名就是sds，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> *sds;</span><br></pre></td></tr></table></figure>
+
+<p>其实，这是因为SDS本质还是字符数组，只是在字符数组基础上增加了额外的元数据。在Redis中需要用到字符数组时，就直接使用sds这个别名。</p>
+<p>同时，在创建新的字符串时，Redis会调用SDS创建函数sdsnewlen。sdsnewlen函数会新建sds类型变量（也就是char*类型变量），并新建SDS结构体，把SDS结构体中的数组buf[] 赋给sds类型变量。最后，sdsnewlen函数会把要创建的字符串拷贝给sds变量。下面的代码就显示了sdsnewlen函数的这个操作逻辑，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">sds <span class="title">sdsnewlen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *init, <span class="keyword">size_t</span> initlen)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">void</span> *sh;  <span class="comment">//指向SDS结构体的指针</span></span><br><span class="line">    sds s;     <span class="comment">//sds类型变量，即char*字符数组</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">    sh = s_malloc(hdrlen+initlen+<span class="number">1</span>);   <span class="comment">//新建SDS结构，并分配内存空间</span></span><br><span class="line">    ...</span><br><span class="line">    s = (<span class="keyword">char</span>*)sh+hdrlen;              <span class="comment">//sds类型变量指向SDS结构体中的buf数组，sh指向SDS结构体起始位置，hdrlen是SDS结构体中元数据的长度</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (initlen &amp;&amp; init)</span><br><span class="line">        <span class="built_in">memcpy</span>(s, init, initlen);    <span class="comment">//将要传入的字符串拷贝给sds变量s</span></span><br><span class="line">    s[initlen] = <span class="string">&#x27;\0&#x27;</span>;               <span class="comment">//变量s末尾增加\0，表示字符串结束</span></span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="SDS操作效率"><a href="#SDS操作效率" class="headerlink" title="SDS操作效率"></a>SDS操作效率</h3><p>因为SDS结构中记录了字符数组已占用的空间和被分配的空间，这就比传统C语言实现的字符串能带来更高的操作效率。</p>
+<p>我还是以字符串追加操作为例。Redis中实现字符串追加的函数是sds.c文件中的<strong>sdscatlen函数</strong>。这个函数的参数一共有三个，分别是目标字符串s、源字符串t和要追加的长度len，源码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">sds <span class="title">sdscatlen</span><span class="params">(sds s, <span class="keyword">const</span> <span class="keyword">void</span> *t, <span class="keyword">size_t</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//获取目标字符串s的当前长度</span></span><br><span class="line">    <span class="keyword">size_t</span> curlen = sdslen(s);</span><br><span class="line">    <span class="comment">//根据要追加的长度len和目标字符串s的现有长度，判断是否要增加新的空间</span></span><br><span class="line">    s = sdsMakeRoomFor(s,len);</span><br><span class="line">    <span class="keyword">if</span> (s == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="comment">//将源字符串t中len长度的数据拷贝到目标字符串结尾</span></span><br><span class="line">    <span class="built_in">memcpy</span>(s+curlen, t, len);</span><br><span class="line">    <span class="comment">//设置目标字符串的最新长度：拷贝前长度curlen加上拷贝长度</span></span><br><span class="line">    sdssetlen(s, curlen+len);</span><br><span class="line">    <span class="comment">//拷贝后，在目标字符串结尾加上\0</span></span><br><span class="line">    s[curlen+len] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过分析这个函数的源码，我们可以看到sdscatlen的实现较为简单，其执行过程分为三步：</p>
+<ul>
+<li>首先，获取目标字符串的当前长度，并调用sdsMakeRoomFor函数，根据当前长度和要追加的长度，判断是否要给目标字符串新增空间。这一步主要是保证，目标字符串有足够的空间接收追加的字符串。</li>
+<li>其次，在保证了目标字符串的空间足够后，将源字符串中指定长度len的数据追加到目标字符串。</li>
+<li>最后，设置目标字符串的最新长度。</li>
+</ul>
+<p>我画了一张图，显示了sdscatlen的执行过程，你可以看下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151459214.png" alt="image-20220115145924152"></p>
+<p>所以，到这里你就能发现，和C语言中的字符串操作相比，SDS通过记录字符数组的使用长度和分配空间大小，避免了对字符串的遍历操作，降低了操作开销，进一步就可以帮助诸多字符串操作更加高效地完成，比如创建、追加、复制、比较等，这一设计思想非常值得我们学习。</p>
+<p>此外，SDS把目标字符串的<strong>空间检查和扩容封装在了sdsMakeRoomFor函数中</strong>，并且在涉及字符串空间变化的操作中，如追加、复制等，会直接调用该函数。</p>
+<p>这一设计实现，就避免了开发人员因忘记给目标字符串扩容，而导致操作失败的情况。比如，我们使用函数strcpy (char *dest, const char *src)时，如果src的长度大于dest的长度，代码中我们也没有做检查的话，就会造成内存溢出。所以这种封装操作的设计思想，同样值得我们学习。</p>
+<h2 id="紧凑型字符串结构的编程技巧"><a href="#紧凑型字符串结构的编程技巧" class="headerlink" title="紧凑型字符串结构的编程技巧"></a>紧凑型字符串结构的编程技巧</h2><p>SDS结构中有一个元数据flags，表示的是SDS类型。事实上，SDS一共设计了5种类型，分别是sdshdr5、sdshdr8、sdshdr16、sdshdr32和sdshdr64。这5种类型的<strong>主要区别就在于</strong>，它们数据结构中的字符数组现有长度len和分配空间长度alloc，这两个元数据的数据类型不同。</p>
+<p>因为sdshdr5这一类型Redis已经不再使用了，所以我们这里主要来了解下剩余的4种类型。以sdshdr8为例，它的定义如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len; <span class="comment">/* 字符数组现有长度*/</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc; <span class="comment">/* 字符数组的已分配空间，不包括结构体和\0结束字符*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* SDS类型*/</span></span><br><span class="line">    <span class="keyword">char</span> buf[]; <span class="comment">/*字符数组*/</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到，现有长度len和已分配空间alloc的数据类型都是uint8_t。<strong>uint8_t是8位无符号整型</strong>，会占用1字节的内存空间。当字符串类型是sdshdr8时，它能表示的字符数组长度（包括数组最后一位\0）不会超过256字节（2的8次方等于256）。</p>
+<p>而对于sdshdr16、sdshdr32、sdshdr64三种类型来说，它们的len和alloc数据类型分别是uint16_t、uint32_t、uint64_t，即它们能表示的字符数组长度，分别不超过2的16次方、32次方和64次方。这两个元数据占用的内存空间在sdshdr16、sdshdr32、sdshdr64类型中，则分别是2字节、4字节和8字节。</p>
+<p>实际上，<strong>SDS之所以设计不同的结构头（即不同类型），是为了能灵活保存不同大小的字符串，从而有效节省内存空间。</strong>因为在保存不同大小的字符串时，结构头占用的内存空间也不一样，这样一来，在保存小字符串时，结构头占用空间也比较少。</p>
+<p>否则，假设SDS都设计一样大小的结构头，比如都使用uint64_t类型表示len和alloc，那么假设要保存的字符串是10个字节，而此时结构头中len和alloc本身就占用了16个字节了，比保存的数据都多了。所以这样的设计对内存并不友好，也不满足Redis节省内存的需求。</p>
+<p>好了，除了设计不同类型的结构头，Redis在编程上还<strong>使用了专门的编译优化来节省内存空间</strong>。在刚才介绍的sdshdr8结构定义中，我们可以看到，在struct和sdshdr8之间使用了<code>__attribute__((__packed__))</code>，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span></span></span><br></pre></td></tr></table></figure>
+
+<p>其实这里，<code>__attribute__ ((__packed__))</code>的作用就是告诉编译器，在编译sdshdr8结构时，不要使用字节对齐的方式，而是<strong>采用紧凑的方式分配内存</strong>。这是因为在默认情况下，编译器会按照8字节对齐的方式，给变量分配内存。也就是说，即使一个变量的大小不到8个字节，编译器也会给它分配8个字节。</p>
+<p>为了方便你理解，我给你举个例子。假设我定义了一个结构体s1，它有两个成员变量，类型分别是char和int，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	   <span class="class"><span class="keyword">struct</span> <span class="title">s1</span> &#123;</span></span><br><span class="line">	      <span class="keyword">char</span> a;</span><br><span class="line">	      <span class="keyword">int</span> b;</span><br><span class="line">	   &#125; ts1;</span><br><span class="line">	   <span class="built_in">printf</span>(<span class="string">&quot;%lu\n&quot;</span>, <span class="keyword">sizeof</span>(ts1));</span><br><span class="line">	   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>虽然char类型占用1个字节，int类型占用4个字节，但是如果你运行这段代码，就会发现打印出来的结果是8。这就是因为在默认情况下，编译器会给s1结构体分配8个字节的空间，而这样其中就有3个字节被浪费掉了。</p>
+<p>为了节省内存，Redis在这方面的设计上可以说是精打细算的。所以，Redis采用了<code>__attribute__ ((__packed__))</code>属性定义结构体，这样一来，结构体实际占用多少内存空间，编译器就分配多少空间。</p>
+<p>比如，我用<code>__attribute__ ((__packed__))</code>属性定义结构体s2，同样包含char和int两个类型的成员变量，代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	   <span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span>((<span class="title">packed</span>)) <span class="title">s2</span>&#123;</span></span><br><span class="line">	      <span class="keyword">char</span> a;</span><br><span class="line">	      <span class="keyword">int</span> b;</span><br><span class="line">	   &#125; ts2;</span><br><span class="line">	   <span class="built_in">printf</span>(<span class="string">&quot;%lu\n&quot;</span>, <span class="keyword">sizeof</span>(ts2));</span><br><span class="line">	   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当你运行这段代码时，你可以看到，打印的结果是5，表示编译器用了紧凑型内存分配，s2结构体只占用5个字节的空间。</p>
+<p>好了，总而言之，如果你在开发程序时，希望能节省数据结构的内存开销，就可以把<code>__attribute__ ((__packed__))</code>这个编程方法用起来。</p>
+<h2 id="小总结"><a href="#小总结" class="headerlink" title="小总结"></a>小总结</h2><ul>
+<li>C语言中使用char*实现字符串的不足，主要是因为使用“\0”表示字符串结束，操作时需遍历字符串，效率不高，并且无法完整表示包含“\0”的数据，因而这就无法满足Redis的需求。</li>
+<li>Redis中字符串的设计思想与实现方法。Redis专门设计了SDS数据结构，在字符数组的基础上，增加了字符数组长度和分配空间大小等元数据。这样一来，需要基于字符串长度进行的追加、复制、比较等操作，就可以直接读取元数据，效率也就提升了。而且，SDS不通过字符串中的“\0”字符判断字符串结束，而是直接将其作为二进制数据处理，可以用来保存图片等二进制数据。</li>
+<li>SDS中是通过设计不同SDS类型来表示不同大小的字符串，并使用<code>__attribute__ ((__packed__))</code>这个编程小技巧，来实现紧凑型内存布局，达到节省内存的目的。</li>
+</ul>
+<h1 id="Redis-Hash表的实现"><a href="#Redis-Hash表的实现" class="headerlink" title="Redis Hash表的实现"></a>Redis Hash表的实现</h1><p>对于Redis键值数据库来说，Hash表既是键值对中的一种值类型，同时，Redis也使用一个全局Hash表来保存所有的键值对，从而既满足应用存取Hash结构数据需求，又能提供快速查询功能。</p>
+<p>Hash表应用如此广泛的一个重要原因，就是从理论上来说，它能以O(1)的复杂度快速查询数据。</p>
+<p>Hash表这个结构也并不难理解，但是在实际应用Hash表时，当数据量不断增加，它的性能就经常会受到<strong>哈希冲突</strong>和<strong>rehash开销</strong>的影响。</p>
+<p>Redis是怎么很好地解决这两个问题的？</p>
+<p>Redis为我们提供了一个经典的Hash表实现方案。针对哈希冲突，Redis采用了<strong>链式哈希</strong>，在不扩容哈希表的前提下，将具有相同哈希值的数据链接起来，以便这些数据在表中仍然可以被查询到；对于rehash开销，Redis实现了<strong>渐进式rehash设计</strong>，进而缓解了rehash操作带来的额外开销对系统的性能影响。</p>
+<h2 id="Redis如何实现链式哈希？"><a href="#Redis如何实现链式哈希？" class="headerlink" title="Redis如何实现链式哈希？"></a>Redis如何实现链式哈希？</h2><h3 id="什么是哈希冲突？"><a href="#什么是哈希冲突？" class="headerlink" title="什么是哈希冲突？"></a>什么是哈希冲突？</h3><p>实际上，一个最简单的Hash表就是一个数组，数组里的每个元素是一个哈希桶（也叫做Bucket），第一个数组元素被编为哈希桶0，以此类推。当一个键值对的键经过Hash函数计算后，再对数组元素个数取模，就能得到该键值对对应的数组元素位置，也就是第几个哈希桶。</p>
+<p>如下图所示，key1经过哈希计算和哈希值取模后，就对应哈希桶1，类似的，key3和key16分别对应哈希桶7和桶4。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151506763.png" alt="image-20220115150604712"></p>
+<p>从图上我们还可以看到，需要写入Hash表的键空间一共有16个键，而Hash表的空间大小只有8个元素，这样就会导致有些键会对应到相同的哈希桶中。</p>
+<p>我们在实际应用Hash表时，其实一般很难预估要保存的数据量，如果我们一开始就创建一个非常大的哈希表，当数据量较小时，就会造成空间浪费。所以，我们通常会给哈希表设定一个初始大小，而当数据量增加时，键空间的大小就会大于Hash表空间大小了。</p>
+<p>也正是由于键空间会大于Hash表空间，这就导致在用Hash函数把键映射到Hash表空间时，不可避免地会出现不同的键被映射到数组的同一个位置上。而如果同一个位置只能保存一个键值对，就会导致Hash表保存的数据非常有限，这就是我们常说的<strong>哈希冲突</strong>。</p>
+<p>比如下图中，key3和key100都被映射到了Hash表的桶5中，这样，当桶5只能保存一个key时，key3和key100就会有一个key无法保存到哈希表中了。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151506547.png" alt="image-20220115150623502"></p>
+<p>那么我们该如何解决哈希冲突呢？可以考虑使用以下两种解决方案：</p>
+<ul>
+<li>第一种方案，就是我接下来要给你介绍的<strong>链式哈希</strong>。这里你需要先知道，链式哈希的链不能太长，否则会降低Hash表性能。</li>
+<li>第二种方案，就是当链式哈希的链长达到一定长度时，我们可以使用<strong>rehash</strong>。不过，执行rehash本身开销比较大，所以就需要采用我稍后会给你介绍的渐进式rehash设计。</li>
+</ul>
+<h3 id="链式哈希如何设计与实现？"><a href="#链式哈希如何设计与实现？" class="headerlink" title="链式哈希如何设计与实现？"></a>链式哈希如何设计与实现？</h3><p>所谓的链式哈希，就是<strong>用一个链表把映射到Hash表同一桶中的键给连接起来</strong>。</p>
+<p>首先，我们需要了解Redis源码中对Hash表的实现。Redis中和Hash表实现相关的文件主要是<strong>dict.h</strong>和<strong>dict.c</strong>。其中，dict.h文件定义了Hash表的结构、哈希项，以及Hash表的各种操作函数，而dict.c文件包含了Hash表各种操作的具体实现代码。</p>
+<p>在dict.h文件中，Hash表被定义为一个二维数组（dictEntry **table），这个数组的每个元素是一个指向哈希项（dictEntry）的指针。下面的代码展示的就是在dict.h文件中对Hash表的定义，你可以看下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span> &#123;</span></span><br><span class="line">    dictEntry **table; <span class="comment">//二维数组</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> size; <span class="comment">//Hash表大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> sizemask;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> used;</span><br><span class="line">&#125; dictht;</span><br></pre></td></tr></table></figure>
+
+<p>那么为了实现链式哈希， Redis在每个dictEntry的结构设计中，<strong>除了包含指向键和值的指针，还包含了指向下一个哈希项的指针</strong>。如下面的代码所示，dictEntry结构体中包含了指向另一个dictEntry结构的<strong>指针*next</strong>，这就是用来实现链式哈希的：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span> *key;</span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="keyword">void</span> *val;</span><br><span class="line">        <span class="keyword">uint64_t</span> u64;</span><br><span class="line">        <span class="keyword">int64_t</span> s64;</span><br><span class="line">        <span class="keyword">double</span> d;</span><br><span class="line">    &#125; v;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125; dictEntry;</span><br></pre></td></tr></table></figure>
+
+<p>除了用于实现链式哈希的指针外，这里还有一个值得注意的地方，就是在dictEntry结构体中，键值对的值是由一个<strong>联合体v</strong>定义的。这个联合体v中包含了指向实际值的指针*val，还包含了无符号的64位整数、有符号的64位整数，以及double类的值。</p>
+<p>我之所以要提醒你注意这里，其实是为了说明，<strong>这种实现方法是一种节省内存的开发小技巧</strong>，非常值得学习。因为当值为整数或双精度浮点数时，由于其本身就是64位，就可以不用指针指向了，而是可以直接存在键值对的结构体中，这样就避免了再用一个指针，从而节省了内存空间。</p>
+<p>别着急，我就拿刚才的例子来说明一下，key3和key100都被映射到了Hash表的桶5中。而当使用了链式哈希，桶5就不会只保存key3或key100，而是会用一个链表把key3和key100连接起来，如下图所示。当有更多的key被映射到桶5时，这些key都可以用链表串接起来，以应对哈希冲突。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151508773.png" alt="image-20220115150820724"></p>
+<p>这样，当我们要查询key100时，可以先通过哈希函数计算，得到key100的哈希值被映射到了桶5中。然后，我们再逐一比较桶5中串接的key，直到查找到key100。如此一来，我们就能在链式哈希中找到所查的哈希项了。</p>
+<p>不过，链式哈希也存在局限性，那就是随着链表长度的增加，Hash表在一个位置上查询哈希项的耗时就会增加，从而增加了Hash表的整体查询时间，这样也会导致Hash表的性能下降。</p>
+<h2 id="Redis如何实现rehash？"><a href="#Redis如何实现rehash？" class="headerlink" title="Redis如何实现rehash？"></a>Redis如何实现rehash？</h2><p>rehash操作，其实就是指扩大Hash表空间。而Redis实现rehash的基本思路是这样的：</p>
+<ul>
+<li>首先，Redis准备了两个哈希表，用于rehash时交替保存数据。</li>
+</ul>
+<p>我在前面给你介绍过，Redis在dict.h文件中使用dictht结构体定义了Hash表。不过，在实际使用Hash表时，Redis又在dict.h文件中，定义了一个dict结构体。这个结构体中有一个数组（ht[2]），包含了两个Hash表ht[0]和ht[1]。dict结构体的代码定义如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span> &#123;</span></span><br><span class="line">    …</span><br><span class="line">    dictht ht[<span class="number">2</span>]; <span class="comment">//两个Hash表，交替使用，用于rehash操作</span></span><br><span class="line">    <span class="keyword">long</span> rehashidx; <span class="comment">//Hash表是否在进行rehash的标识，-1表示没有进行rehash</span></span><br><span class="line">    …</span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>其次，在正常服务请求阶段，所有的键值对写入哈希表ht[0]。</li>
+<li>接着，当进行rehash时，键值对被迁移到哈希表ht[1]中。</li>
+<li>最后，当迁移完成后，ht[0]的空间会被释放，并把ht[1]的地址赋值给ht[0]，ht[1]的表大小设置为0。这样一来，又回到了正常服务请求的阶段，ht[0]接收和服务请求，ht[1]作为下一次rehash时的迁移表。</li>
+</ul>
+<p>这里用图，以便于你理解ht[0]和ht[1]交替使用的过程。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151510316.png" alt="image-20220115151032246"></p>
+<p>好，那么在了解了Redis交替使用两个Hash表实现rehash的基本思路后，我们还需要明确的是：在实现rehash时，都需要解决哪些问题？我认为主要有以下三点：</p>
+<ul>
+<li>什么时候触发rehash？</li>
+<li>rehash扩容扩多大？</li>
+<li>rehash如何执行？</li>
+</ul>
+<h3 id="什么时候触发rehash？"><a href="#什么时候触发rehash？" class="headerlink" title="什么时候触发rehash？"></a>什么时候触发rehash？</h3><p>首先要知道，Redis用来判断是否触发rehash的函数是 <strong>_dictExpandIfNeeded</strong>。所以接下来我们就先看看，_dictExpandIfNeeded函数中进行扩容的触发条件；然后，我们再来了解下_dictExpandIfNeeded又是在哪些函数中被调用的。</p>
+<p>实际上，_dictExpandIfNeeded函数中定义了三个扩容条件。</p>
+<ul>
+<li>条件一：ht[0]的大小为0。</li>
+<li>条件二：ht[0]承载的元素个数已经超过了ht[0]的大小，同时Hash表可以进行扩容。</li>
+<li>条件三：ht[0]承载的元素个数，是ht[0]的大小的dict_force_resize_ratio倍，其中，dict_force_resize_ratio的默认值是5。</li>
+</ul>
+<p>下面的代码就展示了_dictExpandIfNeeded函数对这三个条件的定义，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//如果Hash表为空，将Hash表扩为初始大小</span></span><br><span class="line"><span class="keyword">if</span> (d-&gt;ht[<span class="number">0</span>].size == <span class="number">0</span>) </span><br><span class="line">   <span class="keyword">return</span> dictExpand(d, DICT_HT_INITIAL_SIZE);</span><br><span class="line"> </span><br><span class="line"><span class="comment">//如果Hash表承载的元素个数超过其当前大小，并且可以进行扩容，或者Hash表承载的元素个数已是当前大小的5倍</span></span><br><span class="line"><span class="keyword">if</span> (d-&gt;ht[<span class="number">0</span>].used &gt;= d-&gt;ht[<span class="number">0</span>].size &amp;&amp;(dict_can_resize ||</span><br><span class="line">              d-&gt;ht[<span class="number">0</span>].used/d-&gt;ht[<span class="number">0</span>].size &gt; dict_force_resize_ratio))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> dictExpand(d, d-&gt;ht[<span class="number">0</span>].used*<span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么，对于条件一来说，此时Hash表是空的，所以Redis就需要将Hash表空间设置为初始大小，而这是初始化的工作，并不属于rehash操作。</p>
+<p>而条件二和三就对应了rehash的场景。因为在这两个条件中，都比较了Hash表当前承载的元素个数（d-&gt;ht[0].used）和Hash表当前设定的大小（d-&gt;ht[0].size），这两个值的比值一般称为<strong>负载因子（load factor）</strong>。也就是说，Redis判断是否进行rehash的条件，就是看load factor是否大于等于1和是否大于5。</p>
+<p>实际上，当load factor大于5时，就表明Hash表已经过载比较严重了，需要立刻进行库扩容。而当load factor大于等于1时，Redis还会再判断dict_can_resize这个变量值，查看当前是否可以进行扩容。</p>
+<p>你可能要问了，这里的dict_can_resize变量值是啥呀？其实，这个变量值是在dictEnableResize和dictDisableResize两个函数中设置的，它们的作用分别是启用和禁止哈希表执行rehash功能，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">dictEnableResize</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    dict_can_resize = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">dictDisableResize</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    dict_can_resize = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，这两个函数又被封装在了updateDictResizePolicy函数中。</p>
+<p>updateDictResizePolicy函数是用来启用或禁用rehash扩容功能的，这个函数调用dictEnableResize函数启用扩容功能的条件是：<strong>当前没有RDB子进程，并且也没有AOF子进程。</strong>这就对应了Redis没有执行RDB快照和没有进行AOF重写的场景。你可以参考下面给出的代码：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">updateDictResizePolicy</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (server.rdb_child_pid == <span class="number">-1</span> &amp;&amp; server.aof_child_pid == <span class="number">-1</span>)</span><br><span class="line">        dictEnableResize();</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        dictDisableResize();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>好，到这里我们就了解了_dictExpandIfNeeded对rehash的判断触发条件，那么现在，我们再来看下Redis会在哪些函数中，调用_dictExpandIfNeeded进行判断。</p>
+<p>首先，通过在<a target="_blank" rel="noopener" href="https://github.com/redis/redis/blob/5.0/src/dict.c">dict.c</a>文件中查看_dictExpandIfNeeded的被调用关系，我们可以发现，_dictExpandIfNeeded是被_dictKeyIndex函数调用的，而_dictKeyIndex函数又会被dictAddRaw函数调用，然后dictAddRaw会被以下三个函数调用。</p>
+<ul>
+<li>dictAdd：用来往Hash表中添加一个键值对。</li>
+<li>dictRelace：用来往Hash表中添加一个键值对，或者键值对存在时，修改键值对。</li>
+<li>dictAddorFind：直接调用dictAddRaw。</li>
+</ul>
+<p>因此，当我们往Redis中写入新的键值对或是修改键值对时，Redis都会判断下是否需要进行rehash。这里你可以参考下面给出的示意图，其中就展示了_dictExpandIfNeeded被调用的关系。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151512757.png" alt="image-20220115151222698"></p>
+<p>Redis中触发rehash操作的关键，就是_dictExpandIfNeeded函数和updateDictResizePolicy函数。_dictExpandIfNeeded函数会根据Hash表的负载因子以及能否进行rehash的标识，判断是否进行rehash，而updateDictResizePolicy函数会根据RDB和AOF的执行情况，启用或禁用rehash。</p>
+<h3 id="rehash扩容扩多大？"><a href="#rehash扩容扩多大？" class="headerlink" title="rehash扩容扩多大？"></a>rehash扩容扩多大？</h3><p>在Redis中，rehash对Hash表空间的扩容是通过<strong>调用dictExpand函数</strong>来完成的。dictExpand函数的参数有两个，<strong>一个是要扩容的Hash表，另一个是要扩到的容量</strong>，下面的代码就展示了dictExpand函数的原型定义：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dictExpand</span><span class="params">(dict *d, <span class="keyword">unsigned</span> <span class="keyword">long</span> size)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>那么，对于一个Hash表来说，我们就可以根据前面提到的_dictExpandIfNeeded函数，来判断是否要对其进行扩容。而一旦判断要扩容，Redis在执行rehash操作时，对Hash表扩容的思路也很简单，就是<strong>如果当前表的已用空间大小为size，那么就将表扩容到size*2的大小。</strong></p>
+<p>如下所示，当_dictExpandIfNeeded函数在判断了需要进行rehash后，就调用dictExpand进行扩容。这里你可以看到，rehash的扩容大小是当前ht[0]已使用大小的2倍。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">dictExpand(d, d-&gt;ht[<span class="number">0</span>].used*<span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+
+<p>而在dictExpand函数中，具体执行是由_dictNextPower函数完成的，以下代码显示的Hash表扩容的操作，就是从Hash表的初始大小（DICT_HT_INITIAL_SIZE），不停地乘以2，直到达到目标大小。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> _dictNextPower(<span class="keyword">unsigned</span> <span class="keyword">long</span> size)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 哈希表的初始大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> i = DICT_HT_INITIAL_SIZE;</span><br><span class="line">    <span class="comment">// 如果要扩容的大小已经超过最大值，则返回最大值加1</span></span><br><span class="line">    <span class="keyword">if</span> (size &gt;= LONG_MAX) <span class="keyword">return</span> LONG_MAX + <span class="number">1LU</span>;</span><br><span class="line">    <span class="comment">// 扩容大小没有超过最大值</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">// 如果扩容大小大于等于最大值，就返回截至当前扩到的大小</span></span><br><span class="line">        <span class="keyword">if</span> (i &gt;= size)</span><br><span class="line">            <span class="keyword">return</span> i;</span><br><span class="line">        <span class="comment">// 每一步扩容都在现有大小基础上乘以2</span></span><br><span class="line">        i *= <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="渐进式rehash如何实现？"><a href="#渐进式rehash如何实现？" class="headerlink" title="渐进式rehash如何实现？"></a>渐进式rehash如何实现？</h3><p>那么这里，我们要先搞清楚一个问题，就是<strong>为什么要实现渐进式rehash？</strong></p>
+<p>其实这是因为，Hash表在执行rehash时，由于Hash表空间扩大，原本映射到某一位置的键可能会被映射到一个新的位置上，因此，很多键就需要从原来的位置拷贝到新的位置。而在键拷贝时，由于Redis主线程无法执行其他请求，所以键拷贝会阻塞主线程，这样就会产生<strong>rehash开销</strong>。</p>
+<p>而为了降低rehash开销，Redis就提出了渐进式rehash的方法。</p>
+<p>简单来说，渐进式rehash的意思就是Redis并不会一次性把当前Hash表中的所有键，都拷贝到新位置，而是会分批拷贝，每次的键拷贝只拷贝Hash表中一个bucket中的哈希项。这样一来，每次键拷贝的时长有限，对主线程的影响也就有限了。</p>
+<p><strong>那么，渐进式rehash在代码层面是如何实现的呢？</strong>这里有两个关键函数：dictRehash和_dictRehashStep。</p>
+<p>我们先来看<strong>dictRehash函数</strong>，这个函数实际执行键拷贝，它的输入参数有两个，分别是全局哈希表（即前面提到的dict结构体，包含了ht[0]和ht[1]）和需要进行键拷贝的桶数量（bucket数量）。</p>
+<p>dictRehash函数的整体逻辑包括两部分：</p>
+<ul>
+<li>首先，该函数会执行一个循环，根据要进行键拷贝的bucket数量n，依次完成这些bucket内部所有键的迁移。当然，如果ht[0]哈希表中的数据已经都迁移完成了，键拷贝的循环也会停止执行。</li>
+<li>其次，在完成了n个bucket拷贝后，dictRehash函数的第二部分逻辑，就是判断ht[0]表中数据是否都已迁移完。如果都迁移完了，那么ht[0]的空间会被释放。因为Redis在处理请求时，代码逻辑中都是使用ht[0]，所以当rehash执行完成后，虽然数据都在ht[1]中了，但Redis仍然会把ht[1]赋值给ht[0]，以便其他部分的代码逻辑正常使用。</li>
+<li>而在ht[1]赋值给ht[0]后，它的大小就会被重置为0，等待下一次rehash。与此同时，全局哈希表中的rehashidx变量会被标为-1，表示rehash结束了（这里的rehashidx变量用来表示rehash的进度，稍后我会给你具体解释）。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151515037.png" alt="image-20220115151515973"></p>
+<p>同时，你也可以通过下面代码，来了解dictRehash函数的主要执行逻辑。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dictRehash</span><span class="params">(dict *d, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> empty_visits = n*<span class="number">10</span>;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//主循环，根据要拷贝的bucket数量n，循环n次后停止或ht[0]中的数据迁移完停止</span></span><br><span class="line">    <span class="keyword">while</span>(n-- &amp;&amp; d-&gt;ht[<span class="number">0</span>].used != <span class="number">0</span>) &#123;</span><br><span class="line">       ...</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//判断ht[0]的数据是否迁移完成</span></span><br><span class="line">    <span class="keyword">if</span> (d-&gt;ht[<span class="number">0</span>].used == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">//ht[0]迁移完后，释放ht[0]内存空间</span></span><br><span class="line">        zfree(d-&gt;ht[<span class="number">0</span>].table);</span><br><span class="line">        <span class="comment">//让ht[0]指向ht[1]，以便接受正常的请求</span></span><br><span class="line">        d-&gt;ht[<span class="number">0</span>] = d-&gt;ht[<span class="number">1</span>];</span><br><span class="line">        <span class="comment">//重置ht[1]的大小为0</span></span><br><span class="line">        _dictReset(&amp;d-&gt;ht[<span class="number">1</span>]);</span><br><span class="line">        <span class="comment">//设置全局哈希表的rehashidx标识为-1，表示rehash结束</span></span><br><span class="line">        d-&gt;rehashidx = <span class="number">-1</span>;</span><br><span class="line">        <span class="comment">//返回0，表示ht[0]中所有元素都迁移完</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//返回1，表示ht[0]中仍然有元素没有迁移完</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>好，在了解了dictRehash函数的主体逻辑后，我们再看下渐进式rehash是如何按照bucket粒度拷贝数据的，这其实就和全局哈希表dict结构中的rehashidx变量相关了。</p>
+<p>rehashidx变量表示的是<strong>当前rehash在对哪个bucket做数据迁移</strong>。比如，当rehashidx等于0时，表示对ht[0]中的第一个bucket进行数据迁移；当rehashidx等于1时，表示对ht[0]中的第二个bucket进行数据迁移，以此类推。</p>
+<p>而dictRehash函数的主循环，首先会判断rehashidx指向的bucket是否为空，如果为空，那就将rehashidx的值加1，检查下一个bucket。</p>
+<p><strong>那么，有没有可能连续几个bucket都为空呢？</strong>其实是有可能的，在这种情况下，渐进式rehash不会一直递增rehashidx进行检查。这是因为一旦执行了rehash，Redis主线程就无法处理其他请求了。</p>
+<p>所以，渐进式rehash在执行时设置了一个<strong>变量empty_visits</strong>，用来表示已经检查过的空bucket，当检查了一定数量的空bucket后，这一轮的rehash就停止执行，转而继续处理外来请求，避免了对Redis性能的影响。下面的代码显示了这部分逻辑，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">while</span>(n-- &amp;&amp; d-&gt;ht[<span class="number">0</span>].used != <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="comment">//如果当前要迁移的bucket中没有元素</span></span><br><span class="line">    <span class="keyword">while</span>(d-&gt;ht[<span class="number">0</span>].table[d-&gt;rehashidx] == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="comment">//</span></span><br><span class="line">        d-&gt;rehashidx++;</span><br><span class="line">        <span class="keyword">if</span> (--empty_visits == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而如果rehashidx指向的bucket有数据可以迁移，那么Redis就会把这个bucket中的哈希项依次取出来，并根据ht[1]的表空间大小，重新计算哈希项在ht[1]中的bucket位置，然后把这个哈希项赋值到ht[1]对应bucket中。</p>
+<p>这样，每做完一个哈希项的迁移，ht[0]和ht[1]用来表示承载哈希项多少的变量used，就会分别减一和加一。当然，如果当前rehashidx指向的bucket中数据都迁移完了，rehashidx就会递增加1，指向下一个bucket。下面的代码显示了这一迁移过程。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">while</span>(n-- &amp;&amp; d-&gt;ht[<span class="number">0</span>].used != <span class="number">0</span>) &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//获得哈希表中哈希项</span></span><br><span class="line">    de = d-&gt;ht[<span class="number">0</span>].table[d-&gt;rehashidx];</span><br><span class="line">    <span class="comment">//如果rehashidx指向的bucket不为空</span></span><br><span class="line">    <span class="keyword">while</span>(de) &#123;</span><br><span class="line">        <span class="keyword">uint64_t</span> h;</span><br><span class="line">        <span class="comment">//获得同一个bucket中下一个哈希项</span></span><br><span class="line">        nextde = de-&gt;next;</span><br><span class="line">        <span class="comment">//根据扩容后的哈希表ht[1]大小，计算当前哈希项在扩容后哈希表中的bucket位置</span></span><br><span class="line">        h = dictHashKey(d, de-&gt;key) &amp; d-&gt;ht[<span class="number">1</span>].sizemask;</span><br><span class="line">        <span class="comment">//将当前哈希项添加到扩容后的哈希表ht[1]中</span></span><br><span class="line">        de-&gt;next = d-&gt;ht[<span class="number">1</span>].table[h];</span><br><span class="line">        d-&gt;ht[<span class="number">1</span>].table[h] = de;</span><br><span class="line">        <span class="comment">//减少当前哈希表的哈希项个数</span></span><br><span class="line">        d-&gt;ht[<span class="number">0</span>].used--;</span><br><span class="line">        <span class="comment">//增加扩容后哈希表的哈希项个数</span></span><br><span class="line">        d-&gt;ht[<span class="number">1</span>].used++;</span><br><span class="line">        <span class="comment">//指向下一个哈希项</span></span><br><span class="line">        de = nextde;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//如果当前bucket中已经没有哈希项了，将该bucket置为NULL</span></span><br><span class="line">    d-&gt;ht[<span class="number">0</span>].table[d-&gt;rehashidx] = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="comment">//将rehash加1，下一次将迁移下一个bucket中的元素</span></span><br><span class="line">    d-&gt;rehashidx++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在我们知道，dictRehash函数本身是按照bucket粒度执行哈希项迁移的，它内部执行的bucket迁移个数，主要由传入的循环次数变量n来决定。但凡Redis要进行rehash操作，最终都会调用dictRehash函数。</p>
+<p>接下来，我们来学习和渐进式rehash相关的第二个关键函数 <strong>_dictRehashStep</strong>，这个函数实现了每次只对一个bucket执行rehash。</p>
+<p>从Redis的源码中我们可以看到，一共会有5个函数通过调用_dictRehashStep函数，进而调用dictRehash函数，来执行rehash，它们分别是：dictAddRaw，dictGenericDelete，dictFind，dictGetRandomKey，dictGetSomeKeys。</p>
+<p>其中，dictAddRaw和dictGenericDelete函数，分别对应了往Redis中增加和删除键值对，而后三个函数则对应了在Redis中进行查询操作。下图展示了这些函数间的调用关系：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151517906.png" alt="image-20220115151710849"></p>
+<p>但你要注意，不管是增删查哪种操作，这5个函数调用的_dictRehashStep函数，给dictRehash传入的循环次数变量n的值都为1，下面的代码就显示了这一传参的情况。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> _dictRehashStep(dict *d) &#123;</span><br><span class="line"><span class="comment">//给dictRehash传入的循环次数参数为1，表明每迁移完一个bucket ，就执行正常操作</span></span><br><span class="line">    <span class="keyword">if</span> (d-&gt;iterators == <span class="number">0</span>) dictRehash(d,<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样一来，每次迁移完一个bucket，Hash表就会执行正常的增删查请求操作，这就是在代码层面实现渐进式rehash的方法。</p>
+<h1 id="内存友好的数据结构"><a href="#内存友好的数据结构" class="headerlink" title="内存友好的数据结构"></a>内存友好的数据结构</h1><p>首先要知道，在Redis中，有三种数据结构针对内存使用效率做了设计优化，分别是简单动态字符串（SDS）、压缩列表（ziplist）和整数集合（intset）。</p>
+<h2 id="SDS的内存友好设计"><a href="#SDS的内存友好设计" class="headerlink" title="SDS的内存友好设计"></a>SDS的内存友好设计</h2><p>SDS设计了不同类型的结构头，包括sdshdr8、sdshdr16、sdshdr32和sdshdr64。这些不同类型的结构头可以适配不同大小的字符串，从而避免了内存浪费。</p>
+<p>SDS除了使用精巧设计的结构头外，在保存较小字符串时，其实还使用了<strong>嵌入式字符串</strong>的设计方法。这种方法避免了给字符串分配额外的空间，而是可以让字符串直接保存在Redis的基本数据对象结构体(redisObject)中。.</p>
+<h2 id="redisObject结构体与位域定义方法"><a href="#redisObject结构体与位域定义方法" class="headerlink" title="redisObject结构体与位域定义方法"></a>redisObject结构体与位域定义方法</h2><p>redisObject结构体是在server.h文件中定义的，主要功能是用来保存键值对中的值。这个结构一共定义了4个元数据和一个指针。</p>
+<ul>
+<li><strong>type</strong>：redisObject的数据类型，是应用程序在Redis中保存的数据类型，包括String、List、Hash等。</li>
+<li><strong>encoding</strong>：redisObject的编码类型，是Redis内部实现各种数据类型所用的数据结构。</li>
+<li><strong>lru</strong>：redisObject的LRU时间。</li>
+<li><strong>refcount</strong>：redisObject的引用计数。</li>
+<li><strong>ptr</strong>：指向值的指针。</li>
+</ul>
+<p>下面的代码展示了redisObject结构体的定义：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>; <span class="comment">// redisObject的数据类型，4个bits</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>; <span class="comment">// redisObject的编码类型，4个bits</span></span><br><span class="line">    <span class="keyword">unsigned</span> lru:LRU_BITS;  <span class="comment">// redisObject的LRU时间，LRU_BITS为24个bits</span></span><br><span class="line">    <span class="keyword">int</span> refcount; <span class="comment">// redisObject的引用计数，4个字节</span></span><br><span class="line">    <span class="keyword">void</span> *ptr; <span class="comment">// 指向值的指针，8个字节</span></span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+
+<p>从代码中我们可以看到，在type、encoding和lru三个变量后面都有一个冒号，并紧跟着一个数值，表示该元数据占用的比特数。其中，type和encoding分别占4bits。而lru占用的比特数，是由server.h中的宏定义LRU_BITS决定的，它的默认值是24bits，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LRU_BITS 24</span></span><br></pre></td></tr></table></figure>
+
+<p>而这里我想让你学习掌握的，就是这种<strong>变量后使用冒号和数值的定义方法</strong>。这实际上是C语言中的<strong>位域定义方法</strong>，可以用来有效地节省内存开销。</p>
+<p>这种方法比较适用的场景是，当一个变量占用不了一个数据类型的所有bits时，就可以使用位域定义方法，把一个数据类型中的bits，划分成多个位域，每个位域占一定的bit数。这样一来，一个数据类型的所有bits就可以定义多个变量了，从而也就有效节省了内存开销。</p>
+<p>此外，你可能还会发现，对于type、encoding和lru三个变量来说，它们的数据类型都是unsigned。已知一个unsigned类型是4字节，但这三个变量，是分别占用了一个unsigned类型4字节中的4bits、4bits和24bits。因此，相较于三个变量，每个变量用一个4字节的unsigned类型定义来说，使用位域定义方法可以让三个变量只用4字节，最后就能节省8字节的开销。</p>
+<h2 id="嵌入式字符串"><a href="#嵌入式字符串" class="headerlink" title="嵌入式字符串"></a>嵌入式字符串</h2><p>前面我说过，SDS在保存比较小的字符串时，会使用嵌入式字符串的设计方法，将字符串直接保存在redisObject结构体中。然后在redisObject结构体中，存在一个指向值的指针ptr，而一般来说，这个ptr指针会指向值的数据结构。</p>
+<p>这里我们就以创建一个String类型的值为例，Redis会调用<strong>createStringObject函数</strong>，来创建相应的redisObject，而这个redisObject中的ptr指针，就会指向SDS数据结构，如下图所示。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151525950.png" alt="image-20220115152522904"></p>
+<p>在Redis源码中，createStringObject函数会根据要创建的字符串的长度，决定具体调用哪个函数来完成创建。</p>
+<p>那么针对这个createStringObject函数来说，它的参数是<strong>字符串ptr</strong>和<strong>字符串长度len</strong>。当len的长度大于OBJ_ENCODING_EMBSTR_SIZE_LIMIT这个宏定义时，createStringObject函数会调用createRawStringObject函数，否则就调用createEmbeddedStringObject函数。而在我们分析的Redis 5.0.8源码版本中，这个OBJ_ENCODING_EMBSTR_SIZE_LIMIT默认定义为44字节。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_EMBSTR_SIZE_LIMIT 44</span></span><br><span class="line"><span class="function">robj *<span class="title">createStringObject</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *ptr, <span class="keyword">size_t</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建嵌入式字符串，字符串长度小于等于44字节</span></span><br><span class="line">    <span class="keyword">if</span> (len &lt;= OBJ_ENCODING_EMBSTR_SIZE_LIMIT)</span><br><span class="line">        <span class="keyword">return</span> createEmbeddedStringObject(ptr,len);</span><br><span class="line">    <span class="comment">//创建普通字符串，字符串长度大于44字节</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> createRawStringObject(ptr,len);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们就来分析一下createStringObject函数的源码实现，以此了解大于44字节的普通字符串和小于等于44字节的嵌入式字符串分别是如何创建的。</p>
+<p>首先，对于<strong>createRawStringObject函数</strong>来说，它在创建String类型的值的时候，会调用createObject函数。</p>
+<blockquote>
+<p>补充：createObject函数主要是用来创建Redis的数据对象的。因为Redis的数据对象有很多类型，比如String、List、Hash等，所以在createObject函数的两个参数中，有一个就是用来表示所要创建的数据对象类型，而另一个是指向数据对象的指针。</p>
+</blockquote>
+<p>然后，createRawStringObject函数在调用createObject函数时，会传递OBJ_STRING类型，表示要创建String类型的对象，以及传递指向SDS结构的指针，如以下代码所示。这里<strong>需要注意</strong>的是，指向SDS结构的指针是由sdsnewlen函数返回的，而sdsnewlen函数正是用来创建SDS结构的。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">robj *<span class="title">createRawStringObject</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *ptr, <span class="keyword">size_t</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> createObject(OBJ_STRING, sdsnewlen(ptr,len));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后，我们再来进一步看下<strong>createObject函数</strong>。这个函数会把参数中传入的、指向SDS结构体的指针直接赋值给redisObject中的ptr，这部分的代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">robj *<span class="title">createObject</span><span class="params">(<span class="keyword">int</span> type, <span class="keyword">void</span> *ptr)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//给redisObject结构体分配空间</span></span><br><span class="line">	  robj *o = zmalloc(<span class="keyword">sizeof</span>(*o));</span><br><span class="line">	  <span class="comment">//设置redisObject的类型</span></span><br><span class="line">	  o-&gt;type = type;</span><br><span class="line">	  <span class="comment">//设置redisObject的编码类型，此处是OBJ_ENCODING_RAW，表示常规的SDS</span></span><br><span class="line">	  o-&gt;encoding = OBJ_ENCODING_RAW;</span><br><span class="line">	  <span class="comment">//直接将传入的指针赋值给redisObject中的指针。</span></span><br><span class="line">    o-&gt;ptr = ptr;</span><br><span class="line">    o-&gt;refcount = <span class="number">1</span>;</span><br><span class="line">    …</span><br><span class="line">    <span class="keyword">return</span> o;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为了方便理解普通字符串创建方法，我画了一张图，你可以看下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151527435.png" alt="image-20220115152709376"></p>
+<p>这也就是说，在创建普通字符串时，Redis需要分别给redisObject和SDS分别分配一次内存，这样就既带来了内存分配开销，同时也会导致内存碎片。因此，当字符串小于等于44字节时，Redis就使用了嵌入式字符串的创建方法，以此减少内存分配和内存碎片。</p>
+<p>而这个创建方法，就是由我们前面提到的<strong>createEmbeddedStringObject函数</strong>来完成的，该函数会使用一块连续的内存空间，来同时保存redisObject和SDS结构。这样一来，内存分配只有一次，而且也避免了内存碎片。</p>
+<p>createEmbeddedStringObject函数的原型定义如下，它的参数就是从createStringObject函数参数中获得的字符串指针ptr，以及字符串长度len。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">robj *<span class="title">createEmbeddedStringObject</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *ptr, <span class="keyword">size_t</span> len)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>那么下面，我们就来具体看看，createEmbeddedStringObject函数是如何把redisObject和SDS放置在一起的。</p>
+<p>首先，createEmbeddedStringObject函数会<strong>分配一块连续的内存空间</strong>，这块内存空间的大小等于redisObject结构体的大小、SDS结构头sdshdr8的大小和字符串大小的总和，并且再加上1字节。注意，这里最后的1字节是SDS中加在字符串最后的结束字符“\0”。</p>
+<p>这块连续内存空间的分配情况如以下代码所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">robj *o = zmalloc(<span class="keyword">sizeof</span>(robj)+<span class="keyword">sizeof</span>(struct sdshdr8)+len+<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>你也可以参考下图，其中展示了这块内存空间的布局。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151528088.png" alt="image-20220115152852044"></p>
+<p>好，那么createEmbeddedStringObject函数在分配了内存空间之后，就会<strong>创建SDS结构的指针sh，并把sh指向这块连续空间中SDS结构头所在的位置</strong>，下面的代码显示了这步操作。其中，o是redisObject结构体的变量，o+1表示将内存地址从变量o开始移动一段距离，而移动的距离等于redisObject这个结构体的大小。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr8</span> *<span class="title">sh</span> =</span> (<span class="keyword">void</span>*)(o+<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>经过这步操作后，sh指向的位置就如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151529727.png" alt="image-20220115152924679"></p>
+<p>紧接着，createEmbeddedStringObject函数会<strong>把redisObject中的指针ptr，指向SDS结构中的字符数组</strong>。</p>
+<p>如以下代码所示，其中sh是刚才介绍的指向SDS结构的指针，属于sdshdr8类型。而sh+1表示把内存地址从sh起始地址开始移动一定的大小，移动的距离等于sdshdr8结构体的大小。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">o-&gt;ptr = sh+<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这步操作完成后，redisObject结构体中的指针ptr的指向位置就如下图所示，它会指向SDS结构头的末尾，同时也是字符数组的起始位置：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151529854.png" alt="image-20220115152949808"></p>
+<p>最后，createEmbeddedStringObject函数会<strong>把参数中传入的指针ptr指向的字符串，拷贝到SDS结构体中的字符数组，并在数组最后添加结束字符</strong>。这部分代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="built_in">memcpy</span>(sh-&gt;buf,ptr,len);</span><br><span class="line">sh-&gt;buf[len] = <span class="string">&#x27;\0&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>下面这张图，也展示了createEmbeddedStringObject创建嵌入式字符串的过程，你可以再整体来看看。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151530952.png" alt="image-20220115153049895"></p>
+<p>总之，你可以记住，Redis会通过设计实现一块连续的内存空间，把redisObject结构体和SDS结构体紧凑地放置在一起。这样一来，对于不超过44字节的字符串来说，就可以避免内存碎片和两次内存分配的开销了。</p>
+<h2 id="压缩列表和整数集合的设计"><a href="#压缩列表和整数集合的设计" class="headerlink" title="压缩列表和整数集合的设计"></a>压缩列表和整数集合的设计</h2><p>首先你要知道，List、Hash和Sorted Set这三种数据类型，都可以使用压缩列表（ziplist）来保存数据。压缩列表的函数定义和实现代码分别在ziplist.h和ziplist.c中。</p>
+<p>不过，我们在ziplist.h文件中其实根本看不到压缩列表的结构体定义。这是因为压缩列表本身就是一块连续的内存空间，它通过使用不同的编码来保存数据。</p>
+<p>这里为了方便理解压缩列表的设计与实现，我们先来看看它的<strong>创建函数ziplistNew</strong>，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">ziplistNew</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//初始分配的大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> bytes = ZIPLIST_HEADER_SIZE+ZIPLIST_END_SIZE;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *zl = zmalloc(bytes);</span><br><span class="line">    …</span><br><span class="line">   <span class="comment">//将列表尾设置为ZIP_END</span></span><br><span class="line">    zl[bytes<span class="number">-1</span>] = ZIP_END;</span><br><span class="line">    <span class="keyword">return</span> zl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实际上，ziplistNew函数的逻辑很简单，就是创建一块连续的内存空间，大小为ZIPLIST_HEADER_SIZE和ZIPLIST_END_SIZE的总和，然后再把该连续空间的最后一个字节赋值为ZIP_END，表示列表结束。</p>
+<p>另外你要注意的是，在上面代码中定义的三个宏ZIPLIST_HEADER_SIZE、ZIPLIST_END_SIZE和ZIP_END，在ziplist.c中也分别有定义，分别表示ziplist的列表头大小、列表尾大小和列表尾字节内容，如下所示。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//ziplist的列表头大小，包括2个32 bits整数和1个16bits整数，分别表示压缩列表的总字节数，列表最后一个元素的离列表头的偏移，以及列表中的元素个数</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIPLIST_HEADER_SIZE     (sizeof(uint32_t)*2+sizeof(uint16_t))</span></span><br><span class="line"><span class="comment">//ziplist的列表尾大小，包括1个8 bits整数，表示列表结束。</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIPLIST_END_SIZE        (sizeof(uint8_t))</span></span><br><span class="line"><span class="comment">//ziplist的列表尾字节内容</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_END 255 </span></span><br></pre></td></tr></table></figure>
+
+<p>那么，在创建一个新的ziplist后，该列表的内存布局就如下图所示。注意，此时列表中还没有实际的数据。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151532820.png" alt="image-20220115153232773"></p>
+<p>然后，当我们往ziplist中插入数据时，ziplist就会根据数据是字符串还是整数，以及它们的大小进行不同的编码。这种根据数据大小进行相应编码的设计思想，正是Redis为了节省内存而采用的。</p>
+<p>ziplist列表项包括三部分内容，分别是<strong>前一项的长度（prevlen）</strong>、<strong>当前项长度信息的编码结果（encoding）</strong>，以及<strong>当前项的实际数据（data）</strong>。下面的图展示了列表项的结构（图中除列表项之外的内容分别是ziplist内存空间的起始和尾部）。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151533385.png" alt="image-20220115153300328"></p>
+<p>实际上，所谓的编码技术，就是指<strong>用不同数量的字节来表示保存的信息</strong>。在ziplist中，编码技术主要应用在列表项中的prevlen和encoding这两个元数据上。而当前项的实际数据data，则正常用整数或是字符串来表示。</p>
+<p>所以这里，我们就先来看下<strong>prevlen的编码设计</strong>。ziplist中会包含多个列表项，每个列表项都是紧挨着彼此存放的，如下图所示。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151535994.png" alt="image-20220115153545935"></p>
+<p>而为了方便查找，每个列表项中都会记录前一项的长度。因为每个列表项的长度不一样，所以如果使用相同的字节大小来记录prevlen，就会造成内存空间浪费。</p>
+<p>我给你举个例子，假设我们统一使用4字节记录prevlen，如果前一个列表项只是一个字符串“redis”，长度为5个字节，那么我们用1个字节（8 bits）就能表示256字节长度（2的8次方等于256）的字符串了。此时，prevlen用4字节记录，其中就有3字节是浪费掉了。</p>
+<p>好，我们再回过头来看，ziplist在对prevlen编码时，会先调用<strong>zipStorePrevEntryLength函数</strong>，用于判断前一个列表项是否小于254字节。如果是的话，那么prevlen就使用1字节表示；否则，zipStorePrevEntryLength函数就调用zipStorePrevEntryLengthLarge函数进一步编码。这部分代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//判断prevlen的长度是否小于ZIP_BIG_PREVLEN，ZIP_BIG_PREVLEN等于254</span></span><br><span class="line"><span class="keyword">if</span> (len &lt; ZIP_BIG_PREVLEN) &#123;</span><br><span class="line">   <span class="comment">//如果小于254字节，那么返回prevlen为1字节</span></span><br><span class="line">   p[<span class="number">0</span>] = len;</span><br><span class="line">   <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">   <span class="comment">//否则，调用zipStorePrevEntryLengthLarge进行编码</span></span><br><span class="line">   <span class="keyword">return</span> zipStorePrevEntryLengthLarge(p,len);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，<strong>zipStorePrevEntryLengthLarge函数</strong>会先将prevlen的第1字节设置为254，然后使用内存拷贝函数memcpy，将前一个列表项的长度值拷贝至prevlen的第2至第5字节。最后，zipStorePrevEntryLengthLarge函数返回prevlen的大小，为5字节。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (p != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="comment">//将prevlen的第1字节设置为ZIP_BIG_PREVLEN，即254</span></span><br><span class="line">    p[<span class="number">0</span>] = ZIP_BIG_PREVLEN;</span><br><span class="line">	<span class="comment">//将前一个列表项的长度值拷贝至prevlen的第2至第5字节，其中sizeof(len)的值为4</span></span><br><span class="line">    <span class="built_in">memcpy</span>(p+<span class="number">1</span>,&amp;len,<span class="keyword">sizeof</span>(len));</span><br><span class="line">    …</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//返回prevlen的大小，为5字节</span></span><br><span class="line"><span class="keyword">return</span> <span class="number">1</span>+<span class="keyword">sizeof</span>(len);</span><br></pre></td></tr></table></figure>
+
+<p>我们知道，一个列表项的实际数据，既可以是整数也可以是字符串。整数可以是16、32、64等字节长度，同时字符串的长度也可以大小不一。</p>
+<p>所以，ziplist在zipStoreEntryEncoding函数中，针对整数和字符串，就分别使用了不同字节长度的编码结果。下面的代码展示了zipStoreEntryEncoding函数的部分代码，你可以看到当数据是不同长度字符串或是整数时，编码结果的长度len大小不同。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 默认编码结果是1字节</span></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">char</span> len = <span class="number">1</span>;</span><br><span class="line"><span class="comment">//如果是字符串数据</span></span><br><span class="line"><span class="keyword">if</span> (ZIP_IS_STR(encoding)) &#123;</span><br><span class="line">    <span class="comment">//字符串长度小于等于63字节（16进制为0x3f）</span></span><br><span class="line">       <span class="keyword">if</span> (rawlen &lt;= <span class="number">0x3f</span>) &#123;</span><br><span class="line">           <span class="comment">//默认编码结果是1字节</span></span><br><span class="line">           …</span><br><span class="line">       &#125;</span><br><span class="line">   <span class="comment">//字符串长度小于等于16383字节（16进制为0x3fff） </span></span><br><span class="line">       <span class="keyword">else</span> <span class="keyword">if</span> (rawlen &lt;= <span class="number">0x3fff</span>) &#123;   </span><br><span class="line">           <span class="comment">//编码结果是2字节</span></span><br><span class="line">           len += <span class="number">1</span>;</span><br><span class="line">           …</span><br><span class="line">       &#125;</span><br><span class="line">   <span class="comment">//字符串长度大于16383字节</span></span><br><span class="line"></span><br><span class="line">       <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="comment">//编码结果是5字节</span></span><br><span class="line">           len += <span class="number">4</span>;</span><br><span class="line">           …</span><br><span class="line">       &#125;</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">       <span class="comment">/* 如果数据是整数，编码结果是1字节*/</span></span><br><span class="line">       <span class="keyword">if</span> (!p) <span class="keyword">return</span> len;</span><br><span class="line">       ...</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>简而言之，针对不同长度的数据，使用不同大小的元数据信息（prevlen和encoding），这种方法可以有效地节省内存开销。当然，除了ziplist之外，Redis还设计了一个内存友好的数据结构，这就是<strong>整数集合（intset）</strong>，它是作为底层结构来实现Set数据类型的。</p>
+<p>和SDS嵌入式字符串、ziplist类似，整数集合也是一块连续的内存空间，这一点我们从整数集合的定义中就可以看到。intset.h和intset.c分别包括了整数集合的定义和实现。</p>
+<p>下面的代码展示了intset的结构定义。我们可以看到，整数集合结构体中记录数据的部分，就是一个int8_t类型的整数数组contents。从内存使用的角度来看，整数数组就是一块连续内存空间，所以这样就避免了内存碎片，并提升了内存使用效率。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">intset</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> encoding;</span><br><span class="line">    <span class="keyword">uint32_t</span> length;</span><br><span class="line">    <span class="keyword">int8_t</span> contents[];</span><br><span class="line">&#125; intset;</span><br></pre></td></tr></table></figure>
+
+<h2 id="节省内存的数据访问"><a href="#节省内存的数据访问" class="headerlink" title="节省内存的数据访问"></a>节省内存的数据访问</h2><p>我们知道，在Redis实例运行时，有些数据是会被经常访问的，比如常见的整数，Redis协议中常见的回复信息，包括操作成功（“OK”字符串）、操作失败（ERR），以及常见的报错信息。</p>
+<p>所以，为了避免在内存中反复创建这些经常被访问的数据，Redis就采用了<strong>共享对象</strong>的设计思想。这个设计思想很简单，就是把这些常用数据创建为共享对象，当上层应用需要访问它们时，直接读取就行。</p>
+<p>现在我们就来做个假设。有1000个客户端，都要保存“3”这个整数。如果Redis为每个客户端，都创建了一个值为3的redisObject，那么内存中就会有大量的冗余。而使用了共享对象方法后，Redis在内存中只用保存一个3的redisObject就行，这样就有效节省了内存空间。</p>
+<p>以下代码展示的是server.c文件中，<strong>创建共享对象的函数createSharedObjects</strong>，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">createSharedObjects</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">   …</span><br><span class="line">   <span class="comment">//常见回复信息</span></span><br><span class="line">   shared.ok = createObject(OBJ_STRING,sdsnew(<span class="string">&quot;+OK\r\n&quot;</span>));</span><br><span class="line">   shared.err = createObject(OBJ_STRING,sdsnew(<span class="string">&quot;-ERR\r\n&quot;</span>));</span><br><span class="line">   …</span><br><span class="line">   <span class="comment">//常见报错信息</span></span><br><span class="line"> shared.nokeyerr = createObject(OBJ_STRING,sdsnew(<span class="string">&quot;-ERR no such key\r\n&quot;</span>));</span><br><span class="line"> shared.syntaxerr = createObject(OBJ_STRING,sdsnew(<span class="string">&quot;-ERR syntax error\r\n&quot;</span>));</span><br><span class="line">   <span class="comment">//0到9999的整数</span></span><br><span class="line">   <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; OBJ_SHARED_INTEGERS; j++) &#123;</span><br><span class="line">        shared.integers[j] =</span><br><span class="line">          makeObjectShared(createObject(OBJ_STRING,(<span class="keyword">void</span>*)(<span class="keyword">long</span>)j));</span><br><span class="line">        …</span><br><span class="line">    &#125;</span><br><span class="line">   …</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="有序集合"><a href="#有序集合" class="headerlink" title="有序集合"></a>有序集合</h1><p>有序集合（Sorted Set）是Redis中一种重要的数据类型，它本身是集合类型，同时也可以支持集合中的元素带有权重，并按权重排序。</p>
+<p><strong>为什么Sorted Set既能支持高效的范围查询，同时还能以O(1)复杂度获取元素权重值？</strong></p>
+<p>Sorted Set能支持范围查询，这是因为它的核心数据结构设计采用了跳表，而它又能以常数复杂度获取元素权重，这是因为它同时采用了哈希表进行索引。</p>
+<h2 id="Sorted-Set基本结构"><a href="#Sorted-Set基本结构" class="headerlink" title="Sorted Set基本结构"></a>Sorted Set基本结构</h2><p>要想了解Sorted Set的结构，就需要阅读它的代码文件。这里你需要注意的是，在Redis源码中，Sorted Set的代码文件和其他数据类型不太一样，它并不像哈希表的dict.c/dict.h，或是压缩列表的ziplist.c/ziplist.h，具有专门的数据结构实现和定义文件。</p>
+<p>Sorted Set的<strong>实现代码在</strong><a target="_blank" rel="noopener" href="https://github.com/redis/redis/blob/5.0/src/t_zset.c"><strong>t_zset.c</strong></a><strong>文件中</strong>，包括Sorted Set的各种操作实现，同时Sorted Set相关的<strong>结构定义在</strong><a target="_blank" rel="noopener" href="https://github.com/redis/redis/blob/5.0/src/server.h"><strong>server.h</strong></a><strong>文件中</strong>。如果你想要了解学习Sorted Set的模块和操作，注意要从t_zset.c和server.h这两个文件中查找。</p>
+<p>好，在知道了Sorted Set所在的代码文件之后，我们可以先来看下它的结构定义。Sorted Set结构体的名称为zset，其中包含了两个成员，分别是哈希表dict和跳表zsl，如下所示。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zset</span> &#123;</span></span><br><span class="line">    dict *dict;</span><br><span class="line">    zskiplist *zsl;</span><br><span class="line">&#125; zset;</span><br></pre></td></tr></table></figure>
+
+<p>既然Sorted Set采用了跳表和哈希表两种索引结构来组织数据，我们在实现Sorted Set时就会面临以下两个问题：</p>
+<ul>
+<li><strong>跳表或是哈希表中，各自保存了什么样的数据？</strong></li>
+<li><strong>跳表和哈希表保存的数据是如何保持一致的？</strong></li>
+</ul>
+<h2 id="跳表的设计与实现"><a href="#跳表的设计与实现" class="headerlink" title="跳表的设计与实现"></a>跳表的设计与实现</h2><p>首先，我们来了解下什么是跳表（skiplist）。</p>
+<p><strong>跳表其实是一种多层的有序链表。</strong>在课程中，为了便于说明，我把跳表中的层次从低到高排个序，最底下一层称为level0，依次往上是level1、level2等。</p>
+<p>下图展示的是一个3层的跳表。其中，头结点中包含了三个指针，分别作为leve0到level2上的头指针。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151545603.png" alt="image-20220115154508540"></p>
+<p>可以看到，在level 0上一共有7个结点，分别是3、11、23、33、42、51、62，这些结点会通过指针连接起来，同时头结点中的level0指针会指向结点3。然后，在这7个结点中，结点11、33和51又都包含了一个指针，同样也依次连接起来，且头结点的level 1指针会指向结点11。这样一来，这3个结点就组成了level 1上的所有结点。</p>
+<p>最后，结点33中还包含了一个指针，这个指针会指向尾结点，同时，头结点的level 2指针会指向结点33，这就形成了level 2，只不过level 2上只有1个结点33。</p>
+<p>好，在对跳表有了直观印象后，我们再来看看跳表实现的具体数据结构。</p>
+<h3 id="跳表数据结构"><a href="#跳表数据结构" class="headerlink" title="跳表数据结构"></a>跳表数据结构</h3><p>我们先来看下跳表结点的结构定义，如下所示。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> &#123;</span></span><br><span class="line">    <span class="comment">// Sorted Set中的元素</span></span><br><span class="line">    sds ele;</span><br><span class="line">    <span class="comment">// 元素权重值</span></span><br><span class="line">    <span class="keyword">double</span> score;</span><br><span class="line">    <span class="comment">// 后向指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">backward</span>;</span></span><br><span class="line">    <span class="comment">// 节点的level数组，保存每层上的前向指针和跨度</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistLevel</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">forward</span>;</span></span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">long</span> span;</span><br><span class="line">    &#125; level[];</span><br><span class="line">&#125; zskiplistNode;</span><br></pre></td></tr></table></figure>
+
+<p>首先，因为Sorted Set中既要保存元素，也要保存元素的权重，所以对应到跳表结点的结构定义中，就对应了sds类型的变量ele，以及double类型的变量score。此外，为了便于从跳表的尾结点进行倒序查找，每个跳表结点中还保存了一个后向指针（<code>*backward</code>），指向该结点的前一个结点。</p>
+<p>然后，因为跳表是一个多层的有序链表，每一层也是由多个结点通过指针连接起来的。因此在跳表结点的结构定义中，还包含了一个zskiplistLevel结构体类型的<strong>level数组</strong>。</p>
+<p>level数组中的每一个元素对应了一个zskiplistLevel结构体，也对应了跳表的一层。而zskiplistLevel结构体定义了一个指向下一结点的前向指针（<code>*forward</code>），这就使得结点可以在某一层上和后续结点连接起来。同时，zskiplistLevel结构体中还定义了<strong>跨度</strong>，这是用来记录结点在某一层上的<code>*forward</code>指针和该指针指向的结点之间，跨越了level0上的几个结点。</p>
+<p>我们来看下面这张图，其中就展示了33结点的level数组和跨度情况。可以看到，33结点的level数组有三个元素，分别对应了三层level上的指针。此外，在level数组中，level 2、level1和level 0的跨度span值依次是3、2、1。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151546699.png" alt="image-20220115154622637"></p>
+<p>最后，因为跳表中的结点都是按序排列的，所以，对于跳表中的某个结点，我们可以把从头结点到该结点的查询路径上，各个结点在所查询层次上的<code>*forward</code>指针跨度，做一个累加。这个累加值就可以用来计算该结点在整个跳表中的顺序，另外这个结构特点还可以用来实现Sorted Set的rank操作，比如ZRANK、ZREVRANK等。</p>
+<p>好，了解了跳表结点的定义后，我们可以来看看跳表的定义。在跳表的结构中，定义了跳表的头结点和尾结点、跳表的长度，以及跳表的最大层数。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zskiplist</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">header</span>, *<span class="title">tail</span>;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> length;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line">&#125; zskiplist;</span><br></pre></td></tr></table></figure>
+
+<p>因为跳表的每个结点都是通过指针连接起来的，所以我们在使用跳表时，只需要从跳表结构体中获得头结点或尾结点，就可以通过结点指针访问到跳表中的各个结点。</p>
+<p>那么，当我们在Sorted Set中查找元素时，就对应到了Redis在跳表中查找结点，而此时，查询代码是否需要像查询常规链表那样，逐一顺序查询比较链表中的每个结点呢？</p>
+<p>其实是不用的，因为这里的查询代码，可以使用跳表结点中的level数组来加速查询。</p>
+<h3 id="跳表结点查询"><a href="#跳表结点查询" class="headerlink" title="跳表结点查询"></a>跳表结点查询</h3><p>事实上，当查询一个结点时，跳表会先从头结点的最高层开始，查找下一个结点。而由于跳表结点同时保存了元素和权重，所以跳表在比较结点时，相应地有<strong>两个判断条件</strong>：</p>
+<ol>
+<li>当查找到的结点保存的元素权重，比要查找的权重小时，跳表就会继续访问该层上的下一个结点。</li>
+<li>当查找到的结点保存的元素权重，等于要查找的权重时，跳表会再检查该结点保存的SDS类型数据，是否比要查找的SDS数据小。如果结点数据小于要查找的数据时，跳表仍然会继续访问该层上的下一个结点。</li>
+</ol>
+<p>但是，当上述两个条件都不满足时，跳表就会用到当前查找到的结点的level数组了。跳表会使用当前结点level数组里的下一层指针，然后沿着下一层指针继续查找，这就相当于跳到了下一层接着查找。</p>
+<p>这部分的代码逻辑如下所示，因为在跳表中进行查找、插入、更新或删除操作时，都需要用到查询的功能，你可以重点了解下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//获取跳表的表头</span></span><br><span class="line">x = zsl-&gt;header;</span><br><span class="line"><span class="comment">//从最大层数开始逐一遍历</span></span><br><span class="line"><span class="keyword">for</span> (i = zsl-&gt;level<span class="number">-1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">   ...</span><br><span class="line">   <span class="keyword">while</span> (x-&gt;level[i].forward &amp;&amp; (x-&gt;level[i].forward-&gt;score &lt; score || (x-&gt;level[i].forward-&gt;score == score </span><br><span class="line">    &amp;&amp; sdscmp(x-&gt;level[i].forward-&gt;ele,ele) &lt; <span class="number">0</span>))) &#123;</span><br><span class="line">      ...</span><br><span class="line">      x = x-&gt;level[i].forward;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="跳表结点层数设置"><a href="#跳表结点层数设置" class="headerlink" title="跳表结点层数设置"></a>跳表结点层数设置</h3><p>这样一来，有了level数组之后，一个跳表结点就可以在多层上被访问到了。而一个结点的level数组的层数也就决定了，该结点可以在几层上被访问到。</p>
+<p>所以，当我们要决定结点层数时，实际上是要决定level数组具体有几层。</p>
+<p>一种设计方法是，让每一层上的结点数约是下一层上结点数的一半，就像下面这张图展示的。第0层上的结点数是7，第1层上的结点数是3，约是第0层上结点数的一半。而第2层上的结点就33一个，约是第1层结点数的一半。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151549244.png" alt="image-20220115154904179"></p>
+<p>这种设计方法带来的好处是，当跳表从最高层开始进行查找时，由于每一层结点数都约是下一层结点数的一半，这种查找过程就类似于二分查找，**查找复杂度可以降低到O(logN)**。</p>
+<p>但这种设计方法也会带来负面影响，那就是为了维持相邻两层上结点数的比例为2:1，一旦有新的结点插入或是有结点被删除，那么插入或删除处的结点，及其后续结点的层数都需要进行调整，而这样就带来了额外的开销。</p>
+<p>我先来给你举个例子，看下不维持结点数比例的影响，这样虽然可以不调整层数，但是会增加查询复杂度。</p>
+<p>首先，假设当前跳表有3个结点，其数值分别是3、11、23，如下图所示。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151549342.png" alt="image-20220115154919295"></p>
+<p>接着，假设现在要插入一个结点15，如果我们不调整其他结点的层数，而是直接插入结点15的话，那么插入后，跳表level 0和level 1两层上的结点数比例就变成了为4:1，如下图所示。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151549512.png" alt="image-20220115154944444"></p>
+<p>而假设我们持续插入多个结点，但是仍然不调整其他结点的层数，这样一来，level0上的结点数就会越来越多，如下图所示。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151549018.png" alt="image-20220115154957976"></p>
+<p>相应的，如果我们要查找大于11的结点，就需要在level 0的结点中依次顺序查找，复杂度就是O(N)了。所以，为了降低查询复杂度，我们就需要维持相邻层结点数间的关系。</p>
+<p>好，接下来，我们再来看下维持相邻层结点数为2:1时的影响。</p>
+<p>比如，我们可以把结点23的level数组中增加一层指针，如下图所示。这样一来，level 0和level 1上的结点数就维持在了2:1。但相应的代价就是，我们也需要给level数组重新分配空间，以便增加一层指针。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151550115.png" alt="image-20220115155016069"></p>
+<p>类似的，如果我们要在有7个结点的跳表中删除结点33，那么结点33后面的所有结点都要进行调整：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151550069.png" alt="image-20220115155036023"></p>
+<p>调整后的跳表如下图所示。你可以看到，结点42和62都要新增level数组空间，这样能分别保存3层的指针和2层的指针，而结点51的level数组则需要减少一层。也就是说，这样的调整会带来额外的操作开销。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151550359.png" alt="image-20220115155048310"></p>
+<p>因此，为了避免上述问题，跳表在创建结点时，采用的是另一种设计方法，即<strong>随机生成每个结点的层数</strong>。此时，相邻两层链表上的结点数并不需要维持在严格的2:1关系。这样一来，当新插入一个结点时，只需要修改前后结点的指针，而其他结点的层数就不需要随之改变了，这就降低了插入操作的复杂度。</p>
+<p>在Redis源码中，跳表结点层数是由<strong>zslRandomLevel函数</strong>决定。zslRandomLevel函数会把层数初始化为1，这也是结点的最小层数。然后，该函数会生成随机数，如果随机数的值小于ZSKIPLIST_P（指跳表结点增加层数的概率，值为0.25），那么层数就增加1层。因为随机数取值到[0,0.25)范围内的概率不超过25%，所以这也就表明了，每增加一层的概率不超过25%。下面的代码展示了zslRandomLevel函数的执行逻辑，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZSKIPLIST_MAXLEVEL 64  <span class="comment">//最大层数为64</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZSKIPLIST_P 0.25       <span class="comment">//随机数的值为0.25</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">zslRandomLevel</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//初始化层为1</span></span><br><span class="line">    <span class="keyword">int</span> level = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> ((random()&amp;<span class="number">0xFFFF</span>) &lt; (ZSKIPLIST_P * <span class="number">0xFFFF</span>))</span><br><span class="line">        level += <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> (level&lt;ZSKIPLIST_MAXLEVEL) ? level : ZSKIPLIST_MAXLEVEL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>好，现在我们就了解了跳表的基本结构、查询方式和结点层数设置方法，那么下面我们接着来学习下，Sorted Set中是如何将跳表和哈希表组合起来使用的，以及是如何保持这两个索引结构中的数据是一致的。</p>
+<h2 id="哈希表和跳表的组合使用"><a href="#哈希表和跳表的组合使用" class="headerlink" title="哈希表和跳表的组合使用"></a>哈希表和跳表的组合使用</h2><p>首先，我们从刚才介绍的Sorted Set结构体中可以看到，Sorted Set中已经同时包含了这两种索引结构，这就是组合使用两者的第一步。然后，我们还可以在Sorted Set的创建代码（<a target="_blank" rel="noopener" href="https://github.com/redis/redis/blob/5.0/src/t_zset.c">t_zset.c</a>文件）中，进一步看到跳表和哈希表被相继创建。</p>
+<p>当创建一个zset时，代码中会相继调用<strong>dictCreate函数</strong>创建zset中的哈希表，以及调用<strong>zslCreate函数</strong>创建跳表，如下所示。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">zs = zmalloc(<span class="keyword">sizeof</span>(*zs));</span><br><span class="line">zs-&gt;dict = dictCreate(&amp;zsetDictType,<span class="literal">NULL</span>);</span><br><span class="line">zs-&gt;zsl = zslCreate();</span><br></pre></td></tr></table></figure>
+
+<p>这样，在Sorted Set中同时有了这两个索引结构以后，接下来，我们要想组合使用它们，就需要保持这两个索引结构中的数据一致了。简单来说，这就需要我们在往跳表中插入数据时，同时也向哈希表中插入数据。</p>
+<p>而这种保持两个索引结构一致的做法其实也不难，当往Sorted Set中插入数据时，zsetAdd函数就会被调用。所以，我们可以通过阅读Sorted Set的元素添加函数zsetAdd了解到。下面我们就来分析一下zsetAdd函数的执行过程。</p>
+<ul>
+<li><strong>首先，zsetAdd函数会判定Sorted Set采用的是ziplist还是skiplist的编码方式。</strong></li>
+</ul>
+<p>注意，在不同编码方式下，zsetAdd函数的执行逻辑也有所区别。这一讲我们重点关注的是skiplist的编码方式，所以接下来，我们就主要来看看当采用skiplist编码方式时，zsetAdd函数的逻辑是什么样的。</p>
+<p>zsetAdd函数会先使用哈希表的dictFind函数，查找要插入的元素是否存在。如果不存在，就直接调用跳表元素插入函数zslInsert和哈希表元素插入函数dictAdd，将新元素分别插入到跳表和哈希表中。</p>
+<p>这里你需要注意的是，Redis并没有把哈希表的操作嵌入到跳表本身的操作函数中，而是在zsetAdd函数中依次执行以上两个函数。这样设计的好处是保持了跳表和哈希表两者操作的独立性。</p>
+<ul>
+<li><strong>然后，如果zsetAdd函数通过dictFind函数发现要插入的元素已经存在，那么zsetAdd函数会判断是否要增加元素的权重值。</strong></li>
+</ul>
+<p>如果权重值发生了变化，zsetAdd函数就会调用zslUpdateScore函数，更新跳表中的元素权重值。紧接着，zsetAdd函数会把哈希表中该元素（对应哈希表中的key）的value指向跳表结点中的权重值，这样一来，哈希表中元素的权重值就可以保持最新值了。</p>
+<p>下面的代码显示了zsetAdd函数的执行流程，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"> <span class="comment">//如果采用ziplist编码方式时，zsetAdd函数的处理逻辑</span></span><br><span class="line"> <span class="keyword">if</span> (zobj-&gt;encoding == OBJ_ENCODING_ZIPLIST) &#123;</span><br><span class="line">   ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//如果采用skiplist编码方式时，zsetAdd函数的处理逻辑</span></span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (zobj-&gt;encoding == OBJ_ENCODING_SKIPLIST) &#123;</span><br><span class="line">        zset *zs = zobj-&gt;ptr;</span><br><span class="line">        zskiplistNode *znode;</span><br><span class="line">        dictEntry *de;</span><br><span class="line">        <span class="comment">//从哈希表中查询新增元素</span></span><br><span class="line">        de = dictFind(zs-&gt;dict,ele);</span><br><span class="line">        <span class="comment">//如果能查询到该元素</span></span><br><span class="line">        <span class="keyword">if</span> (de != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            <span class="comment">/* NX? Return, same element already exists. */</span></span><br><span class="line">            <span class="keyword">if</span> (nx) &#123;</span><br><span class="line">                *flags |= ZADD_NOP;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//从哈希表中查询元素的权重</span></span><br><span class="line">            curscore = *(<span class="keyword">double</span>*)dictGetVal(de);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">//如果要更新元素权重值</span></span><br><span class="line">            <span class="keyword">if</span> (incr) &#123;</span><br><span class="line">                <span class="comment">//更新权重值</span></span><br><span class="line">               ...</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">//如果权重发生变化了</span></span><br><span class="line">            <span class="keyword">if</span> (score != curscore) &#123;</span><br><span class="line">                <span class="comment">//更新跳表结点</span></span><br><span class="line">                znode = zslUpdateScore(zs-&gt;zsl,curscore,ele,score);</span><br><span class="line">                <span class="comment">//让哈希表元素的值指向跳表结点的权重</span></span><br><span class="line">                dictGetVal(de) = &amp;znode-&gt;score; </span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">       <span class="comment">//如果新元素不存在</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (!xx) &#123;</span><br><span class="line">            ele = sdsdup(ele);</span><br><span class="line">            <span class="comment">//新插入跳表结点</span></span><br><span class="line">            znode = zslInsert(zs-&gt;zsl,score,ele);</span><br><span class="line">            <span class="comment">//新插入哈希表元素</span></span><br><span class="line">            serverAssert(dictAdd(zs-&gt;dict,ele,&amp;znode-&gt;score) == DICT_OK);</span><br><span class="line">            ...</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; </span><br></pre></td></tr></table></figure>
+
+<p>总之，你可以记住的是，Sorted Set先是通过在它的数据结构中同时定义了跳表和哈希表，来实现同时使用这两种索引结构。然后，Sorted Set在执行数据插入或是数据更新的过程中，会依次在跳表和哈希表中插入或更新相应的数据，从而保证了跳表和哈希表中记录的信息一致。</p>
+<h1 id="quicklist"><a href="#quicklist" class="headerlink" title="quicklist"></a>quicklist</h1><h2 id="ziplist的缺点"><a href="#ziplist的缺点" class="headerlink" title="ziplist的缺点"></a>ziplist的缺点</h2><p>一是不能保存过多的元素，否则访问性能会降低；</p>
+<p>二是不能保存过大的元素，否则容易导致内存重新分配，甚至可能引发连锁更新的问题。所谓的连锁更新，简单来说，就是ziplist中的每一项都要被重新分配内存空间，造成ziplist的性能降低。</p>
+<h2 id="ziplist的不足"><a href="#ziplist的不足" class="headerlink" title="ziplist的不足"></a>ziplist的不足</h2><p>你已经知道，一个ziplist数据结构在内存中的布局，就是一块连续的内存空间。这块空间的起始部分是大小固定的10字节元数据，其中记录了ziplist的总字节数、最后一个元素的偏移量以及列表元素的数量，而这10字节后面的内存空间则保存了实际的列表数据。在ziplist的最后部分，是一个1字节的标识（固定为255），用来表示ziplist的结束，如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151556510.png" alt="image-20220115155617448"></p>
+<p>不过，虽然ziplist通过紧凑的内存布局来保存数据，节省了内存空间，但是ziplist也面临着随之而来的两个不足：查找复杂度高和潜在的连锁更新风险。那么下面，我们就分别来了解下这两个问题。</p>
+<h3 id="查找复杂度高"><a href="#查找复杂度高" class="headerlink" title="查找复杂度高"></a>查找复杂度高</h3><p>因为ziplist头尾元数据的大小是固定的，并且在ziplist头部记录了最后一个元素的位置，所以，当在ziplist中查找第一个或最后一个元素的时候，就可以很快找到。</p>
+<p>但问题是，当要查找列表中间的元素时，ziplist就得从列表头或列表尾遍历才行。而当ziplist保存的元素过多时，查找中间数据的复杂度就增加了。更糟糕的是，如果ziplist里面保存的是字符串，ziplist在查找某个元素时，还需要逐一判断元素的每个字符，这样又进一步增加了复杂度。</p>
+<p>也正因为如此，我们在使用ziplist保存Hash或Sorted Set数据时，都会在redis.conf文件中，通过hash-max-ziplist-entries和zset-max-ziplist-entries两个参数，来控制保存在ziplist中的元素个数。</p>
+<p>不仅如此，除了查找复杂度高以外，ziplist在插入元素时，如果内存空间不够了，ziplist还需要重新分配一块连续的内存空间，而这还会进一步引发连锁更新的问题。</p>
+<h3 id="连锁更新风险"><a href="#连锁更新风险" class="headerlink" title="连锁更新风险"></a>连锁更新风险</h3><p>我们知道，因为ziplist必须使用一块连续的内存空间来保存数据，所以当新插入一个元素时，ziplist就需要计算其所需的空间大小，并申请相应的内存空间。这一系列操作，我们可以从ziplist的元素插入函数__ziplistInsert中看到。</p>
+<p><strong>__ziplistInsert函数首先会计算获得当前ziplist的长度</strong>，这个步骤通过ZIPLIST_BYTES宏定义就可以完成，如下所示。同时，该函数还声明了reqlen变量，用于记录插入元素后所需的新增空间大小。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获取当前ziplist长度curlen；声明reqlen变量，用来记录新插入元素所需的长度</span></span><br><span class="line"><span class="keyword">size_t</span> curlen = intrev32ifbe(ZIPLIST_BYTES(zl)), reqlen;</span><br></pre></td></tr></table></figure>
+
+<p>然后，**__ziplistInsert函数会判断当前要插入的位置是否是列表末尾**。如果不是末尾，那么就需要获取位于当前插入位置的元素的prevlen和prevlensize。这部分代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//如果插入的位置不是ziplist末尾，则获取前一项长度</span></span><br><span class="line"><span class="keyword">if</span> (p[<span class="number">0</span>] != ZIP_END) &#123;</span><br><span class="line">	  ZIP_DECODE_PREVLEN(p, prevlensize, prevlen);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	     …</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实际上，在ziplist中，每一个元素都会记录其<strong>前一项的长度，也就是prevlen</strong>。然后，为了节省内存开销，ziplist会使用不同的空间记录prevlen，这个<strong>prevlen空间大小就是prevlensize</strong>。</p>
+<p>举个简单的例子，当在一个元素A前插入一个新的元素B时，A的prevlen和prevlensize都要根据B的长度进行相应的变化。</p>
+<p>那么现在，我们假设A的prevlen原本只占用1字节（也就是prevlensize等于1），而能记录的前一项长度最大为253字节。此时，如果B的长度超过了253字节，A的prevlen就需要使用5个字节来记录，这样就需要申请额外的4字节空间了。不过，如果元素B的插入位置是列表末尾，那么插入元素B时，我们就不用考虑后面元素的prevlen了。</p>
+<p>我画了下面这张图，以便于你理解数据插入过程对插入位置元素的影响。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151559670.png" alt="image-20220115155943596"></p>
+<p>因此，为了保证ziplist有足够的内存空间，来保存插入元素以及插入位置元素的prevlen信息，**__ziplistInsert函数在获得插入位置元素的prevlen和prevlensize后，紧接着就会计算插入元素的长度**。</p>
+<p>现在我们已知，一个ziplist元素包括了prevlen、encoding和实际数据data三个部分。所以，在计算插入元素的所需空间时，__ziplistInsert函数也会分别计算这三个部分的长度。这个计算过程一共可以分成四步来完成。</p>
+<ul>
+<li>第一步，计算实际插入元素的长度。</li>
+</ul>
+<p>首先你要知道，这个计算过程和插入元素是整数还是字符串有关。__ziplistInsert函数会先调用zipTryEncoding函数，这个函数会判断插入元素是否为整数。如果是整数，就按照不同的整数大小，计算encoding和实际数据data各自所需的空间；如果是字符串，那么就先把字符串长度记录为所需的新增空间大小。这一过程的代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (zipTryEncoding(s,slen,&amp;value,&amp;encoding)) &#123;</span><br><span class="line">	   reqlen = zipIntSize(encoding);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	   reqlen = slen;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第二步，调用zipStorePrevEntryLength函数，将插入位置元素的prevlen也计算到所需空间中。</li>
+</ul>
+<p>这是因为在插入元素后，__ziplistInsert函数可能要为插入位置的元素分配新增空间。这部分代码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">reqlen += zipStorePrevEntryLength(<span class="literal">NULL</span>,prevlen);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第三步，调用zipStoreEntryEncoding函数，根据字符串的长度，计算相应encoding的大小。</li>
+</ul>
+<p>在刚才的第一步中，__ziplistInsert函数对于字符串数据，只是记录了字符串本身的长度，所以在第三步中，__ziplistInsert函数还会调用zipStoreEntryEncoding函数，根据字符串的长度来计算相应的encoding大小，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">reqlen += zipStoreEntryEncoding(<span class="literal">NULL</span>,encoding,slen);</span><br></pre></td></tr></table></figure>
+
+<p>好了，到这里，__ziplistInsert函数就已经在reqlen变量中，记录了插入元素的prevlen长度、encoding大小，以及实际数据data的长度。这样一来，插入元素的整体长度就有了，这也是插入位置元素的prevlen所要记录的大小。</p>
+<ul>
+<li>第四步，调用zipPrevLenByteDiff函数，判断插入位置元素的prevlen和实际所需的prevlen大小。</li>
+</ul>
+<p>最后，__ziplistInsert函数会调用zipPrevLenByteDiff函数，用来判断插入位置元素的prevlen和实际所需的prevlen，这两者间的大小差别。这部分代码如下所示，prevlen的大小差别是使用nextdiff来记录的：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">nextdiff = (p[<span class="number">0</span>] != ZIP_END) ? zipPrevLenByteDiff(p,reqlen) : <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p>那么在这里，如果nextdiff大于0，就表明插入位置元素的空间不够，需要新增nextdiff大小的空间，以便能保存新的prevlen。然后，**__ziplistInsert函数在新增空间时，就会调用ziplistResize函数，来重新分配ziplist所需的空间**。</p>
+<p>ziplistResize函数接收的参数分别是待重新分配的ziplist和重新分配的空间大小。而__ziplistInsert函数传入的重新分配大小的参数，是三个长度之和。</p>
+<p>那么是哪三个长度之和呢？</p>
+<p>这三个长度分别是ziplist现有大小（curlen）、待插入元素自身所需的新增空间（reqlen），以及插入位置元素prevlen所需的新增空间（nextdiff）。下面的代码显示了ziplistResize函数的调用和参数传递逻辑：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">zl = ziplistResize(zl,curlen+reqlen+nextdiff);</span><br></pre></td></tr></table></figure>
+
+<p>进一步，那么ziplistResize函数在获得三个长度总和之后，具体是如何扩容呢？</p>
+<p>我们可以进一步看下ziplistResize函数的实现，这个函数会调用<strong>zrealloc函数</strong>，来完成空间的重新分配，而重新分配的空间大小就是由<strong>传入参数len</strong>决定的。这样，我们就了解到了ziplistResize函数涉及到内存分配操作，因此如果我们往ziplist频繁插入过多数据的话，就可能引起多次内存分配，从而会对Redis性能造成影响。</p>
+<p>下面的代码显示了ziplistResize函数的部分实现，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">ziplistResize</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> *zl, <span class="keyword">unsigned</span> <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//对zl进行重新内存空间分配，重新分配的大小是len</span></span><br><span class="line">    zl = zrealloc(zl,len);</span><br><span class="line">    …</span><br><span class="line">    zl[len<span class="number">-1</span>] = ZIP_END;</span><br><span class="line">    <span class="keyword">return</span> zl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>好了，到这里，我们就了解了ziplist在新插入元素时，会计算其所需的新增空间，并进行重新分配。而当新插入的元素较大时，就会引起插入位置的元素prevlensize增加，进而就会导致插入位置的元素所占空间也增加。</p>
+<p>而如此一来，这种空间新增就会引起连锁更新的问题。</p>
+<p>实际上，所谓的<strong>连锁更新</strong>，就是指当一个元素插入后，会引起当前位置元素新增prevlensize的空间。而当前位置元素的空间增加后，又会进一步引起该元素的后续元素，其prevlensize所需空间的增加。</p>
+<p>这样，一旦插入位置后续的所有元素，都会因为前序元素的prevlenszie增加，而引起自身空间也要增加，这种每个元素的空间都需要增加的现象，就是连锁更新。我画了下面这张图，你可以看下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151601237.png" alt="image-20220115160158160"></p>
+<p>连锁更新一旦发生，就会导致ziplist占用的内存空间要多次重新分配，这就会直接影响到ziplist的访问性能。</p>
+<p>所以说，虽然ziplist紧凑型的内存布局能节省内存开销，但是如果保存的元素数量增加了，或是元素变大了，ziplist就会面临性能问题。那么，有没有什么方法可以避免ziplist的问题呢？</p>
+<h2 id="quicklist设计与实现"><a href="#quicklist设计与实现" class="headerlink" title="quicklist设计与实现"></a>quicklist设计与实现</h2><p>quicklist的设计，其实是结合了链表和ziplist各自的优势。简单来说，<strong>一个quicklist就是一个链表，而链表中的每个元素又是一个ziplist。</strong></p>
+<p>我们来看下quicklist的数据结构，这是在<a target="_blank" rel="noopener" href="https://github.com/redis/redis/tree/5.0/src/quicklist.h">quicklist.h</a>文件中定义的，而quicklist的具体实现是在<a target="_blank" rel="noopener" href="https://github.com/redis/redis/tree/5.0/src/quicklist.c">quicklist.c</a>文件中。</p>
+<p>首先，quicklist元素的定义，也就是quicklistNode。因为quicklist是一个链表，所以每个quicklistNode中，都包含了分别指向它前序和后序节点的**指针<code>*prev</code>和<code>*next</code><strong>。同时，每个quicklistNode又是一个ziplist，所以，在quicklistNode的结构体中，还有指向ziplist的</strong>指针<code>*zl</code>**。</p>
+<p>此外，quicklistNode结构体中还定义了一些属性，比如ziplist的字节大小、包含的元素个数、编码格式、存储方式等。下面的代码显示了quicklistNode的结构体定义，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">quicklistNode</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">quicklistNode</span> *<span class="title">prev</span>;</span>     <span class="comment">//前一个quicklistNode</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">quicklistNode</span> *<span class="title">next</span>;</span>     <span class="comment">//后一个quicklistNode</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *zl;              <span class="comment">//quicklistNode指向的ziplist</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> sz;                <span class="comment">//ziplist的字节大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> count : <span class="number">16</span>;        <span class="comment">//ziplist中的元素个数 </span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> encoding : <span class="number">2</span>;   <span class="comment">//编码格式，原生字节数组或压缩存储</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> container : <span class="number">2</span>;  <span class="comment">//存储方式</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> recompress : <span class="number">1</span>; <span class="comment">//数据是否被压缩</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> attempted_compress : <span class="number">1</span>; <span class="comment">//数据能否被压缩</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> extra : <span class="number">10</span>; <span class="comment">//预留的bit位</span></span><br><span class="line">&#125; quicklistNode;</span><br></pre></td></tr></table></figure>
+
+<p>了解了quicklistNode的定义，我们再来看下quicklist的结构体定义。</p>
+<p>quicklist作为一个链表结构，在它的数据结构中，是定义了<strong>整个quicklist的头、尾指针</strong>，这样一来，我们就可以通过quicklist的数据结构，来快速定位到quicklist的链表头和链表尾。</p>
+<p>此外，quicklist中还定义了quicklistNode的个数、所有ziplist的总元素个数等属性。quicklist的结构定义如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">quicklist</span> &#123;</span></span><br><span class="line">    quicklistNode *head;      <span class="comment">//quicklist的链表头</span></span><br><span class="line">    quicklistNode *tail;      <span class="comment">//quicklist的链表尾</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> count;     <span class="comment">//所有ziplist中的总元素个数</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> len;       <span class="comment">//quicklistNodes的个数</span></span><br><span class="line">    ...</span><br><span class="line">&#125; quicklist;</span><br></pre></td></tr></table></figure>
+
+<p>然后，从quicklistNode和quicklist的结构体定义中，我们就能画出下面这张quicklist的示意图。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151603669.png" alt="image-20220115160324600"></p>
+<p>而也正因为quicklist采用了链表结构，所以当插入一个新的元素时，quicklist首先就会检查插入位置的ziplist是否能容纳该元素，这是通过 <strong>_quicklistNodeAllowInsert函数</strong>来完成判断的。</p>
+<p>_quicklistNodeAllowInsert函数会计算新插入元素后的大小（new_sz），这个大小等于quicklistNode的当前大小（node-&gt;sz）、插入元素的大小（sz），以及插入元素后ziplist的prevlen占用大小。</p>
+<p>在计算完大小之后，_quicklistNodeAllowInsert函数会依次判断新插入的数据大小（sz）是否满足要求，即<strong>单个ziplist是否不超过8KB，或是单个ziplist里的元素个数是否满足要求</strong>。</p>
+<p>只要这里面的一个条件能满足，quicklist就可以在当前的quicklistNode中插入新元素，否则quicklist就会新建一个quicklistNode，以此来保存新插入的元素。</p>
+<p>下面代码显示了是否允许在当前quicklistNode插入数据的判断逻辑，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">int</span> new_sz = node-&gt;sz + sz + ziplist_overhead;</span><br><span class="line"><span class="keyword">if</span> (likely(_quicklistNodeSizeMeetsOptimizationRequirement(new_sz, fill)))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (!sizeMeetsSafetyLimit(new_sz))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> ((<span class="keyword">int</span>)node-&gt;count &lt; fill)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这样一来，quicklist通过控制每个quicklistNode中，ziplist的大小或是元素个数，就有效减少了在ziplist中新增或修改元素后，发生连锁更新的情况，从而提供了更好的访问性能。</p>
+<p>而Redis除了设计了quicklist结构来应对ziplist的问题以外，还在5.0版本中新增了listpack数据结构，用来彻底避免连锁更新。</p>
+<h1 id="listpack设计与实现"><a href="#listpack设计与实现" class="headerlink" title="listpack设计与实现"></a>listpack设计与实现</h1><p>listpack也叫紧凑列表，它的特点就是<strong>用一块连续的内存空间来紧凑地保存数据</strong>，同时为了节省内存空间，<strong>listpack列表项使用了多种编码方式，来表示不同长度的数据</strong>，这些数据包括整数和字符串。</p>
+<p>和listpack相关的实现文件是<a target="_blank" rel="noopener" href="https://github.com/redis/redis/tree/5.0/src/listpack.c">listpack.c</a>，头文件包括<a target="_blank" rel="noopener" href="https://github.com/redis/redis/tree/5.0/src/listpack.h">listpack.h</a>和<a target="_blank" rel="noopener" href="https://github.com/redis/redis/tree/5.0/src/listpack_malloc.h">listpack_malloc.h</a>。我们先来看下listpack的<strong>创建函数lpNew</strong>，因为从这个函数的代码逻辑中，我们可以了解到listpack的整体结构。</p>
+<p>lpNew函数创建了一个空的listpack，一开始分配的大小是LP_HDR_SIZE再加1个字节。LP_HDR_SIZE宏定义是在listpack.c中，它默认是6个字节，其中4个字节是记录listpack的总字节数，2个字节是记录listpack的元素数量。</p>
+<p>此外，listpack的最后一个字节是用来标识listpack的结束，其默认值是宏定义LP_EOF。和ziplist列表项的结束标记一样，LP_EOF的值也是255。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">lpNew</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//分配LP_HRD_SIZE+1</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *lp = lp_malloc(LP_HDR_SIZE+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span> (lp == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="comment">//设置listpack的大小</span></span><br><span class="line">    lpSetTotalBytes(lp,LP_HDR_SIZE+<span class="number">1</span>);</span><br><span class="line">    <span class="comment">//设置listpack的元素个数，初始值为0</span></span><br><span class="line">    lpSetNumElements(lp,<span class="number">0</span>);</span><br><span class="line">    <span class="comment">//设置listpack的结尾标识为LP_EOF，值为255</span></span><br><span class="line">    lp[LP_HDR_SIZE] = LP_EOF;</span><br><span class="line">    <span class="keyword">return</span> lp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你可以看看下面这张图，展示的就是大小为LP_HDR_SIZE的listpack头和值为255的listpack尾。当有新元素插入时，该元素会被插在listpack头和尾之间。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151604912.png" alt="image-20220115160451847"></p>
+<p>和ziplist列表项类似，listpack列表项也包含了元数据信息和数据本身。不过，为了避免ziplist引起的连锁更新问题，listpack中的每个列表项不再像ziplist列表项那样，保存其前一个列表项的长度，<strong>它只会包含三个方面内容</strong>，分别是当前元素的编码类型（entry-encoding）、元素数据(entry-data)，以及编码类型和元素数据这两部分的长度(entry-len)，如下图所示。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151605219.png" alt="image-20220115160511159"></p>
+<h2 id="listpack列表项编码方法"><a href="#listpack列表项编码方法" class="headerlink" title="listpack列表项编码方法"></a>listpack列表项编码方法</h2><p>我们先来看下listpack元素的编码类型。如果你看了listpack.c文件，你会发现该文件中有大量类似LP_ENCODING__XX_BIT_INT和LP_ENCODING__XX_BIT_STR的宏定义，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LP_ENCODING_7BIT_UINT 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LP_ENCODING_6BIT_STR 0x80</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LP_ENCODING_13BIT_INT 0xC0</span></span><br><span class="line">...</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LP_ENCODING_64BIT_INT 0xF4</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LP_ENCODING_32BIT_STR 0xF0</span></span><br></pre></td></tr></table></figure>
+
+<p>这些宏定义其实就对应了listpack的元素编码类型。具体来说，<strong>listpack元素会对不同长度的整数和字符串进行编码</strong>，这里我们分别来看下。</p>
+<p>首先，对于<strong>整数编码</strong>来说，当listpack元素的编码类型为LP_ENCODING_7BIT_UINT时，表示元素的实际数据是一个7 bit的无符号整数。又因为LP_ENCODING_7BIT_UINT本身的宏定义值为0，所以编码类型的值也相应为0，占1个bit。</p>
+<p>此时，编码类型和元素实际数据共用1个字节，这个字节的最高位为0，表示编码类型，后续的7位用来存储7 bit的无符号整数，如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151606440.png" alt="image-20220115160603383"></p>
+<p>而当编码类型为LP_ENCODING_13BIT_INT时，这表示元素的实际数据是13 bit的整数。同时，因为LP_ENCODING_13BIT_INT的宏定义值为0xC0，转换为二进制值是1100 0000，所以，这个二进制值中的后5位和后续的1个字节，共13位，会用来保存13bit的整数。而该二进制值中的前3位110，则用来表示当前的编码类型。我画了下面这张图，你可以看下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151606225.png" alt="image-20220115160625164"></p>
+<p>好，在了解了LP_ENCODING_7BIT_UINT和LP_ENCODING_13BIT_INT这两种编码类型后，剩下的LP_ENCODING_16BIT_INT、LP_ENCODING_24BIT_INT、LP_ENCODING_32BIT_INT和LP_ENCODING_64BIT_INT，你应该也就能知道它们的编码方式了。</p>
+<p>这四种类型是分别用2字节（16 bit）、3字节（24 bit）、4字节（32 bit）和8字节（64 bit）来保存整数数据。同时，它们的编码类型本身占1字节，编码类型值分别是它们的宏定义值。</p>
+<p>然后，对于<strong>字符串编码</strong>来说，一共有三种类型，分别是LP_ENCODING_6BIT_STR、LP_ENCODING_12BIT_STR和LP_ENCODING_32BIT_STR。从刚才的介绍中，你可以看到，整数编码类型名称中BIT前面的数字，表示的是整数的长度。因此类似的，字符串编码类型名称中BIT前的数字，表示的就是字符串的长度。</p>
+<p>比如，当编码类型为LP_ENCODING_6BIT_STR时，编码类型占1字节。该类型的宏定义值是0x80，对应的二进制值是1000 0000，这其中的前2位是用来标识编码类型本身，而后6位保存的是字符串长度。然后，列表项中的数据部分保存了实际的字符串。</p>
+<p>下面的图展示了三种字符串编码类型和数据的布局，你可以看下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151607685.png" alt="image-20220115160704613"></p>
+<h2 id="listpack避免连锁更新的实现方式"><a href="#listpack避免连锁更新的实现方式" class="headerlink" title="listpack避免连锁更新的实现方式"></a>listpack避免连锁更新的实现方式</h2><p>最后，我们再来了解下listpack列表项是如何避免连锁更新的。</p>
+<p>在listpack中，因为每个列表项只记录自己的长度，而不会像ziplist中的列表项那样，会记录前一项的长度。所以，当我们在listpack中新增或修改元素时，实际上只会涉及每个列表项自己的操作，而不会影响后续列表项的长度变化，这就避免了连锁更新。</p>
+<p>不过，你可能会有疑问：<strong>如果listpack列表项只记录当前项的长度，那么listpack支持从左向右正向查询列表，或是从右向左反向查询列表吗？</strong></p>
+<p>其实，listpack是能支持正、反向查询列表的。</p>
+<p><strong>当应用程序从左向右正向查询listpack时</strong>，我们可以先调用lpFirst函数。该函数的参数是指向listpack头的指针，它在执行时，会让指针向右偏移LP_HDR_SIZE大小，也就是跳过listpack头。你可以看下lpFirst函数的代码，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">lpFirst</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> *lp)</span> </span>&#123;</span><br><span class="line">    lp += LP_HDR_SIZE; <span class="comment">//跳过listpack头部6个字节</span></span><br><span class="line">    <span class="keyword">if</span> (lp[<span class="number">0</span>] == LP_EOF) <span class="keyword">return</span> <span class="literal">NULL</span>;  <span class="comment">//如果已经是listpack的末尾结束字节，则返回NULL</span></span><br><span class="line">    <span class="keyword">return</span> lp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，再调用lpNext函数，该函数的参数包括了指向listpack某个列表项的指针。lpNext函数会进一步调用lpSkip函数，并传入当前列表项的指针，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">lpNext</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> *lp, <span class="keyword">unsigned</span> <span class="keyword">char</span> *p)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    p = lpSkip(p);  <span class="comment">//调用lpSkip函数，偏移指针指向下一个列表项</span></span><br><span class="line">    <span class="keyword">if</span> (p[<span class="number">0</span>] == LP_EOF) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后，lpSkip函数会先后调用lpCurrentEncodedSize和lpEncodeBacklen这两个函数。</p>
+<p>lpCurrentEncodedSize函数是根据当前列表项第1个字节的取值，来计算当前项的编码类型，并根据编码类型，计算当前项编码类型和实际数据的总长度。然后，lpEncodeBacklen函数会根据编码类型和实际数据的长度之和，进一步计算列表项最后一部分entry-len本身的长度。</p>
+<p>这样一来，lpSkip函数就知道当前项的编码类型、实际数据和entry-len的总长度了，也就可以将当前项指针向右偏移相应的长度，从而实现查到下一个列表项的目的。</p>
+<p>下面代码展示了lpEncodeBacklen函数的基本计算逻辑，你可以看下。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">lpEncodeBacklen</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> *buf, <span class="keyword">uint64_t</span> l)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//编码类型和实际数据的总长度小于等于127，entry-len长度为1字节</span></span><br><span class="line">    <span class="keyword">if</span> (l &lt;= <span class="number">127</span>) &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (l &lt; <span class="number">16383</span>) &#123; <span class="comment">//编码类型和实际数据的总长度大于127但小于16383，entry-len长度为2字节</span></span><br><span class="line">       ...</span><br><span class="line">        <span class="keyword">return</span> <span class="number">2</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (l &lt; <span class="number">2097151</span>) &#123;<span class="comment">//编码类型和实际数据的总长度大于16383但小于2097151，entry-len长度为3字节</span></span><br><span class="line">       ...</span><br><span class="line">        <span class="keyword">return</span> <span class="number">3</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (l &lt; <span class="number">268435455</span>) &#123; <span class="comment">//编码类型和实际数据的总长度大于2097151但小于268435455，entry-len长度为4字节</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> <span class="number">4</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">//否则，entry-len长度为5字节</span></span><br><span class="line">       ...</span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我也画了一张图，展示了从左向右遍历listpack的基本过程，你可以再回顾下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151609804.png" alt="image-20220115160908714"></p>
+<p>好，了解了从左向右正向查询listpack，我们再来看下<strong>从右向左反向查询listpack</strong>。</p>
+<p>首先，我们根据listpack头中记录的listpack总长度，就可以直接定位到listapck的尾部结束标记。然后，我们可以调用lpPrev函数，该函数的参数包括指向某个列表项的指针，并返回指向当前列表项前一项的指针。</p>
+<p>lpPrev函数中的关键一步就是调用lpDecodeBacklen函数。lpDecodeBacklen函数会从右向左，逐个字节地读取当前列表项的entry-len。</p>
+<p>那么，<strong>lpDecodeBacklen函数如何判断entry-len是否结束了呢？</strong></p>
+<p>这就依赖于entry-len的编码方式了。entry-len每个字节的最高位，是用来表示当前字节是否为entry-len的最后一个字节，这里存在两种情况，分别是：</p>
+<ul>
+<li>最高位为1，表示entry-len还没有结束，当前字节的左边字节仍然表示entry-len的内容；</li>
+<li>最高位为0，表示当前字节已经是entry-len最后一个字节了。</li>
+</ul>
+<p>而entry-len每个字节的低7位，则记录了实际的长度信息。这里你需要注意的是，entry-len每个字节的低7位采用了<strong>大端模式存储</strong>，也就是说，entry-len的低位字节保存在内存高地址上。</p>
+<p>我画了下面这张图，展示了entry-len这种特别的编码方式，你可以看下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151609147.png" alt="image-20220115160952076"></p>
+<p>实际上，正是因为有了entry-len的特别编码方式，lpDecodeBacklen函数就可以从当前列表项起始位置的指针开始，向左逐个字节解析，得到前一项的entry-len值。这也是lpDecodeBacklen函数的返回值。而从刚才的介绍中，我们知道entry-len记录了编码类型和实际数据的长度之和。</p>
+<p>因此，lpPrev函数会再调用lpEncodeBacklen函数，来计算得到entry-len本身长度，这样一来，我们就可以得到前一项的总长度，而lpPrev函数也就可以将指针指向前一项的起始位置了。所以按照这个方法，listpack就实现了从右向左的查询功能。</p>
+<h1 id="RadixTree"><a href="#RadixTree" class="headerlink" title="RadixTree"></a>RadixTree</h1><p>这个数据结构的<strong>最大特点是适合保存具有相同前缀的数据</strong>，从而实现节省内存空间的目标，以及支持范围查询。</p>
+<h2 id="Stream消息数据的特征"><a href="#Stream消息数据的特征" class="headerlink" title="Stream消息数据的特征"></a>Stream消息数据的特征</h2><p>首先，Stream作为消息队列，它保存的消息通常具有以下两个特征：</p>
+<ul>
+<li>一条消息由一个或多个键值对组成；</li>
+<li>每插入一条消息，这条消息都会对应一个消息ID。</li>
+</ul>
+<blockquote>
+<p>我们一般会让Redis服务器自动生成递增的消息ID。此时，消息ID由时间戳和序号组成。其中，时间戳是消息插入时，以毫秒为单位的服务器当时时间，序号是插入消息在当前毫秒内的序号。</p>
+</blockquote>
+<p>比如，我在Redis实例中执行以下操作，可以向名为devmsg的消息流中，连续插入5条消息。其中，每条消息记录的是某个设备ID对应的设备温度信息。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; XADD devmsg * dev 3 temp 26</span><br><span class="line"><span class="string">&quot;1628172536845-0&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; XADD devmsg * dev 5 temp 28</span><br><span class="line"><span class="string">&quot;1628172545411-0&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; XADD devmsg * dev 8 temp 24</span><br><span class="line"><span class="string">&quot;1628172553528-0&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; XADD devmsg * dev 1 temp 25</span><br><span class="line"><span class="string">&quot;1628172560442-0&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; XADD devmsg * dev 5 temp 26</span><br><span class="line"><span class="string">&quot;1628172565683-0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>从上面的插入数据和返回结果中，我们可以看到，对应Stream类型来说，它需要保存的数据也具有两个特征：</p>
+<ul>
+<li>连续插入的消息ID，其前缀有较多部分是相同的。比如，刚才插入的5条消息，它们消息ID的前8位都是16281725。</li>
+<li>连续插入的消息，它们对应键值对中的键通常是相同的。比如，刚才插入的5条消息，它们消息中的键都是dev和temp。</li>
+</ul>
+<p>那么，针对Stream的这两个数据特征，我们该设计使用什么样的数据结构来保存这些消息数据呢？</p>
+<p>你可能会想到使用哈希表，一个消息ID对应哈希表中的一个key，消息内容对应这个key的value。但是，就像刚才介绍的数据特征一样，消息ID和消息中的键经常会有重复的部分。如果使用哈希表，就会导致有不少冗余数据，这会浪费Redis宝贵的内存空间。</p>
+<p>因此，为了充分节省内存空间，Stream使用了两种内存友好的数据结构：listpack和Radix Tree。其中，<strong>消息ID是作为Radix Tree中的key，消息具体数据是使用listpack保存，并作为value和消息ID一起保存到Radix Tree中。</strong></p>
+<p>你可以看看下面的Stream结构体定义，其中，消息就是使用Radix Tree类型的结构<code>*rax</code>来保存的。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">stream</span> &#123;</span></span><br><span class="line">    rax *rax;               <span class="comment">//保存消息的Radix Tree</span></span><br><span class="line">    <span class="keyword">uint64_t</span> length;        <span class="comment">//消息流中的消息个数</span></span><br><span class="line">    streamID last_id;       <span class="comment">//当前消息流中最后插入的消息的ID</span></span><br><span class="line">    rax *cgroups;           <span class="comment">//当前消息流的消费组信息，也是用Radix Tree保存</span></span><br><span class="line">&#125; stream;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Radix-Tree的基本结构"><a href="#Radix-Tree的基本结构" class="headerlink" title="Radix Tree的基本结构"></a>Radix Tree的基本结构</h2><p>Radix Tree是属于前缀树的一种类型。前缀树也称为Trie Tree，它的特点是，保存在树上的每个key会被拆分成单字符，然后逐一保存在树上的节点中。前缀树的根节点不保存任何字符，而除了根节点以外的其他节点，每个节点只保存一个字符。当我们把从根节点到当前节点的路径上的字符拼接在一起时，就可以得到相应key的值了。</p>
+<p>下面这张图展示了一个简单的前缀树，你可以看下。图中的前缀树有两个叶子节点，将根节点到这两个叶子节点的路径上，对应的字符拼接起来后，就得到了两个key：read和real。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151614227.png" alt="image-20220115161447163"></p>
+<p>另外从图中，我们还可以看到，前缀树是把保存的key的公共前缀（即r、e、a）独立出来共享使用的。这样一来，就可以避免在树中对相同的字符做重复存储。</p>
+<p>而如果不采用这种方法，只是把这两个key保存在哈希表中，那么key的相同前缀就会被单独存储，这样就会导致内存空间的浪费。所以，<strong>相比哈希表的保存方式，前缀树能够很好地节省内存空间，这对于Redis来说是非常重要的。</strong></p>
+<h3 id="前缀树的不足和Radix-Tree的改进"><a href="#前缀树的不足和Radix-Tree的改进" class="headerlink" title="前缀树的不足和Radix Tree的改进"></a>前缀树的不足和Radix Tree的改进</h3><p>当然，前缀树在每个节点中只保存一个字符，这样做的好处就是可以尽可能地共享不同key的公共前缀。但是，这也会导致key中的某些字符串，虽然不再被共享，可仍然会按照每个节点一个字符的形式来保存，这样反而会造成空间的浪费和查询性能的降低。</p>
+<p>我来给你举个例子，假设有5个key，分别是radix、race、read、real和redis，它们在前缀树上的布局如下图所示。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151615258.png" alt="image-20220115161514187"></p>
+<p>对于“redis”来说，因为它和“read”“real”共享“r”和“e”，和“radix”“race”共享“r”，也就是说“r”和“e”节点都分别指向多个子节点。类似的，“real”和“read”共享了“r”“e”和“a”前缀，“a”节点也指向了多个子节点。所以，在前缀树的节点中单独保存“r”“e”“a”是很有必要的。</p>
+<p>但是，我们还是看“redis”这个key，除了“r”“e”字符和其他key有共享外，“re”后面的“dis”没有再被其他key共享了。所以此时，其实并没有必要再对“dis”进行拆分，将其分成单个字符“d”“i”和“s”来保存，而是可以把它们合并在一起保存。</p>
+<p>那么到这里，你就可以发现，在前缀树上，确实有的字符需要单独保存，用来作为不同key的公共前缀进行共享，但其实有的单字符节点可以和其他单字符节点进行合并，这样能进一步节省空间。</p>
+<p>而从一个更加通用的角度来说，在前缀树的某个节点开始，如果从该节点到另外一个节点之间，每一个节点都只有一个子节点，那就表明这些节点对应的字符，并没有和其他节点共享了。那么如果我们还是按照前缀树的方式，为每一个字符创建一个节点进行保存的话，一是会<strong>浪费内存空间</strong>，二是在进行查询时，还需要逐一匹配每个节点表示的字符，<strong>对查询性能也会造成影响</strong>。</p>
+<p>所以，在前缀树中，如果一系列单字符节点之间的分支连接是唯一的，那么这些单字符节点就可以合并成一个节点，而这种结构的树，就正是<strong>Radix Tree，也被称为基数树</strong>。相比前缀树来说，Radix Tree既可以节约内存的使用，同时还可以提高查询访问的效率。</p>
+<p>我画了下面这张图，展示了刚才介绍的前缀树上的5个key（radix、race、read、real和redis），在Radix Tree上的布局，你可以对照着看下它们在前缀树布局上的不同之处。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151615784.png" alt="image-20220115161541714"></p>
+<h3 id="Radix-Tree数据结构"><a href="#Radix-Tree数据结构" class="headerlink" title="Radix Tree数据结构"></a>Radix Tree数据结构</h3><p>好了，从刚才介绍的Radix Tree的结构中，我们其实可以发现，在Radix Tree中存在两类节点。</p>
+<p><strong>第一类节点是非压缩节点</strong>，这类节点会包含多个指向不同子节点的指针，以及多个子节点所对应的字符，比如前面Radix Tree例子中的节点“r”，这个节点就包含了指向子节点“a”和“e”的指针。同时，如果从根节点到一个非压缩节点的路径上的字符串，已经对应了Radix Tree中保存的一个key，那么这个非压缩节点中还包含了指向这个key对应的value的指针。</p>
+<p>比如，下面这张图就显示了刚才例子中的节点r，它是一个非压缩节点，指向了两个子节点，这两个子节点对应的字符分别是“a”和“e”，这个非压缩节点包含了指向子节点a和e的指针。此外，非压缩节点头部保存的HDR，是Radix Tree节点数据结构中的元数据，我一会儿会给你具体介绍它。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151616148.png" alt="image-20220115161606081"></p>
+<p><strong>第二类节点是压缩节点</strong>，这类节点会包含一个指向子节点的指针，以及子节点所代表的合并的字符串。比如前面Radix Tree例子中的节点e，这个节点指向的子节点包含的字符串就是合并的字符串“dis”。和非压缩节点类似，如果从根节点到一个压缩节点的路径上的字符串，已经对应了Radix Tree中保存的一个key，那么，这个压缩节点中还包含指向这个key对应的value的指针。</p>
+<p>下图展示的就是一个压缩节点，它包含一个指向子节点的指针，这个子节点表示的合并字符串是“is”，所以在当前这个压缩节点中，保存了合并字符“is”。而和非压缩节点类似，压缩节点的头部HDR，保存的也是Radix Tree节点结构中的元数据。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151616700.png" alt="image-20220115161632624"></p>
+<p>既然，这两类节点的头部HDR中都保存了元数据，下面我们就来看看，这些元数据都包括了什么内容。</p>
+<p>首先，我们需要了解下Radix Tree的节点数据结构。Radix Tree节点的数据结构是由<a target="_blank" rel="noopener" href="https://github.com/redis/redis/tree/5.0/src/rax.h">rax.h</a>文件中的raxNode定义的，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">raxNode</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> iskey:<span class="number">1</span>;     <span class="comment">//节点是否包含key</span></span><br><span class="line">    <span class="keyword">uint32_t</span> isnull:<span class="number">1</span>;    <span class="comment">//节点的值是否为NULL</span></span><br><span class="line">    <span class="keyword">uint32_t</span> iscompr:<span class="number">1</span>;   <span class="comment">//节点是否被压缩</span></span><br><span class="line">    <span class="keyword">uint32_t</span> size:<span class="number">29</span>;     <span class="comment">//节点大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> data[]; <span class="comment">//节点的实际存储数据</span></span><br><span class="line">&#125; raxNode;</span><br></pre></td></tr></table></figure>
+
+<p>该结构中的成员变量包括4个元数据，这四个元数据的含义分别如下。</p>
+<ul>
+<li><strong>iskey</strong>：表示从Radix Tree的根节点到当前节点路径上的字符组成的字符串，是否表示了一个完整的key。如果是的话，那么iskey的值为1。否则，iskey的值为0。不过，这里需要注意的是，当前节点所表示的key，并不包含该节点自身的内容。</li>
+<li><strong>isnull</strong>：表示当前节点是否为空节点。如果当前节点是空节点，那么该节点就不需要为指向value的指针分配内存空间了。</li>
+<li><strong>iscompr</strong>：表示当前节点是非压缩节点，还是压缩节点。</li>
+<li><strong>size</strong>：表示当前节点的大小，具体值会根据节点是压缩节点还是非压缩节点而不同。如果当前节点是压缩节点，该值表示压缩数据的长度；如果是非压缩节点，该值表示该节点指向的子节点个数。</li>
+</ul>
+<p>这4个元数据就对应了刚才介绍的压缩节点和非压缩节点头部的HDR，其中，iskey、isnull和iscompr分别用1 bit表示，而size占用29 bit。</p>
+<p>另外，从raxNode结构体中，我们还可以看到，除了元数据，该结构体中还有char类型数组data。我们知道，data是用来保存实际数据的。不过，这里保存的数据会根据当前节点的类型而有所不同：</p>
+<ul>
+<li><strong>对于非压缩节点来说</strong>，data数组包括子节点对应的字符、指向子节点的指针，以及节点表示key时对应的value指针；</li>
+<li><strong>对于压缩节点来说</strong>，data数组包括子节点对应的合并字符串、指向子节点的指针，以及节点为key时的value指针。</li>
+</ul>
+<p>好了，到这里，你可能已经发现，在raxNode的实现中，无论是非压缩节点还是压缩节点，其实具有两个特点：</p>
+<ul>
+<li>它们所代表的key，是从根节点到当前节点路径上的字符串，但并不包含当前节点；</li>
+<li>它们本身就已经包含了子节点代表的字符或合并字符串。而对于它们的子节点来说，也都属于非压缩或压缩节点，所以，<strong>子节点本身又会保存，子节点的子节点所代表的字符或合并字符串</strong>。</li>
+</ul>
+<p>而这两个特点就给Radix Tree实际保存数据时的结构，带来了两个方面的变化。</p>
+<p>一方面，Radix Tree非叶子节点，要不然是压缩节点，只指向单个子节点，要不然是非压缩节点，指向多个子节点，但每个子节点只表示一个字符。所以，<strong>非叶子节点无法同时指向表示单个字符的子节点和表示合并字符串的子节点</strong>。</p>
+<p>我给你举个例子，在下图的左半部分，节点r的子节点a，它的两个子节点表示的都是合并字符串“dix”和“ce”。因此，节点a的raxNode结构，无法同时指向dix子节点和ce子节点。类似的，r节点的子节点e，它的两个子节点，一个表示的是单字符“a”，另一个表示的是合并字符串“dis”，节点e的raxNode结构也无法同时指向这两个子节点。</p>
+<p>所以，在实际使用raxNode结构保存数据时，节点dix会被拆为节点d和ix，节点ce会被拆为节点c和e，节点dis会被拆为节点d和is，如下图的右半部分所示。这样一来，节点r的子节点a和e，就可以用非压缩节点的结构来保存了。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151617251.png" alt="image-20220115161748167"></p>
+<p>我们再来看另一方面，对于Radix Tree的叶子节点来说，因为它没有子节点了，所以，<strong>Redis会用一个不包含子节点指针的raxNode节点来表示叶子节点</strong>，也就是说，叶子节点的raxNode元数据size为0，没有子节点指针。如果叶子节点代表了一个key，那么它的raxNode中是会保存这个key的value指针的。</p>
+<p>为了便于你理解非压缩节点、压缩节点和叶子节点的raxNode结构内容，我画了下面这张图，你可以看下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151618964.png" alt="image-20220115161814885"></p>
+<p>这张图上显示了Radix Tree最右侧分支的4个节点r、e、d、is和它们各自的raxNode内容。其中，节点r、e和d都不代表key，所以它们的iskey值为0，isnull值为1，没有为value指针分配空间。</p>
+<p>节点r和e指向的子节点都是单字符节点，所以它们不是压缩节点，iscompr值为0。而节点d的子节点包含了合并字符串“is”，所以该节点是压缩节点，iscompr值为1。最后的叶子节点is，它的raxNode的size为0，没有子节点指针。不过，因为从根节点到节点is路径上的字符串代表了key“redis”，所以，节点is的value指针指向了“redis”对应的value数据。</p>
+<p>这里，你需要注意的是，<strong>为了满足内存对齐的需要，raxNode会根据保存的字符串长度，在字符串后面填充一些字节</strong>，也就是图中的padding部分。</p>
+<p>好了，到这里，你应该就理解了Radix Tree中不同节点的raxNode结构内容。那么接下来，我们再来了解下Radix Tree的基本操作函数。</p>
+<h2 id="Radix-Tree的操作函数"><a href="#Radix-Tree的操作函数" class="headerlink" title="Radix Tree的操作函数"></a>Radix Tree的操作函数</h2><p>Radix Tree的基本操作函数都是在<a target="_blank" rel="noopener" href="https://github.com/redis/redis/tree/5.0/src/rax.c">rax.c</a>文件中实现的，主要有以下几种。</p>
+<ul>
+<li><strong>raxNew函数</strong></li>
+</ul>
+<p>该函数的原型如下，它会调用rax_malloc函数分配一个新的rax结构体空间。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">rax *<span class="title">raxNew</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br></pre></td></tr></table></figure>
+
+<p>rax结构体的定义如下所示，其中包含了Radix Tree中的key个数、节点个数，以及指向头节点的指针，而raxNew函数会调用raxNewNode函数来创建头节点。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">rax</span> &#123;</span></span><br><span class="line">    raxNode *head;  <span class="comment">//Radix Tree的头指针</span></span><br><span class="line">    <span class="keyword">uint64_t</span> numele;  <span class="comment">//Radix Tree中key的个数</span></span><br><span class="line">    <span class="keyword">uint64_t</span> numnodes; <span class="comment">//Radix Tree中raxNode的个数</span></span><br><span class="line">&#125; rax;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>raxNewNode函数</strong></li>
+</ul>
+<p>该函数的原型如下，用来创建一个新的非压缩节点。它的参数children表示该非压缩节点的子节点个数，参数datafield表示是否要为value指针分配空间。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">raxNode *<span class="title">raxNewNode</span><span class="params">(<span class="keyword">size_t</span> children, <span class="keyword">int</span> datafield)</span> </span></span><br></pre></td></tr></table></figure>
+
+<p>这里，你需要注意的是，压缩节点的创建并不是通过raxNewNode函数来完成的，而是通过raxCompressNode函数来实现的。</p>
+<ul>
+<li><strong>raxGenericInsert函数</strong></li>
+</ul>
+<p>该函数原型如下，用来向Radix Tree中插入一个长度为len的字符串s。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">raxGenericInsert</span><span class="params">(rax *rax, <span class="keyword">unsigned</span> <span class="keyword">char</span> *s, <span class="keyword">size_t</span> len, <span class="keyword">void</span> *data, <span class="keyword">void</span> **old, <span class="keyword">int</span> overwrite)</span> </span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>raxLowWalk函数</strong></li>
+</ul>
+<p>该函数原型如下，当需要在Radix Tree中查找、插入或是删除节点时，都会调用该函数。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">size_t</span> <span class="title">raxLowWalk</span><span class="params">(rax *rax, <span class="keyword">unsigned</span> <span class="keyword">char</span> *s, <span class="keyword">size_t</span> len, raxNode **stopnode, raxNode ***plink, <span class="keyword">int</span> *splitpos, raxStack *ts)</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>raxGetData/raxSetData函数</strong></li>
+</ul>
+<p>这两个函数的原型如下所示，它们分别用来获得raxNode中保存的value指针，以及设置raxNode中保存的value指针。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">raxGetData</span><span class="params">(raxNode *n)</span> </span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">raxSetData</span><span class="params">(raxNode *n, <span class="keyword">void</span> *data)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>好了，了解了Radix Tree的基本操作函数后，我们最后再来看下，Stream是如何把Radix Tree和listpack组合起来使用的。</p>
+<h2 id="Stream如何组合使用Radix-Tree和listpack？"><a href="#Stream如何组合使用Radix-Tree和listpack？" class="headerlink" title="Stream如何组合使用Radix Tree和listpack？"></a>Stream如何组合使用Radix Tree和listpack？</h2><p>我们知道，Stream保存的消息数据，按照key-value形式来看的话，消息ID就相当于key，而消息内容相当于是value。也就是说，Stream会使用Radix Tree来保存消息ID，然后将消息内容保存在listpack中，并作为消息ID的value，用raxNode的value指针指向对应的listpack。</p>
+<p>这里我放了一张图，展示了Stream结构、rax、raxNode以及listpack相互之间的关系。注意，在这张图中，我们假设就只有一个streamID作为key。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201151620457.png" alt="image-20220115162055362"></p>
+<p>我们可以看到，stream结构体中的rax指针，指向了Radix Tree的头节点，也就是rax结构体。rax结构体中的头指针进一步指向了第一个raxNode。因为我们假设就只有一个streamID，暂时没有其他streamID和该streamID共享前缀，所以，当前这个streamID就可以用压缩节点保存。</p>
+<p>然后，第一个raxNode指向了下一个raxNode，也是Radix Tree的叶子节点。这个节点的size为0，它的value指针指向了实际的消息内容。</p>
+<p>而在消息内容这里，是使用了listpack进行保存的。你可以看到，listpack中是使用了master entry来保存键值对类型消息中的键，而值会在master entry后面保存。这种保存方式其实也是为了<strong>节省内存空间</strong>，这是因为很多消息的键是相同的，保存一份就行。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/6364a1dc.html">http://www.lvxueyang.vip/post/6364a1dc.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Redis%E6%BA%90%E7%A0%81/">Redis源码</a><a class="post-meta__tags" href="/tags/c%E6%BA%90%E7%A0%81/">c源码</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/e223c7.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">FastDFS</div></div></a></div><div class="next-post pull-right"><a href="/post/5c43006d.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Redis源码之导读</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/5c43006d.html" title="Redis源码之导读"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-15</div><div class="title">Redis源码之导读</div></div></a></div><div><a href="/post/f596c2de.html" title="Redis事件驱动框架和执行模型模块"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-16</div><div class="title">Redis事件驱动框架和执行模型模块</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Redis%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-text">Redis字符串的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E8%A6%81%E6%B1%82"><span class="toc-text">实现字符串的要求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88Redis%E4%B8%8D%E7%94%A8char-%EF%BC%9F"><span class="toc-text">为什么Redis不用char*？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#char-%E7%9A%84%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="toc-text">char*的结构设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E5%87%BD%E6%95%B0%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-text">操作函数复杂度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SDS%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3"><span class="toc-text">SDS的设计思想</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SDS%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="toc-text">SDS结构设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SDS%E6%93%8D%E4%BD%9C%E6%95%88%E7%8E%87"><span class="toc-text">SDS操作效率</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B4%A7%E5%87%91%E5%9E%8B%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%BB%93%E6%9E%84%E7%9A%84%E7%BC%96%E7%A8%8B%E6%8A%80%E5%B7%A7"><span class="toc-text">紧凑型字符串结构的编程技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E6%80%BB%E7%BB%93"><span class="toc-text">小总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Redis-Hash%E8%A1%A8%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-text">Redis Hash表的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%93%BE%E5%BC%8F%E5%93%88%E5%B8%8C%EF%BC%9F"><span class="toc-text">Redis如何实现链式哈希？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%93%88%E5%B8%8C%E5%86%B2%E7%AA%81%EF%BC%9F"><span class="toc-text">什么是哈希冲突？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E5%BC%8F%E5%93%88%E5%B8%8C%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%9F"><span class="toc-text">链式哈希如何设计与实现？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0rehash%EF%BC%9F"><span class="toc-text">Redis如何实现rehash？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E8%A7%A6%E5%8F%91rehash%EF%BC%9F"><span class="toc-text">什么时候触发rehash？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rehash%E6%89%A9%E5%AE%B9%E6%89%A9%E5%A4%9A%E5%A4%A7%EF%BC%9F"><span class="toc-text">rehash扩容扩多大？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B8%90%E8%BF%9B%E5%BC%8Frehash%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%EF%BC%9F"><span class="toc-text">渐进式rehash如何实现？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%8F%8B%E5%A5%BD%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-text">内存友好的数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SDS%E7%9A%84%E5%86%85%E5%AD%98%E5%8F%8B%E5%A5%BD%E8%AE%BE%E8%AE%A1"><span class="toc-text">SDS的内存友好设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redisObject%E7%BB%93%E6%9E%84%E4%BD%93%E4%B8%8E%E4%BD%8D%E5%9F%9F%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95"><span class="toc-text">redisObject结构体与位域定义方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-text">嵌入式字符串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8%E5%92%8C%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="toc-text">压缩列表和整数集合的设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8A%82%E7%9C%81%E5%86%85%E5%AD%98%E7%9A%84%E6%95%B0%E6%8D%AE%E8%AE%BF%E9%97%AE"><span class="toc-text">节省内存的数据访问</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88"><span class="toc-text">有序集合</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Sorted-Set%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">Sorted Set基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B7%B3%E8%A1%A8%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-text">跳表的设计与实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%B3%E8%A1%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-text">跳表数据结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%B3%E8%A1%A8%E7%BB%93%E7%82%B9%E6%9F%A5%E8%AF%A2"><span class="toc-text">跳表结点查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%B3%E8%A1%A8%E7%BB%93%E7%82%B9%E5%B1%82%E6%95%B0%E8%AE%BE%E7%BD%AE"><span class="toc-text">跳表结点层数设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E8%A1%A8%E5%92%8C%E8%B7%B3%E8%A1%A8%E7%9A%84%E7%BB%84%E5%90%88%E4%BD%BF%E7%94%A8"><span class="toc-text">哈希表和跳表的组合使用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#quicklist"><span class="toc-text">quicklist</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ziplist%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="toc-text">ziplist的缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ziplist%E7%9A%84%E4%B8%8D%E8%B6%B3"><span class="toc-text">ziplist的不足</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E6%89%BE%E5%A4%8D%E6%9D%82%E5%BA%A6%E9%AB%98"><span class="toc-text">查找复杂度高</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E9%94%81%E6%9B%B4%E6%96%B0%E9%A3%8E%E9%99%A9"><span class="toc-text">连锁更新风险</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#quicklist%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-text">quicklist设计与实现</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#listpack%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="toc-text">listpack设计与实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#listpack%E5%88%97%E8%A1%A8%E9%A1%B9%E7%BC%96%E7%A0%81%E6%96%B9%E6%B3%95"><span class="toc-text">listpack列表项编码方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#listpack%E9%81%BF%E5%85%8D%E8%BF%9E%E9%94%81%E6%9B%B4%E6%96%B0%E7%9A%84%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="toc-text">listpack避免连锁更新的实现方式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RadixTree"><span class="toc-text">RadixTree</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Stream%E6%B6%88%E6%81%AF%E6%95%B0%E6%8D%AE%E7%9A%84%E7%89%B9%E5%BE%81"><span class="toc-text">Stream消息数据的特征</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Radix-Tree%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">Radix Tree的基本结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BC%80%E6%A0%91%E7%9A%84%E4%B8%8D%E8%B6%B3%E5%92%8CRadix-Tree%E7%9A%84%E6%94%B9%E8%BF%9B"><span class="toc-text">前缀树的不足和Radix Tree的改进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Radix-Tree%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-text">Radix Tree数据结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Radix-Tree%E7%9A%84%E6%93%8D%E4%BD%9C%E5%87%BD%E6%95%B0"><span class="toc-text">Radix Tree的操作函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stream%E5%A6%82%E4%BD%95%E7%BB%84%E5%90%88%E4%BD%BF%E7%94%A8Radix-Tree%E5%92%8Clistpack%EF%BC%9F"><span class="toc-text">Stream如何组合使用Radix Tree和listpack？</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const $countDom = document.getElementById('twikoo-count')
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: ''
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'pinglun-9gh2lmcnd8587831',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      $countDom.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const loadTwikoo = (bool = false) => {
+    if (typeof twikoo === 'object') {
+      init()
+      bool && $countDom && setTimeout(getCount,0)
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
+        init()
+        bool && $countDom && setTimeout(getCount,0)
+      })
+    }
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo(true)
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
+  window.tidioChatApi.hide();
+  window.tidioChatApi.on("close", function() {
+    window.tidioChatApi.hide();
+  });
+}
+if (window.tidioChatApi) {
+  window.tidioChatApi.on("ready", onTidioChatApiReady);
+} else {
+  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
+}
+
+var chatBtnFn = () => {
+  document.getElementById("chat_btn").addEventListener("click", function(){
+    window.tidioChatApi.show();
+    window.tidioChatApi.open();
+  });
+}
+chatBtnFn()
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
