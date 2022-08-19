@@ -1,159 +1,530 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Scala之特质 | 牧马人的忧伤</title><meta name="keywords" content="scala"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Scala第八章节章节目标 能够使用trait独立完成适配器, 模板方法, 职责链设计模式 能够独立叙述trait的构造机制 能够了解trait继承class的写法 能够独立完成程序员案例   特质入门概述有些时候, 我们会遇到一些特定的需求, 即: 在不影响当前继承体系的情况下, 对某些类(或者某些对象)的功能进行加强, 例如: 有猴子类和大象类, 它们都有姓名, 年龄, 以及吃的功能, 但是部">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Scala之特质">
-<meta property="og:url" content="http://www.lvxueyang.vip/post/e21ef013.html">
-<meta property="og:site_name" content="牧马人的忧伤">
-<meta property="og:description" content="Scala第八章节章节目标 能够使用trait独立完成适配器, 模板方法, 职责链设计模式 能够独立叙述trait的构造机制 能够了解trait继承class的写法 能够独立完成程序员案例   特质入门概述有些时候, 我们会遇到一些特定的需求, 即: 在不影响当前继承体系的情况下, 对某些类(或者某些对象)的功能进行加强, 例如: 有猴子类和大象类, 它们都有姓名, 年龄, 以及吃的功能, 但是部">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg">
-<meta property="article:published_time" content="2021-11-12T08:32:00.000Z">
-<meta property="article:modified_time" content="2021-11-12T08:32:38.093Z">
-<meta property="article:author" content="YangShen">
-<meta property="article:tag" content="scala">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/e21ef013"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
-  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '天',
-  date_suffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  source: {
-    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
-    justifiedGallery: {
-      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
-    },
-    fancybox: {
-      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
-    }
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isanchor: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'Scala之特质',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2021-11-12 16:32:38'
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
+<!DOCTYPE HTML>
+<html lang="zh-CN">
 
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-    win.saveToLocal = {
-      set: function setWithExpiry(key, value, ttl) {
-        if (ttl === 0) return
-        const now = new Date()
-        const expiryDay = ttl * 86400000
-        const item = {
-          value: value,
-          expiry: now.getTime() + expiryDay,
-        }
-        localStorage.setItem(key, JSON.stringify(item))
-      },
 
-      get: function getWithExpiry(key) {
-        const itemStr = localStorage.getItem(key)
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Scala之特质, 牧马人的忧伤">
+    <meta name="description" content="主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
-        if (!itemStr) {
-          return undefined
-        }
-        const item = JSON.parse(itemStr)
-        const now = new Date()
 
-        if (now.getTime() > item.expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return item.value
-      }
-    }
+    <title>Scala之特质 | 牧马人的忧伤</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.2">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span diyFont">牧马人的忧伤</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
   
-    win.getScript = url => new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = url
-      script.async = true
-      script.onerror = reject
-      script.onload = script.onreadystatechange = function() {
-        const loadState = this.readyState
-        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-        script.onload = script.onreadystatechange = null
-        resolve()
-      }
-      document.head.appendChild(script)
-    })
-  
-      win.activateDarkMode = function () {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = function () {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
+  <li class="hide-on-med-and-down nav-item">
     
-          if (t === 'dark') activateDarkMode()
-          else if (t === 'light') activateLightMode()
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>找文章</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/categories">
+          
+          <i class="fas fa-bookmark" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>分类</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tags">
+          
+          <i class="fas fa-tags" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>标签</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/archives">
+          
+          <i class="fas fa-archive" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>归档</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>生活</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/timeline">
+          
+          <i class="fas fa-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>时间轴</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/contact">
+          
+          <i class="fas fa-music" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>留言板</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/friends">
+          
+          <i class="fas fa-address-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>友人帐</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于笔者</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
         
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">牧马人的忧伤</div>
+        <div class="logo-desc">
+            
+            主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			找文章
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/categories " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-bookmark" style="position: absolute;left:50px" ></i>
+			      
+		          <span>分类</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/tags " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-tags" style="position: absolute;left:50px" ></i>
+			      
+		          <span>标签</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/archives " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-archive" style="position: absolute;left:50px" ></i>
+			      
+		          <span>归档</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			生活
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/timeline " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>时间轴</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/contact " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-music" style="position: absolute;left:50px" ></i>
+			      
+		          <span>留言板</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/friends " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-address-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>友人帐</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于笔者
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
         }
-      }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082219.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Scala之特质</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
     
-    const fontSizeVal = saveToLocal.get('global-font-size')
-    if (fontSizeVal !== undefined) {
-      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
     }
-    
-    const detectApple = () => {
-      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-        document.documentElement.classList.add('apple')
-      }
+
+    #articleContent :focus {
+        outline: none;
     }
-    detectApple()
-    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
-</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Scala之特质</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-11-12T08:32:00.000Z" title="发表于 2021-11-12 16:32:00">2021-11-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-11-12T08:32:38.093Z" title="更新于 2021-11-12 16:32:38">2021-11-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/scala/">scala</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">6.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>21分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Scala之特质"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Scala第八章节"><a href="#Scala第八章节" class="headerlink" title="Scala第八章节"></a>Scala第八章节</h1><h3 id="章节目标"><a href="#章节目标" class="headerlink" title="章节目标"></a>章节目标</h3><ol>
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/scala/">
+                                <span class="chip bg-color">scala</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/scala/" class="post-category">
+                                scala
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2021-11-12
+                </div>
+                
+
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
+                    2021-11-12
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    5.8k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    22 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="Scala第八章节"><a href="#Scala第八章节" class="headerlink" title="Scala第八章节"></a>Scala第八章节</h1><h3 id="章节目标"><a href="#章节目标" class="headerlink" title="章节目标"></a>章节目标</h3><ol>
 <li>能够使用trait独立完成适配器, 模板方法, 职责链设计模式</li>
 <li>能够独立叙述trait的构造机制</li>
 <li>能够了解trait继承class的写法</li>
@@ -179,10 +550,19 @@
 </li>
 </ul>
 <h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><p><strong>定义特质</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">特质名称</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 普通字段</span></span><br><span class="line">    <span class="comment">// 抽象字段</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 普通方法</span></span><br><span class="line">    <span class="comment">// 抽象方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token keyword">trait</span> 特质名称 <span class="token punctuation">{</span>
+    <span class="token comment">// 普通字段</span>
+    <span class="token comment">// 抽象字段</span>
+    
+    <span class="token comment">// 普通方法</span>
+    <span class="token comment">// 抽象方法</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p><strong>继承特质</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">类</span> <span class="keyword">extends</span> <span class="title">特质1</span> <span class="keyword">with</span> <span class="title">特质2</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 重写抽象字段</span></span><br><span class="line">    <span class="comment">// 重写抽象方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token keyword">class</span> 类 <span class="token keyword">extends</span> 特质<span class="token number">1</span> <span class="token keyword">with</span> 特质<span class="token number">2</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 重写抽象字段</span>
+    <span class="token comment">// 重写抽象方法</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p><strong>注意</strong> </p>
 <ul>
@@ -196,7 +576,24 @@
 <li>添加main方法，创建ConsoleLogger对象，调用log方法.</li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: Trait入门之类继承单个特质</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo01</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 定义一个特质.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">Logger</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">log</span></span>(msg:<span class="type">String</span>)   <span class="comment">//抽象方法</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//2. 定义一个类, 继承特质.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">ConsoleLogger</span> <span class="keyword">extends</span> <span class="title">Logger</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">log</span></span>(msg: <span class="type">String</span>): <span class="type">Unit</span> = println(msg)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//3. 调用类中的方法</span></span><br><span class="line">    <span class="keyword">val</span> cl = <span class="keyword">new</span> <span class="type">ConsoleLogger</span></span><br><span class="line">    cl.log(<span class="string">&quot;trait入门: 类继承单个特质&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: Trait入门之类继承单个特质</span>
+<span class="token keyword">object</span> ClassDemo01 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 定义一个特质.</span>
+  <span class="token keyword">trait</span> Logger <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> log<span class="token punctuation">(</span>msg<span class="token operator">:</span><span class="token builtin">String</span><span class="token punctuation">)</span>   <span class="token comment">//抽象方法</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//2. 定义一个类, 继承特质.</span>
+  <span class="token keyword">class</span> ConsoleLogger <span class="token keyword">extends</span> Logger <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> log<span class="token punctuation">(</span>msg<span class="token operator">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span>msg<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//3. 调用类中的方法</span>
+    <span class="token keyword">val</span> cl <span class="token operator">=</span> <span class="token keyword">new</span> ConsoleLogger
+    cl<span class="token punctuation">.</span>log<span class="token punctuation">(</span><span class="token string">"trait入门: 类继承单个特质"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="示例-类继承多个trait"><a href="#示例-类继承多个trait" class="headerlink" title="示例: 类继承多个trait"></a>示例: 类继承多个trait</h2><p><strong>需求</strong></p>
 <ol>
@@ -206,7 +603,31 @@
 <li>在main中测试，分别调用send方法、receive方法</li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 类继承多个trait</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo02</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 定义一个特质: MessageSender, 表示发送信息.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">MessageSender</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send</span></span>(msg:<span class="type">String</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//2. 定义一个特质: MessageReceiver, 表示接收信息.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">MessageReceiver</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">receive</span></span>()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//3. 定义一个类MessageWorker, 继承两个特质.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">MessageWorker</span> <span class="keyword">extends</span> <span class="title">MessageSender</span> <span class="keyword">with</span> <span class="title">MessageReceiver</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">send</span></span>(msg: <span class="type">String</span>): <span class="type">Unit</span> = println(<span class="string">&quot;发送消息: &quot;</span> + msg)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">receive</span></span>(): <span class="type">Unit</span> = println(<span class="string">&quot;消息已收到, 我很好, 谢谢!...&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//main方法, 作为程序的主入口</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//4. 调用类中的方法</span></span><br><span class="line">    <span class="keyword">val</span> mw = <span class="keyword">new</span> <span class="type">MessageWorker</span></span><br><span class="line">    mw.send(<span class="string">&quot;Hello, 你好啊!&quot;</span>)</span><br><span class="line">    mw.receive()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 类继承多个trait</span>
+<span class="token keyword">object</span> ClassDemo02 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 定义一个特质: MessageSender, 表示发送信息.</span>
+  <span class="token keyword">trait</span> MessageSender <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> send<span class="token punctuation">(</span>msg<span class="token operator">:</span><span class="token builtin">String</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//2. 定义一个特质: MessageReceiver, 表示接收信息.</span>
+  <span class="token keyword">trait</span> MessageReceiver <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> receive<span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//3. 定义一个类MessageWorker, 继承两个特质.</span>
+  <span class="token keyword">class</span> MessageWorker <span class="token keyword">extends</span> MessageSender <span class="token keyword">with</span> MessageReceiver <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> send<span class="token punctuation">(</span>msg<span class="token operator">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"发送消息: "</span> <span class="token operator">+</span> msg<span class="token punctuation">)</span>
+
+    <span class="token keyword">override</span> <span class="token keyword">def</span> receive<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"消息已收到, 我很好, 谢谢!..."</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//main方法, 作为程序的主入口</span>
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//4. 调用类中的方法</span>
+    <span class="token keyword">val</span> mw <span class="token operator">=</span> <span class="token keyword">new</span> MessageWorker
+    mw<span class="token punctuation">.</span>send<span class="token punctuation">(</span><span class="token string">"Hello, 你好啊!"</span><span class="token punctuation">)</span>
+    mw<span class="token punctuation">.</span>receive<span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="示例-object继承trait"><a href="#示例-object继承trait" class="headerlink" title="示例: object继承trait"></a>示例: object继承trait</h2><p><strong>需求</strong></p>
 <ol>
@@ -216,7 +637,32 @@
 <li>编写main方法，调用单例对象ConsoleLogger的log和warn方法</li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 演示object单例对象继承特质</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo03</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 定义一个特质Logger, 添加log(msg:String)方法.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">Logger</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">log</span></span>(msg:<span class="type">String</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//2. 定义一个特质Warning, 添加warn(msg:String)方法.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">Warning</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">warn</span></span>(msg:<span class="type">String</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//3. 定义单例对象ConsoleLogger, 继承上述两个特质, 并重写两个方法.</span></span><br><span class="line">  <span class="class"><span class="keyword">object</span> <span class="title">ConsoleLogger</span> <span class="keyword">extends</span> <span class="title">Logger</span> <span class="keyword">with</span> <span class="title">Warning</span></span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">log</span></span>(msg: <span class="type">String</span>): <span class="type">Unit</span> = println(<span class="string">&quot;控制台日志信息: &quot;</span>  + msg)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">warn</span></span>(msg: <span class="type">String</span>): <span class="type">Unit</span> = println(<span class="string">&quot;控制台警告信息: &quot;</span> + msg)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//main方法, 作为程序的入口</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//4. 调用ConsoleLogger单例对象中的两个方法.</span></span><br><span class="line">    <span class="type">ConsoleLogger</span>.log(<span class="string">&quot;我是一条普通日志信息!&quot;</span>)</span><br><span class="line">    <span class="type">ConsoleLogger</span>.warn(<span class="string">&quot;我是一条警告日志信息!&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 演示object单例对象继承特质</span>
+<span class="token keyword">object</span> ClassDemo03 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 定义一个特质Logger, 添加log(msg:String)方法.</span>
+  <span class="token keyword">trait</span> Logger<span class="token punctuation">{</span>
+    <span class="token keyword">def</span> log<span class="token punctuation">(</span>msg<span class="token operator">:</span><span class="token builtin">String</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//2. 定义一个特质Warning, 添加warn(msg:String)方法.</span>
+  <span class="token keyword">trait</span> Warning<span class="token punctuation">{</span>
+    <span class="token keyword">def</span> warn<span class="token punctuation">(</span>msg<span class="token operator">:</span><span class="token builtin">String</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//3. 定义单例对象ConsoleLogger, 继承上述两个特质, 并重写两个方法.</span>
+  <span class="token keyword">object</span> ConsoleLogger <span class="token keyword">extends</span> Logger <span class="token keyword">with</span> Warning<span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> log<span class="token punctuation">(</span>msg<span class="token operator">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"控制台日志信息: "</span>  <span class="token operator">+</span> msg<span class="token punctuation">)</span>
+
+    <span class="token keyword">override</span> <span class="token keyword">def</span> warn<span class="token punctuation">(</span>msg<span class="token operator">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"控制台警告信息: "</span> <span class="token operator">+</span> msg<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//main方法, 作为程序的入口</span>
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//4. 调用ConsoleLogger单例对象中的两个方法.</span>
+    ConsoleLogger<span class="token punctuation">.</span>log<span class="token punctuation">(</span><span class="token string">"我是一条普通日志信息!"</span><span class="token punctuation">)</span>
+    ConsoleLogger<span class="token punctuation">.</span>warn<span class="token punctuation">(</span><span class="token string">"我是一条警告日志信息!"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="示例-演示trait中的成员"><a href="#示例-演示trait中的成员" class="headerlink" title="示例: 演示trait中的成员"></a>示例: 演示trait中的成员</h2><p><strong>需求</strong></p>
 <ol>
@@ -225,12 +671,50 @@
 <li>在main方法中, 创建Generals类的对象, 调用其中的成员.</li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 演示特质中的成员</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo04</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 定义一个特质Hero</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">Hero</span></span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name = <span class="string">&quot;&quot;</span>     <span class="comment">//具体字段</span></span><br><span class="line">    <span class="keyword">var</span> arms:<span class="type">String</span>   <span class="comment">//抽象字段</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//具体方法</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">eat</span></span>() = println(<span class="string">&quot;吃肉喝酒, 养精蓄锐!&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">//抽象方法</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">toWar</span></span>():<span class="type">Unit</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//2. 定义一个类Generals, 继承Hero特质, 重写其中所有的抽象成员.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Generals</span> <span class="keyword">extends</span> <span class="title">Hero</span> </span>&#123;</span><br><span class="line">    <span class="comment">//重写父特质中的抽象字段</span></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> arms: <span class="type">String</span> = <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//重写父特质中的抽象方法</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">toWar</span></span>(): <span class="type">Unit</span> = println(<span class="string">s&quot;<span class="subst">$&#123;name&#125;</span>带着<span class="subst">$&#123;arms&#125;</span>, 上阵杀敌!&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//main方法, 作为程序的入口</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//3. 创建Generals类的对象.</span></span><br><span class="line">    <span class="keyword">val</span> gy = <span class="keyword">new</span> <span class="type">Generals</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//4. 测试Generals类中的内容.</span></span><br><span class="line">    <span class="comment">//给成员变量赋值</span></span><br><span class="line">    gy.name = <span class="string">&quot;关羽&quot;</span></span><br><span class="line">    gy.arms = <span class="string">&quot;青龙偃月刀&quot;</span></span><br><span class="line">    <span class="comment">//打印成员变量值</span></span><br><span class="line">    println(gy.name, gy.arms)</span><br><span class="line">    <span class="comment">//调用成员方法</span></span><br><span class="line">    gy.eat()</span><br><span class="line">    gy.toWar()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 演示特质中的成员</span>
+<span class="token keyword">object</span> ClassDemo04 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 定义一个特质Hero</span>
+  <span class="token keyword">trait</span> Hero<span class="token punctuation">{</span>
+    <span class="token keyword">var</span> name <span class="token operator">=</span> <span class="token string">""</span>     <span class="token comment">//具体字段</span>
+    <span class="token keyword">var</span> arms<span class="token operator">:</span><span class="token builtin">String</span>   <span class="token comment">//抽象字段</span>
+
+    <span class="token comment">//具体方法</span>
+    <span class="token keyword">def</span> eat<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"吃肉喝酒, 养精蓄锐!"</span><span class="token punctuation">)</span>
+
+    <span class="token comment">//抽象方法</span>
+    <span class="token keyword">def</span> toWar<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token builtin">Unit</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//2. 定义一个类Generals, 继承Hero特质, 重写其中所有的抽象成员.</span>
+  <span class="token keyword">class</span> Generals <span class="token keyword">extends</span> Hero <span class="token punctuation">{</span>
+    <span class="token comment">//重写父特质中的抽象字段</span>
+    <span class="token keyword">override</span> <span class="token keyword">var</span> arms<span class="token operator">:</span> <span class="token builtin">String</span> <span class="token operator">=</span> <span class="token string">""</span>
+
+    <span class="token comment">//重写父特质中的抽象方法</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> toWar<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span>s<span class="token string">"${name}带着${arms}, 上阵杀敌!"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//main方法, 作为程序的入口</span>
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//3. 创建Generals类的对象.</span>
+    <span class="token keyword">val</span> gy <span class="token operator">=</span> <span class="token keyword">new</span> Generals
+
+    <span class="token comment">//4. 测试Generals类中的内容.</span>
+    <span class="token comment">//给成员变量赋值</span>
+    gy<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">"关羽"</span>
+    gy<span class="token punctuation">.</span>arms <span class="token operator">=</span> <span class="token string">"青龙偃月刀"</span>
+    <span class="token comment">//打印成员变量值</span>
+    println<span class="token punctuation">(</span>gy<span class="token punctuation">.</span>name<span class="token punctuation">,</span> gy<span class="token punctuation">.</span>arms<span class="token punctuation">)</span>
+    <span class="token comment">//调用成员方法</span>
+    gy<span class="token punctuation">.</span>eat<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    gy<span class="token punctuation">.</span>toWar<span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 
 <h1 id="对象混入trait"><a href="#对象混入trait" class="headerlink" title="对象混入trait"></a>对象混入trait</h1><p>有些时候, 我们希望在不改变类继承体系的情况下, 对对象的功能进行临时增强或者扩展, 这个时候就可以考虑使用<code>对象混入</code>技术了.  所谓的<code>对象混入</code>指的就是: 在scala中, 类和特质之间无任何的继承关系, 但是通过特定的关键字, 却可以让该类对象具有指定特质中的成员.</p>
-<h2 id="语法-1"><a href="#语法-1" class="headerlink" title="语法"></a>语法</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span>/<span class="keyword">var</span> 对象名 = <span class="keyword">new</span> 类 <span class="keyword">with</span> 特质</span><br></pre></td></tr></table></figure>
+<h2 id="语法-1"><a href="#语法-1" class="headerlink" title="语法"></a>语法</h2><pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token keyword">val</span><span class="token operator">/</span><span class="token keyword">var</span> 对象名 <span class="token operator">=</span> <span class="token keyword">new</span> 类 <span class="token keyword">with</span> 特质<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p><strong>需求</strong></p>
 <ol>
@@ -239,7 +723,23 @@
 <li>在main方法中测试, 通过对象混入技术让User类的对象具有Logger特质的log()方法.</li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 演示动态混入</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo05</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 创建Logger特质,  添加log(msg:String)方法</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">Logger</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">log</span></span>(msg:<span class="type">String</span>) = println(msg)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//2. 创建一个User类, 该类和Logger特质之间无任务关系.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">User</span></span></span><br><span class="line"></span><br><span class="line">  <span class="comment">//main方法, 作为程序的入口</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//3. 在main方法中测试, 通过对象混入技术让User类的对象具有Logger特质的log()方法.</span></span><br><span class="line">    <span class="keyword">val</span> c1 = <span class="keyword">new</span> <span class="type">User</span> <span class="keyword">with</span> <span class="type">Logger</span>     <span class="comment">//对象混入</span></span><br><span class="line">    c1.log(<span class="string">&quot;我是User类的对象, 我可以调用Logger特质中的log方法了&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 演示动态混入</span>
+<span class="token keyword">object</span> ClassDemo05 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 创建Logger特质,  添加log(msg:String)方法</span>
+  <span class="token keyword">trait</span> Logger <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> log<span class="token punctuation">(</span>msg<span class="token operator">:</span><span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">=</span> println<span class="token punctuation">(</span>msg<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//2. 创建一个User类, 该类和Logger特质之间无任务关系.</span>
+  <span class="token keyword">class</span> User
+
+  <span class="token comment">//main方法, 作为程序的入口</span>
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//3. 在main方法中测试, 通过对象混入技术让User类的对象具有Logger特质的log()方法.</span>
+    <span class="token keyword">val</span> c1 <span class="token operator">=</span> <span class="token keyword">new</span> User <span class="token keyword">with</span> Logger     <span class="token comment">//对象混入</span>
+    c1<span class="token punctuation">.</span>log<span class="token punctuation">(</span><span class="token string">"我是User类的对象, 我可以调用Logger特质中的log方法了"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 
@@ -260,7 +760,21 @@
 </ol>
 <h2 id="适配器模式"><a href="#适配器模式" class="headerlink" title="适配器模式"></a>适配器模式</h2><p>当特质中有多个抽象方法, 而我们只需要用到其中的某一个或者某几个方法时, 不得不将该特质中的所有抽象方法给重写了, 这样做很麻烦. 针对这种情况, 我们可以定义一个抽象类去继承该特质, 重写特质中所有的抽象方法, 方法体为空. 这时候, 我们需要使用哪个方法, 只需要定义类继承抽象类, 重写指定方法即可. 这个抽象类就叫: 适配器类. 这种设计模式(设计思想)就叫: 适配器设计模式.</p>
 <p><strong>结构</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">特质A</span></span>&#123;</span><br><span class="line">    <span class="comment">//抽象方法1</span></span><br><span class="line">    <span class="comment">//抽象方法2</span></span><br><span class="line">    <span class="comment">//抽象方法3</span></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">类B</span> <span class="keyword">extends</span> <span class="title">A</span></span>&#123;	<span class="comment">//适配器类</span></span><br><span class="line">    <span class="comment">//重写抽象方法1, 方法体为空</span></span><br><span class="line">    <span class="comment">//重写抽象方法2, 方法体为空</span></span><br><span class="line">    <span class="comment">//重写抽象方法3, 方法体为空</span></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">自定义类C</span> <span class="keyword">extends</span> <span class="title">类B</span> </span>&#123;</span><br><span class="line">    <span class="comment">//需要使用哪个方法, 重写哪个方法即可.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token keyword">trait</span> 特质A<span class="token punctuation">{</span>
+    <span class="token comment">//抽象方法1</span>
+    <span class="token comment">//抽象方法2</span>
+    <span class="token comment">//抽象方法3</span>
+    <span class="token comment">//...</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">abstract</span> <span class="token keyword">class</span> 类B <span class="token keyword">extends</span> A<span class="token punctuation">{</span>	<span class="token comment">//适配器类</span>
+    <span class="token comment">//重写抽象方法1, 方法体为空</span>
+    <span class="token comment">//重写抽象方法2, 方法体为空</span>
+    <span class="token comment">//重写抽象方法3, 方法体为空</span>
+    <span class="token comment">//...</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">class</span> 自定义类C <span class="token keyword">extends</span> 类B <span class="token punctuation">{</span>
+    <span class="token comment">//需要使用哪个方法, 重写哪个方法即可.</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p><strong>需求</strong></p>
 <ol>
@@ -277,7 +791,44 @@
 </li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 演示适配器设计模式.</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo06</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 定义特质PlayLOL, 添加6个抽象方法, 分别为: top(), mid(), adc(), support(), jungle(), schoolchild()</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">PlayLOL</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">top</span></span>()           <span class="comment">//上单</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mid</span></span>()           <span class="comment">//中单</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">adc</span></span>()           <span class="comment">//下路</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">support</span></span>()       <span class="comment">//辅助</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">jungle</span></span>()        <span class="comment">//打野</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">schoolchild</span></span>()   <span class="comment">//小学生</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//2. 定义抽象类Player, 继承PlayLOL特质, 重写特质中所有的抽象方法, 方法体都为空.</span></span><br><span class="line">  <span class="comment">//Player类充当的角色就是: 适配器类.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Player</span> <span class="keyword">extends</span> <span class="title">PlayLOL</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">top</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">mid</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">adc</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">support</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">jungle</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">schoolchild</span></span>(): <span class="type">Unit</span> = &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//3. 定义普通类GreenHand, 继承Player, 重写support()和schoolchild()方法.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">GreenHand</span> <span class="keyword">extends</span> <span class="title">Player</span></span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">support</span></span>(): <span class="type">Unit</span> = println(<span class="string">&quot;我是辅助, B键一扣, 不死不回城!&quot;</span>)</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">schoolchild</span></span>(): <span class="type">Unit</span> = println(<span class="string">&quot;我是小学生, 你骂我, 我就挂机!&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//4. 定义main方法, 在其中创建GreenHand类的对象, 并调用其方法进行测试.</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//创建GreenHand类的对象</span></span><br><span class="line">    <span class="keyword">val</span> gh = <span class="keyword">new</span> <span class="type">GreenHand</span></span><br><span class="line">    <span class="comment">//调用GreenHand类中的方法</span></span><br><span class="line">    gh.support()</span><br><span class="line">    gh.schoolchild()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 演示适配器设计模式.</span>
+<span class="token keyword">object</span> ClassDemo06 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 定义特质PlayLOL, 添加6个抽象方法, 分别为: top(), mid(), adc(), support(), jungle(), schoolchild()</span>
+  <span class="token keyword">trait</span> PlayLOL <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> top<span class="token punctuation">(</span><span class="token punctuation">)</span>           <span class="token comment">//上单</span>
+    <span class="token keyword">def</span> mid<span class="token punctuation">(</span><span class="token punctuation">)</span>           <span class="token comment">//中单</span>
+    <span class="token keyword">def</span> adc<span class="token punctuation">(</span><span class="token punctuation">)</span>           <span class="token comment">//下路</span>
+    <span class="token keyword">def</span> support<span class="token punctuation">(</span><span class="token punctuation">)</span>       <span class="token comment">//辅助</span>
+    <span class="token keyword">def</span> jungle<span class="token punctuation">(</span><span class="token punctuation">)</span>        <span class="token comment">//打野</span>
+    <span class="token keyword">def</span> schoolchild<span class="token punctuation">(</span><span class="token punctuation">)</span>   <span class="token comment">//小学生</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//2. 定义抽象类Player, 继承PlayLOL特质, 重写特质中所有的抽象方法, 方法体都为空.</span>
+  <span class="token comment">//Player类充当的角色就是: 适配器类.</span>
+  <span class="token keyword">class</span> Player <span class="token keyword">extends</span> PlayLOL <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> top<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> mid<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> adc<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> support<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> jungle<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> schoolchild<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//3. 定义普通类GreenHand, 继承Player, 重写support()和schoolchild()方法.</span>
+  <span class="token keyword">class</span> GreenHand <span class="token keyword">extends</span> Player<span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> support<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"我是辅助, B键一扣, 不死不回城!"</span><span class="token punctuation">)</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> schoolchild<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"我是小学生, 你骂我, 我就挂机!"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//4. 定义main方法, 在其中创建GreenHand类的对象, 并调用其方法进行测试.</span>
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//创建GreenHand类的对象</span>
+    <span class="token keyword">val</span> gh <span class="token operator">=</span> <span class="token keyword">new</span> GreenHand
+    <span class="token comment">//调用GreenHand类中的方法</span>
+    gh<span class="token punctuation">.</span>support<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    gh<span class="token punctuation">.</span>schoolchild<span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 
@@ -302,7 +853,20 @@
 <p> <code>父类中的抽象方法由子类实现，子类执行的结果会影响父类的结果，这导致一种反向的控制结构.</code></p>
 </li>
 </ol>
-<h2 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;		<span class="comment">//父类, 封装的是公共部分</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">方法名</span></span>(参数列表) = &#123;	<span class="comment">//具体方法, 在这里也叫: 模板方法</span></span><br><span class="line">        <span class="comment">//步骤1, 已知.</span></span><br><span class="line">       	<span class="comment">//步骤2, 未知, 调用抽象方法</span></span><br><span class="line">        <span class="comment">//步骤3, 已知.</span></span><br><span class="line">        <span class="comment">//步骤n...</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//抽象方法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> <span class="keyword">extends</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="comment">//重写抽象方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h2><pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token keyword">class</span> A <span class="token punctuation">{</span>		<span class="token comment">//父类, 封装的是公共部分</span>
+    <span class="token keyword">def</span> 方法名<span class="token punctuation">(</span>参数列表<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>	<span class="token comment">//具体方法, 在这里也叫: 模板方法</span>
+        <span class="token comment">//步骤1, 已知.</span>
+       	<span class="token comment">//步骤2, 未知, 调用抽象方法</span>
+        <span class="token comment">//步骤3, 已知.</span>
+        <span class="token comment">//步骤n...</span>
+    <span class="token punctuation">}</span>
+    
+    <span class="token comment">//抽象方法</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> B <span class="token keyword">extends</span> A <span class="token punctuation">{</span>
+    <span class="token comment">//重写抽象方法</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <blockquote>
 <p>注意: 抽象方法的个数要根据具体的需求来定, 并不一定只有一个, 也可以是多个.</p>
@@ -314,7 +878,37 @@
 <li>定义main方法, 用来测试代码的具体执行时间.</li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 演示模板方法设计模式</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo07</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//1. 定义一个模板类Template, 添加code()和getRuntime()方法, 用来获取某些代码的执行时间.</span></span><br><span class="line">  <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Template</span> </span>&#123;</span><br><span class="line">    <span class="comment">//定义code()方法, 用来记录所有要执行的代码</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">code</span></span>()</span><br><span class="line"></span><br><span class="line">    <span class="comment">//定义模板方法, 用来获取某些代码的执行时间.</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getRuntime</span></span>() = &#123;</span><br><span class="line">      <span class="comment">//获取当前时间毫秒值</span></span><br><span class="line">      <span class="keyword">val</span> start = <span class="type">System</span>.currentTimeMillis()</span><br><span class="line">      <span class="comment">//具体要执行的代码</span></span><br><span class="line">      code()</span><br><span class="line">      <span class="comment">//获取当前时间毫秒值</span></span><br><span class="line">      <span class="keyword">val</span> end = <span class="type">System</span>.currentTimeMillis()</span><br><span class="line">      <span class="comment">//返回指定代码的执行时间.</span></span><br><span class="line">      end - start</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//2. 定义类ForDemo继承Template, 然后重写getRuntime()方法, 用来计算打印10000次&quot;Hello,Scala!&quot;的执行时间.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">ForDemo</span> <span class="keyword">extends</span> <span class="title">Template</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">code</span></span>(): <span class="type">Unit</span> = <span class="keyword">for</span>(i &lt;- <span class="number">1</span> to <span class="number">10000</span>) println(<span class="string">&quot;Hello, Scala!&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//3. 测试打印10000次&quot;Hello, Scala!&quot;的执行时间</span></span><br><span class="line">    println(<span class="keyword">new</span> <span class="type">ForDemo</span>().getRuntime())</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 演示模板方法设计模式</span>
+<span class="token keyword">object</span> ClassDemo07 <span class="token punctuation">{</span>
+
+  <span class="token comment">//1. 定义一个模板类Template, 添加code()和getRuntime()方法, 用来获取某些代码的执行时间.</span>
+  <span class="token keyword">abstract</span> <span class="token keyword">class</span> Template <span class="token punctuation">{</span>
+    <span class="token comment">//定义code()方法, 用来记录所有要执行的代码</span>
+    <span class="token keyword">def</span> code<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token comment">//定义模板方法, 用来获取某些代码的执行时间.</span>
+    <span class="token keyword">def</span> getRuntime<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+      <span class="token comment">//获取当前时间毫秒值</span>
+      <span class="token keyword">val</span> start <span class="token operator">=</span> System<span class="token punctuation">.</span>currentTimeMillis<span class="token punctuation">(</span><span class="token punctuation">)</span>
+      <span class="token comment">//具体要执行的代码</span>
+      code<span class="token punctuation">(</span><span class="token punctuation">)</span>
+      <span class="token comment">//获取当前时间毫秒值</span>
+      <span class="token keyword">val</span> end <span class="token operator">=</span> System<span class="token punctuation">.</span>currentTimeMillis<span class="token punctuation">(</span><span class="token punctuation">)</span>
+      <span class="token comment">//返回指定代码的执行时间.</span>
+      end <span class="token operator">-</span> start
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//2. 定义类ForDemo继承Template, 然后重写getRuntime()方法, 用来计算打印10000次"Hello,Scala!"的执行时间.</span>
+  <span class="token keyword">class</span> ForDemo <span class="token keyword">extends</span> Template <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> code<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token keyword">for</span><span class="token punctuation">(</span>i <span class="token keyword">&lt;-</span> <span class="token number">1</span> to <span class="token number">10000</span><span class="token punctuation">)</span> println<span class="token punctuation">(</span><span class="token string">"Hello, Scala!"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//3. 测试打印10000次"Hello, Scala!"的执行时间</span>
+    println<span class="token punctuation">(</span><span class="token keyword">new</span> ForDemo<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>getRuntime<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 
@@ -331,7 +925,38 @@
 <blockquote>
 <p>注意: 在Scala中, 一个类继承多个特质的情况叫<code>叠加特质</code>.</p>
 </blockquote>
-<h2 id="格式-1"><a href="#格式-1" class="headerlink" title="格式"></a>格式</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">A</span> </span>&#123;			<span class="comment">//父特质</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">show</span></span>()		<span class="comment">//假设方法名叫: show</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">B</span> <span class="keyword">extends</span> <span class="title">A</span> </span>&#123;	<span class="comment">//子特质, 根据需求可以定义多个.</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">show</span></span>() = &#123;</span><br><span class="line">        <span class="comment">//具体的代码逻辑.</span></span><br><span class="line">        <span class="keyword">super</span>.show()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">C</span> <span class="keyword">extends</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">show</span></span>() = &#123;</span><br><span class="line">        <span class="comment">//具体的代码逻辑.</span></span><br><span class="line">        <span class="keyword">super</span>.show()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span> <span class="keyword">extends</span> <span class="title">B</span> <span class="keyword">with</span> <span class="title">C</span> </span>&#123;	<span class="comment">//具体的类, 用来演示: 叠加特质.</span></span><br><span class="line">     <span class="function"><span class="keyword">def</span> <span class="title">方法名</span></span>() = &#123;		  <span class="comment">//这里可以是该类自己的方法, 不一定非的是show()方法.</span></span><br><span class="line">        <span class="comment">//具体的代码逻辑.</span></span><br><span class="line">        <span class="keyword">super</span>.show()		<span class="comment">//这里就构成了: 调用链.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	执行顺序为:</span></span><br><span class="line"><span class="comment">		1. 先执行类D中的自己的方法.</span></span><br><span class="line"><span class="comment">		2. 再执行特质C中的show()方法.</span></span><br><span class="line"><span class="comment">		3. 再执行特质B中的show()方法.</span></span><br><span class="line"><span class="comment">		4. 最后执行特质A中的show()方法.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="格式-1"><a href="#格式-1" class="headerlink" title="格式"></a>格式</h2><pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token keyword">trait</span> A <span class="token punctuation">{</span>			<span class="token comment">//父特质</span>
+    <span class="token keyword">def</span> show<span class="token punctuation">(</span><span class="token punctuation">)</span>		<span class="token comment">//假设方法名叫: show</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">trait</span> B <span class="token keyword">extends</span> A <span class="token punctuation">{</span>	<span class="token comment">//子特质, 根据需求可以定义多个.</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> show<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token comment">//具体的代码逻辑.</span>
+        <span class="token keyword">super</span><span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">trait</span> C <span class="token keyword">extends</span> A <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> show<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token comment">//具体的代码逻辑.</span>
+        <span class="token keyword">super</span><span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> D <span class="token keyword">extends</span> B <span class="token keyword">with</span> C <span class="token punctuation">{</span>	<span class="token comment">//具体的类, 用来演示: 叠加特质.</span>
+     <span class="token keyword">def</span> 方法名<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>		  <span class="token comment">//这里可以是该类自己的方法, 不一定非的是show()方法.</span>
+        <span class="token comment">//具体的代码逻辑.</span>
+        <span class="token keyword">super</span><span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span>		<span class="token comment">//这里就构成了: 调用链.</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment">/*
+	执行顺序为:
+		1. 先执行类D中的自己的方法.
+		2. 再执行特质C中的show()方法.
+		3. 再执行特质B中的show()方法.
+		4. 最后执行特质A中的show()方法.
+*/</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例"></a>示例</h2><p><strong>需求</strong></p>
 <p>通过Scala代码, 实现一个模拟支付过程的调用链.</p>
@@ -366,7 +991,49 @@
 <li>添加main方法, 创建Payment对象实例, 然后调用pay()方法.</li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 演示职责链模式(也叫: 调用链模式)</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo08</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 定义一个父特质 Handler, 表示处理数据(具体的支付逻辑)</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handle</span></span>(data:<span class="type">String</span>) = &#123;</span><br><span class="line">      println(<span class="string">&quot;具体处理数据的代码(例如: 转账逻辑)&quot;</span>)</span><br><span class="line">      println(data)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//2. 定义一个子特质 DataValidHandler, 表示 校验数据.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">DataValidHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">handle</span></span>(data:<span class="type">String</span>) = &#123;</span><br><span class="line">      println(<span class="string">&quot;校验数据...&quot;</span>)</span><br><span class="line">      <span class="keyword">super</span>.handle(data)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//3. 定义一个子特质 SignatureValidHandler, 表示 校验签名.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">SignatureValidHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">handle</span></span>(data:<span class="type">String</span>) = &#123;</span><br><span class="line">      println(<span class="string">&quot;校验签名...&quot;</span>)</span><br><span class="line">      <span class="keyword">super</span>.handle(data)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//4. 定义一个类Payment, 表示: 用户发起的支付请求.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Payment</span> <span class="keyword">extends</span> <span class="title">DataValidHandler</span> <span class="keyword">with</span> <span class="title">SignatureValidHandler</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pay</span></span>(data:<span class="type">String</span>) = &#123;</span><br><span class="line">      println(<span class="string">&quot;用户发起支付请求...&quot;</span>)</span><br><span class="line">      <span class="keyword">super</span>.handle(data)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//5. 创建Payment类的对象, 模拟: 调用链.</span></span><br><span class="line">    <span class="keyword">val</span> pm = <span class="keyword">new</span> <span class="type">Payment</span></span><br><span class="line">    pm.pay(<span class="string">&quot;苏明玉给苏大强转账10000元&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 程序运行输出如下：</span></span><br><span class="line"><span class="comment">// 用户发起支付请求...</span></span><br><span class="line"><span class="comment">// 校验签名...</span></span><br><span class="line"><span class="comment">// 校验数据...</span></span><br><span class="line"><span class="comment">// 具体处理数据的代码(例如: 转账逻辑)</span></span><br><span class="line"><span class="comment">// 苏明玉给苏大强转账10000元</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 演示职责链模式(也叫: 调用链模式)</span>
+<span class="token keyword">object</span> ClassDemo08 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 定义一个父特质 Handler, 表示处理数据(具体的支付逻辑)</span>
+  <span class="token keyword">trait</span> Handler <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> handle<span class="token punctuation">(</span>data<span class="token operator">:</span><span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+      println<span class="token punctuation">(</span><span class="token string">"具体处理数据的代码(例如: 转账逻辑)"</span><span class="token punctuation">)</span>
+      println<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//2. 定义一个子特质 DataValidHandler, 表示 校验数据.</span>
+  <span class="token keyword">trait</span> DataValidHandler <span class="token keyword">extends</span> Handler <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> handle<span class="token punctuation">(</span>data<span class="token operator">:</span><span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+      println<span class="token punctuation">(</span><span class="token string">"校验数据..."</span><span class="token punctuation">)</span>
+      <span class="token keyword">super</span><span class="token punctuation">.</span>handle<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//3. 定义一个子特质 SignatureValidHandler, 表示 校验签名.</span>
+  <span class="token keyword">trait</span> SignatureValidHandler <span class="token keyword">extends</span> Handler <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> handle<span class="token punctuation">(</span>data<span class="token operator">:</span><span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+      println<span class="token punctuation">(</span><span class="token string">"校验签名..."</span><span class="token punctuation">)</span>
+      <span class="token keyword">super</span><span class="token punctuation">.</span>handle<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//4. 定义一个类Payment, 表示: 用户发起的支付请求.</span>
+  <span class="token keyword">class</span> Payment <span class="token keyword">extends</span> DataValidHandler <span class="token keyword">with</span> SignatureValidHandler <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> pay<span class="token punctuation">(</span>data<span class="token operator">:</span><span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+      println<span class="token punctuation">(</span><span class="token string">"用户发起支付请求..."</span><span class="token punctuation">)</span>
+      <span class="token keyword">super</span><span class="token punctuation">.</span>handle<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//5. 创建Payment类的对象, 模拟: 调用链.</span>
+    <span class="token keyword">val</span> pm <span class="token operator">=</span> <span class="token keyword">new</span> Payment
+    pm<span class="token punctuation">.</span>pay<span class="token punctuation">(</span><span class="token string">"苏明玉给苏大强转账10000元"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// 程序运行输出如下：</span>
+<span class="token comment">// 用户发起支付请求...</span>
+<span class="token comment">// 校验签名...</span>
+<span class="token comment">// 校验数据...</span>
+<span class="token comment">// 具体处理数据的代码(例如: 转账逻辑)</span>
+<span class="token comment">// 苏明玉给苏大强转账10000元</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 
@@ -401,12 +1068,52 @@
 <li>添加main方法，创建Student类的对象，观察输出。</li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 演示trait的构造机制.</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo09</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 创建Logger父特质</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">Logger</span> </span>&#123;</span><br><span class="line">    println(<span class="string">&quot;执行Logger构造器&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//2. 创建MyLogger子特质, 继承Logger特质</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">MyLogger</span> <span class="keyword">extends</span> <span class="title">Logger</span> </span>&#123;</span><br><span class="line">    println(<span class="string">&quot;执行MyLogger构造器&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//3. 创建TimeLogger子特质, 继承Logger特质.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">TimeLogger</span> <span class="keyword">extends</span> <span class="title">Logger</span> </span>&#123;</span><br><span class="line">    println(<span class="string">&quot;执行TimeLogger构造器&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//4. 创建父类Person</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Person</span></span>&#123;</span><br><span class="line">    println(<span class="string">&quot;执行Person构造器&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//5. 创建子类Student, 继承Person类及TimeLogger和MyLogger特质.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">extends</span> <span class="title">Person</span> <span class="keyword">with</span> <span class="title">TimeLogger</span> <span class="keyword">with</span> <span class="title">MyLogger</span> </span>&#123;</span><br><span class="line">    println(<span class="string">&quot;执行Student构造器&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//main方法, 程序的入口.</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//6. 创建Student类的对象，观察输出。</span></span><br><span class="line">    <span class="keyword">new</span> <span class="type">Student</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 程序运行输出如下：</span></span><br><span class="line"><span class="comment">// 执行Person构造器</span></span><br><span class="line"><span class="comment">// 执行Logger构造器</span></span><br><span class="line"><span class="comment">// 执行TimeLogger构造器</span></span><br><span class="line"><span class="comment">// 执行MyLogger构造器</span></span><br><span class="line"><span class="comment">// 执行Student构造器</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 演示trait的构造机制.</span>
+<span class="token keyword">object</span> ClassDemo09 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 创建Logger父特质</span>
+  <span class="token keyword">trait</span> Logger <span class="token punctuation">{</span>
+    println<span class="token punctuation">(</span><span class="token string">"执行Logger构造器"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//2. 创建MyLogger子特质, 继承Logger特质</span>
+  <span class="token keyword">trait</span> MyLogger <span class="token keyword">extends</span> Logger <span class="token punctuation">{</span>
+    println<span class="token punctuation">(</span><span class="token string">"执行MyLogger构造器"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//3. 创建TimeLogger子特质, 继承Logger特质.</span>
+  <span class="token keyword">trait</span> TimeLogger <span class="token keyword">extends</span> Logger <span class="token punctuation">{</span>
+    println<span class="token punctuation">(</span><span class="token string">"执行TimeLogger构造器"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//4. 创建父类Person</span>
+  <span class="token keyword">class</span> Person<span class="token punctuation">{</span>
+    println<span class="token punctuation">(</span><span class="token string">"执行Person构造器"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//5. 创建子类Student, 继承Person类及TimeLogger和MyLogger特质.</span>
+  <span class="token keyword">class</span> Student <span class="token keyword">extends</span> Person <span class="token keyword">with</span> TimeLogger <span class="token keyword">with</span> MyLogger <span class="token punctuation">{</span>
+    println<span class="token punctuation">(</span><span class="token string">"执行Student构造器"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//main方法, 程序的入口.</span>
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//6. 创建Student类的对象，观察输出。</span>
+    <span class="token keyword">new</span> Student
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// 程序运行输出如下：</span>
+<span class="token comment">// 执行Person构造器</span>
+<span class="token comment">// 执行Logger构造器</span>
+<span class="token comment">// 执行TimeLogger构造器</span>
+<span class="token comment">// 执行MyLogger构造器</span>
+<span class="token comment">// 执行Student构造器</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 
 <h1 id="trait继承class"><a href="#trait继承class" class="headerlink" title="trait继承class"></a>trait继承class</h1><h2 id="概述-4"><a href="#概述-4" class="headerlink" title="概述"></a>概述</h2><p>在Scala中, trait(特质)也可以继承class(类)。特质会将class中的成员都继承下来。</p>
-<h2 id="格式-2"><a href="#格式-2" class="headerlink" title="格式"></a>格式</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">类A</span> </span>&#123;			<span class="comment">//类A</span></span><br><span class="line">    <span class="comment">//成员变量</span></span><br><span class="line">    <span class="comment">//成员方法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">B</span> <span class="keyword">extends</span> <span class="title">A</span> </span>&#123;	<span class="comment">//特质B    </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="格式-2"><a href="#格式-2" class="headerlink" title="格式"></a>格式</h2><pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token keyword">class</span> 类A <span class="token punctuation">{</span>			<span class="token comment">//类A</span>
+    <span class="token comment">//成员变量</span>
+    <span class="token comment">//成员方法</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">trait</span> B <span class="token keyword">extends</span> A <span class="token punctuation">{</span>	<span class="token comment">//特质B    </span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="示例-4"><a href="#示例-4" class="headerlink" title="示例"></a>示例</h2><p><strong>需求</strong></p>
 <ol>
@@ -416,7 +1123,23 @@
 <li>在main方法中, 创建ConsoleLogger类的对象, 并调用printMsg()方法.</li>
 </ol>
 <p><strong>参考代码</strong></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 演示特质继承类</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo10</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 定义Message类. 添加printMsg()方法, 打印&quot;测试数据...&quot;</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Message</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">printMsg</span></span>() = println(<span class="string">&quot;学好Scala, 走到哪里都不怕!&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//2. 创建Logger特质，继承Message类.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">Logger</span> <span class="keyword">extends</span> <span class="title">Message</span></span></span><br><span class="line">  <span class="comment">//3. 定义ConsoleLogger类, 继承Logger特质.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">ConsoleLogger</span> <span class="keyword">extends</span> <span class="title">Logger</span></span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//4. 创建ConsoleLogger类的对象, 并调用printMsg()方法.</span></span><br><span class="line">    <span class="keyword">val</span> cl = <span class="keyword">new</span> <span class="type">ConsoleLogger</span></span><br><span class="line">    cl.printMsg()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 演示特质继承类</span>
+<span class="token keyword">object</span> ClassDemo10 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 定义Message类. 添加printMsg()方法, 打印"测试数据..."</span>
+  <span class="token keyword">class</span> Message <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> printMsg<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"学好Scala, 走到哪里都不怕!"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//2. 创建Logger特质，继承Message类.</span>
+  <span class="token keyword">trait</span> Logger <span class="token keyword">extends</span> Message
+  <span class="token comment">//3. 定义ConsoleLogger类, 继承Logger特质.</span>
+  <span class="token keyword">class</span> ConsoleLogger <span class="token keyword">extends</span> Logger
+
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//4. 创建ConsoleLogger类的对象, 并调用printMsg()方法.</span>
+    <span class="token keyword">val</span> cl <span class="token operator">=</span> <span class="token keyword">new</span> ConsoleLogger
+    cl<span class="token punctuation">.</span>printMsg<span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 
@@ -429,79 +1152,1195 @@
 </li>
 </ul>
 <h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211112163149.png" alt="1578388916738"></p>
-<h2 id="参考代码"><a href="#参考代码" class="headerlink" title="参考代码"></a>参考代码</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//案例: 程序员案例</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ClassDemo11</span> </span>&#123;</span><br><span class="line">  <span class="comment">//1. 定义程序员类Programmer.</span></span><br><span class="line">  <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Programmer</span> </span>&#123;</span><br><span class="line">    <span class="comment">//属性: 姓名和年龄</span></span><br><span class="line">    <span class="keyword">var</span> name = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">var</span> age = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//行为: 吃饭和技能</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">eat</span></span>()</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">skill</span></span>()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//2. 定义特质BigData.</span></span><br><span class="line">  <span class="class"><span class="keyword">trait</span> <span class="title">BigData</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">learningBigData</span></span>() = &#123;</span><br><span class="line">      println(<span class="string">&quot;来到黑马程序员之后: &quot;</span>)</span><br><span class="line">      println(<span class="string">&quot;我学会了: Hadoop, Zookeeper, HBase, Hive, Sqoop, Scala, Spark, Flink等技术&quot;</span>)</span><br><span class="line">      println(<span class="string">&quot;我学会了: 企业级360°全方位用户画像, 千亿级数据仓, 黑马推荐系统, 电信信号强度诊断等项目&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//3. 定义Java程序员类JavaProgrammer.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">JavaProgrammer</span> <span class="keyword">extends</span> <span class="title">Programmer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">eat</span></span>(): <span class="type">Unit</span> = println(<span class="string">&quot;Java程序员吃大白菜, 喝大米粥.&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">skill</span></span>(): <span class="type">Unit</span> = println(<span class="string">&quot;我精通Java技术.&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//4. 定义Python程序员类PythonProgrammer.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">PythonProgrammer</span> <span class="keyword">extends</span> <span class="title">Programmer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">eat</span></span>(): <span class="type">Unit</span> = println(<span class="string">&quot;Python程序员吃小白菜, 喝小米粥.&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">skill</span></span>(): <span class="type">Unit</span> = println(<span class="string">&quot;我精通Python技术.&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//5. 定义PartJavaProgrammer类, 表示精通: Java和大数据的程序员.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">PartJavaProgrammer</span> <span class="keyword">extends</span> <span class="title">JavaProgrammer</span> <span class="keyword">with</span> <span class="title">BigData</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">eat</span></span>(): <span class="type">Unit</span> = println(<span class="string">&quot;精通Java和大数据的程序员, 吃牛肉, 喝牛奶&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">skill</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">      <span class="keyword">super</span>.skill()     <span class="comment">//本身就掌握的内容.</span></span><br><span class="line">      learningBigData() <span class="comment">//来到黑马之后学习的技能.</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//6. 定义PartPythonProgrammer类, 表示精通: Python和大数据的程序员.</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">PartPythonProgrammer</span> <span class="keyword">extends</span> <span class="title">PythonProgrammer</span> <span class="keyword">with</span> <span class="title">BigData</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">eat</span></span>(): <span class="type">Unit</span> = println(<span class="string">&quot;精通Python和大数据的程序员, 吃羊肉, 喝羊奶&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">skill</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">      <span class="keyword">super</span>.skill()     <span class="comment">//本身就掌握的内容.</span></span><br><span class="line">      learningBigData() <span class="comment">//来到黑马之后学习的技能.</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="comment">//7. 测试.</span></span><br><span class="line">    <span class="comment">//7.1 测试普通Java程序员.</span></span><br><span class="line">    <span class="keyword">val</span> jp = <span class="keyword">new</span> <span class="type">JavaProgrammer</span></span><br><span class="line">    jp.name = <span class="string">&quot;张三&quot;</span></span><br><span class="line">    jp.age = <span class="number">23</span></span><br><span class="line">    println(<span class="string">s&quot;我叫<span class="subst">$&#123;jp.name&#125;</span>, 年龄为<span class="subst">$&#123;jp.age&#125;</span>, 我是普通的Java程序员&quot;</span>)</span><br><span class="line">    jp.eat()</span><br><span class="line">    jp.skill()</span><br><span class="line">    println(<span class="string">&quot;-&quot;</span> * <span class="number">15</span>)   <span class="comment">//分割线</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//7.2 测试精通Java + 大数据的程序员</span></span><br><span class="line">    <span class="keyword">val</span> pjp = <span class="keyword">new</span> <span class="type">PartJavaProgrammer</span></span><br><span class="line">    pjp.name = <span class="string">&quot;李四&quot;</span></span><br><span class="line">    pjp.age = <span class="number">24</span></span><br><span class="line">    println(<span class="string">s&quot;我叫<span class="subst">$&#123;pjp.name&#125;</span>, 年龄为<span class="subst">$&#123;pjp.age&#125;</span>, 我精通Java技术和大数据技术&quot;</span>)</span><br><span class="line">    pjp.eat()</span><br><span class="line">    pjp.skill()</span><br><span class="line"></span><br><span class="line">    <span class="comment">//7.3 测试普通的Python程序员, 自行测试.</span></span><br><span class="line">    <span class="comment">//7.4 测试精通Python + 大数据的程序员, 自行测试.</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考代码"><a href="#参考代码" class="headerlink" title="参考代码"></a>参考代码</h2><pre class="line-numbers language-scala" data-language="scala"><code class="language-scala"><span class="token comment">//案例: 程序员案例</span>
+<span class="token keyword">object</span> ClassDemo11 <span class="token punctuation">{</span>
+  <span class="token comment">//1. 定义程序员类Programmer.</span>
+  <span class="token keyword">abstract</span> <span class="token keyword">class</span> Programmer <span class="token punctuation">{</span>
+    <span class="token comment">//属性: 姓名和年龄</span>
+    <span class="token keyword">var</span> name <span class="token operator">=</span> <span class="token string">""</span>
+    <span class="token keyword">var</span> age <span class="token operator">=</span> <span class="token number">0</span>
 
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/e21ef013.html">http://www.lvxueyang.vip/post/e21ef013.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/scala/">scala</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/b76fb512.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Scala之包,样例</div></div></a></div><div class="next-post pull-right"><a href="/post/76d049ce.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Scala之类对象</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/cf824968.html" title="Scala之入门"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-08</div><div class="title">Scala之入门</div></div></a></div><div><a href="/post/b76fb512.html" title="Scala之包,样例"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-12</div><div class="title">Scala之包,样例</div></div></a></div><div><a href="/post/98fc7c3f.html" title="Scala之基础知识"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-08</div><div class="title">Scala之基础知识</div></div></a></div><div><a href="/post/ce1bfb04.html" title="Scala之流程控制"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-12</div><div class="title">Scala之流程控制</div></div></a></div><div><a href="/post/76d049ce.html" title="Scala之类对象"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-12</div><div class="title">Scala之类对象</div></div></a></div><div><a href="/post/2b48177f.html" title="Scala之运算符"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-08</div><div class="title">Scala之运算符</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Scala%E7%AC%AC%E5%85%AB%E7%AB%A0%E8%8A%82"><span class="toc-text">Scala第八章节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AB%A0%E8%8A%82%E7%9B%AE%E6%A0%87"><span class="toc-text">章节目标</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%89%B9%E8%B4%A8%E5%85%A5%E9%97%A8"><span class="toc-text">特质入门</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-text">特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95"><span class="toc-text">语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-%E7%B1%BB%E7%BB%A7%E6%89%BF%E5%8D%95%E4%B8%AA%E7%89%B9%E8%B4%A8"><span class="toc-text">示例: 类继承单个特质</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-%E7%B1%BB%E7%BB%A7%E6%89%BF%E5%A4%9A%E4%B8%AAtrait"><span class="toc-text">示例: 类继承多个trait</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-object%E7%BB%A7%E6%89%BFtrait"><span class="toc-text">示例: object继承trait</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-%E6%BC%94%E7%A4%BAtrait%E4%B8%AD%E7%9A%84%E6%88%90%E5%91%98"><span class="toc-text">示例: 演示trait中的成员</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E6%B7%B7%E5%85%A5trait"><span class="toc-text">对象混入trait</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-1"><span class="toc-text">语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8trait%E5%AE%9E%E7%8E%B0%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">使用trait实现适配器模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%AE%80%E4%BB%8B"><span class="toc-text">设计模式简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">适配器模式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8trait%E5%AE%9E%E7%8E%B0%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F"><span class="toc-text">使用trait实现模板方法模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F"><span class="toc-text">格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-1"><span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8trait%E5%AE%9E%E7%8E%B0%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F"><span class="toc-text">使用trait实现职责链模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-2"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F-1"><span class="toc-text">格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-2"><span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#trait%E7%9A%84%E6%9E%84%E9%80%A0%E6%9C%BA%E5%88%B6"><span class="toc-text">trait的构造机制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-3"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E6%9C%BA%E5%88%B6%E8%A7%84%E5%88%99"><span class="toc-text">构造机制规则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-3"><span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#trait%E7%BB%A7%E6%89%BFclass"><span class="toc-text">trait继承class</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-4"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F-2"><span class="toc-text">格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-4"><span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B-%E7%A8%8B%E5%BA%8F%E5%91%98"><span class="toc-text">案例: 程序员</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9C%80%E6%B1%82"><span class="toc-text">需求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E7%9A%84"><span class="toc-text">目的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E4%BB%A3%E7%A0%81"><span class="toc-text">参考代码</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
-  endLoading: () => {
-    document.body.style.overflow = 'auto';
-    document.getElementById('loading-box').classList.add("loaded")
-  },
-  initLoading: () => {
-    document.body.style.overflow = '';
-    document.getElementById('loading-box').classList.remove("loaded")
+    <span class="token comment">//行为: 吃饭和技能</span>
+    <span class="token keyword">def</span> eat<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">def</span> skill<span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//2. 定义特质BigData.</span>
+  <span class="token keyword">trait</span> BigData <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> learningBigData<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+      println<span class="token punctuation">(</span><span class="token string">"来到黑马程序员之后: "</span><span class="token punctuation">)</span>
+      println<span class="token punctuation">(</span><span class="token string">"我学会了: Hadoop, Zookeeper, HBase, Hive, Sqoop, Scala, Spark, Flink等技术"</span><span class="token punctuation">)</span>
+      println<span class="token punctuation">(</span><span class="token string">"我学会了: 企业级360°全方位用户画像, 千亿级数据仓, 黑马推荐系统, 电信信号强度诊断等项目"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">//3. 定义Java程序员类JavaProgrammer.</span>
+  <span class="token keyword">class</span> JavaProgrammer <span class="token keyword">extends</span> Programmer <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> eat<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"Java程序员吃大白菜, 喝大米粥."</span><span class="token punctuation">)</span>
 
-  }
-}
-window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
-  const $countDom = document.getElementById('twikoo-count')
-  const init = () => {
-    twikoo.init(Object.assign({
-      el: '#twikoo-wrap',
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: ''
-    }, null))
-  }
+    <span class="token keyword">override</span> <span class="token keyword">def</span> skill<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"我精通Java技术."</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
 
-  const getCount = () => {
-    twikoo.getCommentsCount({
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: '',
-      urls: [window.location.pathname],
-      includeReply: false
-    }).then(function (res) {
-      $countDom.innerText = res[0].count
-    }).catch(function (err) {
-      console.error(err);
+  <span class="token comment">//4. 定义Python程序员类PythonProgrammer.</span>
+  <span class="token keyword">class</span> PythonProgrammer <span class="token keyword">extends</span> Programmer <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> eat<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"Python程序员吃小白菜, 喝小米粥."</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">override</span> <span class="token keyword">def</span> skill<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"我精通Python技术."</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//5. 定义PartJavaProgrammer类, 表示精通: Java和大数据的程序员.</span>
+  <span class="token keyword">class</span> PartJavaProgrammer <span class="token keyword">extends</span> JavaProgrammer <span class="token keyword">with</span> BigData <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> eat<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"精通Java和大数据的程序员, 吃牛肉, 喝牛奶"</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">override</span> <span class="token keyword">def</span> skill<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+      <span class="token keyword">super</span><span class="token punctuation">.</span>skill<span class="token punctuation">(</span><span class="token punctuation">)</span>     <span class="token comment">//本身就掌握的内容.</span>
+      learningBigData<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment">//来到黑马之后学习的技能.</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">//6. 定义PartPythonProgrammer类, 表示精通: Python和大数据的程序员.</span>
+  <span class="token keyword">class</span> PartPythonProgrammer <span class="token keyword">extends</span> PythonProgrammer <span class="token keyword">with</span> BigData <span class="token punctuation">{</span>
+    <span class="token keyword">override</span> <span class="token keyword">def</span> eat<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> println<span class="token punctuation">(</span><span class="token string">"精通Python和大数据的程序员, 吃羊肉, 喝羊奶"</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">override</span> <span class="token keyword">def</span> skill<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+      <span class="token keyword">super</span><span class="token punctuation">.</span>skill<span class="token punctuation">(</span><span class="token punctuation">)</span>     <span class="token comment">//本身就掌握的内容.</span>
+      learningBigData<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment">//来到黑马之后学习的技能.</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">def</span> main<span class="token punctuation">(</span>args<span class="token operator">:</span> Array<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">Unit</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">//7. 测试.</span>
+    <span class="token comment">//7.1 测试普通Java程序员.</span>
+    <span class="token keyword">val</span> jp <span class="token operator">=</span> <span class="token keyword">new</span> JavaProgrammer
+    jp<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">"张三"</span>
+    jp<span class="token punctuation">.</span>age <span class="token operator">=</span> <span class="token number">23</span>
+    println<span class="token punctuation">(</span>s<span class="token string">"我叫${jp.name}, 年龄为${jp.age}, 我是普通的Java程序员"</span><span class="token punctuation">)</span>
+    jp<span class="token punctuation">.</span>eat<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    jp<span class="token punctuation">.</span>skill<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    println<span class="token punctuation">(</span><span class="token string">"-"</span> <span class="token operator">*</span> <span class="token number">15</span><span class="token punctuation">)</span>   <span class="token comment">//分割线</span>
+
+    <span class="token comment">//7.2 测试精通Java + 大数据的程序员</span>
+    <span class="token keyword">val</span> pjp <span class="token operator">=</span> <span class="token keyword">new</span> PartJavaProgrammer
+    pjp<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">"李四"</span>
+    pjp<span class="token punctuation">.</span>age <span class="token operator">=</span> <span class="token number">24</span>
+    println<span class="token punctuation">(</span>s<span class="token string">"我叫${pjp.name}, 年龄为${pjp.age}, 我精通Java技术和大数据技术"</span><span class="token punctuation">)</span>
+    pjp<span class="token punctuation">.</span>eat<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    pjp<span class="token punctuation">.</span>skill<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token comment">//7.3 测试普通的Python程序员, 自行测试.</span>
+    <span class="token comment">//7.4 测试精通Python + 大数据的程序员, 自行测试.</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">YangShen</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://lvxueyang.vip/post/e21ef013.html">https://lvxueyang.vip/post/e21ef013.html</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">YangShen</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/scala/">
+                                    <span class="chip bg-color">scala</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
     });
-  }
+</script>
 
-  const loadTwikoo = (bool = false) => {
-    if (typeof twikoo === 'object') {
-      init()
-      bool && $countDom && setTimeout(getCount,0)
-    } else {
-      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
-        init()
-        bool && $countDom && setTimeout(getCount,0)
-      })
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
     }
-  }
 
-  if ('Twikoo' === 'Twikoo' || !false) {
-    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
-    else loadTwikoo(true)
-  } else {
-    window.loadOtherComment = () => {
-      loadTwikoo()
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
     }
-  }
-})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
-  window.tidioChatApi.hide();
-  window.tidioChatApi.on("close", function() {
-    window.tidioChatApi.hide();
-  });
-}
-if (window.tidioChatApi) {
-  window.tidioChatApi.on("ready", onTidioChatApiReady);
-} else {
-  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
-}
 
-var chatBtnFn = () => {
-  document.getElementById("chat_btn").addEventListener("click", function(){
-    window.tidioChatApi.show();
-    window.tidioChatApi.open();
-  });
-}
-chatBtnFn()
-</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("/medias/comment_bg.png") 100% 100% no-repeat;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div id="vcomments" class="card-content" style="display: grid">
+    </div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'kkTHtgDEUlqRlsbgP6vMWDxa-gzGzoHsz',
+        appKey: 'EX0XjX0GwgIgm38pW1RuybHn',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go'
+    });
+</script>
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/post/b76fb512.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg" class="responsive-img" alt="Scala之包,样例">
+                        
+                        <span class="card-title">Scala之包,样例</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2021-11-12
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/scala/" class="post-category">
+                                    scala
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/scala/">
+                        <span class="chip bg-color">scala</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/post/76d049ce.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" class="responsive-img" alt="Scala之类对象">
+                        
+                        <span class="card-title">Scala之类对象</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-12
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            YangShen
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/scala/">
+                        <span class="chip bg-color">scala</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: 牧马人的忧伤<br />'
+            + '文章作者: YangShen<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="330695641"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2018-2022</span>
+            
+            <span id="year">2018</span>
+            <a href="/about" target="_blank">YangShen</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">3956k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2018";
+                    var startMonth = "6";
+                    var startDate = "28";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/LVXUEYANGTiger" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1191432275@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1191432275" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1191432275" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    <script type="text/javascript">
+        window.onload = function(){
+            //屏蔽键盘事件
+            document.onkeydown = function (){
+                var e = window.event || arguments[0];
+                //F12
+                if(e.keyCode == 123){
+                    return false;
+                //Ctrl+Shift+I
+                }else if((e.ctrlKey) && (e.shiftKey) && (e.keyCode == 73)){
+                    return false;
+                //Shift+F10
+                }else if((e.shiftKey) && (e.keyCode == 121)){
+                    return false;
+                //Ctrl+U
+                }else if((e.ctrlKey) && (e.keyCode == 85)){
+                    return false;
+                }
+            };
+            //屏蔽鼠标右键
+            document.oncontextmenu = function (){
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,160 +1,534 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>shell第一天讲义 | 牧马人的忧伤</title><meta name="keywords" content="shell,运维"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Shell概述本次课程主要包含内容:   Shell脚本入门 Shell变量 Shell内置命令 Shell运算符与执行运算命令 流程控制语句 Shell函数 Shell重定向 Shell好用的工具, cut sed awk sort 大厂常见企业面试题  Shell脚本入门疑问linux系统是如何操作计算机硬件CPU,内存,磁盘,显示器等? 答: 使用linux的内核操作计算机的硬件 Shell">
-<meta property="og:type" content="article">
-<meta property="og:title" content="shell第一天讲义">
-<meta property="og:url" content="http://www.lvxueyang.vip/post/4570d412.html">
-<meta property="og:site_name" content="牧马人的忧伤">
-<meta property="og:description" content="Shell概述本次课程主要包含内容:   Shell脚本入门 Shell变量 Shell内置命令 Shell运算符与执行运算命令 流程控制语句 Shell函数 Shell重定向 Shell好用的工具, cut sed awk sort 大厂常见企业面试题  Shell脚本入门疑问linux系统是如何操作计算机硬件CPU,内存,磁盘,显示器等? 答: 使用linux的内核操作计算机的硬件 Shell">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg">
-<meta property="article:published_time" content="2022-01-16T14:30:02.033Z">
-<meta property="article:modified_time" content="2022-01-18T13:56:38.743Z">
-<meta property="article:author" content="YangShen">
-<meta property="article:tag" content="shell">
-<meta property="article:tag" content="运维">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/4570d412"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
-  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '天',
-  date_suffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  source: {
-    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
-    justifiedGallery: {
-      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
-    },
-    fancybox: {
-      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
-    }
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isanchor: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'shell第一天讲义',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2022-01-18 21:56:38'
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
+<!DOCTYPE HTML>
+<html lang="zh-CN">
 
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-    win.saveToLocal = {
-      set: function setWithExpiry(key, value, ttl) {
-        if (ttl === 0) return
-        const now = new Date()
-        const expiryDay = ttl * 86400000
-        const item = {
-          value: value,
-          expiry: now.getTime() + expiryDay,
-        }
-        localStorage.setItem(key, JSON.stringify(item))
-      },
 
-      get: function getWithExpiry(key) {
-        const itemStr = localStorage.getItem(key)
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="shell第一天讲义, 牧马人的忧伤">
+    <meta name="description" content="主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
-        if (!itemStr) {
-          return undefined
-        }
-        const item = JSON.parse(itemStr)
-        const now = new Date()
 
-        if (now.getTime() > item.expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return item.value
-      }
-    }
+    <title>shell第一天讲义 | 牧马人的忧伤</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.2">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span diyFont">牧马人的忧伤</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
   
-    win.getScript = url => new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = url
-      script.async = true
-      script.onerror = reject
-      script.onload = script.onreadystatechange = function() {
-        const loadState = this.readyState
-        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-        script.onload = script.onreadystatechange = null
-        resolve()
-      }
-      document.head.appendChild(script)
-    })
-  
-      win.activateDarkMode = function () {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = function () {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
+  <li class="hide-on-med-and-down nav-item">
     
-          if (t === 'dark') activateDarkMode()
-          else if (t === 'light') activateLightMode()
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>找文章</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/categories">
+          
+          <i class="fas fa-bookmark" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>分类</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tags">
+          
+          <i class="fas fa-tags" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>标签</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/archives">
+          
+          <i class="fas fa-archive" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>归档</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>生活</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/timeline">
+          
+          <i class="fas fa-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>时间轴</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/contact">
+          
+          <i class="fas fa-music" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>留言板</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/friends">
+          
+          <i class="fas fa-address-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>友人帐</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于笔者</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
         
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">牧马人的忧伤</div>
+        <div class="logo-desc">
+            
+            主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			找文章
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/categories " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-bookmark" style="position: absolute;left:50px" ></i>
+			      
+		          <span>分类</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/tags " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-tags" style="position: absolute;left:50px" ></i>
+			      
+		          <span>标签</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/archives " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-archive" style="position: absolute;left:50px" ></i>
+			      
+		          <span>归档</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			生活
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/timeline " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>时间轴</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/contact " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-music" style="position: absolute;left:50px" ></i>
+			      
+		          <span>留言板</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/friends " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-address-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>友人帐</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于笔者
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
         }
-      }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082302.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">shell第一天讲义</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
     
-    const fontSizeVal = saveToLocal.get('global-font-size')
-    if (fontSizeVal !== undefined) {
-      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
     }
-    
-    const detectApple = () => {
-      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-        document.documentElement.classList.add('apple')
-      }
+
+    #articleContent :focus {
+        outline: none;
     }
-    detectApple()
-    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
-</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">shell第一天讲义</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-16T14:30:02.033Z" title="发表于 2022-01-16 22:30:02">2022-01-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-18T13:56:38.743Z" title="更新于 2022-01-18 21:56:38">2022-01-18</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/shell/">shell</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">6.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>20分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="shell第一天讲义"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Shell概述"><a href="#Shell概述" class="headerlink" title="Shell概述"></a>Shell概述</h1><p>本次课程主要包含内容: </p>
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/shell/">
+                                <span class="chip bg-color">shell</span>
+                            </a>
+                        
+                            <a href="/tags/%E8%BF%90%E7%BB%B4/">
+                                <span class="chip bg-color">运维</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/shell/" class="post-category">
+                                shell
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-01-16
+                </div>
+                
+
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
+                    2022-01-18
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    6.2k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    23 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="Shell概述"><a href="#Shell概述" class="headerlink" title="Shell概述"></a>Shell概述</h1><p>本次课程主要包含内容: </p>
 <ol>
 <li>Shell脚本入门</li>
 <li>Shell变量</li>
@@ -177,7 +551,7 @@
 <h2 id="Shell的运行过程"><a href="#Shell的运行过程" class="headerlink" title="Shell的运行过程"></a>Shell的运行过程</h2><p>当用户下达指令给该操作系统的时候，实际上是把指令告诉shell，经过shell解释，处理后让内核做出相应的动作。 系统的回应和输出的信息也由shell处理，然后显示在用户的屏幕上。</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233925.png" alt="image-20200313223530826"></p>
 <h2 id="Shell解析器"><a href="#Shell解析器" class="headerlink" title="Shell解析器"></a>Shell解析器</h2><p>查看linux系统centos支持的shell解析器</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/shells</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">cat</span> /etc/shells<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>效果</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233926.png" alt="image-20200313225313350"></p>
@@ -194,8 +568,8 @@
 <td>Bourne Shell,是UNIX最初使用的shell;</td>
 </tr>
 <tr>
-<td><font color=red>/bin/bash</font></td>
-<td><font color=red>Bourne Again Shell它是Bourne Shell的扩展，简称bash，是LinuxOS默认shell,有灵活和强大的编辑接口，同时又很友好的用户界面，交互性很强；</font></td>
+<td><font color="red">/bin/bash</font></td>
+<td><font color="red">Bourne Again Shell它是Bourne Shell的扩展，简称bash，是LinuxOS默认shell,有灵活和强大的编辑接口，同时又很友好的用户界面，交互性很强；</font></td>
 </tr>
 <tr>
 <td>/sbin/nologin</td>
@@ -215,7 +589,7 @@
 </tr>
 </tbody></table>
 <h3 id="Centos默认的解析器是bash"><a href="#Centos默认的解析器是bash" class="headerlink" title="Centos默认的解析器是bash"></a>Centos默认的解析器是bash</h3><p>语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">echo $SHELL</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">echo</span> <span class="token environment constant">$SHELL</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <blockquote>
 <p>含义:  打印输出当前系统环境使用的Shell解析器类型</p>
@@ -226,30 +600,34 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233927.png" alt="image-20200314234038389"></p>
 <h2 id="Shell脚本文件编写规范"><a href="#Shell脚本文件编写规范" class="headerlink" title="Shell脚本文件编写规范"></a>Shell脚本文件编写规范</h2><h3 id="脚本文件后缀名规范"><a href="#脚本文件后缀名规范" class="headerlink" title="脚本文件后缀名规范"></a>脚本文件后缀名规范</h3><p>shell脚本文件就是一个文本文件,  后缀名建议使用 <code>.sh</code> 结尾</p>
 <h3 id="首行格式规范"><a href="#首行格式规范" class="headerlink" title="首行格式规范"></a>首行格式规范</h3><p>首行需要设置Shell解析器的类型, 语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token shebang important">#!/bin/bash</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <blockquote>
 <p>含义:  设置当前shell脚本文件采用bash解析器运行脚本代码</p>
 </blockquote>
 <h3 id="注释格式"><a href="#注释格式" class="headerlink" title="注释格式"></a>注释格式</h3><p>单行注释, 语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 注释内容</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token comment"># 注释内容</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>多行注释, 语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">:&lt;&lt;!</span><br><span class="line"><span class="meta">#</span><span class="bash"> 注释内容1</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 注释内容2</span></span><br><span class="line">!</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">:<span class="token operator">&lt;&lt;</span><span class="token operator">!</span>
+<span class="token comment"># 注释内容1</span>
+<span class="token comment"># 注释内容2</span>
+<span class="token operator">!</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="shell脚本HelloWord入门案例"><a href="#shell脚本HelloWord入门案例" class="headerlink" title="shell脚本HelloWord入门案例"></a>shell脚本HelloWord入门案例</h2><h4 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h4><p>创建一个Shell脚本文件helloworld.sh，输出hello world字符串</p>
 <h4 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233928.png" alt="image-20200401022006169"></p>
 <h4 id="实现步骤"><a href="#实现步骤" class="headerlink" title="实现步骤"></a>实现步骤</h4><p>1、创建shell脚本文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">touch helloworld.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">touch</span> helloworld.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>2、编辑文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim helloworld.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">vim</span> helloworld.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>3、增加shell脚本文件内容如下，并保存退出</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">echo &quot;hello world&quot;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token shebang important">#!/bin/bash</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"hello world"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p>4、执行脚本</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sh helloworld.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">sh</span> helloworld.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>运行效果</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233929.png" alt="image-20200314234950078"></p>
@@ -271,11 +649,11 @@
 <h4 id="3种方式的区别"><a href="#3种方式的区别" class="headerlink" title="3种方式的区别"></a>3种方式的区别</h4><p>​        sh或bash执行脚本文件方式是直接使用Shell解析器运行脚本文件, 不需要可执行权限</p>
 <p>​         仅路径方式是执行脚本文件自己, 需要可执行权限</p>
 <h4 id="执行脚本方式1-sh命令执行"><a href="#执行脚本方式1-sh命令执行" class="headerlink" title="执行脚本方式1-sh命令执行"></a>执行脚本方式1-sh命令执行</h4><p>相对路径效果</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sh helloworld.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">sh</span> helloworld.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233930.png" alt="image-20200401120441693"></p>
 <p>绝对路径效果</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sh /root/helloworld.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">sh</span> /root/helloworld.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233931.png" alt="image-20200401123156588"></p>
 <h4 id="执行脚本方式2-bash命令执行"><a href="#执行脚本方式2-bash命令执行" class="headerlink" title="执行脚本方式2-bash命令执行"></a>执行脚本方式2-bash命令执行</h4><p>相对路径效果</p>
@@ -283,22 +661,22 @@
 <p>绝对路径效果</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233933.png" alt="image-20200401123801116"></p>
 <h4 id="执行脚本方式3-仅路径执行"><a href="#执行脚本方式3-仅路径执行" class="headerlink" title="执行脚本方式3-仅路径执行"></a>执行脚本方式3-仅路径执行</h4><h5 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h5><p>步骤1：设置所有用户对此脚本文件增加可执行性权限</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chmod a+x 脚本文件</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">chmod</span> a+x 脚本文件<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>步骤2：执行脚本语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">脚本文件的相对路径或绝对路径</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">脚本文件的相对路径或绝对路径<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h5 id="示例：使用仅路径方式执行helloworld-sh脚本文件"><a href="#示例：使用仅路径方式执行helloworld-sh脚本文件" class="headerlink" title="示例：使用仅路径方式执行helloworld.sh脚本文件"></a>示例：使用仅路径方式执行helloworld.sh脚本文件</h5><p>添加执行权限</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chmod a+x helloworld.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">chmod</span> a+x helloworld.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233934.png" alt="image-20200401215308369"></p>
 <p>相对路径执行命令</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">./helloworld.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">./helloworld.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>相对路径执行效果</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233935.png" alt="image-20200401215354868"></p>
 <p>绝对路径执行命令</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/root/helloworld.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">/root/helloworld.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>绝对路径执行效果</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233936.png" alt="image-20200401215435317"></p>
@@ -321,26 +699,29 @@
 </li>
 </ol>
 <h3 id="实现步骤-1"><a href="#实现步骤-1" class="headerlink" title="实现步骤"></a>实现步骤</h3><p>1、进入root目录，执行创建/root/itheima目录命令</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mkdir /root/itheima</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">mkdir</span> /root/itheima<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>2、创建/root/batch.sh文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">touch batch.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">touch</span> batch.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233937.png" alt="image-20200402205353802"></p>
 <p>2、编辑batch.sh文件，编写shell命令</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim batch.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">vim</span> batch.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>3、编写命令</p>
 <p>命令1：创建/root/itheima/one.txt文件</p>
 <p>命令2：输出“I love Shell”字符串数据到one.txt文件中</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">cd itheima     # 切换到itheima目录</span><br><span class="line">touch one.txt  # 创建文件one.txt</span><br><span class="line">echo &quot;Hello Shell&quot;&gt;&gt;/root/itheima/one.txt  #输出数据到one.txt文件中</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token shebang important">#!/bin/bash</span>
+<span class="token builtin class-name">cd</span> itheima     <span class="token comment"># 切换到itheima目录</span>
+<span class="token function">touch</span> one.txt  <span class="token comment"># 创建文件one.txt</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"Hello Shell"</span><span class="token operator">&gt;&gt;</span>/root/itheima/one.txt  <span class="token comment">#输出数据到one.txt文件中</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233939.png" alt="image-20200402221001946"></p>
 <h3 id="运行脚本效果"><a href="#运行脚本效果" class="headerlink" title="运行脚本效果"></a>运行脚本效果</h3><p>运行batch.sh脚本文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sh batch.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">sh</span> batch.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>查看one.txt文件内容</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat itheima/one.txt</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">cat</span> itheima/one.txt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233940.png" alt="image-20200402221123997"></p>
 <h1 id="Shell变量"><a href="#Shell变量" class="headerlink" title="Shell变量"></a>Shell变量</h1><h2 id="Shell变量的介绍"><a href="#Shell变量的介绍" class="headerlink" title="Shell变量的介绍"></a>Shell变量的介绍</h2><p>变量用于存储管理临时的数据,    这些数据都是在运行内存中的.</p>
@@ -356,12 +737,12 @@
 <h3 id="环境变量分类"><a href="#环境变量分类" class="headerlink" title="环境变量分类"></a>环境变量分类</h3><p>在Linux系统中，环境变量按照其作用范围不同大致可以分为系统级环境变量和用户级环境变量。</p>
 <p>系统级环境变量：Shell环境加载全局配置文件中的变量共享给所有用户所有Shell程序使用, 全局共享<br>用户级环境变量：Shell环境加载个人配置文件中的变量共享给当前用户的Shell程序使用, 登录用户使用</p>
 <h3 id="查看当前Shell系统环境变量"><a href="#查看当前Shell系统环境变量" class="headerlink" title="查看当前Shell系统环境变量"></a>查看当前Shell系统环境变量</h3><p>查看命令</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">env</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">env</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>效果</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233941.png" alt="image-20200405222654722"></p>
 <h3 id="查看Shell变量-系统环境变量-自定义变量-函数"><a href="#查看Shell变量-系统环境变量-自定义变量-函数" class="headerlink" title="查看Shell变量(系统环境变量+自定义变量+函数)"></a>查看Shell变量(系统环境变量+自定义变量+函数)</h3><p>命令</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">set</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">set</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>效果</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233942.png" alt="image-20200610154848860"></p>
@@ -420,7 +801,7 @@
 </ol>
 <h3 id="自定义局部变量"><a href="#自定义局部变量" class="headerlink" title="自定义局部变量"></a>自定义局部变量</h3><h4 id="介绍-2"><a href="#介绍-2" class="headerlink" title="介绍"></a>介绍</h4><p>就是定义在一个脚本文件中的变量, 只能在这个脚本文件中使用的变量, 就是局部变量</p>
 <h4 id="定义与使用"><a href="#定义与使用" class="headerlink" title="定义与使用"></a>定义与使用</h4><p>定义语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">var_name=value</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token assign-left variable">var_name</span><span class="token operator">=</span>value<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>变量定义规则</p>
 <ol>
@@ -433,16 +814,20 @@
 <p>演示</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233946.png" alt="image-20200608170754770"></p>
 <p>查询变量值语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 语法1: 直接使用变量名查询</span></span><br><span class="line"><span class="meta">$</span><span class="bash">var_name</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 语法2: 使用花括号</span></span><br><span class="line"><span class="meta">$</span><span class="bash">&#123;var_name&#125;</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 区别: 花括号方式适合拼接字符串</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-Shell" data-language="Shell"><code class="language-Shell"># 语法1: 直接使用变量名查询
+$var_name
+# 语法2: 使用花括号
+${var_name}
+# 区别: 花括号方式适合拼接字符串<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>演示</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233947.png" alt="image-20200608170830515"></p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233948.png" alt="image-20200608170854466"></p>
-<p>注意: 如果<code>&quot;My name is $&#123;var2&#125;Style&quot;</code> 中 <code>$var2</code> 不带花括号, 系统会认为获取<code>$var2Style</code> 变量数据, 这个变量不存在就获取不到数据,执行效果如下</p>
+<p>注意: 如果<code>"My name is ${var2}Style"</code> 中 <code>$var2</code> 不带花括号, 系统会认为获取<code>$var2Style</code> 变量数据, 这个变量不存在就获取不到数据,执行效果如下</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233949.png" alt="image-20200608170953503"></p>
 <p>结论:  推荐大家使用花括号才是编程好习惯</p>
 <h4 id="变量删除"><a href="#变量删除" class="headerlink" title="变量删除"></a>变量删除</h4><p>语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">unset var_name</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">unset</span> var_name<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>演示</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233950.png" alt="image-20200608182219303"></p>
@@ -451,7 +836,7 @@
 <p>就是变量设置值以后不可以修改的变量叫常量, 也叫只读变量</p>
 </blockquote>
 <p>语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">readonly var_name</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">readonly</span> var_name<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>演示</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233951.png" alt="image-20200608193930236"></p>
@@ -460,7 +845,7 @@
 <h4 id="自定义全局变量介绍"><a href="#自定义全局变量介绍" class="headerlink" title="自定义全局变量介绍"></a>自定义全局变量介绍</h4><blockquote>
 <p>就是在当前脚本文件中定义全局变量, 这个全局变量可以在当前Shell环境与子Shell环境中都可以使用</p>
 </blockquote>
-<h4 id="自定义全局变量语法"><a href="#自定义全局变量语法" class="headerlink" title="自定义全局变量语法"></a>自定义全局变量语法</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export var_name1 var_name2</span><br></pre></td></tr></table></figure>
+<h4 id="自定义全局变量语法"><a href="#自定义全局变量语法" class="headerlink" title="自定义全局变量语法"></a>自定义全局变量语法</h4><pre class="line-numbers language-Shell" data-language="Shell"><code class="language-Shell">export var_name1 var_name2<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h4 id="案例需求-1"><a href="#案例需求-1" class="headerlink" title="案例需求"></a>案例需求</h4><p>测试全局变量在子Shell中是否可用,  在父Shell中是否可用</p>
 <h4 id="案例实现步骤"><a href="#案例实现步骤" class="headerlink" title="案例实现步骤"></a>案例实现步骤</h4><ol>
@@ -481,12 +866,12 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233952.png" alt="image-20200608223429822"></p>
 </li>
 <li><p>编辑demo2.sh, 里面定义变量VAR4并设置为全局, 并里面执行demo3.sh脚本文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim demo2.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">vim</span> demo2.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233953.png" alt="image-20200608224144481"></p>
 </li>
 <li><p>编辑demo3.sh,  里面打印VAR4</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim demo3.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">vim</span> demo3.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233954.png" alt="image-20200608224326159"></p>
 </li>
@@ -498,18 +883,24 @@
 </li>
 </ol>
 <h4 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h4><p>全局变量在当前Shell环境与子Shell环境中可用, 父Shell环境中不可用</p>
-<h2 id="特殊变量"><a href="#特殊变量" class="headerlink" title="特殊变量"></a>特殊变量</h2><h3 id="特殊变量：-n"><a href="#特殊变量：-n" class="headerlink" title="特殊变量：$n"></a>特殊变量：$n</h3><h4 id="语法-1"><a href="#语法-1" class="headerlink" title="语法"></a>语法</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">n</span></span><br></pre></td></tr></table></figure>
+<h2 id="特殊变量"><a href="#特殊变量" class="headerlink" title="特殊变量"></a>特殊变量</h2><h3 id="特殊变量：-n"><a href="#特殊变量：-n" class="headerlink" title="特殊变量：$n"></a>特殊变量：$n</h3><h4 id="语法-1"><a href="#语法-1" class="headerlink" title="语法"></a>语法</h4><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token variable">$n</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<h4 id="含义"><a href="#含义" class="headerlink" title="含义"></a>含义</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">用于接收脚本文件执行时传入的参数</span><br><span class="line"><span class="meta">$</span><span class="bash">0 用于获取当前脚本文件名称的</span></span><br><span class="line"><span class="meta">$</span><span class="bash">1~<span class="variable">$9</span>, 代表获取第一输入参数到第9个输入参数</span></span><br><span class="line">第10个以上的输入参数获取参数的格式: $&#123;数字&#125;, 否则无法获取</span><br></pre></td></tr></table></figure>
+<h4 id="含义"><a href="#含义" class="headerlink" title="含义"></a>含义</h4><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">用于接收脚本文件执行时传入的参数
+<span class="token variable">$0</span> 用于获取当前脚本文件名称的
+<span class="token variable">$1</span>~<span class="token variable">$9</span>, 代表获取第一输入参数到第9个输入参数
+第10个以上的输入参数获取参数的格式: <span class="token variable">${数字}</span>, 否则无法获取<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
-<h4 id="执行脚本文件传入参数语法"><a href="#执行脚本文件传入参数语法" class="headerlink" title="执行脚本文件传入参数语法"></a>执行脚本文件传入参数语法</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sh 脚本文件 输入参数1 输入参数2 ...</span><br></pre></td></tr></table></figure>
+<h4 id="执行脚本文件传入参数语法"><a href="#执行脚本文件传入参数语法" class="headerlink" title="执行脚本文件传入参数语法"></a>执行脚本文件传入参数语法</h4><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">sh</span> 脚本文件 输入参数1 输入参数2 <span class="token punctuation">..</span>.<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h4 id="案例需求-2"><a href="#案例需求-2" class="headerlink" title="案例需求"></a>案例需求</h4><p>创建脚本文件demo4.sh文件, 并在脚本文件内部执行打印脚本文件名字, 第一个输入参数, 第二个输入参数</p>
 <h4 id="实现步骤-2"><a href="#实现步骤-2" class="headerlink" title="实现步骤"></a>实现步骤</h4><ol>
 <li><p>创建脚本文件demo4.sh</p>
 </li>
 <li><p>编辑demo4.sh的文件内容</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 命令1: 打印当前脚本文件名字</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 命令2: 打印第1个输入参数</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 命令3: 打印第2个输入参数</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 命令4: 打印第10个输入参数</span></span><br></pre></td></tr></table></figure></li>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token comment"># 命令1: 打印当前脚本文件名字</span>
+<span class="token comment"># 命令2: 打印第1个输入参数</span>
+<span class="token comment"># 命令3: 打印第2个输入参数</span>
+<span class="token comment"># 命令4: 打印第10个输入参数</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li>
 <li><p>执行脚本文件demo4.sh</p>
 </li>
 </ol>
@@ -525,7 +916,7 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233960.png" alt="image-20200610093253173"></p>
 </li>
 </ol>
-<h3 id="特殊变量："><a href="#特殊变量：" class="headerlink" title="特殊变量：$#"></a>特殊变量：$#</h3><h4 id="语法-2"><a href="#语法-2" class="headerlink" title="语法"></a>语法</h4> <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"><span class="comment">#</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="特殊变量："><a href="#特殊变量：" class="headerlink" title="特殊变量：$#"></a>特殊变量：$#</h3><h4 id="语法-2"><a href="#语法-2" class="headerlink" title="语法"></a>语法</h4> <pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token variable">$#</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h4 id="含义-1"><a href="#含义-1" class="headerlink" title="含义"></a>含义</h4><p>获取所有输入参数的个数</p>
 <h4 id="案例需求-3"><a href="#案例需求-3" class="headerlink" title="案例需求"></a>案例需求</h4><p>在demo4.sh中输出输入参数个数</p>
@@ -534,29 +925,72 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233961.png" alt="image-20200610094814031"></p>
 <p>执行demo4.sh传入参数itcast, itheima, 播仔 看效果</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233962.png" alt="image-20200610094657175"></p>
-<h3 id="特殊变量：-、"><a href="#特殊变量：-、" class="headerlink" title="特殊变量：$*、$@"></a>特殊变量：<code>$*</code>、<code>$@</code></h3><h4 id="语法-3"><a href="#语法-3" class="headerlink" title="语法"></a>语法</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">*</span></span><br><span class="line"><span class="meta">$</span><span class="bash">@</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 含义都是获取所有输入参数, 用于以后输出所有参数</span></span><br></pre></td></tr></table></figure>
+<h3 id="特殊变量：-、"><a href="#特殊变量：-、" class="headerlink" title="特殊变量：$*、$@"></a>特殊变量：<code>$*</code>、<code>$@</code></h3><h4 id="语法-3"><a href="#语法-3" class="headerlink" title="语法"></a>语法</h4><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token variable">$*</span>
+<span class="token variable">$@</span>
+<span class="token comment"># 含义都是获取所有输入参数, 用于以后输出所有参数</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <p><code>$*</code>与<code>$@</code>区别</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">1.不使用双引号括起来, 功能一样</span><br><span class="line"><span class="meta">  $</span><span class="bash">*和<span class="variable">$@</span>获取所有输入参数,格式为: <span class="variable">$1</span> <span class="variable">$2</span> ... <span class="variable">$n</span></span></span><br><span class="line">2.使用双引号括起来</span><br><span class="line">  &quot;$*&quot;获取的所有参数拼接为一个字符串, 格式为: &quot;$1 $2 ... $n&quot;</span><br><span class="line">  &quot;$@&quot;获取一组参数列表对象, 格式为: &quot;$1&quot; &quot;$2&quot; ... &quot;$n&quot;</span><br><span class="line">  使用循环打印所有输入参数可以看出区别</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token number">1</span>.不使用双引号括起来, 功能一样
+  <span class="token variable">$*</span>和<span class="token variable">$@</span>获取所有输入参数,格式为: <span class="token variable">$1</span> <span class="token variable">$2</span> <span class="token punctuation">..</span>. <span class="token variable">$n</span>
+<span class="token number">2</span>.使用双引号括起来
+  <span class="token string">"<span class="token variable">$*</span>"</span>获取的所有参数拼接为一个字符串, 格式为: <span class="token string">"<span class="token variable">$1</span> <span class="token variable">$2</span> ... <span class="token variable">$n</span>"</span>
+  <span class="token string">"<span class="token variable">$@</span>"</span>获取一组参数列表对象, 格式为: <span class="token string">"<span class="token variable">$1</span>"</span> <span class="token string">"<span class="token variable">$2</span>"</span> <span class="token punctuation">..</span>. <span class="token string">"<span class="token variable">$n</span>"</span>
+  使用循环打印所有输入参数可以看出区别<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>循环语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">for var in 列表变量</span><br><span class="line">do		# 循环开始</span><br><span class="line">   命令  # 循环体</span><br><span class="line">done    # 循环结束</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token keyword">for</span> <span class="token for-or-select variable">var</span> <span class="token keyword">in</span> 列表变量
+<span class="token keyword">do</span>		<span class="token comment"># 循环开始</span>
+   命令  <span class="token comment"># 循环体</span>
+<span class="token keyword">done</span>    <span class="token comment"># 循环结束</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h4 id="案例需求-4"><a href="#案例需求-4" class="headerlink" title="案例需求"></a>案例需求</h4><p>在demo4.sh中循环打印输出所有输入参数, 体验<code>$*</code>与<code>$@</code>的区别</p>
 <h4 id="实现步骤-3"><a href="#实现步骤-3" class="headerlink" title="实现步骤"></a>实现步骤</h4><p>编辑demo4.sh脚本文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 增加命令: 实现直接输出所有输入后参数</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 增加命令: 使用循环打印输出所有输入参数</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token comment"># 增加命令: 实现直接输出所有输入后参数</span>
+<span class="token comment"># 增加命令: 使用循环打印输出所有输入参数</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <h4 id="演示-2"><a href="#演示-2" class="headerlink" title="演示"></a>演示</h4><ol>
 <li><p>编辑demo4.sh文件</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233958.png" alt="image-20200610093208439"></p>
 </li>
 <li><p>直接输出所有输入参数, 与循环方式输出所有输入参数(使用双引号包含 <code>$*</code> 与 <code>$@</code>  )</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 命令1: 打印当前脚本文件名字</span></span><br><span class="line">echo &quot;当前脚本文件名称:$0&quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 命令2: 打印第1个输入参数</span></span><br><span class="line">echo &quot;第一个输入参数:$1&quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 命令3: 打印第2个输入参数</span></span><br><span class="line">echo &quot;第二个输入参数:$2&quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 命令4: 打印第10个输入参数</span></span><br><span class="line">echo &quot;第十个输入参数不带花括号获取:$10&quot;</span><br><span class="line">echo &quot;第十个输入参数带花括号获取:$&#123;10&#125;&quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 命令5 打印所有输入参数的个数</span></span><br><span class="line">echo &quot;所有输入参数个数:$&#123;#&#125;&quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 增加命令: 实现直接输出所有输入后参数</span></span><br><span class="line">echo &#x27;使用$*直接输出:&#x27;$*</span><br><span class="line">echo &#x27;使用$@直接输出:&#x27;$@</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 增加命令: 使用循环打印输出所有输入参数</span></span><br><span class="line">echo &#x27;循环遍历输出$*所有参数&#x27;</span><br><span class="line">for item in &quot;$*&quot;</span><br><span class="line">do</span><br><span class="line">   echo $item</span><br><span class="line">done</span><br><span class="line">echo &#x27;循环遍历输出$@所有参数&#x27;</span><br><span class="line">for item in &quot;$@&quot;</span><br><span class="line">do</span><br><span class="line">   echo $item</span><br><span class="line">done</span><br></pre></td></tr></table></figure></li>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token shebang important">#!/bin/bash</span>
+<span class="token comment"># 命令1: 打印当前脚本文件名字</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"当前脚本文件名称:<span class="token variable">$0</span>"</span>
+
+<span class="token comment"># 命令2: 打印第1个输入参数</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"第一个输入参数:<span class="token variable">$1</span>"</span>
+
+<span class="token comment"># 命令3: 打印第2个输入参数</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"第二个输入参数:<span class="token variable">$2</span>"</span>
+
+<span class="token comment"># 命令4: 打印第10个输入参数</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"第十个输入参数不带花括号获取:<span class="token variable">$10</span>"</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"第十个输入参数带花括号获取:<span class="token variable">${10}</span>"</span>
+
+<span class="token comment"># 命令5 打印所有输入参数的个数</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"所有输入参数个数:<span class="token variable">${<span class="token operator">#</span>}</span>"</span>
+
+
+<span class="token comment"># 增加命令: 实现直接输出所有输入后参数</span>
+<span class="token builtin class-name">echo</span> <span class="token string">'使用$*直接输出:'</span><span class="token variable">$*</span>
+<span class="token builtin class-name">echo</span> <span class="token string">'使用$@直接输出:'</span><span class="token variable">$@</span>
+
+<span class="token comment"># 增加命令: 使用循环打印输出所有输入参数</span>
+<span class="token builtin class-name">echo</span> <span class="token string">'循环遍历输出$*所有参数'</span>
+<span class="token keyword">for</span> <span class="token for-or-select variable">item</span> <span class="token keyword">in</span> <span class="token string">"<span class="token variable">$*</span>"</span>
+<span class="token keyword">do</span>
+   <span class="token builtin class-name">echo</span> <span class="token variable">$item</span>
+<span class="token keyword">done</span>
+<span class="token builtin class-name">echo</span> <span class="token string">'循环遍历输出$@所有参数'</span>
+<span class="token keyword">for</span> <span class="token for-or-select variable">item</span> <span class="token keyword">in</span> <span class="token string">"<span class="token variable">$@</span>"</span>
+<span class="token keyword">do</span>
+   <span class="token builtin class-name">echo</span> <span class="token variable">$item</span>
+<span class="token keyword">done</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
 <li><p>运行观察区别</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233963.png" alt="image-20200707090439984"></p>
 </li>
 </ol>
-<h3 id="特殊变量：-？"><a href="#特殊变量：-？" class="headerlink" title="特殊变量：$？"></a>特殊变量：$？</h3><h4 id="语法-4"><a href="#语法-4" class="headerlink" title="语法"></a>语法</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">?</span></span><br></pre></td></tr></table></figure>
+<h3 id="特殊变量：-？"><a href="#特殊变量：-？" class="headerlink" title="特殊变量：$？"></a>特殊变量：$？</h3><h4 id="语法-4"><a href="#语法-4" class="headerlink" title="语法"></a>语法</h4><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token variable">$?</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h4 id="含义-2"><a href="#含义-2" class="headerlink" title="含义"></a>含义</h4><p>用于获取上一个Shell命令的退出状态码, 或者是函数的返回值</p>
 <blockquote>
@@ -567,11 +1001,11 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233964.png" alt="image-20200610114421826"></p>
 <p>输入一个错误命令, 在输出<code>$?</code></p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233965.png" alt="image-20200610114445468"></p>
-<h3 id="特殊变量：-1"><a href="#特殊变量：-1" class="headerlink" title="特殊变量：$$"></a>特殊变量：$$</h3><h4 id="语法-5"><a href="#语法-5" class="headerlink" title="语法"></a>语法</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">$</span></span><br></pre></td></tr></table></figure>
+<h3 id="特殊变量：-1"><a href="#特殊变量：-1" class="headerlink" title="特殊变量：$$"></a>特殊变量：$$</h3><h4 id="语法-5"><a href="#语法-5" class="headerlink" title="语法"></a>语法</h4><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token variable">$$</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h4 id="含义-3"><a href="#含义-3" class="headerlink" title="含义"></a>含义</h4><p>用于获取当前Shell环境的进程ID号</p>
 <h4 id="演示-4"><a href="#演示-4" class="headerlink" title="演示"></a>演示</h4><p>查看当前Shell环境进程编号</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ps -aux|grep bash</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-Shell" data-language="Shell"><code class="language-Shell">ps -aux|grep bash<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233966.png" alt="image-20200610114834462"></p>
 <p>输出 $$  显示当前shell环境进程编号</p>
@@ -581,28 +1015,31 @@
 <h3 id="案例演示-1"><a href="#案例演示-1" class="headerlink" title="案例演示"></a>案例演示</h3><h4 id="需求-1"><a href="#需求-1" class="headerlink" title="需求"></a>需求</h4><p>/etc/profile定义存储自定义系统级环境变量数据</p>
 <h4 id="创建环境变量步骤"><a href="#创建环境变量步骤" class="headerlink" title="创建环境变量步骤"></a>创建环境变量步骤</h4><ol>
 <li><p>编辑/etc/profile全局配置文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 增加命令: 定义变量VAR1=VAR1 并导出为环境变量</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 扩展: vim里面的命令模式使用G快速定位到文件末尾位置, 使用gg定位到文件首行位置</span></span><br></pre></td></tr></table></figure></li>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token comment"># 增加命令: 定义变量VAR1=VAR1 并导出为环境变量</span>
+<span class="token comment"># 扩展: vim里面的命令模式使用G快速定位到文件末尾位置, 使用gg定位到文件首行位置</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li>
 <li><p>重载配置文件/etc/profile, 因为配置文件修改后要立刻加载里面的数据就需要重载, 语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure></li>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">source</span> /etc/profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
 <li><p>在Shell环境中读取系统级环境变量VAR1</p>
 </li>
 </ol>
 <h4 id="创建环境变量演示"><a href="#创建环境变量演示" class="headerlink" title="创建环境变量演示"></a>创建环境变量演示</h4><p>编辑/etc/profile文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">vim</span> /etc/profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>添加设置变量VAR1=VAR1并导出成为环境变量, 在/etc/profile文件末尾添加如下命令</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 创建环境变量</span></span><br><span class="line">VAR1=VAR1</span><br><span class="line">export VAR1</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token comment"># 创建环境变量</span>
+<span class="token assign-left variable">VAR1</span><span class="token operator">=</span>VAR1
+<span class="token builtin class-name">export</span> VAR1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233968.png" alt="image-20200409124318865"></p>
 <p>3、保存/etc/profile退出</p>
 <p>4、重新加载/etc/profile文件数据更新系统环境变量</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">source</span> /etc/profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <blockquote>
 <p>注意：如果这一步不执行，无法读取更新的环境变量</p>
 </blockquote>
 <p>3、输出环境变量VAR1</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">echo $VAR1</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">echo</span> <span class="token variable">$VAR1</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233969.png" alt="image-20200409124934898"></p>
 <h2 id="加载流程介绍与测试"><a href="#加载流程介绍与测试" class="headerlink" title="加载流程介绍与测试"></a>加载流程介绍与测试</h2><h3 id="Shell工作环境介绍"><a href="#Shell工作环境介绍" class="headerlink" title="Shell工作环境介绍"></a>Shell工作环境介绍</h3><p>用户登录系统时，Shell为用户定义了工作环境，工作环境提供了共享数据环境变量，比如shell解析器类型、主机名等，这些数据存储在环境变量中，便于shell脚本程序操作使用；</p>
@@ -639,10 +1076,13 @@
 <blockquote>
 <p>使用-l 或 –login 先加载Shell登录环境变量,再执行脚本文件</p>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bash -l 脚本文件 或  bash --login 脚本文件 </span><br><span class="line">sh -l 脚本文件  或 sh --login 脚本文件</span><br><span class="line"><span class="meta">#</span><span class="bash"> 先加载shell登录环境变量, 然后再执行脚本文件</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">bash</span> -l 脚本文件 或  <span class="token function">bash</span> --login 脚本文件 
+<span class="token function">sh</span> -l 脚本文件  或 <span class="token function">sh</span> --login 脚本文件
+<span class="token comment"># 先加载shell登录环境变量, 然后再执行脚本文件</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <p>语法2</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bash  # 加载shell非登录环境变量</span><br><span class="line">bash 脚本文件  / sh 脚本文件  #执行脚本</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">bash</span>  <span class="token comment"># 加载shell非登录环境变量</span>
+<span class="token function">bash</span> 脚本文件  / <span class="token function">sh</span> 脚本文件  <span class="token comment">#执行脚本</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><p>1、编辑/etc/profile文件，添加环境变量VAR1=VAR1</p>
 <p>2、编辑/当前用户/.bashrc文件，添加环境变量VAR2=VAR2</p>
@@ -651,30 +1091,31 @@
 <p>5、加载Shell非登录环境变量, 观察VAR2输出, VAR1没有输出</p>
 <p>6、加载Shell登录环境变了, 观察VAR1,VAR2都有输出</p>
 <h4 id="演示-5"><a href="#演示-5" class="headerlink" title="演示"></a>演示</h4><p>编辑/etc/profile文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-Shell" data-language="Shell"><code class="language-Shell">vim /etc/profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>编辑添加如下内容，保存退出</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233971.png" alt="image-20200608180928458"></p>
 <p>在root目录下,编辑.bashrc文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim .bashrc</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">vim</span> .bashrc<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233972.png" alt="image-20200608180131769"></p>
 <p>编辑添加如下最后2行内容，保存退出</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233973.png" alt="image-20200608181029028"></p>
 <p>创建文件demo1.sh</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">touch demo1.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">touch</span> demo1.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>编辑文件demo1.sh，添加如下内容</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233974.png" alt="image-20200608180411557"></p>
 <p>直接执行脚本文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bash demo1.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">bash</span> demo1.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233975.png" alt="image-20200608180453317"></p>
 <blockquote>
 <p>直接执行脚本文件, 即没有加载登录Shell环境变量, 也没有加载非登录Shell环境变量</p>
 </blockquote>
 <p>先加载非登录Shell环境变量, 然后执行脚本文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bash</span><br><span class="line">bash demo1.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">bash</span>
+<span class="token function">bash</span> demo1.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233976.png" alt="image-20200608181127345"></p>
 <blockquote>
@@ -682,7 +1123,7 @@
 <p>所以这里会输出VAR2的环境变量数据</p>
 </blockquote>
 <p>先加载登录Shell环境变量, 然后执行脚本文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bash -l demo1.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">bash</span> -l demo1.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233977.png" alt="image-20200608181329353"></p>
 <blockquote>
@@ -690,7 +1131,7 @@
 <p>所以这里会输出VAR1和VAR2的环境变量数据</p>
 </blockquote>
 <h2 id="识别Shell环境类型"><a href="#识别Shell环境类型" class="headerlink" title="识别Shell环境类型"></a>识别Shell环境类型</h2><h3 id="识别shell环境的命令1"><a href="#识别shell环境的命令1" class="headerlink" title="识别shell环境的命令1"></a>识别shell环境的命令1</h3><h4 id="命令-1"><a href="#命令-1" class="headerlink" title="命令"></a>命令</h4><p>使用$0识别环境语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">echo $0</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">echo</span> <span class="token variable">$0</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <blockquote>
 <p>输出 <code>-bash</code> 代表：shell登录环境</p>
@@ -698,7 +1139,7 @@
 <p>注意：这个 <code>$0</code> 环境变量如果用在子shell中(shell脚本文件)输出Shell脚本本身的文件名 </p>
 </blockquote>
 <p>bash命令语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bash</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">bash</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <blockquote>
 <p>bash命令：用于切换为Shell非登录环境</p>
@@ -712,27 +1153,28 @@
 <p>bash命令将当前环境转换为Shell非登录环境</p>
 </blockquote>
 <h4 id="演示-0无效的情况"><a href="#演示-0无效的情况" class="headerlink" title="演示$0无效的情况"></a>演示$0无效的情况</h4><p>创建test.sh</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">touch test.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">touch</span> test.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>编辑test.sh</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim test.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">vim</span> test.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>添加内容</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">echo $0</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token shebang important">#!/bin/bash</span>
+<span class="token builtin class-name">echo</span> <span class="token variable">$0</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p>执行test.sh</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sh test.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">sh</span> test.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>效果</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233979.png" alt="image-20200408233053164"></p>
 <h3 id="识别shell环境的命令2"><a href="#识别shell环境的命令2" class="headerlink" title="识别shell环境的命令2"></a>识别shell环境的命令2</h3><h4 id="命令-2"><a href="#命令-2" class="headerlink" title="命令"></a>命令</h4><p>logout命令语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">logout</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">logout</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <blockquote>
 <p>logout命令： 用于退出Shell登录环境</p>
 </blockquote>
 <p>exit命令语法</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">exit</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token builtin class-name">exit</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <blockquote>
 <p>exit命令： 用于退出Shell登录或非登录环境</p>
@@ -757,17 +1199,21 @@
 <p>客户端远程采用SSH登录演示</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233982.png" alt="image-20200408235629776"></p>
 <h4 id="切换环境方式2：su切换用户登录"><a href="#切换环境方式2：su切换用户登录" class="headerlink" title="切换环境方式2：su切换用户登录"></a>切换环境方式2：su切换用户登录</h4><h5 id="命令-3"><a href="#命令-3" class="headerlink" title="命令"></a>命令</h5><p>语法1</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">su 用户名 --login </span><br><span class="line">或</span><br><span class="line">su 用户名 -l</span><br><span class="line"><span class="meta"> #</span><span class="bash"> 切换到指定用户, 加载Shell登录环境变量</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">su</span> 用户名 --login 
+或
+<span class="token function">su</span> 用户名 -l
+ <span class="token comment"># 切换到指定用户, 加载Shell登录环境变量</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>语法2</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">su 用户名  </span><br><span class="line"><span class="meta">#</span><span class="bash"> 切换到指定用户,  加Shell非登录环境变量</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">su</span> 用户名  
+<span class="token comment"># 切换到指定用户,  加Shell非登录环境变量</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <h5 id="分析步骤"><a href="#分析步骤" class="headerlink" title="分析步骤"></a>分析步骤</h5><p>1、创建普通用户userA</p>
 <p>2、切换到用户userA，使用-l加载Shell登录环境变量  ,  输出环境变量$0，观察输出-bash</p>
 <p>4、使用exit退出userA</p>
 <p>5、切换到用户userA，加载Shell非登录环境变量，输出环境变量$0，观察输出bash</p>
 <h5 id="演示-9"><a href="#演示-9" class="headerlink" title="演示"></a>演示</h5><p>创建普通用户userA</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">useradd -m userA</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">useradd</span> -m userA<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233983.png" alt="image-20200409162546096"></p>
 <p>以Shell登录环境执行切换到用户userA，输出环境变量$0，输出 -bash 说明当前为Shell登录环境</p>
@@ -777,10 +1223,12 @@
 <p>以Shell非登录环境执行切换到用户userA，输出环境变量$0，输出 bash  说明当前为Shell非登录环境</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233986.png" alt="image-20200409162957086"></p>
 <h4 id="切换环境方式3：bash切换"><a href="#切换环境方式3：bash切换" class="headerlink" title="切换环境方式3：bash切换"></a>切换环境方式3：bash切换</h4><h5 id="命令-4"><a href="#命令-4" class="headerlink" title="命令"></a>命令</h5><p>语法1:</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bash  # 加载【Shell非登录环境】</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">bash</span>  <span class="token comment"># 加载【Shell非登录环境】</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>语法2：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bash -l  Shell脚本文件 /  bash --login shell脚本文件</span><br><span class="line">sh -l shell脚本文件 / sh --login shell脚本文件</span><br><span class="line"><span class="meta">#</span><span class="bash"> 先加载【Shell登录环境】然后运行指定Shell脚本文件</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"><span class="token function">bash</span> -l  Shell脚本文件 /  <span class="token function">bash</span> --login shell脚本文件
+<span class="token function">sh</span> -l shell脚本文件 / <span class="token function">sh</span> --login shell脚本文件
+<span class="token comment"># 先加载【Shell登录环境】然后运行指定Shell脚本文件</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <h5 id="分析-3"><a href="#分析-3" class="headerlink" title="分析"></a>分析</h5><p>使用bash执行test.sh脚本文件，发生错误说明当前环境为Shell非登录环境</p>
 <h5 id="演示-10"><a href="#演示-10" class="headerlink" title="演示"></a>演示</h5><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201162233987.png" alt="image-20200409165207091"></p>
@@ -886,80 +1334,1136 @@
 </tr>
 <tr>
 <td align="center">切换为shell非登录环境命令</td>
-<td>方式1：bash<br/>方式2：su 用户名</td>
+<td>方式1：bash<br>方式2：su 用户名</td>
 </tr>
 </tbody></table>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/4570d412.html">http://www.lvxueyang.vip/post/4570d412.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/shell/">shell</a><a class="post-meta__tags" href="/tags/%E8%BF%90%E7%BB%B4/">运维</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/7208d5d.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">shell第二天讲义</div></div></a></div><div class="next-post pull-right"><a href="/post/1ee50bb4.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">shell第四天讲义</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/b965ffd8.html" title="shell第三天讲义"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-16</div><div class="title">shell第三天讲义</div></div></a></div><div><a href="/post/7208d5d.html" title="shell第二天讲义"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-16</div><div class="title">shell第二天讲义</div></div></a></div><div><a href="/post/1ee50bb4.html" title="shell第四天讲义"><img class="cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-16</div><div class="title">shell第四天讲义</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Shell%E6%A6%82%E8%BF%B0"><span class="toc-text">Shell概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Shell%E8%84%9A%E6%9C%AC%E5%85%A5%E9%97%A8"><span class="toc-text">Shell脚本入门</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%96%91%E9%97%AE"><span class="toc-text">疑问</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shell%E4%BB%8B%E7%BB%8D"><span class="toc-text">Shell介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell%E8%84%9A%E6%9C%AC"><span class="toc-text">Shell脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%A6%E4%B9%A0Shell%E8%84%9A%E6%9C%AC"><span class="toc-text">为什么学习Shell脚本?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shell%E7%9A%84%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="toc-text">Shell的运行过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shell%E8%A7%A3%E6%9E%90%E5%99%A8"><span class="toc-text">Shell解析器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Centos%E9%BB%98%E8%AE%A4%E7%9A%84%E8%A7%A3%E6%9E%90%E5%99%A8%E6%98%AFbash"><span class="toc-text">Centos默认的解析器是bash</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shell%E8%84%9A%E6%9C%AC%E6%96%87%E4%BB%B6%E7%BC%96%E5%86%99%E8%A7%84%E8%8C%83"><span class="toc-text">Shell脚本文件编写规范</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%84%9A%E6%9C%AC%E6%96%87%E4%BB%B6%E5%90%8E%E7%BC%80%E5%90%8D%E8%A7%84%E8%8C%83"><span class="toc-text">脚本文件后缀名规范</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A6%96%E8%A1%8C%E6%A0%BC%E5%BC%8F%E8%A7%84%E8%8C%83"><span class="toc-text">首行格式规范</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A%E6%A0%BC%E5%BC%8F"><span class="toc-text">注释格式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shell%E8%84%9A%E6%9C%ACHelloWord%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B"><span class="toc-text">shell脚本HelloWord入门案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9C%80%E6%B1%82"><span class="toc-text">需求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%88%E6%9E%9C"><span class="toc-text">效果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="toc-text">实现步骤</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%84%9A%E6%9C%AC%E6%96%87%E4%BB%B6%E7%9A%84%E5%B8%B8%E7%94%A8%E6%89%A7%E8%A1%8C3%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="toc-text">脚本文件的常用执行3种方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%E7%A7%8D%E6%96%B9%E5%BC%8F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">3种方式的区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E6%96%B9%E5%BC%8F1-sh%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-text">执行脚本方式1-sh命令执行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E6%96%B9%E5%BC%8F2-bash%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-text">执行脚本方式2-bash命令执行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E6%96%B9%E5%BC%8F3-%E4%BB%85%E8%B7%AF%E5%BE%84%E6%89%A7%E8%A1%8C"><span class="toc-text">执行脚本方式3-仅路径执行</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95"><span class="toc-text">语法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A%E4%BD%BF%E7%94%A8%E4%BB%85%E8%B7%AF%E5%BE%84%E6%96%B9%E5%BC%8F%E6%89%A7%E8%A1%8Chelloworld-sh%E8%84%9A%E6%9C%AC%E6%96%87%E4%BB%B6"><span class="toc-text">示例：使用仅路径方式执行helloworld.sh脚本文件</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E5%91%BD%E4%BB%A4%E5%A4%84%E7%90%86%E4%BB%8B%E7%BB%8D"><span class="toc-text">多命令处理介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E9%9C%80%E6%B1%82"><span class="toc-text">案例需求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4%E5%88%86%E6%9E%90"><span class="toc-text">步骤分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4-1"><span class="toc-text">实现步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC%E6%95%88%E6%9E%9C"><span class="toc-text">运行脚本效果</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Shell%E5%8F%98%E9%87%8F"><span class="toc-text">Shell变量</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Shell%E5%8F%98%E9%87%8F%E7%9A%84%E4%BB%8B%E7%BB%8D"><span class="toc-text">Shell变量的介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%98%E9%87%8F%E7%B1%BB%E5%9E%8B"><span class="toc-text">变量类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-text">系统环境变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D-1"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%88%86%E7%B1%BB"><span class="toc-text">Shell的配置文件分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%88%86%E7%B1%BB"><span class="toc-text">环境变量分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8DShell%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-text">查看当前Shell系统环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BShell%E5%8F%98%E9%87%8F-%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F-%E5%87%BD%E6%95%B0"><span class="toc-text">查看Shell变量(系统环境变量+自定义变量+函数)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-text">常用系统环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%BE%93%E5%87%BA%E6%BC%94%E7%A4%BA"><span class="toc-text">环境变量输出演示</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F"><span class="toc-text">自定义变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F%E4%BB%8B%E7%BB%8D"><span class="toc-text">自定义变量介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB"><span class="toc-text">分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F"><span class="toc-text">自定义局部变量</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D-2"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89%E4%B8%8E%E4%BD%BF%E7%94%A8"><span class="toc-text">定义与使用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%98%E9%87%8F%E5%88%A0%E9%99%A4"><span class="toc-text">变量删除</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B8%B8%E9%87%8F"><span class="toc-text">自定义常量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-text">自定义全局变量</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%88%B6%E5%AD%90Shell%E7%8E%AF%E5%A2%83%E4%BB%8B%E7%BB%8D"><span class="toc-text">父子Shell环境介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E4%BB%8B%E7%BB%8D"><span class="toc-text">自定义全局变量介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E8%AF%AD%E6%B3%95"><span class="toc-text">自定义全局变量语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E9%9C%80%E6%B1%82-1"><span class="toc-text">案例需求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="toc-text">案例实现步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E6%BC%94%E7%A4%BA"><span class="toc-text">案例演示</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-text">结论</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E5%8F%98%E9%87%8F"><span class="toc-text">特殊变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E5%8F%98%E9%87%8F%EF%BC%9A-n"><span class="toc-text">特殊变量：$n</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-1"><span class="toc-text">语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AB%E4%B9%89"><span class="toc-text">含义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E6%96%87%E4%BB%B6%E4%BC%A0%E5%85%A5%E5%8F%82%E6%95%B0%E8%AF%AD%E6%B3%95"><span class="toc-text">执行脚本文件传入参数语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E9%9C%80%E6%B1%82-2"><span class="toc-text">案例需求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4-2"><span class="toc-text">实现步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA"><span class="toc-text">演示</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-text">特殊变量：$#</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-2"><span class="toc-text">语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AB%E4%B9%89-1"><span class="toc-text">含义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E9%9C%80%E6%B1%82-3"><span class="toc-text">案例需求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-1"><span class="toc-text">演示</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E5%8F%98%E9%87%8F%EF%BC%9A-%E3%80%81"><span class="toc-text">特殊变量：$*、$@</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-3"><span class="toc-text">语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E9%9C%80%E6%B1%82-4"><span class="toc-text">案例需求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4-3"><span class="toc-text">实现步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-2"><span class="toc-text">演示</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E5%8F%98%E9%87%8F%EF%BC%9A-%EF%BC%9F"><span class="toc-text">特殊变量：$？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-4"><span class="toc-text">语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AB%E4%B9%89-2"><span class="toc-text">含义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-3"><span class="toc-text">演示</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E5%8F%98%E9%87%8F%EF%BC%9A-1"><span class="toc-text">特殊变量：$$</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-5"><span class="toc-text">语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AB%E4%B9%89-3"><span class="toc-text">含义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-4"><span class="toc-text">演示</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Shell%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%B7%B1%E5%85%A5"><span class="toc-text">Shell环境变量深入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-text">自定义系统环境变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-etc-profile%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">全局配置文件&#x2F;etc&#x2F;profile应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E6%BC%94%E7%A4%BA-1"><span class="toc-text">案例演示</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9C%80%E6%B1%82-1"><span class="toc-text">需求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%AD%A5%E9%AA%A4"><span class="toc-text">创建环境变量步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%BC%94%E7%A4%BA"><span class="toc-text">创建环境变量演示</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B%E4%BB%8B%E7%BB%8D%E4%B8%8E%E6%B5%8B%E8%AF%95"><span class="toc-text">加载流程介绍与测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell%E5%B7%A5%E4%BD%9C%E7%8E%AF%E5%A2%83%E4%BB%8B%E7%BB%8D"><span class="toc-text">Shell工作环境介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shell%E5%B7%A5%E4%BD%9C%E7%8E%AF%E5%A2%83%E5%88%86%E7%B1%BB"><span class="toc-text">shell工作环境分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%A4%E4%BA%92%E5%BC%8F%E4%B8%8E%E9%9D%9E%E4%BA%A4%E4%BA%92%E5%BC%8Fshell"><span class="toc-text">交互式与非交互式shell</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%99%BB%E5%BD%95Shell%E4%B8%8E%E9%9D%9E%E7%99%BB%E5%BD%95Shell%E7%8E%AF%E5%A2%83"><span class="toc-text">登录Shell与非登录Shell环境</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B"><span class="toc-text">环境变量初始化流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E6%B5%81%E7%A8%8B"><span class="toc-text">测试流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9C%80%E6%B1%82-2"><span class="toc-text">需求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4"><span class="toc-text">命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-5"><span class="toc-text">演示</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%86%E5%88%ABShell%E7%8E%AF%E5%A2%83%E7%B1%BB%E5%9E%8B"><span class="toc-text">识别Shell环境类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%86%E5%88%ABshell%E7%8E%AF%E5%A2%83%E7%9A%84%E5%91%BD%E4%BB%A41"><span class="toc-text">识别shell环境的命令1</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4-1"><span class="toc-text">命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%9E%90-1"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-6"><span class="toc-text">演示</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-0%E6%97%A0%E6%95%88%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-text">演示$0无效的情况</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%86%E5%88%ABshell%E7%8E%AF%E5%A2%83%E7%9A%84%E5%91%BD%E4%BB%A42"><span class="toc-text">识别shell环境的命令2</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4-2"><span class="toc-text">命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8C%BA%E5%88%AB"><span class="toc-text">区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%9E%90-2"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-7"><span class="toc-text">演示</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%87%E6%8D%A2Shell%E7%8E%AF%E5%A2%83"><span class="toc-text">详细切换Shell环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2shell%E7%8E%AF%E5%A2%83%E5%91%BD%E4%BB%A4%E4%BB%8B%E7%BB%8D"><span class="toc-text">切换shell环境命令介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2Shell%E7%8E%AF%E5%A2%83%E5%91%BD%E4%BB%A4%E6%BC%94%E7%A4%BA"><span class="toc-text">切换Shell环境命令演示</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E7%8E%AF%E5%A2%83%E6%96%B9%E5%BC%8F1%EF%BC%9A%E7%9B%B4%E6%8E%A5%E7%99%BB%E5%BD%95%E7%B3%BB%E7%BB%9F"><span class="toc-text">切换环境方式1：直接登录系统</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D-3"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-8"><span class="toc-text">演示</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E7%8E%AF%E5%A2%83%E6%96%B9%E5%BC%8F2%EF%BC%9Asu%E5%88%87%E6%8D%A2%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95"><span class="toc-text">切换环境方式2：su切换用户登录</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4-3"><span class="toc-text">命令</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E6%AD%A5%E9%AA%A4"><span class="toc-text">分析步骤</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-9"><span class="toc-text">演示</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E7%8E%AF%E5%A2%83%E6%96%B9%E5%BC%8F3%EF%BC%9Abash%E5%88%87%E6%8D%A2"><span class="toc-text">切换环境方式3：bash切换</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4-4"><span class="toc-text">命令</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%86%E6%9E%90-3"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA-10"><span class="toc-text">演示</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell%E5%8F%98%E9%87%8F%E6%80%BB%E7%BB%93"><span class="toc-text">Shell变量总结</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%98%E9%87%8F%E7%B1%BB%E5%9E%8B-1"><span class="toc-text">变量类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="toc-text">作用域</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F-1"><span class="toc-text">常用系统环境变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%B3%BB%E7%BB%9F%E7%89%B9%E6%AE%8A%E7%AC%A6%E5%8F%B7%E5%8F%98%E9%87%8F"><span class="toc-text">常用系统特殊符号变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%87%E6%8D%A2shell%E7%8E%AF%E5%A2%83%E5%91%BD%E4%BB%A4"><span class="toc-text">切换shell环境命令</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
-  endLoading: () => {
-    document.body.style.overflow = 'auto';
-    document.getElementById('loading-box').classList.add("loaded")
-  },
-  initLoading: () => {
-    document.body.style.overflow = '';
-    document.getElementById('loading-box').classList.remove("loaded")
 
-  }
-}
-window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
-  const $countDom = document.getElementById('twikoo-count')
-  const init = () => {
-    twikoo.init(Object.assign({
-      el: '#twikoo-wrap',
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: ''
-    }, null))
-  }
+                
+            </div>
+            <hr/>
 
-  const getCount = () => {
-    twikoo.getCommentsCount({
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: '',
-      urls: [window.location.pathname],
-      includeReply: false
-    }).then(function (res) {
-      $countDom.innerText = res[0].count
-    }).catch(function (err) {
-      console.error(err);
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">YangShen</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://lvxueyang.vip/post/4570d412.html">https://lvxueyang.vip/post/4570d412.html</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">YangShen</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/shell/">
+                                    <span class="chip bg-color">shell</span>
+                                </a>
+                            
+                                <a href="/tags/%E8%BF%90%E7%BB%B4/">
+                                    <span class="chip bg-color">运维</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
     });
-  }
+</script>
 
-  const loadTwikoo = (bool = false) => {
-    if (typeof twikoo === 'object') {
-      init()
-      bool && $countDom && setTimeout(getCount,0)
-    } else {
-      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
-        init()
-        bool && $countDom && setTimeout(getCount,0)
-      })
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
     }
-  }
 
-  if ('Twikoo' === 'Twikoo' || !false) {
-    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
-    else loadTwikoo(true)
-  } else {
-    window.loadOtherComment = () => {
-      loadTwikoo()
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
     }
-  }
-})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
-  window.tidioChatApi.hide();
-  window.tidioChatApi.on("close", function() {
-    window.tidioChatApi.hide();
-  });
-}
-if (window.tidioChatApi) {
-  window.tidioChatApi.on("ready", onTidioChatApiReady);
-} else {
-  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
-}
 
-var chatBtnFn = () => {
-  document.getElementById("chat_btn").addEventListener("click", function(){
-    window.tidioChatApi.show();
-    window.tidioChatApi.open();
-  });
-}
-chatBtnFn()
-</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("/medias/comment_bg.png") 100% 100% no-repeat;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div id="vcomments" class="card-content" style="display: grid">
+    </div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'kkTHtgDEUlqRlsbgP6vMWDxa-gzGzoHsz',
+        appKey: 'EX0XjX0GwgIgm38pW1RuybHn',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go'
+    });
+</script>
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/post/7208d5d.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212100.jpg" class="responsive-img" alt="shell第二天讲义">
+                        
+                        <span class="card-title">shell第二天讲义</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-01-16
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/shell/" class="post-category">
+                                    shell
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/shell/">
+                        <span class="chip bg-color">shell</span>
+                    </a>
+                    
+                    <a href="/tags/%E8%BF%90%E7%BB%B4/">
+                        <span class="chip bg-color">运维</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/post/1ee50bb4.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082055.jpg" class="responsive-img" alt="shell第四天讲义">
+                        
+                        <span class="card-title">shell第四天讲义</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-01-16
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/shell/" class="post-category">
+                                    shell
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/shell/">
+                        <span class="chip bg-color">shell</span>
+                    </a>
+                    
+                    <a href="/tags/%E8%BF%90%E7%BB%B4/">
+                        <span class="chip bg-color">运维</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: 牧马人的忧伤<br />'
+            + '文章作者: YangShen<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="330695641"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2018-2022</span>
+            
+            <span id="year">2018</span>
+            <a href="/about" target="_blank">YangShen</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">3956k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2018";
+                    var startMonth = "6";
+                    var startDate = "28";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/LVXUEYANGTiger" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1191432275@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1191432275" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1191432275" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    <script type="text/javascript">
+        window.onload = function(){
+            //屏蔽键盘事件
+            document.onkeydown = function (){
+                var e = window.event || arguments[0];
+                //F12
+                if(e.keyCode == 123){
+                    return false;
+                //Ctrl+Shift+I
+                }else if((e.ctrlKey) && (e.shiftKey) && (e.keyCode == 73)){
+                    return false;
+                //Shift+F10
+                }else if((e.shiftKey) && (e.keyCode == 121)){
+                    return false;
+                //Ctrl+U
+                }else if((e.ctrlKey) && (e.keyCode == 85)){
+                    return false;
+                }
+            };
+            //屏蔽鼠标右键
+            document.oncontextmenu = function (){
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

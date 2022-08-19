@@ -1,416 +1,1475 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>牧马人的忧伤 - 有些梦想虽然遥不可及，但不是不可能实现。只要我足够的强。</title><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="牧马人的忧伤">
-<meta property="og:url" content="http://www.lvxueyang.vip/page/26/index.html">
-<meta property="og:site_name" content="牧马人的忧伤">
-<meta property="og:description" content="主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg">
-<meta property="article:author" content="YangShen">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/page/26/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
-  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '天',
-  date_suffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  source: {
-    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
-    justifiedGallery: {
-      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
-    },
-    fancybox: {
-      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
-    }
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isanchor: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: '牧马人的忧伤',
-  isPost: false,
-  isHome: true,
-  isHighlightShrink: false,
-  isToc: false,
-  postUpdate: '2022-02-26 09:34:40'
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
+<!DOCTYPE HTML>
+<html lang="zh-CN">
 
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-    win.saveToLocal = {
-      set: function setWithExpiry(key, value, ttl) {
-        if (ttl === 0) return
-        const now = new Date()
-        const expiryDay = ttl * 86400000
-        const item = {
-          value: value,
-          expiry: now.getTime() + expiryDay,
-        }
-        localStorage.setItem(key, JSON.stringify(item))
-      },
 
-      get: function getWithExpiry(key) {
-        const itemStr = localStorage.getItem(key)
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="牧马人的忧伤">
+    <meta name="description" content="主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
-        if (!itemStr) {
-          return undefined
-        }
-        const item = JSON.parse(itemStr)
-        const now = new Date()
 
-        if (now.getTime() > item.expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return item.value
-      }
-    }
-  
-    win.getScript = url => new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = url
-      script.async = true
-      script.onerror = reject
-      script.onload = script.onreadystatechange = function() {
-        const loadState = this.readyState
-        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-        script.onload = script.onreadystatechange = null
-        resolve()
-      }
-      document.head.appendChild(script)
-    })
-  
-      win.activateDarkMode = function () {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = function () {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
-    
-          if (t === 'dark') activateDarkMode()
-          else if (t === 'light') activateLightMode()
-        
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
-        }
-      }
-    
-    const fontSizeVal = saveToLocal.get('global-font-size')
-    if (fontSizeVal !== undefined) {
-      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
-    }
-    
-    const detectApple = () => {
-      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
-</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210912121348.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">牧马人的忧伤</h1><div id="site-subtitle"><span id="subtitle"></span></div><div id="site_social_icons"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="post_cover left_radius"><a href="/post/d88c6908.html" title="大数据开篇与Hadoop搭建">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="大数据开篇与Hadoop搭建"></a></div><div class="recent-post-info"><a class="article-title" href="/post/d88c6908.html" title="大数据开篇与Hadoop搭建">大数据开篇与Hadoop搭建</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-27T07:52:00.000Z" title="发表于 2021-10-27 15:52:00">2021-10-27</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-11-17T06:35:41.915Z" title="更新于 2021-11-17 14:35:41">2021-11-17</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/">Hadoop3.0从入门到源码</a><i class="fas fa-angle-right"></i><a class="article-meta__categories" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/HDFS/">HDFS</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/HDFS/">HDFS</a><span class="article-meta__link">•</span><a class="article-meta__tags" href="/tags/Hadoop/">Hadoop</a><span class="article-meta__link">•</span><a class="article-meta__tags" href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a></span></div><div class="content">大数据开篇与Hadoop搭建学习目标1.理解大数据相关概念、特点、应用场景
-2.掌握大数据业务分析基本步骤
-3.掌握分布式、集群相关概念
-4.掌握Hadoop相关概念、Hadoop架构
-5.掌握Hadoop集群搭建
-6.掌握Hadoop各组件模块功能
-7.了解HDFS基准测试
-大数据课程导论大数据概念最早提出“大数据”时代到来的是全球知名咨询公司麦肯锡，大数据是当前很热的一个词。这几年来，云计算、继而大数据，成了整个社会的热点，大数据究竟是什么东西?有哪些相关技术?对普通人的生活会有怎样的影响?我们来一步步弄清这些问题。
-CCTV9——大数据时代
-中国首部大数据产业题材纪录片——《大数据时代》于7月1日20:04分在央视9套纪录频道首播，该片由中央广播电视总台与工业和信息化部联合出品、工业和信息化部信息化和软件服务业司指导、央视纪录频道和国家工业信息安全发展研究中心联合摄制。该片是国内首部大数据产业题材纪录片，节目细致而生动地讲述了大数据技术在政府治理、民生服务、数据安全、工业转型、未来生活等方面给我们带来的改变和影响。
-数据在讲什么是大数据之前，我们首先需要理清数据的基本概念。数据是 ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/post/9a8b3dab.html" title="C语言(内存分区、预处理、动态库)">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="C语言(内存分区、预处理、动态库)"></a></div><div class="recent-post-info"><a class="article-title" href="/post/9a8b3dab.html" title="C语言(内存分区、预处理、动态库)">C语言(内存分区、预处理、动态库)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-21T12:23:00.000Z" title="发表于 2021-10-21 20:23:00">2021-10-21</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-10-21T12:24:16.632Z" title="更新于 2021-10-21 20:24:16">2021-10-21</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/C%E8%AF%AD%E8%A8%80/">C语言</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/C%E8%AF%AD%E8%A8%80/">C语言</a></span></div><div class="content">C语言概述C语言的起源贝尔实验室的Dennis Ritchie在1972年开发了C,当时他正与ken Thompson一起设计UNIX操作系统，然而，C并不是完全由Ritchie构想出来的。它来自Thompson的B语言。
-使用C语言的理由在过去的几十年中，c语言已成为最流行和最重要的编程语言之一。它之所以得到发展，是因为人们尝试使用它后都喜欢它。过去很多年中，许多人从c语言转而使用更强大的c++语言，但c有其自身的优势，仍然是一种重要的语言，而且它还是学习c++的必经之路。
+    <title>牧马人的忧伤</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
 
-高效性。c语言是一种高效的语言。c表现出通常只有汇编语言才具有的精细的控制能力(汇编语言是特定cpu设计所采用的一组内部制定的助记符。不同的cpu类型使用不同的汇编语言)。如果愿意，您可以细调程序以获得最大的速度或最大的内存使用率。
-可移植性。c语言是一种可移植的语言。意味着，在一个系统上编写的c程序经过很少改动或不经过修改就可以在其他的系统上运行。
-强大的功能和灵活性。c强大而又灵活。比如强大灵活的UNIX操作系统便是用c编写的。其他的语言(Perl、Python、BASIC、Pascal)的许多编译器和解释 ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/post/7fc04cea.html" title="大学生活">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="大学生活"></a></div><div class="recent-post-info"><a class="article-title" href="/post/7fc04cea.html" title="大学生活">大学生活</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-30T14:13:00.000Z" title="发表于 2021-09-30 22:13:00">2021-09-30</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-30T14:15:13.233Z" title="更新于 2021-09-30 22:15:13">2021-09-30</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%94%9F%E6%B4%BB/">生活</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E7%94%9F%E6%B4%BB/">生活</a></span></div><div class="content">大一大一上册学校教的C语言,那时候自己什么都不懂,就懂每天写代码,听着学长说代码多写就好了，然后自己就努力地多写,然后就感觉很难。然后自己也会去实现一些简单的C语言的例子,比如控制电脑关机,自己去做一些简单的小游戏,比如贪吃蛇等等。仍然保持着强烈的学习欲望和求职欲望，不断学习才知道自己是有多么菜!!!
-下册学的数据结构,然后中午不睡觉,用C把大部分的数据结构和一些算法都实现了一遍,比如链表,栈,队列,树,图。至今令人非常感人….依然很菜很菜。如下图:
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
 
-大一寒假开始接触前端,但是感觉自己学的很菜,也没懂原因,可能有好的资源能够帮你更好地入门,有了好的资源能够帮你更加快速地建立知识体系,能够快速学习！！！后来我找到黑马的2018版的资源,那时候的视频还是很好的。我也自学完html,css,js,jquery,bootstrap,canvas,h5,css3,还有就是移动适配,自己经常去实现一些简单的小例子,比如轮播图,比如tab栏切换,总之大部分的效果都可以用js去手写出来,自己也找到了一个很好的网站,自己去模仿里面的一些资源,也自己去模仿一些网站的主页。比如自己去模仿京东的首页,还有自 ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/post/489ef953.html" title="Spring面试题">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring面试题"></a></div><div class="recent-post-info"><a class="article-title" href="/post/489ef953.html" title="Spring面试题">Spring面试题</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-14T04:41:00.000Z" title="发表于 2021-09-14 12:41:00">2021-09-14</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-14T04:41:42.507Z" title="更新于 2021-09-14 12:41:42">2021-09-14</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Spring/">Spring</a><i class="fas fa-angle-right"></i><a class="article-meta__categories" href="/categories/Spring/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a><span class="article-meta__link">•</span><a class="article-meta__tags" href="/tags/Spring/">Spring</a></span></div><div class="content">什么是Spring框架？Spring框架有哪些主要模块？Spring框架是一个为Java应用程序的开发提供了综合、广泛的基础性支持的Java平台。
-Spring帮助开发者解决了开发中基础性的问题，使得开发人员可以专注于应用程序的开发。
-Spring框架本身亦是按照设计模式精心打造，这使得我们可以在开发环境中安心的集成Spring框架，不必担心Spring是如何在后台进行工作的。
-Spring框架至今已集成了20多个模块。这些模块主要被分如下图所示的核心容器、数据访问/集成,、Web、AOP（面向切面编程）、工具、消息和测试模块。
+    <script src="/libs/jquery/jquery.min.js"></script>
 
-spring core：提供了框架的基本组成部分，包括控制反转（Inversion of Control，IOC）和依赖注入（Dependency Injection，DI）功能。
-spring beans：提供了BeanFactory，是工厂模式的一个经典实现，Spring将管理对象称为Bean。
-spring context：构建于 core 封装包基础上的 context 封装包，提供了一种框架式的对象访问方法。
-spring jdbc：提供了一个JD ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/post/1bff3c65.html" title="MyBatis面试题">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MyBatis面试题"></a></div><div class="recent-post-info"><a class="article-title" href="/post/1bff3c65.html" title="MyBatis面试题">MyBatis面试题</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-11T12:50:00.000Z" title="发表于 2021-09-11 20:50:00">2021-09-11</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-14T04:41:51.233Z" title="更新于 2021-09-14 12:41:51">2021-09-14</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a><i class="fas fa-angle-right"></i><a class="article-meta__categories" href="/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/Mybatis/">Mybatis</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Mybatis/">Mybatis</a><span class="article-meta__link">•</span><a class="article-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a></span></div><div class="content">谈谈你对 MyBatis 的理解？
-Mybatis是⼀个半ORM（对象关系映射）框架，它内部封装了 JDBC，开发时只需要关注 SQL 语句本身，不需 要花费精⼒去处理加载驱动、创建连接、创建 Statement 等繁杂的过程。程序员直接编写原⽣态 SQL，可以 严格控制 SQL 执⾏性能，灵活度⾼。 
-MyBatis 可以使⽤ XML 或注解来配置和映射原⽣信息，将 POJO 映射成数据库中的记录，避免了⼏乎所有的 JDBC 代码和⼿动设置参数以及获取结果集。 
-通过 XML ⽂件或注解的⽅式将要执⾏的各种 Statement 配置起来，并通过 Java 对象和 Statement 中 SQL 的 动态参数进⾏映射⽣成最终执⾏的 SQL 语句，最后由 MyBatis 框架执⾏ SQL并将结果映射为 Java 对象并返 回。（从执⾏ SQL到返回 Result 的过程）
-
-MyBatis 编程步骤
-创建 SqlSessionFactory 对象。
-通过 SqlSessionFactory 获取 SqlSession 对象。
-通过 SqlSession 获得 Mapper 代理对象。
-通 ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/post/151f44ae.html" title="ThreadLocal">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ThreadLocal"></a></div><div class="recent-post-info"><a class="article-title" href="/post/151f44ae.html" title="ThreadLocal">ThreadLocal</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-08T13:57:00.000Z" title="发表于 2021-09-08 21:57:00">2021-09-08</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-09T01:30:28.707Z" title="更新于 2021-09-09 09:30:28">2021-09-09</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/JDK/">JDK</a><i class="fas fa-angle-right"></i><a class="article-meta__categories" href="/categories/JDK/ThreadLocal/">ThreadLocal</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/JDK/">JDK</a><span class="article-meta__link">•</span><a class="article-meta__tags" href="/tags/ThreadLocal/">ThreadLocal</a></span></div><div class="content">ThreadLocal全面解析前置知识
-
-具有一定的javase和javaweb基础
-熟悉synchronized关键字
-熟悉HashMap
-熟悉 JDBC技术
-
-ThreadLocal介绍官方介绍/** * This class provides thread-local variables.  These variables differ from * their normal counterparts in that each thread that accesses one (via its * &#123;@code get&#125; or &#123;@code set&#125; method) has its own, independently initialized * copy of the variable.  &#123;@code ThreadLocal&#125; instances are typically private * static fields in classes that wish to associate state with a t ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/post/9912b79f.html" title="String">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="String"></a></div><div class="recent-post-info"><a class="article-title" href="/post/9912b79f.html" title="String">String</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-08T13:18:00.000Z" title="发表于 2021-09-08 21:18:00">2021-09-08</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-08T13:37:21.395Z" title="更新于 2021-09-08 21:37:21">2021-09-08</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/JDK/">JDK</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/JDK/">JDK</a></span></div><div class="content">三个问题
-1、Java 内存具体指哪块内存？这块内存区域为什么要进行划分？是如何划分的？划分之后每块区域的作用是什么？如何设置各个区域的大小？
-2、String 类型在执行连接操作时，效率为什么会比 StringBuffer 或者 StringBuilder 低？ StringBuffer 和 StringBuilder 有什么联系和区别？
-3、Java 中常量是指什么？String s = “s” 和 String s = new String(“s”) 有什么不一样？
-
-Java 内存分配JVM 的体系结构包含几个主要的子系统和内存区
-垃圾回收器(Garbage Collection)：负责回收堆内存(Heap)中没有被使用的对象，即这些对象已经没有被引用了.
-类装载子系统(Classloader Sub-System)：除了要定位和导入二进制class文件外，还必须负责验证被导入类的正确性，为类变量分配并初始化内存，以及帮助解析符号引用.
-执行引擎(Execution Engine)：负责执行那些包含在被装载类的方法中的指令.
-运行时数据区(Java Memory Allocat ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/post/7f740e52.html" title="Netty入门-第三话(转载)">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Netty入门-第三话(转载)"></a></div><div class="recent-post-info"><a class="article-title" href="/post/7f740e52.html" title="Netty入门-第三话(转载)">Netty入门-第三话(转载)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-06T08:19:00.000Z" title="发表于 2021-09-06 16:19:00">2021-09-06</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-09T01:31:55.523Z" title="更新于 2021-09-09 09:31:55">2021-09-09</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Netty/">Netty</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Netty/">Netty</a></span></div><div class="content">
-尚硅谷的源码部分暂时不再记录笔记，因为我觉得源码这东西，韩老师讲的不太好，弹幕和评论也有说。源码这东西，先把入门的消化一下，然后通过书或者博客来看源码会比较好，你只有先会用，看源码才会有感觉。
-
-Google Protobuf编码和解码的基本介绍
-编写网络应用程序时，因为数据在网络中传输的都是二进制字节码数据，在发送数据时就需要编码，接收数据时就需要解码[示意图]
-codec（编解码器）的组成部分有两个：decoder（解码器）和 encoder（编码器）。encoder 负责把业务数据转换成字节码数据，decoder 负责把字节码数据转换成业务数据
+<meta name="generator" content="Hexo 5.4.2">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head>
 
 
 
-Netty 本身的编码解码的机制和问题分析
-Netty 自身提供了一些 codec(编解码器)
-Netty 提供的编码器 
-StringEncoder：对字符串数据进行编码。
-ObjectEncoder：对Java对象进行编码。
 
-
-Netty 提供的解码器 
-StringDecoder,对字符串数据进行解码 
-ObjectDecoder，对 Java 对象进行解码
-
-
-Netty 本身自带的 ObjectDecoder 和 Ob ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/post/878bcc09.html" title="Netty入门-第二话(转载)">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Netty入门-第二话(转载)"></a></div><div class="recent-post-info"><a class="article-title" href="/post/878bcc09.html" title="Netty入门-第二话(转载)">Netty入门-第二话(转载)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-06T08:13:00.000Z" title="发表于 2021-09-06 16:13:00">2021-09-06</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-09T01:31:46.683Z" title="更新于 2021-09-09 09:31:46">2021-09-09</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Netty/">Netty</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Netty/">Netty</a></span></div><div class="content">Netty 概述原生 NIO 存在的问题
-NIO 的类库和 API 繁杂，使用麻烦：需要熟练掌握 Selector、ServerSocketChannel、SocketChannel、ByteBuffer等。
-需要具备其他的额外技能：要熟悉 Java 多线程编程，因为 NIO 编程涉及到 Reactor 模式，你必须对多线程和网络编程非常熟悉，才能编写出高质量的 NIO 程序。
-开发工作量和难度都非常大：例如客户端面临断连重连、网络闪断、半包读写、失败缓存、网络拥塞和异常流的处理等等。
-JDK NIO 的 Bug：例如臭名昭著的 Epoll Bug，它会导致 Selector 空轮询，最终导致 CPU100%。直到 JDK1.7 版本该问题仍旧存在，没有被根本解决。
-
-Netty 官网说明官网：https://netty.io/
-Netty is an asynchronous event-driven network application framework for rapid development of maintainable high performance protoco ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/post/e2dd34c3.html" title="Netty入门-第一话(转载)">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Netty入门-第一话(转载)"></a></div><div class="recent-post-info"><a class="article-title" href="/post/e2dd34c3.html" title="Netty入门-第一话(转载)">Netty入门-第一话(转载)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-06T08:10:00.000Z" title="发表于 2021-09-06 16:10:00">2021-09-06</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-30T12:11:55.650Z" title="更新于 2022-01-30 20:11:55">2022-01-30</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Netty/">Netty</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/Netty/">Netty</a></span></div><div class="content">
-因为学netty的过程中，发现计算机网络和操作系统蛮重要的，所以接下来会写几篇这方面的文章，希望读者不要觉得我东写一点，西写一点。
-比如netty中有操作系统里的IO，零拷贝。有计算机网络里的通信(因为netty本身就是一个网络应用框架)。等等
-
-Netty简介Netty 的介绍
-Netty 是由 JBOSS 提供的一个 Java 开源框架，现为 Github 上的独立项目。
-Netty 是一个异步的、基于事件驱动的网络应用框架，用以快速开发高性能、高可靠性的网络 IO 程序。
-Netty 主要针对在 TCP 协议下，面向 Client 端的高并发应用，或者 Peer-to-Peer 场景下的大量数据持续传输的应用。
-Netty 本质是一个 NIO 框架，适用于服务器通讯相关的多种应用场景。
-要透彻理解 Netty，需要先学习 NIO，这样我们才能阅读 Netty 的源码。
-
-相对简单的一个体系图
-
-
-Netty 的应用场景互联网行业
-互联网行业：在分布式系统中，各个节点之间需要远程服务调用，高性能的 RPC 框架必不可少，Netty 作为异步高性能的通信框架，往往作为基础通信组件被 ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/post/adbd2430.html" title="Redis面试题">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis面试题"></a></div><div class="recent-post-info"><a class="article-title" href="/post/adbd2430.html" title="Redis面试题">Redis面试题</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-31T07:34:00.000Z" title="发表于 2021-08-31 15:34:00">2021-08-31</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-09T01:29:51.539Z" title="更新于 2021-09-09 09:29:51">2021-09-09</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Redis/">Redis</a><i class="fas fa-angle-right"></i><a class="article-meta__categories" href="/categories/Redis/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a><span class="article-meta__link">•</span><a class="article-meta__tags" href="/tags/Redis/">Redis</a></span></div><div class="content">Redis是什么？简述它的优缺点？Redis本质上是一个Key-Value类型的内存数据库，很像Memcached，整个数据库加载在内存当中操作，定期通过异步操作把数据库中的数据flush到硬盘上进行保存。
-因为是纯内存操作，Redis的性能非常出色，每秒可以处理超过 10万次读写操作，是已知性能最快的Key-Value 数据库。
-优点：
-
-读写性能极高， Redis能读的速度是110000次/s，写的速度是81000次/s。
-支持数据持久化，支持AOF和RDB两种持久化方式。
-支持事务， Redis的所有操作都是原子性的，意思就是要么成功执行要么失败完全不执行。单个操作是原子性的。多个操作也支持事务，即原子性，通过MULTI和EXEC指令包起来。
-数据结构丰富，除了支持string类型的value外，还支持hash、set、zset、list等数据结构。
-支持主从复制，主机会自动将数据同步到从机，可以进行读写分离。
-丰富的特性 – Redis还支持 publish/subscribe， 通知， key 过期等特性。
-
-缺点：
-
-数据库容量受到物理内存的限制，不能用作海量数据的高性能读 ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/post/e255a10a.html" title="计算机网络面试题">     <img class="post_bg" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计算机网络面试题"></a></div><div class="recent-post-info"><a class="article-title" href="/post/e255a10a.html" title="计算机网络面试题">计算机网络面试题</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-27T14:04:00.000Z" title="发表于 2021-08-27 22:04:00">2021-08-27</time><span class="article-meta__separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-14T04:42:00.360Z" title="更新于 2021-09-14 12:42:00">2021-09-14</time></span><span class="article-meta"><span class="article-meta__separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a><i class="fas fa-angle-right"></i><a class="article-meta__categories" href="/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a><span class="article-meta__link">•</span><a class="article-meta__tags" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></span></div><div class="content">计算机网络概念计算机网络：是一个将分散的、具有独立功能的计算机系统，通过通信设备与线路连接起来，由功能完善的软件实现资源共享和信息传递的系统。
-这里需要注意的是，按分布范围，计算机网络里有局域网LAN和广域网WAN, 其中局域网的代表以太网，以及这两种网络最重要的区分点，局域网基于广播技术，广域网基于分组交换技术。
-衡量计算机网络的性能的指标速率速率就是数据传输（数据是指0和1）的速率，比如你用迅雷下载，1兆每秒，来衡量目前数据传输的快慢。它是计算机网络中最重要的一个性能指标。
-带宽在计算机网络中，网络带宽是指在单位时间（一般指的是1秒钟）内能传输的数据量，比如说你家的电信网络是100兆比特，意思是，一秒内最大的传输速率是100兆比特。
-吞吐量吞吐量表示在单位时间内通过某个网络（或信道、接口）的数据量。
-以上三点，我们举个案例
-
-一条路每秒最多能过100辆车（宽带就相当于100辆/秒）。
-而并不是每秒都会有100辆车过，假如第一秒有0辆，第二秒有10辆…，（但是最多不能超过100辆）。
-所以有第1秒0辆/秒，第2秒10辆/秒，第3秒30辆/秒，这不能说带宽多少吧，于是就用吞吐量表示具体 ...</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/page/25/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/#content-inner">25</a><span class="page-number current">26</span><a class="page-number" href="/page/27/#content-inner">27</a><span class="space">&hellip;</span><a class="page-number" href="/page/35/#content-inner">35</a><a class="extend next" rel="next" href="/page/27/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div><div class="card-widget" id="card-newest-comments"><div class="item-headline"><i class="fas fa-comment-dots"></i><span>最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div><div class="card-widget card-categories"><div class="item-headline">
-            <i class="fas fa-folder-open"></i>
-            <span>分类</span>
-            
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span diyFont">牧马人的忧伤</span>
+                </a>
             </div>
-            <ul class="card-category-list" id="aside-cat-list">
-            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/C%E8%AF%AD%E8%A8%80/"><span class="card-category-list-name">C语言</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/FastDFS/"><span class="card-category-list-name">FastDFS</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/"><span class="card-category-list-name">Hadoop3.0从入门到源码</span><span class="card-category-list-count">13</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/HDFS/"><span class="card-category-list-name">HDFS</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/MapReduce/"><span class="card-category-list-name">MapReduce</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/YARN/"><span class="card-category-list-name">YARN</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/JDK/"><span class="card-category-list-name">JDK</span><span class="card-category-list-count">3</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/JDK/ThreadLocal/"><span class="card-category-list-name">ThreadLocal</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/Java%E5%B9%B6%E5%8F%91/"><span class="card-category-list-name">Java并发</span><span class="card-category-list-count">7</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Java%E5%B9%B6%E5%8F%91/%E5%8E%9F%E7%90%86/"><span class="card-category-list-name">原理</span><span class="card-category-list-count">7</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/MyBatis%E6%BA%90%E7%A0%81/"><span class="card-category-list-name">MyBatis源码</span><span class="card-category-list-count">8</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Netty/"><span class="card-category-list-name">Netty</span><span class="card-category-list-count">3</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Nginx/"><span class="card-category-list-name">Nginx</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/NoSQL/"><span class="card-category-list-name">NoSQL</span><span class="card-category-list-count">6</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/NoSQL/MongoDB/"><span class="card-category-list-name">MongoDB</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/NoSQL/Neo4j/"><span class="card-category-list-name">Neo4j</span><span class="card-category-list-count">2</span></a></li></ul></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/Redis/"><span class="card-category-list-name">Redis</span><span class="card-category-list-count">8</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Redis/%E9%9D%A2%E8%AF%95%E9%A2%98/"><span class="card-category-list-name">面试题</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Redis%E6%BA%90%E7%A0%81/"><span class="card-category-list-name">Redis源码</span><span class="card-category-list-count">3</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Shiro/"><span class="card-category-list-name">Shiro</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/Spring/"><span class="card-category-list-name">Spring</span><span class="card-category-list-count">1</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Spring/%E9%9D%A2%E8%AF%95%E9%A2%98/"><span class="card-category-list-name">面试题</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/SpringBoot/"><span class="card-category-list-name">SpringBoot</span><span class="card-category-list-count">6</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/git/"><span class="card-category-list-name">git</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">java学习</span><span class="card-category-list-count">92</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Ajax%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/"><span class="card-category-list-name">Ajax快速入门</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Apache-Dubbo/"><span class="card-category-list-name">Apache Dubbo</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/CICD/"><span class="card-category-list-name">CICD</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Cookie-SessionJsp/"><span class="card-category-list-name">Cookie&SessionJsp</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Docker/"><span class="card-category-list-name">Docker</span><span class="card-category-list-count">13</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/EL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8CJSTL/"><span class="card-category-list-name">EL表达式和JSTL</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/ElasticSearch/"><span class="card-category-list-name">ElasticSearch</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/JDBC/"><span class="card-category-list-name">JDBC</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Linux/"><span class="card-category-list-name">Linux</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/MySQL/"><span class="card-category-list-name">MySQL</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Mybatis/"><span class="card-category-list-name">Mybatis</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Mybatis-Plus/"><span class="card-category-list-name">Mybatis-Plus</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/RabbitMQ/"><span class="card-category-list-name">RabbitMQ</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Redis/"><span class="card-category-list-name">Redis</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Request-Response/"><span class="card-category-list-name">Request&Response</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Servlet/"><span class="card-category-list-name">Servlet</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Spring/"><span class="card-category-list-name">Spring</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Spring-Security/"><span class="card-category-list-name">Spring Security</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/SpringCloud/"><span class="card-category-list-name">SpringCloud</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/SpringMVC/"><span class="card-category-list-name">SpringMVC</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Springboot/"><span class="card-category-list-name">Springboot</span><span class="card-category-list-count">15</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Tomcat-Http%E5%8D%8F%E8%AE%AE/"><span class="card-category-list-name">Tomcat&Http协议</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/XML%E5%92%8CDom4j%E3%80%81%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/"><span class="card-category-list-name">XML和Dom4j、正则表达式</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/Zookeeper/"><span class="card-category-list-name">Zookeeper</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/javase/"><span class="card-category-list-name">javase</span><span class="card-category-list-count">3</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/maven/"><span class="card-category-list-name">maven</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/%E4%BC%A0%E6%99%BA%E5%81%A5%E5%BA%B7/"><span class="card-category-list-name">传智健康</span><span class="card-category-list-count">10</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/"><span class="card-category-list-name">分布式锁</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"><span class="card-category-list-name">微服务</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/"><span class="card-category-list-name">数据库分库分表</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/java%E5%AD%A6%E4%B9%A0/%E7%95%85%E8%B4%AD/"><span class="card-category-list-name">畅购</span><span class="card-category-list-count">16</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/jvm/"><span class="card-category-list-name">jvm</span><span class="card-category-list-count">22</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/mysql/"><span class="card-category-list-name">mysql</span><span class="card-category-list-count">16</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/mysql/mycat/"><span class="card-category-list-name">mycat</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/scala/"><span class="card-category-list-name">scala</span><span class="card-category-list-count">8</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/shell/"><span class="card-category-list-name">shell</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"><span class="card-category-list-name">分布式事务</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/"><span class="card-category-list-name">前端</span><span class="card-category-list-count">105</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/CSS/"><span class="card-category-list-name">CSS</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/H5/"><span class="card-category-list-name">H5</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/HTML/"><span class="card-category-list-name">HTML</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8/"><span class="card-category-list-name">Linux服务器</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/Node/"><span class="card-category-list-name">Node</span><span class="card-category-list-count">8</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/Node-js%E8%BF%9B%E9%98%B6/"><span class="card-category-list-name">Node.js进阶</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/Promise/"><span class="card-category-list-name">Promise</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/SASS/"><span class="card-category-list-name">SASS</span><span class="card-category-list-count">3</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/TypeScript/"><span class="card-category-list-name">TypeScript</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/Vue/"><span class="card-category-list-name">Vue</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/Vue%E5%90%8E%E5%8F%B0%E7%94%B5%E5%95%86%E7%AE%A1%E7%90%86%E9%A1%B9%E7%9B%AE/"><span class="card-category-list-name">Vue后台电商管理项目</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/Vue%E7%A7%BB%E5%8A%A8%E9%A1%B9%E7%9B%AE/"><span class="card-category-list-name">Vue移动项目</span><span class="card-category-list-count">10</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/WebAPI/"><span class="card-category-list-name">WebAPI</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/canvas/"><span class="card-category-list-name">canvas</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/echarts/"><span class="card-category-list-name">echarts</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/jQuery/"><span class="card-category-list-name">jQuery</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/javascript/"><span class="card-category-list-name">javascript</span><span class="card-category-list-count">12</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/sass%E4%B8%AD%E5%8F%B0%E7%AE%A1%E7%90%86%E9%A1%B9%E7%9B%AE/"><span class="card-category-list-name">sass中台管理项目</span><span class="card-category-list-count">14</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/uniapp/"><span class="card-category-list-name">uniapp</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/webpack/"><span class="card-category-list-name">webpack</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83/"><span class="card-category-list-name">代码规范</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E5%89%8D%E7%AB%AF%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/"><span class="card-category-list-name">前端性能优化</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E5%93%81%E4%BC%98%E8%B4%AD/"><span class="card-category-list-name">品优购</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E5%A4%A7%E4%BA%8B%E4%BB%B6%E9%A1%B9%E7%9B%AE/"><span class="card-category-list-name">大事件项目</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E5%AE%B9%E5%99%A8%E5%8C%96/"><span class="card-category-list-name">容器化</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E5%B0%8F%E7%A8%8B%E5%BA%8F/"><span class="card-category-list-name">小程序</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%B8%B2%E6%9F%93/"><span class="card-category-list-name">服务端渲染</span><span class="card-category-list-count">3</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E6%9E%84%E5%BB%BA%E9%83%A8%E7%BD%B2/"><span class="card-category-list-name">构建部署</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E6%B7%B1%E5%85%A5Vue/"><span class="card-category-list-name">深入Vue</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E7%A7%BB%E5%8A%A8web%E5%BC%80%E5%8F%91/"><span class="card-category-list-name">移动web开发</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/%E9%A1%B9%E7%9B%AE%E8%B4%A8%E9%87%8F%E7%9B%91%E6%B5%8B/"><span class="card-category-list-name">项目质量监测</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%89%E5%85%A8%E6%94%BB%E9%98%B2%E6%8A%80%E8%83%BD30%E8%AE%B2/"><span class="card-category-list-name">安全攻防技能30讲</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/"><span class="card-category-list-name">搜索引擎</span><span class="card-category-list-count">7</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/Elasticsearch/"><span class="card-category-list-name">Elasticsearch</span><span class="card-category-list-count">7</span></a></li></ul></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/"><span class="card-category-list-name">服务器</span><span class="card-category-list-count">26</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/%E6%B7%B1%E5%85%A5tomcat/"><span class="card-category-list-name">深入tomcat</span><span class="card-category-list-count">26</span></a></li></ul></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/%E6%9E%B6%E6%9E%84/"><span class="card-category-list-name">架构</span><span class="card-category-list-count">8</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%9E%B6%E6%9E%84/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6%E6%9E%B6%E6%9E%84/"><span class="card-category-list-name">从零开始学架构</span><span class="card-category-list-count">6</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%9E%B6%E6%9E%84/%E4%BB%A3%E7%A0%81%E4%B9%8B%E4%B8%91/"><span class="card-category-list-name">代码之丑</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/"><span class="card-category-list-name">消息队列</span><span class="card-category-list-count">14</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/Kafka/"><span class="card-category-list-name">Kafka</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/RocketMQ/"><span class="card-category-list-name">RocketMQ</span><span class="card-category-list-count">9</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%94%9F%E6%B4%BB/"><span class="card-category-list-name">生活</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BC%96%E7%A0%81/"><span class="card-category-list-name">编码</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/"><span class="card-category-list-name">计算机基础</span><span class="card-category-list-count">10</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BA%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"><span class="card-category-list-name">深入浅出计算机组成原理</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"><span class="card-category-list-name">计算机组成原理</span><span class="card-category-list-count">9</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><span class="card-category-list-name">设计模式</span><span class="card-category-list-count">22</span></a></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%9F%BA%E7%A1%80/"><span class="card-category-list-name">软件基础</span><span class="card-category-list-count">7</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%9F%BA%E7%A1%80/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E4%B9%8B%E7%BE%8E/"><span class="card-category-list-name">软件工程之美</span><span class="card-category-list-count">7</span></a></li></ul></li><li class="card-category-list-item parent"><a class="card-category-list-link" href="/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/"><span class="card-category-list-name">面试题</span><span class="card-category-list-count">3</span><i class="fas fa-caret-left "></i></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/Mybatis/"><span class="card-category-list-name">Mybatis</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"><span class="card-category-list-name">计算机网络</span><span class="card-category-list-count">1</span></a></li></ul></li>
-            </ul></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/02/"><span class="card-archive-list-date">二月 2022</span><span class="card-archive-list-count">17</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/01/"><span class="card-archive-list-date">一月 2022</span><span class="card-archive-list-count">93</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/12/"><span class="card-archive-list-date">十二月 2021</span><span class="card-archive-list-count">66</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/11/"><span class="card-archive-list-date">十一月 2021</span><span class="card-archive-list-count">124</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/10/"><span class="card-archive-list-date">十月 2021</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/09/"><span class="card-archive-list-date">九月 2021</span><span class="card-archive-list-count">8</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/08/"><span class="card-archive-list-date">八月 2021</span><span class="card-archive-list-count">97</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2020/10/"><span class="card-archive-list-date">十月 2020</span><span class="card-archive-list-count">7</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">414</div></div><div class="webinfo-item"><div class="item-name">已运行时间 :</div><div class="item-count" id="runtimeshow" data-publishDate="2020-01-26T16:00:00.000Z"></div></div><div class="webinfo-item"><div class="item-name">本站总字数 :</div><div class="item-count">3506.6k</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2022-02-26T01:34:32.869Z"></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
-  endLoading: () => {
-    document.body.style.overflow = 'auto';
-    document.getElementById('loading-box').classList.add("loaded")
-  },
-  initLoading: () => {
-    document.body.style.overflow = '';
-    document.getElementById('loading-box').classList.remove("loaded")
+            
 
-  }
-}
-window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function subtitleType () {
-  if (true) { 
-    var typed = new Typed("#subtitle", {
-      strings: "这里的一切都有始有终，却能容纳所有的不期而遇和久别重逢，世界灿烂，欢迎回家。".split(","),
-      startDelay: 300,
-      typeSpeed: 150,
-      loop: true,
-      backSpeed: 50
-    })
-  } else {
-    document.getElementById("subtitle").innerHTML = '这里的一切都有始有终，却能容纳所有的不期而遇和久别重逢，世界灿烂，欢迎回家。'
-  }
-}
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
 
-if (true) {
-  if (typeof Typed === 'function') {
-    subtitleType()
-  } else {
-    getScript('https://cdn.jsdelivr.net/npm/typed.js/lib/typed.min.js').then(subtitleType)
-  }
-} else {
-  subtitleType()
-}</script></div><script>window.addEventListener('load', () => {
-  const changeContent = (content) => {
-    if (content === '') return content
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>找文章</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/categories">
+          
+          <i class="fas fa-bookmark" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>分类</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tags">
+          
+          <i class="fas fa-tags" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>标签</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/archives">
+          
+          <i class="fas fa-archive" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>归档</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
 
-    content = content.replace(/<img.*?src="(.*?)"?[^\>]+>/ig, '[图片]') // replace image link
-    content = content.replace(/<a[^>]+?href=["']?([^"']+)["']?[^>]*>([^<]+)<\/a>/gi, '[链接]') // replace url
-    content = content.replace(/<pre><code>.*?<\/pre>/gi, '[代码]') // replace code
-    content = content.replace(/<[^>]+>/g,"") // remove html tag
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>生活</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/timeline">
+          
+          <i class="fas fa-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>时间轴</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/contact">
+          
+          <i class="fas fa-music" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>留言板</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/friends">
+          
+          <i class="fas fa-address-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>友人帐</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于笔者</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
 
-    if (content.length > 150) {
-      content = content.substring(0,150) + '...'
-    }
-    return content
-  }
 
-  const getComment = () => {
-    const runTwikoo = () => {
-      twikoo.getRecentComments({
-        envId: 'pinglun-9gh2lmcnd8587831',
-        region: '',
-        pageSize: 6,
-        includeReply: true
-      }).then(function (res) {
-        const twikooArray = res.map(e => {
-          return {
-            'content': changeContent(e.comment),
-            'avatar': e.avatar,
-            'nick': e.nick,
-            'url': e.url + '#' + e.id,
-            'date': new Date(e.created).toISOString()
-          }
-        })
+<div id="mobile-nav" class="side-nav sidenav">
 
-        saveToLocal.set('twikoo-newest-comments', JSON.stringify(twikooArray), 60/(60*24))
-        generateHtml(twikooArray)
-      }).catch(function (err) {
-        const $dom = document.querySelector('#card-newest-comments .aside-list')
-        $dom.innerHTML= "无法获取评论，请确认相关配置是否正确"
-      })
-    }
-
-    if (typeof twikoo === 'object') {
-      runTwikoo()
-    } else {
-      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(runTwikoo)
-    }
-  }
-
-  const generateHtml = array => {
-    let result = ''
-
-    if (array.length) {
-      for (let i = 0; i < array.length; i++) {
-        result += '<div class=\'aside-list-item\'>'
-
-        if (true) {
-          const name = 'src'
-          result += `<a href='${array[i].url}' class='thumbnail'><img ${name}='${array[i].avatar}' alt='${array[i].nick}'></a>`
-        }
+    <div class="mobile-head bg-color">
         
-        result += `<div class='content'>
-        <a class='comment' href='${array[i].url}'>${array[i].content}</a>
-        <div class='name'><span>${array[i].nick} / </span><time datetime="${array[i].date}">${btf.diffDate(array[i].date, true)}</time></div>
-        </div></div>`
-      }
-    } else {
-      result += '没有评论'
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">牧马人的忧伤</div>
+        <div class="logo-desc">
+            
+            主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			找文章
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/categories " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-bookmark" style="position: absolute;left:50px" ></i>
+			      
+		          <span>分类</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/tags " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-tags" style="position: absolute;left:50px" ></i>
+			      
+		          <span>标签</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/archives " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-archive" style="position: absolute;left:50px" ></i>
+			      
+		          <span>归档</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			生活
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/timeline " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>时间轴</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/contact " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-music" style="position: absolute;left:50px" ></i>
+			      
+		          <span>留言板</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/friends " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-address-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>友人帐</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于笔者
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+    <div class="bg-cover pd-header about-cover">
+    <div class="container">
+    <div class="row">
+    <div class="col s10 offset-s1 m8 offset-m2 l8 offset-l2">
+        <div class="brand">
+            <div class="title center-align">
+                
+                有些梦想虽然遥不可及，但不是不可能实现。只要我足够的强。
+                
+            </div>
+
+            <div class="description center-align">
+                
+                <span id="subtitle"></span>
+                <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+                <script>
+                    var typed = new Typed("#subtitle", {
+                        strings: ['从来没有真正的绝境, 只有心灵的迷途','Never really desperate, only the lost of the soul'],
+                        startDelay: 300,
+                        typeSpeed: 100,
+                        loop: true,
+                        backSpeed: 50,
+                        showCursor: true
+                    });
+                </script>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // 每天切换 banner 图.  Switch banner image every day.
+    var bannerUrl = "/medias/banner/" + new Date().getDay() + '.jpg';
+    console.log(bannerUrl);
+    $('.bg-cover').css('background-image', 'url(' + bannerUrl + ')');
+</script>
+
+
+    </div>
+</div>
+
+
+<main class="content">
+
+    
+
+    
+
+    <!-- 所有文章卡片 -->
+    <article id="articles" class="container articles">
+        <div class="row article-row">
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/2db1597d.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" class="responsive-img" alt="项目质量监测">
+                            
+                            <span class="card-title">项目质量监测</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                项目质量监测课程介绍没有规矩不成方圆，所以我们写代码也要有”规矩”，但是我们通常记不住所有的”规矩”，因为人嘛，不可能不犯错。但是，这难不到我们程序员，我们让机器、代码、程序帮我们搞定，让它们来帮我们进行代码质量检查，以便提高的程序的健壮性
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-19
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/%E9%A1%B9%E7%9B%AE%E8%B4%A8%E9%87%8F%E7%9B%91%E6%B5%8B/" class="post-category">
+                                    项目质量监测
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/%E9%A1%B9%E7%9B%AE%E8%B4%A8%E9%87%8F%E7%9B%91%E6%B5%8B/">
+                            <span class="chip bg-color">项目质量监测</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/ef98b3dd.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" class="responsive-img" alt="Node 第 1 天笔记">
+                            
+                            <span class="card-title">Node 第 1 天笔记</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                Node 第 1 天1.  学习目标◆  能够知道什么是 Node.js◆  能够知道 Node.js 可以做什么◆  能够说出 Node.js 中的 JavaScript 的组成部分◆  能够使用 fs 模块读写操作文件◆  能够使用 p
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-19
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/Node/" class="post-category">
+                                    Node
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/Node/">
+                            <span class="chip bg-color">Node</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/facd74f4.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212025.jpg" class="responsive-img" alt="Echarts">
+                            
+                            <span class="card-title">Echarts</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                DAY01-可视化项目01-项目介绍​    应对现在数据可视化的趋势，越来越多企业需要在很多场景(营销数据，生产数据，用户数据)下使用，可视化图表来展示体现数据，让数据更加直观，数据特点更加突出。我们引入 ‘立可得’ 数据可视化项目。
+​
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/echarts/" class="post-category">
+                                    echarts
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/echarts/">
+                            <span class="chip bg-color">echarts</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/37955079.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082010.jpg" class="responsive-img" alt="ES6语法">
+                            
+                            <span class="card-title">ES6语法</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                ES6语法目标
+能够说出使用let关键字声明变量的特点
+能够使用解构赋值从数组中提取值
+能够说出箭头函数拥有的特性
+能够使用剩余参数接收剩余的函数参数
+能够使用拓展运算符拆分数组
+能够说出模板字符串拥有的特性
+
+ES6相关概念（★★）什么是
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/javascript/" class="post-category">
+                                    javascript
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/javascript/">
+                            <span class="chip bg-color">javascript</span>
+                        </a>
+                        
+                        <a href="/tags/es6/">
+                            <span class="chip bg-color">es6</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/6477ff1a.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082121.jpg" class="responsive-img" alt="JavaScript高级第04天笔记">
+                            
+                            <span class="card-title">JavaScript高级第04天笔记</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                JavaScript高级第04天笔记1.正则表达式概述1.1什么是正则表达式正则表达式（ Regular Expression ）是用于匹配字符串中字符组合的模式。在JavaScript中，正则表达式也是对象。
+正则表通常被用来检索、替换那
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/javascript/" class="post-category">
+                                    javascript
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/javascript/">
+                            <span class="chip bg-color">javascript</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/86abe463.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212100.jpg" class="responsive-img" alt="JavaScript高级第03天笔记">
+                            
+                            <span class="card-title">JavaScript高级第03天笔记</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                JavaScript高级第03天笔记1.函数的定义和调用1.1函数的定义方式
+方式1 函数声明方式 function 关键字 (命名函数)
+function fn(){}
+方式2 函数表达式(匿名函数)
+var fn = function(
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/javascript/" class="post-category">
+                                    javascript
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/javascript/">
+                            <span class="chip bg-color">javascript</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/69698f5d.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082249.jpg" class="responsive-img" alt="JavaScript高级第02天笔记">
+                            
+                            <span class="card-title">JavaScript高级第02天笔记</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                JavaScript高级第02天笔记1.构造函数和原型1.1对象的三种创建方式–复习
+字面量方式
+ var obj = {};
+new关键字
+ var obj = new Object();
+构造函数方式
+ function Person(
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/javascript/" class="post-category">
+                                    javascript
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/javascript/">
+                            <span class="chip bg-color">javascript</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/825e345e.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082041.jpg" class="responsive-img" alt="JavaScript高级第01天笔记">
+                            
+                            <span class="card-title">JavaScript高级第01天笔记</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                JavaScript高级第01天笔记1.面向过程与面向对象1.1面向过程
+面向过程就是分析出解决问题所需要的步骤，然后用函数把这些步骤一步一步实现，使用的时候再一个一个的依次调用就可以了。
+
+1.2面向对象
+面向对象是把事务分解成为一个个对
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/javascript/" class="post-category">
+                                    javascript
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/javascript/">
+                            <span class="chip bg-color">javascript</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/c2023201.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082159.jpg" class="responsive-img" alt="day07 - Web APIs">
+                            
+                            <span class="card-title">day07 - Web APIs</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                day07 - Web APIs
+学习目标:
+能够写出移动端触屏事件能够写出常见的移动端特效能够使用移动端开发插件开发移动端特效能够使用移动端开发框架开发移动端特效能够写出 sessionStorage 数据的存储以及获取能够写出 loca
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/WebAPI/" class="post-category">
+                                    WebAPI
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/WebAPI/">
+                            <span class="chip bg-color">WebAPI</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/59a77e6e.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082110.jpg" class="responsive-img" alt="day06 - Web APIs">
+                            
+                            <span class="card-title">day06 - Web APIs</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                day06 - Web APIs
+学习目标:
+能够封装简单动画函数
+能够理解缓动动画的封装
+能够使用动画函数
+能够写出网页轮播图案例
+能够写出移动端触屏事件
+
+1.1. 动画函数封装1.1.1 缓动效果原理缓动动画就是让元素运动速度有所变化
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/WebAPI/" class="post-category">
+                                    WebAPI
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/WebAPI/">
+                            <span class="chip bg-color">WebAPI</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/2e39ac9e.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082010.jpg" class="responsive-img" alt="day05 - Web APIs">
+                            
+                            <span class="card-title">day05 - Web APIs</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                day05 - Web APIs
+学习目标:
+能够说出常见 offset 系列属性的作用
+能够说出常见 client 系列属性的作用
+能够说出常见 scroll 系列属性的作用
+能够封装简单动画函数
+
+**1.1. **元素偏移量 offs
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/WebAPI/" class="post-category">
+                                    WebAPI
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/WebAPI/">
+                            <span class="chip bg-color">WebAPI</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/post/2e39ac9e.html">
+                        <div class="card-image">
+                            
+                            
+                            <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212104.jpg" class="responsive-img" alt="day04 - Web APIs">
+                            
+                            <span class="card-title">day04 - Web APIs</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                day04 - Web APIs
+学习目标：
+能够说出常用的3-5个键盘事件
+能够知道如何获取当前键盘按下的是哪个键
+能够知道浏览器的顶级对象window
+能够使用window.onload事件
+能够使用window.onresize事件
+
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-11-18
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/" class="post-category">
+                                    前端
+                                </a>
+                                
+                                <a href="/categories/%E5%89%8D%E7%AB%AF/WebAPI/" class="post-category">
+                                    WebAPI
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E5%89%8D%E7%AB%AF/">
+                            <span class="chip bg-color">前端</span>
+                        </a>
+                        
+                        <a href="/tags/WebAPI/">
+                            <span class="chip bg-color">WebAPI</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </div>
+    </article>
+
+</main>
+
+
+<div class="container paging">
+    <div class="row">
+        <div class="col s6 m4 l4">
+            
+            <a href="/page/25/"
+               class="left btn-floating btn-large waves-effect waves-light bg-color">
+                <i class="fas fa-angle-left"></i>
+            </a>
+            
+        </div>
+        <div class="page-info col m4 l4 hide-on-small-only">
+            <div class="center-align b-text-gray">26 / 40</div>
+        </div>
+        <div class="col s6 m4 l4">
+            
+            <a href="/page/27/"
+               class="right btn-floating btn-large waves-effect waves-light bg-color">
+                <i class="fas fa-angle-right"></i>
+            </a>
+            
+        </div>
+    </div>
+</div>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
     }
 
-    let $dom = document.querySelector('#card-newest-comments .aside-list')
-    $dom.innerHTML= result
-    window.lazyLoadInstance && window.lazyLoadInstance.update()
-    window.pjax && window.pjax.refresh($dom)
-  }
-
-  const newestCommentInit = () => {
-    if (document.querySelector('#card-newest-comments .aside-list')) {
-      const data = saveToLocal.get('twikoo-newest-comments')
-      if (data) {
-        generateHtml(JSON.parse(data))
-      } else {
-        getComment()
-      }
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
     }
-  }
 
-  newestCommentInit()
-  document.addEventListener('pjax:complete', newestCommentInit)
-})</script><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
-  window.tidioChatApi.hide();
-  window.tidioChatApi.on("close", function() {
-    window.tidioChatApi.hide();
-  });
-}
-if (window.tidioChatApi) {
-  window.tidioChatApi.on("ready", onTidioChatApiReady);
-} else {
-  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
-}
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
 
-var chatBtnFn = () => {
-  document.getElementById("chat_btn").addEventListener("click", function(){
-    window.tidioChatApi.show();
-    window.tidioChatApi.open();
-  });
-}
-chatBtnFn()
-</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="330695641"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2018-2022</span>
+            
+            <span id="year">2018</span>
+            <a href="/about" target="_blank">YangShen</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">3956k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2018";
+                    var startMonth = "6";
+                    var startDate = "28";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/LVXUEYANGTiger" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1191432275@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1191432275" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1191432275" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    <script type="text/javascript">
+        window.onload = function(){
+            //屏蔽键盘事件
+            document.onkeydown = function (){
+                var e = window.event || arguments[0];
+                //F12
+                if(e.keyCode == 123){
+                    return false;
+                //Ctrl+Shift+I
+                }else if((e.ctrlKey) && (e.shiftKey) && (e.keyCode == 73)){
+                    return false;
+                //Shift+F10
+                }else if((e.shiftKey) && (e.keyCode == 121)){
+                    return false;
+                //Ctrl+U
+                }else if((e.ctrlKey) && (e.keyCode == 85)){
+                    return false;
+                }
+            };
+            //屏蔽鼠标右键
+            document.oncontextmenu = function (){
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

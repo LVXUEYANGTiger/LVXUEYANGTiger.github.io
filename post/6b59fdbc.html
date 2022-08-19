@@ -1,164 +1,539 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tomcat&amp;Http协议 | 牧马人的忧伤</title><meta name="keywords" content="Tomcat&amp;Http协议"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Tomcat&amp;Http协议1 企业开发简介1.1 JavaEE规范JavaEE规范是J2EE规范的新名称，早期被称为J2EE规范，其全称是Java 2 Platform Enterprise Edition，它是由SUN公司领导、各厂家共同制定并得到广泛认可的工业标准（JCP组织成员）。之所以改名为JavaEE，目的还是让大家清楚J2EE只是Java企业应用。在2004年底中国软件技术大会">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Tomcat&amp;Http协议">
-<meta property="og:url" content="http://www.lvxueyang.vip/post/6b59fdbc.html">
-<meta property="og:site_name" content="牧马人的忧伤">
-<meta property="og:description" content="Tomcat&amp;Http协议1 企业开发简介1.1 JavaEE规范JavaEE规范是J2EE规范的新名称，早期被称为J2EE规范，其全称是Java 2 Platform Enterprise Edition，它是由SUN公司领导、各厂家共同制定并得到广泛认可的工业标准（JCP组织成员）。之所以改名为JavaEE，目的还是让大家清楚J2EE只是Java企业应用。在2004年底中国软件技术大会">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg">
-<meta property="article:published_time" content="2021-12-08T07:27:00.000Z">
-<meta property="article:modified_time" content="2021-12-09T13:44:27.426Z">
-<meta property="article:author" content="YangShen">
-<meta property="article:tag" content="Tomcat&amp;Http协议">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/6b59fdbc"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
-  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '天',
-  date_suffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  source: {
-    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
-    justifiedGallery: {
-      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
-    },
-    fancybox: {
-      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
-    }
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isanchor: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'Tomcat&Http协议',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2021-12-09 21:44:27'
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
+<!DOCTYPE HTML>
+<html lang="zh-CN">
 
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-    win.saveToLocal = {
-      set: function setWithExpiry(key, value, ttl) {
-        if (ttl === 0) return
-        const now = new Date()
-        const expiryDay = ttl * 86400000
-        const item = {
-          value: value,
-          expiry: now.getTime() + expiryDay,
-        }
-        localStorage.setItem(key, JSON.stringify(item))
-      },
 
-      get: function getWithExpiry(key) {
-        const itemStr = localStorage.getItem(key)
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Tomcat&amp;Http协议, 牧马人的忧伤">
+    <meta name="description" content="主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
-        if (!itemStr) {
-          return undefined
-        }
-        const item = JSON.parse(itemStr)
-        const now = new Date()
 
-        if (now.getTime() > item.expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return item.value
-      }
-    }
+    <title>Tomcat&amp;Http协议 | 牧马人的忧伤</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.2">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span diyFont">牧马人的忧伤</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
   
-    win.getScript = url => new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = url
-      script.async = true
-      script.onerror = reject
-      script.onload = script.onreadystatechange = function() {
-        const loadState = this.readyState
-        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-        script.onload = script.onreadystatechange = null
-        resolve()
-      }
-      document.head.appendChild(script)
-    })
-  
-      win.activateDarkMode = function () {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = function () {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
+  <li class="hide-on-med-and-down nav-item">
     
-          if (t === 'dark') activateDarkMode()
-          else if (t === 'light') activateLightMode()
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>找文章</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/categories">
+          
+          <i class="fas fa-bookmark" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>分类</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tags">
+          
+          <i class="fas fa-tags" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>标签</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/archives">
+          
+          <i class="fas fa-archive" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>归档</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>生活</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/timeline">
+          
+          <i class="fas fa-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>时间轴</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/contact">
+          
+          <i class="fas fa-music" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>留言板</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/friends">
+          
+          <i class="fas fa-address-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>友人帐</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于笔者</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
         
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">牧马人的忧伤</div>
+        <div class="logo-desc">
+            
+            主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			找文章
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/categories " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-bookmark" style="position: absolute;left:50px" ></i>
+			      
+		          <span>分类</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/tags " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-tags" style="position: absolute;left:50px" ></i>
+			      
+		          <span>标签</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/archives " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-archive" style="position: absolute;left:50px" ></i>
+			      
+		          <span>归档</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			生活
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/timeline " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>时间轴</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/contact " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-music" style="position: absolute;left:50px" ></i>
+			      
+		          <span>留言板</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/friends " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-address-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>友人帐</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于笔者
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
         }
-      }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212120.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Tomcat&amp;Http协议</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
     
-    const fontSizeVal = saveToLocal.get('global-font-size')
-    if (fontSizeVal !== undefined) {
-      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
     }
-    
-    const detectApple = () => {
-      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-        document.documentElement.classList.add('apple')
-      }
+
+    #articleContent :focus {
+        outline: none;
     }
-    detectApple()
-    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
-</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Tomcat&amp;Http协议</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-12-08T07:27:00.000Z" title="发表于 2021-12-08 15:27:00">2021-12-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-12-09T13:44:27.426Z" title="更新于 2021-12-09 21:44:27">2021-12-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/java%E5%AD%A6%E4%B9%A0/">java学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/java%E5%AD%A6%E4%B9%A0/Tomcat-Http%E5%8D%8F%E8%AE%AE/">Tomcat&amp;Http协议</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">5.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>19分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Tomcat&amp;Http协议"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Tomcat-amp-Http协议"><a href="#Tomcat-amp-Http协议" class="headerlink" title="Tomcat&amp;Http协议"></a>Tomcat&amp;Http协议</h1><h1 id="1-企业开发简介"><a href="#1-企业开发简介" class="headerlink" title="1 企业开发简介"></a>1 企业开发简介</h1><h2 id="1-1-JavaEE规范"><a href="#1-1-JavaEE规范" class="headerlink" title="1.1 JavaEE规范"></a>1.1 JavaEE规范</h2><p><code>JavaEE</code>规范是<code>J2EE</code>规范的新名称，早期被称为<code>J2EE</code>规范，其全称是<code>Java 2 Platform Enterprise Edition</code>，它是由SUN公司领导、各厂家共同制定并得到广泛认可的工业标准（<code>JCP</code>组织成员）。之所以改名为<code>JavaEE</code>，目的还是让大家清楚<code>J2EE</code>只是<code>Java</code>企业应用。在2004年底中国软件技术大会<code>Ioc</code>微容器(也就是<code>Jdon</code>框架的实现原理)演讲中指出：我们需要一个跨<code>J2SE/WEB/EJB</code>的微容器，保护我们的业务核心组件，以延续它的生命力，而不是依赖<code>J2SE/J2EE</code>版本.此次<code>J2EE</code>改名为<code>Java EE</code>，实际也反映出业界这种共同心声。</p>
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/Tomcat-Http%E5%8D%8F%E8%AE%AE/">
+                                <span class="chip bg-color">Tomcat&amp;Http协议</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/java%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                java学习
+                            </a>
+                        
+                            <a href="/categories/java%E5%AD%A6%E4%B9%A0/Tomcat-Http%E5%8D%8F%E8%AE%AE/" class="post-category">
+                                Tomcat&Http协议
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2021-12-08
+                </div>
+                
+
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
+                    2021-12-09
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    5.6k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    21 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="Tomcat-amp-Http协议"><a href="#Tomcat-amp-Http协议" class="headerlink" title="Tomcat&amp;Http协议"></a>Tomcat&amp;Http协议</h1><h1 id="1-企业开发简介"><a href="#1-企业开发简介" class="headerlink" title="1 企业开发简介"></a>1 企业开发简介</h1><h2 id="1-1-JavaEE规范"><a href="#1-1-JavaEE规范" class="headerlink" title="1.1 JavaEE规范"></a>1.1 JavaEE规范</h2><p><code>JavaEE</code>规范是<code>J2EE</code>规范的新名称，早期被称为<code>J2EE</code>规范，其全称是<code>Java 2 Platform Enterprise Edition</code>，它是由SUN公司领导、各厂家共同制定并得到广泛认可的工业标准（<code>JCP</code>组织成员）。之所以改名为<code>JavaEE</code>，目的还是让大家清楚<code>J2EE</code>只是<code>Java</code>企业应用。在2004年底中国软件技术大会<code>Ioc</code>微容器(也就是<code>Jdon</code>框架的实现原理)演讲中指出：我们需要一个跨<code>J2SE/WEB/EJB</code>的微容器，保护我们的业务核心组件，以延续它的生命力，而不是依赖<code>J2SE/J2EE</code>版本.此次<code>J2EE</code>改名为<code>Java EE</code>，实际也反映出业界这种共同心声。</p>
 <p><code>JavaEE</code>规范是很多<code>Java</code>开发技术的总称。这些技术规范都是沿用自<code>J2EE</code>的。一共包括了13个技术规范。例如：<code>jsp/servlet</code>，<code>jndi</code>，<code>jaxp</code>，<code>jdbc</code>，<code>jni</code>，<code>jaxb</code>，<code>jmf</code>，<code>jta</code>，<code>jpa</code>，<code>EJB</code>等。</p>
 <p>其中，<code>JCP</code>组织的全称是<code>Java Community Process</code>。它是一个开放的国际组织，主要由<code>Java</code>开发者以及被授权者组成，职能是发展和更新。成立于1998年。官网是：<a target="_blank" rel="noopener" href="https://jcp.org/en/home/index">JCP</a></p>
 <p><code>JavaEE</code>的版本是延续了<code>J2EE</code>的版本，但是没有继续采用其命名规则。<code>J2EE</code>的版本从1.0开始到1.4结束，而<code>JavaEE</code>版本是从<code>JavaEE 5</code>版本开始，目前最新的的版本是<code>JavaEE 8</code>。</p>
 <p>详情请参考：<a target="_blank" rel="noopener" href="https://www.oracle.com/technetwork/cn/java/javaee/overview/index.html">JavaEE8规范概览</a></p>
-<h2 id="1-2-Web概述"><a href="#1-2-Web概述" class="headerlink" title="1.2 Web概述"></a>1.2 Web概述</h2><p>Web在英文中的含义是网状物，网络。在计算机领域，它通常指的是后者，即<b>网络</b>。像我们前面接触的<code>WWW</code>，它是由3个单词组成的，即：<code>World Wide Web </code>，中文含义是<b>万维网</b>。而我们前面学的<code>HTML</code>，<code>CSS</code>和<code>JS</code>的参考文档《<code>W3School</code>全套教程》中的<code>W3C</code>就是万维网联盟。他们的出现都是为了让我们在网络的世界中获取资源，这些资源的存放之处，我们称之为<b><font color='red'>网站</font></b>。我们通过输入网站的地址（即：网址），就可以访问网站中提供的资源。在网上我们能访问到的内容全是资源（不区分局域网还是广域网）。只不过，不同类型的资源展示的效果不一样。</p>
+<h2 id="1-2-Web概述"><a href="#1-2-Web概述" class="headerlink" title="1.2 Web概述"></a>1.2 Web概述</h2><p>Web在英文中的含义是网状物，网络。在计算机领域，它通常指的是后者，即<b>网络</b>。像我们前面接触的<code>WWW</code>，它是由3个单词组成的，即：<code>World Wide Web </code>，中文含义是<b>万维网</b>。而我们前面学的<code>HTML</code>，<code>CSS</code>和<code>JS</code>的参考文档《<code>W3School</code>全套教程》中的<code>W3C</code>就是万维网联盟。他们的出现都是为了让我们在网络的世界中获取资源，这些资源的存放之处，我们称之为<b><font color="red">网站</font></b>。我们通过输入网站的地址（即：网址），就可以访问网站中提供的资源。在网上我们能访问到的内容全是资源（不区分局域网还是广域网）。只不过，不同类型的资源展示的效果不一样。</p>
 <p>首先，我们先来介绍资源的分类，它分为静态资源和动态资源。其中：</p>
 <p>静态资源指的是，网站中提供给人们展示的资源是一成不变的，也就是说不同人或者在不同时间，看到的内容都是一样的。例如：我们看到的新闻，网站的使用手册，网站功能说明文档等等。而作为开发者，我们编写的<code>html</code>,<code>css</code>,<code>js</code>,图片，多媒体等等都可以称为静态资源。</p>
 <p>动态资源它指的是，网站中提供给人们展示的资源是由程序产生的，在不同的时间或者用不同的人员由于身份的不同，所看到的内容是不一样的。例如：我们在12306上购买火车票，火车票的余票数由于时间的变化，会逐渐的减少，直到最后没有余票。还有，我们在<code>CSDN</code>上下载资料，只有登录成功后，且积分足够时才能下载。否则就不能下载，这就是访客身份和会员身份的区别。作为开发人员，我们编写的<code>JSP</code>，<code>servlet</code>，<code>php</code>，<code>ASP</code>等都是动态资源。</p>
@@ -179,7 +554,7 @@
 <p>1 C/S：是能充分发挥客户端PC的处理能力，很多工作可以在客户端处理后再提交给服务器。对应的优点就是客户端响应速度快。</p>
 <p>2 B/S：总体拥有成本低、维护方便、 分布性强、开发简单，可以不用安装任何专门的软件就能 实现在任何地方进行操作，客户端零维护，系统的扩展非常容易，只要有一台能上网的电脑就能使用。</p>
 <p><strong>关于课程中结构的选择</strong></p>
-<p><b><font color='red'>我们的课程中涉及的系统结构都是是基于B/S结构。</font></b></p>
+<p><b><font color="red">我们的课程中涉及的系统结构都是是基于B/S结构。</font></b></p>
 <h1 id="2-Tomcat"><a href="#2-Tomcat" class="headerlink" title="2 Tomcat"></a>2 Tomcat</h1><h2 id="2-1-Tomcat介绍"><a href="#2-1-Tomcat介绍" class="headerlink" title="2.1 Tomcat介绍"></a>2.1 Tomcat介绍</h2><h3 id="2-1-1-关于服务器"><a href="#2-1-1-关于服务器" class="headerlink" title="2.1.1 关于服务器"></a>2.1.1 关于服务器</h3><p>服务器的概念非常的广泛，它可以指代一台特殊的计算机（相比普通计算机运行更快、负载更高、价格更贵），也可以指代用于部署网站的应用。我们这里说的服务器，其实是web服务器，或者应用服务器。它本质就是一个软件，一个应用。作用就是发布我们的应用（工程），让用户可以通过浏览器访问我们的应用。</p>
 <p>常见的应用服务器，请看下表：</p>
 <table>
@@ -245,28 +620,54 @@
 <p><strong>第二步：上传到linux</strong></p>
 <p>在crt上 使用 alt+p<br>将windows上的软件拖进去即可(root目录)</p>
 <p><strong>第三步：在 /usr/local 新建一个文件夹tomcat</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir /usr/local/tomcat</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">mkdir /usr/local/tomcat<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><strong>第四步：移动 tomcat…tar.gz 到 /usr/local/tomcat</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mv apache-tomcat-8.5.32.tar.gz /usr/local/tomcat/</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">mv apache-tomcat-8.5.32.tar.gz /usr/local/tomcat/<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><strong>第五步：进入/usr/local/tomcat目录,解压Tomcat</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd /usr/local/tomcat</span><br><span class="line">tar -xvf apache-tomcat-8.5.32.tar.gz</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">cd /usr/local/tomcat
+tar -xvf apache-tomcat-8.5.32.tar.gz<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p><strong>第六步：进入 /usr/local/tomcat/apache-tomcat-8.5.32/bin</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd /usr/local/tomcat/apache-tomcat-8.5.32/bin</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">cd /usr/local/tomcat/apache-tomcat-8.5.32/bin<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><strong>第七步：启动tomcat</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">方式1:</span><br><span class="line">	sh startup.sh</span><br><span class="line">方式2:</span><br><span class="line">	./startup.sh</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">方式1:
+	sh startup.sh
+方式2:
+	./startup.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>**第八步：修改防火墙的规则 **</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">方式1:service iptables stop  关闭防火墙(不建议); 用到哪一个端口号就放行哪一个(80,8080,3306...)</span><br><span class="line"></span><br><span class="line">方式2:放行8080 端口</span><br><span class="line">	修改配置文件</span><br><span class="line">		cd /etc/sysconfig</span><br><span class="line">		vi iptables</span><br><span class="line">			复制(yy , p)	</span><br><span class="line">				-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT</span><br><span class="line">			改成</span><br><span class="line">				-A INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT</span><br><span class="line">		重启加载防火墙或者重启防火墙</span><br><span class="line">			service iptables reload  </span><br><span class="line">			或者</span><br><span class="line">			service iptables restart</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">方式1:service iptables stop  关闭防火墙(不建议); 用到哪一个端口号就放行哪一个(80,8080,3306...)
+
+方式2:放行8080 端口
+	修改配置文件
+		cd /etc/sysconfig
+		vi iptables
+			复制(yy , p)	
+				-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+			改成
+				-A INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT
+		重启加载防火墙或者重启防火墙
+			service iptables reload  
+			或者
+			service iptables restart<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="2-3-Tomcat发布应用-JavaWeb应用"><a href="#2-3-Tomcat发布应用-JavaWeb应用" class="headerlink" title="2.3 Tomcat发布应用-JavaWeb应用"></a>2.3 Tomcat发布应用-JavaWeb应用</h2><h3 id="2-3-1-JavaWeb工程概述"><a href="#2-3-1-JavaWeb工程概述" class="headerlink" title="2.3.1 JavaWeb工程概述"></a>2.3.1 JavaWeb工程概述</h3><p><code>JavaWeb</code>应用是一个全新的应用种类。这类应用程序指供浏览器访问的程序，通常也简称为web应用。</p>
 <p>一个web应用由多个静态web资源和动态web资源组成，例如：html、css、js文件，jsp文件、java程序、支持jar包、工程配置文件、图片、音视频等等。</p>
 <p>Web应用开发好后，若想供外界访问，需要把web应用所在目录交给Web服务器管理（Tomcat就是Web服务器之一），这个过程称之为虚似目录的映射。</p>
 <h3 id="2-3-2-JavaWeb应用目录结构详解"><a href="#2-3-2-JavaWeb应用目录结构详解" class="headerlink" title="2.3.2 JavaWeb应用目录结构详解"></a>2.3.2 JavaWeb应用目录结构详解</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192157.png" alt="1574768644245"></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">myapp--------------应用名称</span><br><span class="line">    1.html</span><br><span class="line">    css/css.css</span><br><span class="line">    js/demo.js</span><br><span class="line">	WEB-INF--------如果有web.xml或者.class文件时，该目录必须存在，且严格区分大小写。</span><br><span class="line">		   --------该目录下的资源，客户端是无法直接访问的。</span><br><span class="line">           --------目录中内容如下：</span><br><span class="line">        classes目录----------------web应用的class文件（加载顺序：我们的class，lib目录中的jar包，tomcat的lib目录中的jar包。优先级依次降低）</span><br><span class="line">        lib目录--------------------web应用所需的jar包（tomcat的lib目录下jar为所有应用共享）</span><br><span class="line">        web.xml-------------------web应用的主配置文件</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">myapp--------------应用名称
+    1.html
+    css/css.css
+    js/demo.js
+	WEB-INF--------如果有web.xml或者.class文件时，该目录必须存在，且严格区分大小写。
+		   --------该目录下的资源，客户端是无法直接访问的。
+           --------目录中内容如下：
+        classes目录----------------web应用的class文件（加载顺序：我们的class，lib目录中的jar包，tomcat的lib目录中的jar包。优先级依次降低）
+        lib目录--------------------web应用所需的jar包（tomcat的lib目录下jar为所有应用共享）
+        web.xml-------------------web应用的主配置文件<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h3 id="2-3-3-JavaWeb应用的创建"><a href="#2-3-3-JavaWeb应用的创建" class="headerlink" title="2.3.3 JavaWeb应用的创建"></a>2.3.3 JavaWeb应用的创建</h3><p><strong>第一步</strong></p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192158.png" alt="IDEA创建Javaweb工程"></p>
@@ -282,7 +683,7 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192203.png" alt="IDEA发布工程2"></p>
 <p><strong>第三步</strong></p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192204.png" alt="IDEA发布工程3-启动服务"></p>
-<h4 id="2）war包发布"><a href="#2）war包发布" class="headerlink" title="2）war包发布"></a>2）war包发布</h4><p><strong>第一步：使用<b><code>jar -cvf war</code> <font color='blue'>包的名称</font>  <font color='purple'>当前目录中哪些资源要打入war</font></b></strong></p>
+<h4 id="2）war包发布"><a href="#2）war包发布" class="headerlink" title="2）war包发布"></a>2）war包发布</h4><p><strong>第一步：使用<b><code>jar -cvf war</code>&nbsp;<font color="blue">包的名称</font>&nbsp; <font color="purple">当前目录中哪些资源要打入war</font></b></strong></p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192205.png" alt="jar命令"></p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192206.png" alt="war包"></p>
 <p><strong>第二步：把打好的war拷贝到tomcat的webapps目录中</strong></p>
@@ -290,15 +691,17 @@
 <p><strong>第三步：启动服务时，tomcat会自动解压。</strong></p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192208.png" alt="启动Tomcat自动解压war包"></p>
 <h3 id="2-4-1-Tomcat配置虚拟目录"><a href="#2-4-1-Tomcat配置虚拟目录" class="headerlink" title="2.4.1 Tomcat配置虚拟目录"></a>2.4.1 Tomcat配置虚拟目录</h3><p>虚拟目录的配置，支持两种方式。第一种是通过在主配置文件中添加标签实现。第二种是通过写一个独立配置文件实现。</p>
-<p>第一种方式：在<code>server.xml</code>的<code>&lt;Host&gt;</code>元素中加一个<code>&lt;Context path=&quot;&quot; docBase=&quot;&quot;/&gt;</code>元素。<br>​                     <code>path</code>：访问资源URI。URI名称可以随便起，但是必须在前面加上一个/<br>​                    <code>docBase</code>：资源所在的磁盘物理地址。<br>第二种方式：是写一个独立的<code>xml</code>文件，该文件名可以随便起。在文件内写一个<code>&lt;Context/&gt;</code>元素。<br>​                    该文件要放在Tomcat目录中的<code>conf\Catalina\localhost\</code>目录下。<br>需要注意的是，在使用了独立的配置文件之后，访问资源URI就变成了<b><font color='red'>/+文件的名称</font></b>。而<code>Context</code>的<code>path</code>属性就失效了。</p>
-<h3 id="2-4-2-Tomcat配置虚拟主机"><a href="#2-4-2-Tomcat配置虚拟主机" class="headerlink" title="2.4.2 Tomcat配置虚拟主机"></a>2.4.2 Tomcat配置虚拟主机</h3><p>在<code>&lt;Engine&gt;</code>元素中添加一个<code>&lt;Host name=&quot;&quot; appBase=&quot;&quot; unparkWARs=&quot;&quot; autoDeploy=&quot;&quot; /&gt;</code>，其中：<br>​        <code>name</code>：指定主机的名称<br>​        <code>appBase</code>：当前主机的应用发布目录<br>​        <code>unparkWARs</code>：启动时是否自动解压war包<br>​        <code>autoDeploy</code>：是否自动发布</p>
+<p>第一种方式：在<code>server.xml</code>的<code>&lt;Host&gt;</code>元素中加一个<code>&lt;Context path="" docBase=""/&gt;</code>元素。<br>​                     <code>path</code>：访问资源URI。URI名称可以随便起，但是必须在前面加上一个/<br>​                    <code>docBase</code>：资源所在的磁盘物理地址。<br>第二种方式：是写一个独立的<code>xml</code>文件，该文件名可以随便起。在文件内写一个<code>&lt;Context/&gt;</code>元素。<br>​                    该文件要放在Tomcat目录中的<code>conf\Catalina\localhost\</code>目录下。<br>需要注意的是，在使用了独立的配置文件之后，访问资源URI就变成了<b><font color="red">/+文件的名称</font></b>。而<code>Context</code>的<code>path</code>属性就失效了。</p>
+<h3 id="2-4-2-Tomcat配置虚拟主机"><a href="#2-4-2-Tomcat配置虚拟主机" class="headerlink" title="2.4.2 Tomcat配置虚拟主机"></a>2.4.2 Tomcat配置虚拟主机</h3><p>在<code>&lt;Engine&gt;</code>元素中添加一个<code>&lt;Host name="" appBase="" unparkWARs="" autoDeploy="" /&gt;</code>，其中：<br>​        <code>name</code>：指定主机的名称<br>​        <code>appBase</code>：当前主机的应用发布目录<br>​        <code>unparkWARs</code>：启动时是否自动解压war包<br>​        <code>autoDeploy</code>：是否自动发布</p>
 <p>配置示例如下：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Host</span> <span class="attr">name</span>=<span class="string">&quot;www.itcast.cn&quot;</span> <span class="attr">appBase</span>=<span class="string">&quot;D:\itcastapps&quot;</span> <span class="attr">unpackWARs</span>=<span class="string">&quot;true&quot;</span> <span class="attr">autoDeploy</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">Host</span> <span class="attr">name</span>=<span class="string">&quot;www.itheima.com&quot;</span> <span class="attr">appBase</span>=<span class="string">&quot;D:\itheimaapps&quot;</span> <span class="attr">unpackWARs</span>=<span class="string">&quot;true&quot;</span> <span class="attr">autoDeploy</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-xml" data-language="xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Host</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>www.itcast.cn<span class="token punctuation">"</span></span> <span class="token attr-name">appBase</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>D:\itcastapps<span class="token punctuation">"</span></span> <span class="token attr-name">unpackWARs</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span> <span class="token attr-name">autoDeploy</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Host</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>www.itheima.com<span class="token punctuation">"</span></span> <span class="token attr-name">appBase</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>D:\itheimaapps<span class="token punctuation">"</span></span> <span class="token attr-name">unpackWARs</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span> <span class="token attr-name">autoDeploy</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>true<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <h3 id="2-4-3-Tomcat默认项配置"><a href="#2-4-3-Tomcat默认项配置" class="headerlink" title="2.4.3 Tomcat默认项配置"></a>2.4.3 Tomcat默认项配置</h3><p><strong>配置默认端口</strong></p>
-<p>Tomcat服务器主配置文件中配置着访问端口，它在配置文件中写的值是：8080。但是它不是Tomcat的默认端口。我们此处说的默认端口是，当使用默认值的时候，端口号可以省略。Tomcat的默认端口是<b><font color='red'>80</font></b>。</p>
+<p>Tomcat服务器主配置文件中配置着访问端口，它在配置文件中写的值是：8080。但是它不是Tomcat的默认端口。我们此处说的默认端口是，当使用默认值的时候，端口号可以省略。Tomcat的默认端口是<b><font color="red">80</font></b>。</p>
 <p>配置方式如下：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Connector</span> <span class="attr">port</span>=<span class="string">&quot;80&quot;</span> <span class="attr">protocol</span>=<span class="string">&quot;HTTP/1.1&quot;</span> <span class="attr">connectionTimeout</span>=<span class="string">&quot;20000&quot;</span> <span class="attr">redirectPort</span>=<span class="string">&quot;8443&quot;</span> /&gt;</span>		</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-xml" data-language="xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Connector</span> <span class="token attr-name">port</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>80<span class="token punctuation">"</span></span> <span class="token attr-name">protocol</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>HTTP/1.1<span class="token punctuation">"</span></span> <span class="token attr-name">connectionTimeout</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>20000<span class="token punctuation">"</span></span> <span class="token attr-name">redirectPort</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>8443<span class="token punctuation">"</span></span> <span class="token punctuation">/&gt;</span></span>		<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><strong>配置默认应用</strong></p>
 <p>有两种方式配置默认应用。<br>第一种：把要作为默认应用的应用，名称改为<code>ROOT</code>。放到<code>webapps</code>目录中。</p>
@@ -307,10 +710,16 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192210.png" alt="默认应用2"></p>
 <p><strong>配置默认主页</strong></p>
 <p>首先要明确的是，配置默认主页是针对应用说的。是应用的默认主页。<br>在应用的web.xml中配置：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">welcome-file-list</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">welcome-file</span>&gt;</span>默认主页<span class="tag">&lt;/<span class="name">welcome-file</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">welcome-file-list</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-xml" data-language="xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>welcome-file-list</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>welcome-file</span><span class="token punctuation">&gt;</span></span>默认主页<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>welcome-file</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>welcome-file-list</span><span class="token punctuation">&gt;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <p>例如：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">welcome-file-list</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">welcome-file</span>&gt;</span>index.html<span class="tag">&lt;/<span class="name">welcome-file</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">welcome-file</span>&gt;</span>index.htm<span class="tag">&lt;/<span class="name">welcome-file</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">welcome-file</span>&gt;</span>index.jsp<span class="tag">&lt;/<span class="name">welcome-file</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">welcome-file-list</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-xml" data-language="xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>welcome-file-list</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>welcome-file</span><span class="token punctuation">&gt;</span></span>index.html<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>welcome-file</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>welcome-file</span><span class="token punctuation">&gt;</span></span>index.htm<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>welcome-file</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>welcome-file</span><span class="token punctuation">&gt;</span></span>index.jsp<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>welcome-file</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>welcome-file-list</span><span class="token punctuation">&gt;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h1 id="3-HTTP协议"><a href="#3-HTTP协议" class="headerlink" title="3 HTTP协议"></a>3 HTTP协议</h1><h2 id="3-1-HTTP协议概述"><a href="#3-1-HTTP协议概述" class="headerlink" title="3.1 HTTP协议概述"></a>3.1 HTTP协议概述</h2><h3 id="3-1-1-HTTP协议概念"><a href="#3-1-1-HTTP协议概念" class="headerlink" title="3.1.1 HTTP协议概念"></a>3.1.1 HTTP协议概念</h3><p>HTTP的全称是：Hyper Text Transfer Protocol，意为 超文本传输协议。它指的是服务器和客户端之间交互必须遵循的一问一答的规则。形容这个规则：问答机制、握手机制。</p>
 <p>它规范了请求和响应内容的类型和格式。</p>
@@ -364,7 +773,7 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192211.jpg" alt="请求部分"></p>
 <h3 id="3-2-2-响应部分"><a href="#3-2-2-响应部分" class="headerlink" title="3.2.2 响应部分"></a>3.2.2 响应部分</h3><p>响应行： 永远位于响应的第一行<br>响应消息头： 从第二行开始，到第一个空行结束<br>响应的正文： 从第一个空行后开始，到正文的结束</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192212.jpg" alt="响应部分"></p>
-<h3 id="3-3-3-消息头的共性分析"><a href="#3-3-3-消息头的共性分析" class="headerlink" title="3.3.3 消息头的共性分析"></a>3.3.3 消息头的共性分析</h3><p>消息头名称首字母大写，多个单词每个单词的首字母都大写。<br>多个单词用<b><font color='red'>-</font></b>分隔<br>名称和值之间用<b><font color='red'>冒号加空格</font></b>分隔<br>多个值之间用<b><font color='red'>逗号加空格</font></b>分隔<br>两个头之间用<b><font color='red'>回车</font></b>分隔</p>
+<h3 id="3-3-3-消息头的共性分析"><a href="#3-3-3-消息头的共性分析" class="headerlink" title="3.3.3 消息头的共性分析"></a>3.3.3 消息头的共性分析</h3><p>消息头名称首字母大写，多个单词每个单词的首字母都大写。<br>多个单词用<b><font color="red">-</font></b>分隔<br>名称和值之间用<b><font color="red">冒号加空格</font></b>分隔<br>多个值之间用<b><font color="red">逗号加空格</font></b>分隔<br>两个头之间用<b><font color="red">回车</font></b>分隔</p>
 <h2 id="3-3-请求部分详解"><a href="#3-3-请求部分详解" class="headerlink" title="3.3 请求部分详解"></a>3.3 请求部分详解</h2><h3 id="3-3-1-请求行详解"><a href="#3-3-1-请求行详解" class="headerlink" title="3.3.1 请求行详解"></a>3.3.1 请求行详解</h3><p>请求行：<code>GET /myapp/2.html HTTP/1.1</code></p>
 <table>
 <thead>
@@ -407,7 +816,7 @@
 </tr>
 <tr>
 <td>Referer</td>
-<td>告知服务器，当前请求的来源。<br/>只有当前请求有来源的时候，才有这个消息头。从地址栏输入的没有来源。<br/>作用：1 投放广告  2 防盗链</td>
+<td>告知服务器，当前请求的来源。<br>只有当前请求有来源的时候，才有这个消息头。从地址栏输入的没有来源。<br>作用：1 投放广告  2 防盗链</td>
 </tr>
 <tr>
 <td>Content-Type</td>
@@ -451,7 +860,7 @@
 <tr>
 <td>multipart/form-data</td>
 <td>此时变成了多部分表单数据。多部分是靠分隔符分隔的。</td>
-<td>—————————–7df23a16c0210<br/>Content-Disposition: form-data; name=”username”<br/><br/>test<br/>—————————–7df23a16c0210<br/>Content-Disposition: form-data; name=”password”<br/><br/>1234<br/>—————————–7df23a16c0210<br/>Content-Disposition: form-data; name=”headfile”; filename=”C:\Users\zhy\Desktop\请求部分.jpg”<br/>Content-Type: image/pjpeg<br/>—————————–7df23a16c0210</td>
+<td>—————————–7df23a16c0210<br>Content-Disposition: form-data; name=”username”<br><br>test<br>—————————–7df23a16c0210<br>Content-Disposition: form-data; name=”password”<br><br>1234<br>—————————–7df23a16c0210<br>Content-Disposition: form-data; name=”headfile”; filename=”C:\Users\zhy\Desktop\请求部分.jpg”<br>Content-Type: image/pjpeg<br>—————————–7df23a16c0210</td>
 </tr>
 </tbody></table>
 <h2 id="3-4-响应部分详解"><a href="#3-4-响应部分详解" class="headerlink" title="3.4 响应部分详解"></a>3.4 响应部分详解</h2><h3 id="3-4-1-响应行详解"><a href="#3-4-1-响应行详解" class="headerlink" title="3.4.1 响应行详解"></a>3.4.1 响应行详解</h3><p>响应行：<code>HTTP/1.1 200 OK</code></p>
@@ -565,7 +974,15 @@
 </tr>
 </tbody></table>
 <h3 id="3-4-3-响应正文详解"><a href="#3-4-3-响应正文详解" class="headerlink" title="3.4.3 响应正文详解"></a>3.4.3 响应正文详解</h3><p>就和我们在浏览器上右键查看源文件看到的内容是一样的。</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">href</span>=<span class="string">&quot;css.css&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text/css&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span> <span class="attr">src</span>=<span class="string">&quot;demo.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;1.jpg&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-html" data-language="html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>link</span> <span class="token attr-name">rel</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>stylesheet<span class="token punctuation">"</span></span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>css.css<span class="token punctuation">"</span></span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>text/css<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>text/javascript<span class="token punctuation">"</span></span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>demo.js<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>img</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>1.jpg<span class="token punctuation">"</span></span> <span class="token punctuation">/&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">&gt;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h1 id="4-综合案例-Tomcat的具体应用"><a href="#4-综合案例-Tomcat的具体应用" class="headerlink" title="4 综合案例-Tomcat的具体应用"></a>4 综合案例-Tomcat的具体应用</h1><h2 id="4-1-静态资源案例-门户类网站的部署和访问"><a href="#4-1-静态资源案例-门户类网站的部署和访问" class="headerlink" title="4.1 静态资源案例-门户类网站的部署和访问"></a>4.1 静态资源案例-门户类网站的部署和访问</h2><h3 id="4-1-1-案例介绍"><a href="#4-1-1-案例介绍" class="headerlink" title="4.1.1 案例介绍"></a>4.1.1 案例介绍</h3><p><strong>需求：</strong></p>
 <p>​        在浏览器中输入地址，访问静态HTML页面。</p>
@@ -608,77 +1025,1129 @@
 <p><strong>第四步：启动tomcat服务器测试</strong></p>
 <p>在地址栏输入：<a target="_blank" rel="noopener" href="http://localhost:8585/crm/studentServlet">http://localhost:8585/crm/studentServlet</a> 测试访问结果 </p>
 <h4 id="3）测试访问"><a href="#3）测试访问" class="headerlink" title="3）测试访问"></a>3）测试访问</h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211208192229.png" alt="测试访问结果"></p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/6b59fdbc.html">http://www.lvxueyang.vip/post/6b59fdbc.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Tomcat-Http%E5%8D%8F%E8%AE%AE/">Tomcat&amp;Http协议</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/6c92115f.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Spring</div></div></a></div><div class="next-post pull-right"><a href="/post/9559cc75.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">XML和Dom4j、正则表达式</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Tomcat-amp-Http%E5%8D%8F%E8%AE%AE"><span class="toc-text">Tomcat&amp;Http协议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%BC%81%E4%B8%9A%E5%BC%80%E5%8F%91%E7%AE%80%E4%BB%8B"><span class="toc-text">1 企业开发简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-JavaEE%E8%A7%84%E8%8C%83"><span class="toc-text">1.1 JavaEE规范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-Web%E6%A6%82%E8%BF%B0"><span class="toc-text">1.2 Web概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84"><span class="toc-text">1.3 系统结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-1-%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84%E7%AE%80%E4%BB%8B"><span class="toc-text">1.3.1 系统结构简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-2-C-S%E7%BB%93%E6%9E%84"><span class="toc-text">1.3.2 C&#x2F;S结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-3-B-S%E7%BB%93%E6%9E%84"><span class="toc-text">1.3.3 B&#x2F;S结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-4-%E4%B8%A4%E7%A7%8D%E7%BB%93%E6%9E%84%E7%9A%84%E5%8C%BA%E5%88%AB%E5%8F%8A%E4%BC%98%E7%95%A5"><span class="toc-text">1.3.4 两种结构的区别及优略</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Tomcat"><span class="toc-text">2 Tomcat</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-Tomcat%E4%BB%8B%E7%BB%8D"><span class="toc-text">2.1 Tomcat介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-1-%E5%85%B3%E4%BA%8E%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-text">2.1.1 关于服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-2-Tomcat%E4%B8%8B%E8%BD%BD%E4%B8%8E%E5%AE%89%E8%A3%85"><span class="toc-text">2.1.2 Tomcat下载与安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-3-Tomcat%E5%90%84%E7%89%88%E6%9C%AC%E6%89%80%E9%9C%80%E6%94%AF%E6%8C%81"><span class="toc-text">2.1.3 Tomcat各版本所需支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-4-Tomcat%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E8%AF%A6%E8%A7%A3"><span class="toc-text">2.1.4 Tomcat目录结构详解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-Tomcat%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-text">2.2 Tomcat基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-1-Tomcat%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2%E5%8F%8A%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E8%A7%A3%E5%86%B3"><span class="toc-text">2.2.1 Tomcat启动和停止及问题分析解决</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%EF%BC%89%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2"><span class="toc-text">1）启动和停止</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%EF%BC%89%E5%90%AF%E5%8A%A8%E9%97%AE%E9%A2%98"><span class="toc-text">2）启动问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-2-IDEA%E9%9B%86%E6%88%90Tomcat%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-text">2.2.2 IDEA集成Tomcat服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-3-Linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85Tomcat"><span class="toc-text">2.2.3 Linux系统安装Tomcat</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-Tomcat%E5%8F%91%E5%B8%83%E5%BA%94%E7%94%A8-JavaWeb%E5%BA%94%E7%94%A8"><span class="toc-text">2.3 Tomcat发布应用-JavaWeb应用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1-JavaWeb%E5%B7%A5%E7%A8%8B%E6%A6%82%E8%BF%B0"><span class="toc-text">2.3.1 JavaWeb工程概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2-JavaWeb%E5%BA%94%E7%94%A8%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E8%AF%A6%E8%A7%A3"><span class="toc-text">2.3.2 JavaWeb应用目录结构详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-3-JavaWeb%E5%BA%94%E7%94%A8%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="toc-text">2.3.3 JavaWeb应用的创建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-4-JavaWeb%E5%BA%94%E7%94%A8%E7%9A%84%E9%83%A8%E7%BD%B2"><span class="toc-text">2.3.4 JavaWeb应用的部署</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%EF%BC%89IDEA%E9%83%A8%E7%BD%B2"><span class="toc-text">1）IDEA部署</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%EF%BC%89war%E5%8C%85%E5%8F%91%E5%B8%83"><span class="toc-text">2）war包发布</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-1-Tomcat%E9%85%8D%E7%BD%AE%E8%99%9A%E6%8B%9F%E7%9B%AE%E5%BD%95"><span class="toc-text">2.4.1 Tomcat配置虚拟目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-2-Tomcat%E9%85%8D%E7%BD%AE%E8%99%9A%E6%8B%9F%E4%B8%BB%E6%9C%BA"><span class="toc-text">2.4.2 Tomcat配置虚拟主机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-3-Tomcat%E9%BB%98%E8%AE%A4%E9%A1%B9%E9%85%8D%E7%BD%AE"><span class="toc-text">2.4.3 Tomcat默认项配置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-HTTP%E5%8D%8F%E8%AE%AE"><span class="toc-text">3 HTTP协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-HTTP%E5%8D%8F%E8%AE%AE%E6%A6%82%E8%BF%B0"><span class="toc-text">3.1 HTTP协议概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-1-HTTP%E5%8D%8F%E8%AE%AE%E6%A6%82%E5%BF%B5"><span class="toc-text">3.1.1 HTTP协议概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-2-HTTP%E5%8D%8F%E8%AE%AE%E7%89%88%E6%9C%AC"><span class="toc-text">3.1.2 HTTP协议版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-3-HTTP%E5%8D%8F%E8%AE%AE%E7%9B%B8%E5%85%B3%E8%AF%B4%E6%98%8E"><span class="toc-text">3.1.3 HTTP协议相关说明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-HTTP%E5%8D%8F%E8%AE%AE%E7%BB%84%E6%88%90"><span class="toc-text">3.2 HTTP协议组成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-1%E8%AF%B7%E6%B1%82%E9%83%A8%E5%88%86"><span class="toc-text">3.2.1请求部分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-2-%E5%93%8D%E5%BA%94%E9%83%A8%E5%88%86"><span class="toc-text">3.2.2 响应部分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-3-%E6%B6%88%E6%81%AF%E5%A4%B4%E7%9A%84%E5%85%B1%E6%80%A7%E5%88%86%E6%9E%90"><span class="toc-text">3.3.3 消息头的共性分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E8%AF%B7%E6%B1%82%E9%83%A8%E5%88%86%E8%AF%A6%E8%A7%A3"><span class="toc-text">3.3 请求部分详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-1-%E8%AF%B7%E6%B1%82%E8%A1%8C%E8%AF%A6%E8%A7%A3"><span class="toc-text">3.3.1 请求行详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-2-%E8%AF%B7%E6%B1%82%E6%B6%88%E6%81%AF%E5%A4%B4%E8%AF%A6%E8%A7%A3"><span class="toc-text">3.3.2 请求消息头详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-3-%E8%AF%B7%E6%B1%82%E6%AD%A3%E6%96%87%E8%AF%A6%E8%A7%A3"><span class="toc-text">3.3.3 请求正文详解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E5%93%8D%E5%BA%94%E9%83%A8%E5%88%86%E8%AF%A6%E8%A7%A3"><span class="toc-text">3.4 响应部分详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-1-%E5%93%8D%E5%BA%94%E8%A1%8C%E8%AF%A6%E8%A7%A3"><span class="toc-text">3.4.1 响应行详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-2-%E5%93%8D%E5%BA%94%E6%B6%88%E6%81%AF%E5%A4%B4%E8%AF%A6%E8%A7%A3"><span class="toc-text">3.4.2 响应消息头详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-3-%E5%93%8D%E5%BA%94%E6%AD%A3%E6%96%87%E8%AF%A6%E8%A7%A3"><span class="toc-text">3.4.3 响应正文详解</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E7%BB%BC%E5%90%88%E6%A1%88%E4%BE%8B-Tomcat%E7%9A%84%E5%85%B7%E4%BD%93%E5%BA%94%E7%94%A8"><span class="toc-text">4 综合案例-Tomcat的具体应用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E6%A1%88%E4%BE%8B-%E9%97%A8%E6%88%B7%E7%B1%BB%E7%BD%91%E7%AB%99%E7%9A%84%E9%83%A8%E7%BD%B2%E5%92%8C%E8%AE%BF%E9%97%AE"><span class="toc-text">4.1 静态资源案例-门户类网站的部署和访问</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-1-%E6%A1%88%E4%BE%8B%E4%BB%8B%E7%BB%8D"><span class="toc-text">4.1.1 案例介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-2-%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="toc-text">4.1.2 实现步骤</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E5%8A%A8%E6%80%81%E8%B5%84%E6%BA%90%E7%9A%84%E6%A1%88%E4%BE%8B-%E5%AD%A6%E7%94%9F%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E7%9A%84%E9%83%A8%E7%BD%B2%E5%92%8C%E8%AE%BF%E9%97%AE"><span class="toc-text">4.2 动态资源的案例-学生管理系统的部署和访问</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-1-%E6%A1%88%E4%BE%8B%E4%BB%8B%E7%BB%8D"><span class="toc-text">4.2.1 案例介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-2-%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="toc-text">4.2.2 实现步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-2-%E5%88%9B%E5%BB%BA%E6%A1%88%E4%BE%8B%E4%B8%AD%E7%9A%84%E5%8A%A8%E6%80%81%E8%B5%84%E6%BA%90-Servlet"><span class="toc-text">4.3.2 创建案例中的动态资源-Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%EF%BC%89-Servlet%E7%AE%80%E4%BB%8B"><span class="toc-text">1） Servlet简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%EF%BC%89-%E6%8C%89%E6%AD%A5%E9%AA%A4%E7%BC%96%E5%86%99Servlet"><span class="toc-text">2） 按步骤编写Servlet</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%EF%BC%89%E6%B5%8B%E8%AF%95%E8%AE%BF%E9%97%AE"><span class="toc-text">3）测试访问</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
-  endLoading: () => {
-    document.body.style.overflow = 'auto';
-    document.getElementById('loading-box').classList.add("loaded")
-  },
-  initLoading: () => {
-    document.body.style.overflow = '';
-    document.getElementById('loading-box').classList.remove("loaded")
 
-  }
-}
-window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
-  const $countDom = document.getElementById('twikoo-count')
-  const init = () => {
-    twikoo.init(Object.assign({
-      el: '#twikoo-wrap',
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: ''
-    }, null))
-  }
+                
+            </div>
+            <hr/>
 
-  const getCount = () => {
-    twikoo.getCommentsCount({
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: '',
-      urls: [window.location.pathname],
-      includeReply: false
-    }).then(function (res) {
-      $countDom.innerText = res[0].count
-    }).catch(function (err) {
-      console.error(err);
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">YangShen</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://lvxueyang.vip/post/6b59fdbc.html">https://lvxueyang.vip/post/6b59fdbc.html</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">YangShen</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/Tomcat-Http%E5%8D%8F%E8%AE%AE/">
+                                    <span class="chip bg-color">Tomcat&amp;Http协议</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
     });
-  }
+</script>
 
-  const loadTwikoo = (bool = false) => {
-    if (typeof twikoo === 'object') {
-      init()
-      bool && $countDom && setTimeout(getCount,0)
-    } else {
-      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
-        init()
-        bool && $countDom && setTimeout(getCount,0)
-      })
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
     }
-  }
 
-  if ('Twikoo' === 'Twikoo' || !false) {
-    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
-    else loadTwikoo(true)
-  } else {
-    window.loadOtherComment = () => {
-      loadTwikoo()
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
     }
-  }
-})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
-  window.tidioChatApi.hide();
-  window.tidioChatApi.on("close", function() {
-    window.tidioChatApi.hide();
-  });
-}
-if (window.tidioChatApi) {
-  window.tidioChatApi.on("ready", onTidioChatApiReady);
-} else {
-  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
-}
 
-var chatBtnFn = () => {
-  document.getElementById("chat_btn").addEventListener("click", function(){
-    window.tidioChatApi.show();
-    window.tidioChatApi.open();
-  });
-}
-chatBtnFn()
-</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("/medias/comment_bg.png") 100% 100% no-repeat;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div id="vcomments" class="card-content" style="display: grid">
+    </div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'kkTHtgDEUlqRlsbgP6vMWDxa-gzGzoHsz',
+        appKey: 'EX0XjX0GwgIgm38pW1RuybHn',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go'
+    });
+</script>
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/post/6c92115f.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" class="responsive-img" alt="Spring">
+                        
+                        <span class="card-title">Spring</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2021-12-08
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/java%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                    java学习
+                                </a>
+                            
+                            <a href="/categories/java%E5%AD%A6%E4%B9%A0/Spring/" class="post-category">
+                                    Spring
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Spring/">
+                        <span class="chip bg-color">Spring</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/post/9559cc75.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082219.jpg" class="responsive-img" alt="XML和Dom4j、正则表达式">
+                        
+                        <span class="card-title">XML和Dom4j、正则表达式</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-12-08
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/java%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                    java学习
+                                </a>
+                            
+                            <a href="/categories/java%E5%AD%A6%E4%B9%A0/XML%E5%92%8CDom4j%E3%80%81%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="post-category">
+                                    XML和Dom4j、正则表达式
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/XML%E5%92%8CDom4j%E3%80%81%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">
+                        <span class="chip bg-color">XML和Dom4j、正则表达式</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: 牧马人的忧伤<br />'
+            + '文章作者: YangShen<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="330695641"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2018-2022</span>
+            
+            <span id="year">2018</span>
+            <a href="/about" target="_blank">YangShen</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">3956k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2018";
+                    var startMonth = "6";
+                    var startDate = "28";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/LVXUEYANGTiger" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1191432275@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1191432275" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1191432275" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    <script type="text/javascript">
+        window.onload = function(){
+            //屏蔽键盘事件
+            document.onkeydown = function (){
+                var e = window.event || arguments[0];
+                //F12
+                if(e.keyCode == 123){
+                    return false;
+                //Ctrl+Shift+I
+                }else if((e.ctrlKey) && (e.shiftKey) && (e.keyCode == 73)){
+                    return false;
+                //Shift+F10
+                }else if((e.shiftKey) && (e.keyCode == 121)){
+                    return false;
+                //Ctrl+U
+                }else if((e.ctrlKey) && (e.keyCode == 85)){
+                    return false;
+                }
+            };
+            //屏蔽鼠标右键
+            document.oncontextmenu = function (){
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

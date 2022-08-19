@@ -1,0 +1,2057 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="YARN应用开发与核心源码剖析, 牧马人的忧伤">
+    <meta name="description" content="主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>YARN应用开发与核心源码剖析 | 牧马人的忧伤</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.2">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span diyFont">牧马人的忧伤</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>找文章</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/categories">
+          
+          <i class="fas fa-bookmark" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>分类</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tags">
+          
+          <i class="fas fa-tags" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>标签</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/archives">
+          
+          <i class="fas fa-archive" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>归档</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>生活</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/timeline">
+          
+          <i class="fas fa-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>时间轴</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/contact">
+          
+          <i class="fas fa-music" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>留言板</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/friends">
+          
+          <i class="fas fa-address-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>友人帐</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于笔者</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">牧马人的忧伤</div>
+        <div class="logo-desc">
+            
+            主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			找文章
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/categories " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-bookmark" style="position: absolute;left:50px" ></i>
+			      
+		          <span>分类</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/tags " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-tags" style="position: absolute;left:50px" ></i>
+			      
+		          <span>标签</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/archives " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-archive" style="position: absolute;left:50px" ></i>
+			      
+		          <span>归档</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			生活
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/timeline " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>时间轴</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/contact " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-music" style="position: absolute;left:50px" ></i>
+			      
+		          <span>留言板</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/friends " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-address-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>友人帐</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于笔者
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
+        }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082041.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">YARN应用开发与核心源码剖析</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">
+                                <span class="chip bg-color">大数据</span>
+                            </a>
+                        
+                            <a href="/tags/Hadoop/">
+                                <span class="chip bg-color">Hadoop</span>
+                            </a>
+                        
+                            <a href="/tags/YARN/">
+                                <span class="chip bg-color">YARN</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/" class="post-category">
+                                Hadoop3.0从入门到源码
+                            </a>
+                        
+                            <a href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/YARN/" class="post-category">
+                                YARN
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-02-28
+                </div>
+                
+
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
+                    2022-06-13
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    4.8k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    17 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282045238.png" alt="image-20220228204507178"></p>
+<p>Apache Hadoop YARN （Yet Another Resource Negotiator，另一种资源协调者）是一种新的 Hadoop 资源管理器，它是一个通用资源管理系统和调度平台，可为上层应用提供统一的资源管理和调度，它的引入为集群在利用率、资源统一管理和数据共享等方面带来了巨大好处。</p>
+<p>YARN主要由ResourceManager和NodeManager组成，ResourceManager负责资源的管理与分配，NodeManager则负责具体资源的隔离。YARN中，资源使用container进行封装。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282045167.png" alt="image-20220228204538122"></p>
+<p>用户如何编写 YARN 应用并提交运行，整个开发流程是怎么样的，及源码跟踪MapReduce程序提交运行YARN集群。</p>
+<h2 id="YARN-应用开发流程"><a href="#YARN-应用开发流程" class="headerlink" title="YARN 应用开发流程"></a>YARN 应用开发流程</h2><p>YARN的应用开发主要过程如下：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282046524.png" alt="image-20220228204631481"></p>
+<p>用户在YARN上开发应用时，需要实现如下三个模块：</p>
+<ul>
+<li>模块一、Application Client：应用客户端用于将应用提交到YARN上，使应用运行在YARN上，同时，监控应用的运行状态，控制应用的运行；</li>
+<li>模块二、Application Master：AM负责整个应用的运行控制，包括向YARN注册应用、申请资源、启动容器等，应用的实际工作在容器中进行；</li>
+<li>模块三、Application Worker：应用的实际工作，并不是所有的应用都需要编写worker。NodeManager启动AM发送过来的容器，容器内部封装了该应用worker运行所需的资源和启动命令；</li>
+</ul>
+<p>实现上述模块，涉及如下3个RPC协议：</p>
+<ul>
+<li>ApplicationClientProtocol: Client-RM之间的协议，主要用于应用的提交；</li>
+<li>ApplicationMasterProtocol: AM-RM之间的协议，AM通过该协议向RM注册并申请资源；</li>
+<li>ContainerManagementProtocol: AM-NM之间的协议，AM通过该协议控制NM启动容器。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282047058.png" alt="image-20220228204702024"></p>
+<p>上述协议的定义在hadoop-yarn-api工程中，如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282047553.png" alt="image-20220228204709525"></p>
+<p>从业务的角度看，一个应用需要分两部分进行开发，<strong>一个是接入YARN平台，实现上述3个协议，通过YARN实现对集群资源的访问和利用</strong>；另一个是业务功能的实现，这个与YARN本身没有太大关系。下面主要阐述如何将一个应用接入YARN平台。</p>
+<h3 id="客户端开发"><a href="#客户端开发" class="headerlink" title="客户端开发"></a>客户端开发</h3><p>客户端的主要作用是提交(部署)应用和监控应用运行两个部分，开发流程如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282047449.png" alt="image-20220228204753408"></p>
+<p>从上图可以看出，客户端的主要作用是提交(部署)应用和监控应用运行两个部分。</p>
+<h4 id="提交应用"><a href="#提交应用" class="headerlink" title="提交应用"></a>提交应用</h4><p>提交应用涉及ApplicationClientProtocol协议中的两个方法：</p>
+<ul>
+<li>方法一：GetNewApplicationResponse getNewApplication(GetNewApplicationRequest request)<ul>
+<li>从RM上获取全局唯一的应用ID和最大可申请的资源量(内存和虚拟CPU核数)</li>
+</ul>
+</li>
+<li>方法二：SubmitApplicationResponse submitApplication(SubmitApplicationRequest request)<ul>
+<li>在获取应用程序ID后，客户端封装应用相关的配置到ApplicationSubmissionContext中，通过submitApplication方法提交到RM上</li>
+</ul>
+</li>
+</ul>
+<p>具体步骤如下：</p>
+<ul>
+<li>步骤1：Client通过RPC函数ApplicationClientProtocol#getNewApplication从ResourceManager中获取唯一的Application ID。</li>
+<li>步骤2：Client通过RPC函数ApplicationClientProtocol#submitApplication【所有信息都封装在这个参数里】将ApplicationMaster提交到ResourceManager上。</li>
+<li>步骤3：RM根据ApplicationSubmissionContext上封装的内容启动AM。</li>
+<li>步骤4：客户端通过AM或RM获取应用的运行状态，并控制应用的运行过程。</li>
+</ul>
+<h4 id="监控应用运行状态"><a href="#监控应用运行状态" class="headerlink" title="监控应用运行状态"></a>监控应用运行状态</h4><p>应用监控涉及ApplicationClientProtocol协议中的如下几个方法：</p>
+<ul>
+<li>强制杀死一个应用<ul>
+<li>KillApplicationResponse forceKillApplication(KillApplicationRequest request)</li>
+</ul>
+</li>
+<li>获取应用状态，如进度等<ul>
+<li>GetApplicationReportResponse getApplicationReport(GetApplicationReportRequest request)</li>
+</ul>
+</li>
+<li>获取集群度量<ul>
+<li>GetClusterMetricsResponse getClusterMetrics(GetClusterMetricsRequest request)</li>
+</ul>
+</li>
+<li>获取符合条件的应用的状态(列表)<ul>
+<li>etApplicationsResponse getApplications(GetApplicationsRequest request)</li>
+</ul>
+</li>
+<li>获取集群中各个节点的状态<ul>
+<li>GetClusterNodesResponse getClusterNodes(GetClusterNodesRequest request)</li>
+</ul>
+</li>
+<li>获取RM中的队列信息<ul>
+<li>GetQueueInfoResponse getQueueInfo(GetQueueInfoRequest request)</li>
+</ul>
+</li>
+<li>还包括获取用户权限列表和访问权限等方法。</li>
+</ul>
+<p>客户端既可以从RM上获取应用的信息，也可以通过AM获取。通常为了减少RM的压力，使用从AM获取应用运行状态的方式。客户端与AM之间的通信使用应用内部的私有协议，与YARN无关。</p>
+<h3 id="AppMaster-开发"><a href="#AppMaster-开发" class="headerlink" title="AppMaster 开发"></a>AppMaster 开发</h3><p>AM的主要功能是按照业务需求，从RM处申请资源，并利用这些资源完成业务逻辑。因此，AM既需要与RM通信，又需要与NM通信,涉及两个协议，分别是AM-RM协议</p>
+<p>(ApplicationMasterProtocol)和AM-NM协议(ContainerManagementProtocol)，如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282051173.png" alt="image-20220228205129138"></p>
+<h4 id="AppMaster与ResourceManager-交互"><a href="#AppMaster与ResourceManager-交互" class="headerlink" title="AppMaster与ResourceManager 交互"></a>AppMaster与ResourceManager 交互</h4><p>AM-RM之间使用ApplicationMasterProtocol协议进行通信，该协议提供如下几个方法：</p>
+<ul>
+<li><p>向RM注册AM：</p>
+<ul>
+<li>RegisterApplicationMasterResponse registerApplicationMaster(RegisterApplicationMasterRequest request)</li>
+</ul>
+</li>
+<li><p>告知RM，应用已经结束</p>
+<ul>
+<li>FinishApplicationMasterResponse finishApplicationMaster(FinishApplicationMasterRequest request)</li>
+</ul>
+</li>
+<li><p>向RM申请/归还资源，维持心跳</p>
+<ul>
+<li>AllocateResponse allocate(AllocateRequest request)</li>
+</ul>
+</li>
+<li><p>客户端向RM提交应用后，RM会根据提交的信息，分配一定的资源来启动AM，AM启动后调用ApplicationMasterProtocol协议的registerApplicationMaster方法主动向RM注册。</p>
+<p>  完成注册后，AM通过ApplicationMasterProtocol协议的allocate方法向RM申请运行任务的资源，获取资源后，通过ContainerManagementProtocol在NM上启动资源容器，完成任务。</p>
+<p>  应用完成后，AM通过ApplicationMasterProtocol协议的finishApplicationMaster方法向RM汇报应用的最终状态，并注销AM。</p>
+</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282052096.png" alt="image-20220228205241056"></p>
+<p>需要注意的是，ApplicationMasterProtocol#allocate()方法还兼顾维持AM-RM心跳的作用，因此，即便应用运行过程中有一段时间无需申请任何资源，AM都需要周期性的调用相应该方法，以避免触发RM的容错机制。具体看一下每一步所传递的信息：</p>
+<p><strong>1、AM向RM注册</strong></p>
+<ul>
+<li>AM启动后会主动调用registerApplicationMaster方法向RM注册，注册信息中包括该AM所在节点和开放的RPC服务端口，以及一个应用状态跟踪Web接口(将在RM的Web页面上显示)。</li>
+<li>RM向AM返回一个对象，里面包含了应用最大可申请的单个容器容量、应用访控制列表和一个用于与客户端通信的安全令牌。</li>
+</ul>
+<p><strong>2、AM向RM申请资源</strong></p>
+<ul>
+<li>AM通过allocate方法向RM申请或释放资源。AM向RM发送的信息被封装在AllocateRequest里;</li>
+<li>RM接受到AM的请求后，扫描其上的资源镜像，按照调度算法分配全部或部分申请的资源给AM，返回一个AllocateResponse对象;</li>
+</ul>
+<p><strong>3、AM通知RM应用已结束</strong></p>
+<ul>
+<li>在应用完成后，AM通知RM应用结束的消息，同时向RM提供应用的最终状态(成功/失败等)、一些失败时的诊断信息和应用跟踪地址，RM收到通知后注销相应的AM，并将注销结果发送给AM，AM收到注销成功的消息后，退出进程。</li>
+<li>AM通过调用ApplicationMasterProtocol#finishApplicationMaster方法通知RM</li>
+</ul>
+<h4 id="AppMaster与NodeManager-交互"><a href="#AppMaster与NodeManager-交互" class="headerlink" title="AppMaster与NodeManager 交互"></a>AppMaster与NodeManager 交互</h4><p>AM通过ContainerManagementProtocol协议与NM交互，包括3个方面的功能：启动容器、查询容器状态、停止容器，分别对应协议中的三个方法：</p>
+<p>查询容器状态、停止容器，分别对应协议中的三个方法：</p>
+<ul>
+<li><p>启动容器</p>
+<ul>
+<li>StartContainersResponse startContainers(StartContainersRequest request)</li>
+</ul>
+</li>
+<li><p>查询容器状态</p>
+<ul>
+<li>GetContainerStatusesResponse getContainerStatuses(GetContainerStatusesRequest request)</li>
+</ul>
+</li>
+<li><p>停止容器</p>
+<ul>
+<li>StopContainersResponse stopContainers(StopContainersRequest request)</li>
+</ul>
+<p>   AM-NM交互过程如图：</p>
+</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282055689.png" alt="image-20220228205540652"></p>
+<ul>
+<li>AM在NM上启动容器<ul>
+<li>AM通过<code>ContainerManagementProtocol# startContainers()</code>方法启动一个NM上的容器，AM通过该接口向NM提供启动容器的必要配置，包括分配到的资源、安全令牌、启动容器的环境变量和命令等，这些信息都被封装在StartContainersRequest中。</li>
+<li>NM收到请求后，会启动相应的容器，并返回启动成功的容器列表和失败的容器列表，同时还返回其上相应的辅助服务元数据。</li>
+</ul>
+</li>
+<li>AM查询NM上的容器运行状态<ul>
+<li>在应用运行期间，AM需要实时掌握各个Container的运行状态，以便及时响应一些异常，如容器运行失败等。</li>
+<li>AM通过<code>ContainerManagementProtocol# getContainerStatuses ()</code>方法获取各个容器的运行状态。</li>
+</ul>
+</li>
+<li>AM停止NM上的容器<ul>
+<li>当一个容器运行完成后，分配给它的资源需要被回收。</li>
+<li>AM通过ContainerManagementProtocol# stopContainers()方法停止NM上的容器,释放相关资源，然后通过AM-RM协议，将释放的资源上报给RM，RM完成最终的资源回收。</li>
+</ul>
+</li>
+</ul>
+<h2 id="YARN-编程库开发应用"><a href="#YARN-编程库开发应用" class="headerlink" title="YARN 编程库开发应用"></a>YARN 编程库开发应用</h2><p>YARN上的应用开发分为平台接入和业务开发两个部分，其中平台接入就是实现上述三个RPC协议。直接实现上述协议的开发难度较高，需要处理很多细节和性能问题，如系统并发等。为此，YARN提供了一套应用程序编程库来简化应用的开发过程，该编程库是基于事件驱动机制的，利用了YARN内部的服务库、事件库和状态机库，分为三个部分，与上述三个协议一一对应。</p>
+<h3 id="YARN-基础库"><a href="#YARN-基础库" class="headerlink" title="YARN 基础库"></a>YARN 基础库</h3><p>在YARN基础库中分为服务库、事件库和状态机库，具体说明如下。</p>
+<h4 id="服务库"><a href="#服务库" class="headerlink" title="服务库"></a>服务库</h4><p>YARN中普遍采用基于服务的对象管理模型，将一些生命周期较长的对应服务化，YARN提供一套抽象的接口对服务进行了统一描述，该服务具有如下特点:</p>
+<ul>
+<li>具有标准状态，所有服务都具有4个状态，NOTINITED、INITED、STARTED、STOPPED；</li>
+<li>状态驱动，服务状态变化将触发一些动作，使其转变成另一种状态；</li>
+<li>服务嵌套，一个服务可以由其他服务组合嵌套而来；</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282057901.png" alt="image-20220228205748860"></p>
+<h4 id="事件库"><a href="#事件库" class="headerlink" title="事件库"></a>事件库</h4><p>YARN中大量采用了基于事件驱动的并发模型，该模型由事件、异步调度器和事件处理器三个模块组成。处理请求被抽象为事件，放入异步调度器的事件队列中，调度线程从事件队列中取出事件分发给不同的事件处理器，事件处理器处理事件，产生新的事件放入事件队列，如此循环，直到处理完成(完成事件)。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282058727.png" alt="image-20220228205808683"></p>
+<h4 id="状态机库"><a href="#状态机库" class="headerlink" title="状态机库"></a>状态机库</h4><p>YARN中使用{转换前状态、转换后状态、事件、回调函数}四元组来表示一个状态变换，一个或多个事件的到来，触发绑定在对象上状态转移函数，使对象的状态发生变化。状态机使得事件处理变得简单可控。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282059919.png" alt="image-20220228205907879"></p>
+<p>总的来说，YARN中的服务由一个或多个含有有限状态机的事件处理系统组成，总体框架如下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282059978.png" alt="image-20220228205917939"></p>
+<h3 id="YARN-编程库"><a href="#YARN-编程库" class="headerlink" title="YARN 编程库"></a>YARN 编程库</h3><h4 id="YARN-应用客户端库"><a href="#YARN-应用客户端库" class="headerlink" title="YARN 应用客户端库"></a>YARN 应用客户端库</h4><p>YARN的Client-RM编程库位于<strong>org.apache.hadoop.yarn.client.YarnClient</strong>(Hadoop-yarn-api项目)，该库实现了通用的ApplicationClientProtocol协议，提供了重试机制。用户利用该库可以快速开发YARN应用的客户端程序，而不需要关心RPC等底层接口。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282059018.png" alt="image-20220228205951983"></p>
+<p>用户开发自己的应用客户端时，只要设置好ApplicationSubmissionContext对象，调用YarnClient的相关接口，即可实现应用的提交。</p>
+<h4 id="AM-RM-编程库"><a href="#AM-RM-编程库" class="headerlink" title="AM-RM 编程库"></a><strong>AM-RM</strong> 编程库</h4><p>AM-RM编程库主要简化了AM向RM申请资源过程的开发。YARN提供了两套AM-RM编程库，分别为阻塞式和非阻塞式模式。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282100468.png" alt="image-20220228210010435"></p>
+<p>其中，AMRMClient是阻塞式的，实现了ApplicationMasterProtocol协议，用户调用该类的相应接口，可实现AM与RM的通信。而AMRMClientAsync是AMRMClient的非阻塞式封装，所有响应通过回调函数的形式返回给用户，用户实现自己的AM时，只需要实现AMRMClientAsync的CallbackHandler即可。</p>
+<h4 id="NM-编程库"><a href="#NM-编程库" class="headerlink" title="NM 编程库"></a><strong>NM</strong> 编程库</h4><p>NM编程库对AM和RM与NM之间的交互进行了封装，同样有阻塞式和非阻塞式两种封装(AM与NM和RM与NM的交互逻辑相似)。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282100508.png" alt="image-20220228210032477"></p>
+<p>同样的，对于异步编程库NMClientAsync，用户只需要在自己的AM上实现相应的回调函数，就可以控制NM上Container的启动/停止和状态监控了。</p>
+<p>总得来说，YARN是一个资源管理平台，并不涉及业务逻辑，具体的业务逻辑需要用户自己去实现。YARN的核心作用就是分配资源、保证资源隔离。</p>
+<h2 id="YARN-源码解析"><a href="#YARN-源码解析" class="headerlink" title="YARN 源码解析"></a>YARN 源码解析</h2><p>为了更全面和更加有意义的分析Hadoop Yarn源码，从一个作业提交到到作业生命周期结束的角度来分析Yarn的源码，将会屏蔽MapReduce部分过程，因为现在的重点是研究Yarn的源码。</p>
+<h3 id="YARN-应用运行流程"><a href="#YARN-应用运行流程" class="headerlink" title="YARN 应用运行流程"></a>YARN 应用运行流程</h3><p>首先回顾，提交MapReduce程序到YARN集群运行机制，如下图所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282101673.png" alt="image-20220228210119615"></p>
+<p>执行流程步骤如下：</p>
+<ul>
+<li><p>第1步、 MapReduce 程序提交到客户端所在的节点，使用yarn jar命令提交运行；</p>
+  <pre class="line-numbers language-sh" data-language="sh"><code class="language-sh">[root@node1 ~]# yarn jar \
+/export/server/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.4.jar \
+wordcount /datas/input.data /datas/output<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></li>
+<li><p>第2步、Client客户端向ResourceManager申请运行一个Application</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282102272.png" alt="image-20220228210208241"></p>
+</li>
+<li><p>第3步、当RM接收到请求后，生成应用Application资源提交路径hdfs://…./.staging以及application_id，并返回客户端Client；</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282102575.png" alt="image-20220228210231549"></p>
+</li>
+<li><p>第4步、Client客户端提交job运行所需资源到资源提交路径</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282102266.png" alt="image-20220228210253238"></p>
+</li>
+</ul>
+<p>如下图所示，运行MapReduce时，上传Job资源至HDFS目录</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282103581.png" alt="image-20220228210307550"></p>
+<ul>
+<li><p>第5步、当Client客户端资源提交完毕，申请运行mrAppMaster。</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282103226.png" alt="image-20220228210319185"></p>
+</li>
+<li><p>第6步、当ResourceManager接收请求以后，将用户的请求初始化成一个Task，将其放到队列中（Apache Hadoop YARN默认使用CapacityScheduler容器调度器，将Task任务放入某个队列Queue中，等待后续执行）。</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282103106.png" alt="image-20220228210344068"></p>
+</li>
+<li><p>第7步、当NodeManager中有资源时，ResourceManager向其发送指令，此时NodeManager领取到Task任务，准备启动容器运行AppMaster。</p>
+</li>
+<li><p>第8步、NodeManager创建容器Contanier，容器中包含相关资源（比如CPU、内存Memory等），在其中运行MRAppMaster。</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282104585.png" alt="image-20220228210416541"></p>
+</li>
+<li><p>第9步、MRAppMaster启动以后，依据资源提交路径，下载job资源到本地（也就是MRAppMaster所运行NodeManager节点临时目录中）。</p>
+</li>
+<li><p>第10步、MRAppMaster获取Job运行资源信息以后，计算此MapReduce任务运行所需要的MapTask任务个数，再向ResourceManager申请资源，创建MapTask容器Contanier。</p>
+</li>
+<li><p>第11步、ResourceManager接收到MRAppMaster请求后，将这些Task任务同样放到队列Queue中，当NodeManager中有资源时，ResourceManager依然向NodeManager发送指令，领取到Task任务，创建容器Contanier。</p>
+</li>
+<li><p>第12步、当NodeManager中容器Contanier创建完成以后，MRAppMaster将运行MapTask任务的程序脚本发送给Contanier容器，最后在容器Contanier中启动YarnChild进程运行MapTask任务，处理数据。</p>
+</li>
+<li><p>第13步、当MapTask任务运行完成以后，MRAppMaster再向ResourceManager申请资源，在NodeManager中创建ReduceTask任务运行的容器，启动YarnChild进程运行ReduceTask任务，拉取MapTask处理数据，进行聚合操作。</p>
+</li>
+<li><p>第14步、当MapReduce应用程序运行完成以后，向ResourceManager注销自己，释放资源，至此整个应用运行完成。</p>
+</li>
+</ul>
+<h3 id="第一阶段：Client提交应用至YARN"><a href="#第一阶段：Client提交应用至YARN" class="headerlink" title="第一阶段：Client提交应用至YARN"></a>第一阶段：Client提交应用至YARN</h3><p>以入门程序：WordCount 作业为例，执行程序<em>main</em>方法，核心代码：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282105809.png" alt="image-20220228210529749"></p>
+<p>当运行程序，执行到MAIN方法中如下代码时：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282105045.png" alt="image-20220228210538017"></p>
+<p>如果提交运行YARN集群，则最终调用【<em>YARNRunner#submitJob</em>】方法：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282105443.png" alt="image-20220228210558410"></p>
+<p>向YARN提交Job时，主要流程示意图如下所示：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282106931.png" alt="image-20220228210606893"></p>
+<h4 id="第一步、JobSubmitter（Job-提交）"><a href="#第一步、JobSubmitter（Job-提交）" class="headerlink" title="第一步、JobSubmitter（Job 提交）"></a>第一步、JobSubmitter（Job 提交）</h4><p>MapReduce程序最后执行【job.waitForCompletion】方法时，表示应用提交执行等待完成，提交应用时，方法调用链如下所示：</p>
+<pre class="line-numbers language-sh" data-language="sh"><code class="language-sh">waitForCompletion -&gt; submit -&gt; submitter.submitJobInternal -&gt; submitJob<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>Job#waitForCompletion 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282107766.png" alt="image-20220228210703726"></p>
+<ul>
+<li>Job#submit方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282107627.png" alt="image-20220228210723583"></p>
+<ul>
+<li>JobSubmmiter#submitJobInternal方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282107240.png" alt="image-20220228210741193"></p>
+<h4 id="第二步、createApplicationSubmissionContext（创建应用上下文）"><a href="#第二步、createApplicationSubmissionContext（创建应用上下文）" class="headerlink" title="第二步、createApplicationSubmissionContext（创建应用上下文）"></a>第二步、createApplicationSubmissionContext（创建应用上下文）</h4><p>submitClient为ClientProtocol实例对象，有2个实现子类：本地模式运行和YARN集群运行：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282108172.png" alt="image-20220228210814135"></p>
+<ul>
+<li><em>submitClient#submitJob</em> 调用，选择YARN集群运行</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282108317.png" alt="image-20220228210837286"></p>
+<ul>
+<li>YARNRunner#submitJob 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282108758.png" alt="image-20220228210853725"></p>
+<ul>
+<li>YARNRunner#createApplicationSubmissionContext方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282109859.png" alt="image-20220228210909823"></p>
+<p>构建MR AppMaster运行环境，主要包括：</p>
+<p>1）、设置本地资源：Job 配置文件、Job Jar包及提交运行工作目录等</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282109380.png" alt="image-20220228210918343"></p>
+<p>2）、设置容器启动上下文：启动AppMaster进程java命令和运行日志存储等</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282109630.png" alt="image-20220228210927597"></p>
+<p>3）、应用提交上下文设置：比如设置应用ID和运行队列Queueu等</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282109834.png" alt="image-20220228210935800"></p>
+<h4 id="第三步、RMAppManager-submitApplication（提交应用）"><a href="#第三步、RMAppManager-submitApplication（提交应用）" class="headerlink" title="第三步、RMAppManager#submitApplication（提交应用）"></a>第三步、RMAppManager#submitApplication（提交应用）</h4><p>在YARNRunner#submitJob方法中，应用提交上下文构建完成后，进行应用提交。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282110985.png" alt="image-20220228211000950"></p>
+<ul>
+<li>ResourceMgrDelegate#submitApplication 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282111955.png" alt="image-20220228211118921"></p>
+<ul>
+<li>YARNClientImpl#submitApplication方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282111074.png" alt="image-20220228211138031"></p>
+<p>rmClient是一个ApplicationClientProtocol类对象，这是一个RPC的接口协议，对应的实现类ApplicationClientProtocolPBClientImpl。</p>
+<ul>
+<li><p>客户端 ApplicationClientProtocolPBClientImpl#submitApplication方法</p>
+<p>  此时ApplicationClientProtocolPBServiceImpl类属于客户端Client实现类，所在包为：org.apache.hadoop.yarn.api.impl.pb.client。</p>
+</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282112150.png" alt="image-20220228211242110"></p>
+<p>RPC Client端proxy.submitApplication()对应的RPC Server端的方法数为：    ApplicationClientProtocolPBServiceImpl#submitApplication()，是对称的关系，都实现了ApplicationClientProtocalPB接口。</p>
+<ul>
+<li><p>服务端 ApplicationClientProtocolPBServiceImpl#submitApplication 方法</p>
+<p>   此时ApplicationClientProtocolPBServiceImpl类属于服务端Service实现类，所在包为：org.apache.hadoop.yarn.api.impl.pb.service。</p>
+</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282113909.png" alt="image-20220228211312867"></p>
+<p>ApplicationClientProtocolPBServiceImpl类对象由ClientRMService构建，属于RM端的服务类，专门用于服务Client，包括Client的作业提交，作业查询等服务。</p>
+<ul>
+<li><p>lientRMService#submitApplication方法</p>
+<p>  <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282113075.jpg" alt="img"> </p>
+<p>  由ClientRMService.submitApplication()直接把作业交给RMAppManager类的对象 rmAppManager进行提交，这也是作业最终上岸了，接下来就是RM的事情。</p>
+</li>
+</ul>
+<h4 id="作业提交调用层次"><a href="#作业提交调用层次" class="headerlink" title="作业提交调用层次"></a>作业提交调用层次</h4><p>客户端Client进行作业提交时，分为Client端和Service服务端2个层次：</p>
+<ul>
+<li>客户端层次流程图</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282114176.png" alt="image-20220228211425137"></p>
+<ul>
+<li>服务端层次流程图</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282114801.png" alt="image-20220228211436768"></p>
+<h3 id="第二阶段：YARN启动AppMaster"><a href="#第二阶段：YARN启动AppMaster" class="headerlink" title="第二阶段：YARN启动AppMaster"></a>第二阶段：YARN启动AppMaster</h3><p>MapReduce作业提交已经到达ResourceManager端，并且交给RMAppManager进行继续运转，将此应用当做任务提交到队列Queue中，开始执行MRAppMaster任务，流程图如下。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282115891.png" alt="image-20220228211524852"></p>
+<p>从MRAppMaster类中main查看，启动MRAppMaster进程流程步骤。</p>
+<ul>
+<li>MRAppMaster#main 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282115617.png" alt="image-20220228211546575"></p>
+<ul>
+<li>MRAppMaster#initAndStartAppMaster 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282116899.png" alt="image-20220228211620856"></p>
+<h4 id="第一步、AppMaster-初始化"><a href="#第一步、AppMaster-初始化" class="headerlink" title="第一步、AppMaster 初始化"></a>第一步、AppMaster 初始化</h4><p>ResourceManager在启动AppMaster之前，先对AppMaster服务进行初始化操作。</p>
+<ul>
+<li>初始化AbstractServie#init方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282116291.png" alt="image-20220228211645239"></p>
+<ul>
+<li>启动 MRAppMaster#serviceInit 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282117797.png" alt="image-20220228211704754"></p>
+<p>当MRAppMaster初始化完成以后，开始启动MRAppMaster进程服务。</p>
+<h4 id="第二步、AppMaster-启动"><a href="#第二步、AppMaster-启动" class="headerlink" title="第二步、AppMaster 启动"></a>第二步、AppMaster 启动</h4><ul>
+<li>启动 MRAppMaster#start 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282117969.png" alt="image-20220228211736929"></p>
+<ul>
+<li>启动 <em>MRAppMaster#serviceStart</em> 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282117975.png" alt="image-20220228211757937"></p>
+<ul>
+<li>MRAppMaster#startJobs方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282118999.png" alt="image-20220228211814959"></p>
+<p>从分发器Dispatcher（实例为AysncDispatcher异步分发器）中获取事件处理器EventHandler，处理器的实例对象GenericEventHandler（通用事件处理器），调用handle方法启动Job作业执行。</p>
+<ul>
+<li>GenericEventHandler#handle 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282119147.png" alt="image-20220228211949104"></p>
+<p>最后将Job作业存放到队列Queue中，对于Apache Hadoop YARN来说，默认使用Capacity Scheduler容量调度器的default队列中，等待调度执行。</p>
+<h3 id="第三阶段：调度执行应用进程"><a href="#第三阶段：调度执行应用进程" class="headerlink" title="第三阶段：调度执行应用进程"></a>第三阶段：调度执行应用进程</h3><p>任何一个应用提交运行至YARN集群，首先为应用启动AppMaster，当启动完成以后，为每个应用启动应用进程，调度任务Task执行，其中不同应用对应的应用进程不一样。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282120092.png" alt="image-20220228212010034"></p>
+<p>针对MapReduce应用提交运行YARN上来说，当MRAppMaster启动以后，计算整个Job的MapTask和ReduceTask数量，然后向ResourceManager申请资源，运行Task任务。无论运行MapTask还是ReduceTask，都是YarnChild中执行Task，运行流程图：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282120485.png" alt="image-20220228212026426"></p>
+<p>查看YarnChild类中 main 方法，核心源码：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282120237.png" alt="image-20220228212033192"></p>
+<p>Task类2个实现子类：MapTask和ReduceTask，查看其中run方法，如何执行任务。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282120299.png" alt="image-20220228212041258"></p>
+<h4 id="第一步、MapTask-任务执行"><a href="#第一步、MapTask-任务执行" class="headerlink" title="第一步、MapTask 任务执行"></a>第一步、MapTask 任务执行</h4><p>查看MapTask 任务中run方法，主要判断是否是MapReduce New API编写程序，如果是的话直接调用：runNewMapper方法，运行MapTask任务。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282121329.png" alt="image-20220228212112281"></p>
+<ul>
+<li>MapTask#runNewMapper 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282121484.png" alt="image-20220228212129430"></p>
+<ul>
+<li>Mapper#run 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282121573.png" alt="image-20220228212142530"></p>
+<h4 id="第二步、ReduceTask-任务执行"><a href="#第二步、ReduceTask-任务执行" class="headerlink" title="第二步、ReduceTask 任务执行"></a>第二步、ReduceTask 任务执行</h4><p>在MapReduce计算引擎中，先运行MapTask处理每个Split分片数据，当完成以后告知MRAppMaster主节点，接着通知所有ReduceTask到MapTask输出目录拉取所属自己文件数据。</p>
+<p>接下来，查看ReduceTask类中run方法，核心执行流程。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282122335.png" alt="image-20220228212207282"></p>
+<ul>
+<li>ReduceTask#runNewReducer 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282122087.png" alt="image-20220228212231035"></p>
+<ul>
+<li>Reducer#run 方法</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202202282122621.png" alt="image-20220228212245577"></p>
+<p>当ReduceTask运行完成后，将数据输出到外部存储引擎（比如HDFS文件系统），告知MRAppMaster。MRAppMaster等到所有ReduceTask任务运行完成后，向ResourceManager发送信息，要求ResourceManager注销自己，释放资源，以便其他应用运行使用，至此一个MapReduce应用程序运行YARN集群完成。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">YangShen</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://lvxueyang.vip/post/f9361247.html">https://lvxueyang.vip/post/f9361247.html</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">YangShen</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">
+                                    <span class="chip bg-color">大数据</span>
+                                </a>
+                            
+                                <a href="/tags/Hadoop/">
+                                    <span class="chip bg-color">Hadoop</span>
+                                </a>
+                            
+                                <a href="/tags/YARN/">
+                                    <span class="chip bg-color">YARN</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
+    }
+
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
+    }
+
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("/medias/comment_bg.png") 100% 100% no-repeat;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div id="vcomments" class="card-content" style="display: grid">
+    </div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'kkTHtgDEUlqRlsbgP6vMWDxa-gzGzoHsz',
+        appKey: 'EX0XjX0GwgIgm38pW1RuybHn',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go'
+    });
+</script>
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/post/e4088572.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082249.jpg" class="responsive-img" alt="透视HTTP协议">
+                        
+                        <span class="card-title">透视HTTP协议</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-03-03
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E9%80%8F%E8%A7%86HTTP%E5%8D%8F%E8%AE%AE/" class="post-category">
+                                    透视HTTP协议
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/HTTP/">
+                        <span class="chip bg-color">HTTP</span>
+                    </a>
+                    
+                    <a href="/tags/%E9%80%8F%E8%A7%86HTTP%E5%8D%8F%E8%AE%AE/">
+                        <span class="chip bg-color">透视HTTP协议</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/post/ca829d62.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212050.jpg" class="responsive-img" alt="YARN监控管理与资源管理">
+                        
+                        <span class="card-title">YARN监控管理与资源管理</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-02-28
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/" class="post-category">
+                                    Hadoop3.0从入门到源码
+                                </a>
+                            
+                            <a href="/categories/Hadoop3-0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%BA%90%E7%A0%81/YARN/" class="post-category">
+                                    YARN
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">
+                        <span class="chip bg-color">大数据</span>
+                    </a>
+                    
+                    <a href="/tags/Hadoop/">
+                        <span class="chip bg-color">Hadoop</span>
+                    </a>
+                    
+                    <a href="/tags/YARN/">
+                        <span class="chip bg-color">YARN</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: 牧马人的忧伤<br />'
+            + '文章作者: YangShen<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="330695641"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2018-2022</span>
+            
+            <span id="year">2018</span>
+            <a href="/about" target="_blank">YangShen</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">3956k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2018";
+                    var startMonth = "6";
+                    var startDate = "28";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/LVXUEYANGTiger" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1191432275@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1191432275" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1191432275" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    <script type="text/javascript">
+        window.onload = function(){
+            //屏蔽键盘事件
+            document.onkeydown = function (){
+                var e = window.event || arguments[0];
+                //F12
+                if(e.keyCode == 123){
+                    return false;
+                //Ctrl+Shift+I
+                }else if((e.ctrlKey) && (e.shiftKey) && (e.keyCode == 73)){
+                    return false;
+                //Shift+F10
+                }else if((e.shiftKey) && (e.keyCode == 121)){
+                    return false;
+                //Ctrl+U
+                }else if((e.ctrlKey) && (e.keyCode == 85)){
+                    return false;
+                }
+            };
+            //屏蔽鼠标右键
+            document.oncontextmenu = function (){
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

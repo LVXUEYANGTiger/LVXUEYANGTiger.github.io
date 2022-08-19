@@ -1,0 +1,1773 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Nginx架构, 牧马人的忧伤">
+    <meta name="description" content="主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Nginx架构 | 牧马人的忧伤</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.2">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span diyFont">牧马人的忧伤</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>找文章</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/categories">
+          
+          <i class="fas fa-bookmark" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>分类</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tags">
+          
+          <i class="fas fa-tags" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>标签</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/archives">
+          
+          <i class="fas fa-archive" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>归档</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>生活</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/timeline">
+          
+          <i class="fas fa-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>时间轴</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/contact">
+          
+          <i class="fas fa-music" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>留言板</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/friends">
+          
+          <i class="fas fa-address-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>友人帐</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于笔者</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">牧马人的忧伤</div>
+        <div class="logo-desc">
+            
+            主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			找文章
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/categories " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-bookmark" style="position: absolute;left:50px" ></i>
+			      
+		          <span>分类</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/tags " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-tags" style="position: absolute;left:50px" ></i>
+			      
+		          <span>标签</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/archives " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-archive" style="position: absolute;left:50px" ></i>
+			      
+		          <span>归档</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			生活
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/timeline " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>时间轴</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/contact " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-music" style="position: absolute;left:50px" ></i>
+			      
+		          <span>留言板</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/friends " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-address-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>友人帐</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于笔者
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
+        }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082041.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Nginx架构</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/Nginx/">
+                                <span class="chip bg-color">Nginx</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/Nginx/" class="post-category">
+                                Nginx
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-03-17
+                </div>
+                
+
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
+                    2022-03-17
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    7.8k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    27 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h2 id="Nginx架构"><a href="#Nginx架构" class="headerlink" title="Nginx架构"></a>Nginx架构</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202203170943347.png" alt="img"></p>
+<h3 id="Nginx架构-1"><a href="#Nginx架构-1" class="headerlink" title="Nginx架构"></a>Nginx架构</h3><blockquote>
+<p>Nginx由内核和模块组成，从官方文档<a target="_blank" rel="noopener" href="http://nginx.org/en/docs/%E4%B8%8B%E7%9A%84Modules">http://nginx.org/en/docs/下的Modules</a> reference可以看到一些比较重要的模块，一般分为核心、基础模块以及第三方模块。</p>
+</blockquote>
+<p> 第三方模块意味着你也可以按照nginx标准去开发符合自己业务的模块插件。<br>​ 核心主要用于提供Web Server的基本功能，以及Web和Mail反向代理的功能；还用于启用网络协议，创建必要的运行时环境以及确保不同的模块之间平滑地进行交互。<br>​ 不过，大多跟协议相关的功能和某应用特有的功能都是由nginx的模块实现的。这些功能模块大致可以分为：事件模块、阶段性处理器、输出过滤器、变量处理器、协议、upstream和负载均衡几个类别，这些共同组成了nginx的http功能。事件模块主要用于提供OS独立的(不同操作系统的事件机制有所不同)事件通知机制如kqueue或epoll等。协议模块则负责实现nginx通过http、tls/ssl、smtp、pop3以及imap与对应的客户端建立会话。在Nginx内部，进程间的通信是通过模块的pipeline或chain实现的；换句话说，每一个功能或操作都由一个模块来实现。例如，压缩、通过FastCGI或uwsgi协议与upstream服务器通信，以及与memcached建立会话等。</p>
+<h3 id="nginx进程模型"><a href="#nginx进程模型" class="headerlink" title="nginx进程模型"></a>nginx进程模型</h3><h4 id="多进程模型"><a href="#多进程模型" class="headerlink" title="多进程模型"></a>多进程模型</h4><p> Nginx之所以为广大码农喜爱，除了其高性能外，还有其优雅的系统架构。与Memcached的经典多线程模型相比，Nginx是经典的多进程模型。Nginx启动后以daemon的方式在后台运行，后台进程包含一个master进程和多个worker进程，具体如下图：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202203170943068.png" alt="img"></p>
+<h4 id="多进程模型的好处"><a href="#多进程模型的好处" class="headerlink" title="多进程模型的好处"></a>多进程模型的好处</h4><p> 对于每个worker进程来说，独立的进程，不需要加锁，所以省掉了锁带来的开销，同时在编程以及问题查找时，也会方便很多。其次，采用独立的进程，可以让互相之间不会影响，一个进程退出后，其它进程还在工作，服务不会中断，master进程则很快启动新的worker进程，并且独立的进程，可以让互相之间不会影响，一个进程退出后，其它进程还在，以上也是Nginx高效的另一个原因了。</p>
+<h4 id="master与worker"><a href="#master与worker" class="headerlink" title="master与worker"></a>master与worker</h4><h5 id="master"><a href="#master" class="headerlink" title="master"></a>master</h5><blockquote>
+<p>master进程主要用来管理worker进程</p>
+</blockquote>
+<ul>
+<li>接收来自外界的信号。</li>
+<li>向各worker进程发送信号。</li>
+<li>监控woker进程的运行状态。</li>
+<li>当woker进程退出后（异常情况下），会自动重新启动新的woker进程。</li>
+</ul>
+<h5 id="worker"><a href="#worker" class="headerlink" title="worker"></a>worker</h5><blockquote>
+<p>worker进程主要用来处理基本的网络事件</p>
+</blockquote>
+<ul>
+<li>多个worker进程之间是对等且相互独立的，他们同等竞争来自客户端的请求。</li>
+<li>一个请求，只可能在一个worker进程中处理，一个worker进程，不可能处理其它进程的请求。</li>
+<li>worker进程的个数是可以设置的，一般我们会设置与机器cpu核数一致。更多的worker数，只会导致进程来竞争cpu资源了，从而带来不必要的上下文切换。而且，nginx为了更好的利用多核特性，具有cpu绑定选项，我们可以将某一个进程绑定在某一个核上，这样就不会因为进程的切换带来cache的失效。</li>
+</ul>
+<h4 id="进程控制方式"><a href="#进程控制方式" class="headerlink" title="进程控制方式"></a>进程控制方式</h4><blockquote>
+<p>对Nginx进程的控制主要是通过master进程来做到的，主要有两种方式：</p>
+</blockquote>
+<h5 id="手动发送信号"><a href="#手动发送信号" class="headerlink" title="手动发送信号"></a>手动发送信号</h5><p> 从图1可以看出，master接收信号以管理众woker进程，那么，可以通过kill向master进程发送信号，比如kill -HUP pid用以通知Nginx从容重启。所谓从容重启就是不中断服务：master进程在接收到信号后，会先重新加载配置，然后再启动新进程开始接收新请求，并向所有老进程发送信号告知不再接收新请求并在处理完所有未处理完的请求后自动退出。</p>
+<h5 id="自动发送信号"><a href="#自动发送信号" class="headerlink" title="自动发送信号"></a>自动发送信号</h5><p> 可以通过带命令行参数启动新进程来发送信号给master进程，比如./nginx -s reload用以启动一个新的Nginx进程，而新进程在解析到reload参数后会向master进程发送信号（新进程会帮我们把手动发送信号中的动作自动完成）。当然也可以这样./nginx -s stop来停止Nginx。</p>
+<h5 id="守护线程"><a href="#守护线程" class="headerlink" title="守护线程"></a>守护线程</h5><p> nginx在启动后，在unix系统中会以daemon的方式在后台运行，后台进程包含一个master进程和多个worker进程。当然nginx也是支持多线程的方式的，只是我们主流的方式还是多进程的方式，也是nginx的默认方式。</p>
+<h4 id="进程的优点"><a href="#进程的优点" class="headerlink" title="进程的优点"></a>进程的优点</h4><ul>
+<li>进程之间不共享资源，不需要加锁，所以省掉了锁带来的开销。</li>
+<li>采用独立的进程，可以让互相之间不会影响，一个进程退出后，其它进程还在工作，服务不会中断，master进程则很快重新启动新的worker进程。</li>
+<li>编程上更加容易。</li>
+</ul>
+<h4 id="多线程的问题"><a href="#多线程的问题" class="headerlink" title="多线程的问题"></a>多线程的问题</h4><p> 而多线程在多并发情况下，线程的内存占用大，线程上下文切换造成CPU大量的开销。想想apache的常用工作方式（apache 也有异步非阻塞版本，但因其与自带某些模块冲突，所以不常用），每个请求会独占一个工作线程，当并发数上到几千时，就同时有几千的线程在处理请求了。这对 操作系统来说，是个不小的挑战，线程带来的内存占用非常大，线程的上下文切换带来的cpu开销很大，自然性能就上不去了，而这些开销完全是没有意义的。</p>
+<h3 id="网络事件模块"><a href="#网络事件模块" class="headerlink" title="网络事件模块"></a>网络事件模块</h3><blockquote>
+<p>Nginx（多进程）采用异步非阻塞的方式来处理网络事件，类似于Libevent（单进程单线程），具体过程如下图：</p>
+</blockquote>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202203170944388.png" alt="img"></p>
+<p> master进程先建好需要listen的socket后，然后再fork出多个woker进程，这样每个work进程都可以去accept这个socket。当一个client连接到来时，所有accept的work进程都会受到通知，但只有一个进程可以accept成功，其它的则会accept失败。Nginx提供了一把共享锁accept_mutex来保证同一时刻只有一个work进程在accept连接，从而解决惊群问题。当一个worker进程accept这个连接后，就开始读取请求，解析请求，处理请求，产生数据后，再返回给客户端，最后才断开连接，这样一个完成的请求就结束了。</p>
+<h4 id="惊群现象"><a href="#惊群现象" class="headerlink" title="惊群现象"></a>惊群现象</h4><h5 id="什么事惊群现象"><a href="#什么事惊群现象" class="headerlink" title="什么事惊群现象"></a>什么事惊群现象</h5><p> 惊群简单来说就是多个进程或者线程在等待同一个事件，当事件发生时，所有线程和进程都会被内核唤醒。唤醒后通常只有一个进程获得了该事件并进行处理，其他进程发现获取事件失败后又继续进入了等待状态，在一定程度上降低了系统性能。具体来说惊群通常发生在服务器的监听等待调用上，服务器创建监听socket，后fork多个进程，在每个进程中调用accept或者epoll_wait等待终端的连接。</p>
+<p> 简而言之，惊群现象（thundering herd）就是当多个进程和线程在同时阻塞等待同一个事件时，如果这个事件发生，会唤醒所有的进程，但最终只可能有一个进程/线程对该事件进行处理，其他进程/线程会在失败后重新休眠，这种性能浪费就是惊群。</p>
+<h5 id="nginx的惊群现象"><a href="#nginx的惊群现象" class="headerlink" title="nginx的惊群现象"></a>nginx的惊群现象</h5><p> 每个worker进程都是从master进程fork过来。在master进程里面，先建立好需要listen的socket之 后，然后再fork出多个worker进程，这样每个worker进程都可以去accept这个socket(当然不是同一个socket，只是每个进程 的这个socket会监控在同一个ip地址与端口，这个在网络协议里面是允许的)。一般来说，当一个连接进来后，所有在accept在这个socket上 面的进程，都会收到通知，而只有一个进程可以accept这个连接，其它的则accept失败。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202203170943077.png" alt="img"></p>
+<h5 id="nginx如何处理惊群"><a href="#nginx如何处理惊群" class="headerlink" title="nginx如何处理惊群"></a>nginx如何处理惊群</h5><p> 内核解决epoll的惊群效应是比较晚的，因此nginx自身解决了该问题（更准确的说是避免了）。其具体思路是：<strong>不让多个进程在同一时间监听接受连接的socket，而是让每个进程轮流监听</strong>，这样当有连接过来的时候，就只有一个进程在监听那肯定就没有惊群的问题。具体做法是：利用一把进程间锁，每个进程中都尝试获得这把锁，如果获取成功将监听socket加入wait集合中，并设置超时等待连接到来，没有获得所的进程则将监听socket从wait集合去除。这里只是简单讨论nginx在处理惊群问题基本做法，实际其代码还处理了很多细节问题，例如简单的连接的负载均衡、定时事件处理等等。</p>
+<h3 id="异步非阻塞"><a href="#异步非阻塞" class="headerlink" title="异步非阻塞"></a>异步非阻塞</h3><h4 id="什么是异步"><a href="#什么是异步" class="headerlink" title="什么是异步"></a>什么是异步</h4><p> 异步的概念和同步相对的，也就是不是事件之间不是同时发生的。</p>
+<h4 id="什么是异步非阻塞"><a href="#什么是异步非阻塞" class="headerlink" title="什么是异步非阻塞"></a>什么是异步非阻塞</h4><p> 非阻塞的概念是和阻塞对应的，阻塞是事件按顺序执行，每一事件都要等待上一事件的完成，而非阻塞是如果事件没有准备好，这个事件可以直接返回，过一段时间再进行处理询问，这期间可以做其他事情。但是，多次询问也会带来额外的开销。</p>
+<p> 一个请求的完整过程：请求过来，建立连接，然后接收数据，接收数据后，再发送数据。</p>
+<p> 具体到系统底层，就是读写事件，当读写时间没有准备好时，如果不用非阻塞的方式来调用，就得阻塞调用了，事件没准备好，就只能等，等事件准备好再继续。阻塞调用会进入内核等待，让出cpu，对单线程的worker来说，显然不合适，当网络事件越多时，等待很多，cpu利用率上不去。非阻塞就是，事件没有准备好，马上返回eagain，表示事件还没准备好，过会儿再来，过一会，再来检查一下事件，直到事件准备好为止，在这期间，你可以先去做其他事情，然后再来看看事件好了没。这时，虽不阻塞了，但是还得不时来检查事件的状态，带来的开销也不小。所以有了异步非阻塞的事件处理机制，具体到系统调用就是像 select/poll/epoll/kquene这样的系统调用。提供一种机制，让你可以同时监控多个事件，调用他们是阻塞的，但是可以设置超时时间，在超时时间之内，如果有事件准备好了就返回。这种机制解决了上面的两个问题，以epoll为例，当事假没准备好时，放到epoll里，事件准备好了，就去读写，当读写返回eagain时，将它再次加入epoll，这样，只要有事件准备好了，就去处理它，只有当所有事件都没有准备好时，才在epoll里等着。这样，就可以支持大量的并发，这里的并发请求，是指未处理完的请求，线程只有一个，<strong>同时处理的请求只有一个，只是在请求间不断切换，切换是因为异步事件未准备好，主动让出的。</strong>这里的切换没有什么代价，可以理解为在循环处理多个准备好的事件，事实上也是。与多线程相比，这种事件处理方式有很大优势，不需创建线程，每个请求占用的内存也很少，没有上下文切换，事件处理非常轻量级，没有上下文切换的开销，更多并发，只会占更多的内存而已。现在的网络服务器基本都采用这种方式，也是<strong>nginx性能高效的主要原因</strong>。</p>
+<h4 id="Nginx采用异步非阻塞的好处"><a href="#Nginx采用异步非阻塞的好处" class="headerlink" title="Nginx采用异步非阻塞的好处"></a>Nginx采用异步非阻塞的好处</h4><ul>
+<li>不需要创建线程，每个请求只占用少量的内存</li>
+<li>没有上下文切换，事件处理非常轻量</li>
+</ul>
+<p>淘宝tengine团队说测试结果是“24G内存机器上，处理并发请求可达200万”。</p>
+<h3 id="操作nginx"><a href="#操作nginx" class="headerlink" title="操作nginx"></a>操作nginx</h3><p> 怎样操作运行的nignx呢？master进程会接收来自外界发来的信号，因此要控制nginx，通过kill向master进程发送信号就可以了。如 kill –HUP pid，重启nginx，或重新加载配置，而不中断服务。Master进程在接到这个信号后，会先重新加载配置文件，然后再启动新的worker进程，并向所有老的worker进程发信号，不再接收新的请求，并且在处理完所有未处理完的请求后，退出。新的worker启动后，就开始接收新的请求。</p>
+<h3 id="Nginx处理web请求"><a href="#Nginx处理web请求" class="headerlink" title="Nginx处理web请求"></a>Nginx处理web请求</h3><h4 id="Worker抢占机制"><a href="#Worker抢占机制" class="headerlink" title="Worker抢占机制"></a>Worker抢占机制</h4><p> 假设如下图所示有三个工作进程，一个Client（处理请求），当一个web请求进入nginx后，这里有三个worker，由哪个worker去处理呢？ 这里有一个accept_mutex 互斥锁，和Client是对应的。哪个worker抢到了互斥锁，就由哪个worker来处理。</p>
+<p> 如下图：由worker1抢到了互斥锁，那么worker1就和client建立了联系。worker1对请求进行读取，解析，和响应。将数据返回给客户端，这样请求就结束了。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202203170943358.png" alt="img"></p>
+<h4 id="事件处理"><a href="#事件处理" class="headerlink" title="事件处理"></a>事件处理</h4><h5 id="传统服务器事件处理"><a href="#传统服务器事件处理" class="headerlink" title="传统服务器事件处理"></a>传统服务器事件处理</h5><blockquote>
+<p>当Client1和worker1阻塞后，Client2和Client3只能等待了。 可以再建一个worker2来处理Client2和Client3.</p>
+</blockquote>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202203170943576.png" alt="img"></p>
+<h5 id="Nginx事件处理"><a href="#Nginx事件处理" class="headerlink" title="Nginx事件处理"></a>Nginx事件处理</h5><blockquote>
+<p><strong>类似于多路复用器模式</strong>，Nginx使用异步非阻塞模式，底层使用了linux的epoll模型，当Client1，Client2和worker阻塞后，clent3和worker1还能正常处理。</p>
+</blockquote>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202203170943637.png" alt="img"></p>
+<h3 id="Nginx基础概念"><a href="#Nginx基础概念" class="headerlink" title="Nginx基础概念"></a>Nginx基础概念</h3><h4 id="Connection"><a href="#Connection" class="headerlink" title="Connection"></a>Connection</h4><blockquote>
+<p>Nginx中connection是对tcp连接的封装，包括连接的socket，读事件，写事件。</p>
+</blockquote>
+<p> Nginx怎么处理一个连接的呢？nginx在启动时，会解析配置文件，得到需要监听的端口与ip，然后在nginx的master进程里，先初始化这个监控的socket，然后再fork出多个子进程，子进程竞争accept新的连接。此时，客户端就可以像nginx发起连接了，当客户端与服务器通过三次握手建立好一个连接，nginx的某一个子进程会accept成功，得到这个socket，然后创建nginx对连接的封装，接着，设置读写事件处理函数并添加读写事件来与客户端进行数据的交换。最后，nginx或客户端主动关掉连接。</p>
+<p> Nginx也可以作为客户端来请求其他server的数据，此时，与其它server创建的连接，也封装在ngx_connection中。</p>
+<p> Nginx中，每个进程会有一个连接数的最大上限，这个上限与系统对fd的限制不一样。操作系统中，使用ulimit -n,可以得到一个进程所能打开的fd的最大数，即nofile，因为每个socket会占用一个fd，所以这个会限制进程的最大连接数，fd用完后，再创建socket，就会失败。Nginx通过设置worker_connections来设置每个进程支持的最大连接数，如果该值大于nofile，那么实际的最大连接数是nofile，nginx会有警告。Nginx在实现时，是通过一个连接池来管理的，每个worker进程都有一个独立的连接池，连接池大小是worker_connections。这里连接池里面保存的其实不是真实的连接，只是一个worker_connections大小的ngx_connection_t结构的数组。Nginx通过一个链表free_connections来保存所有的空闲ngx_connection_t.每次获取一个连接时，就从空闲连接链表中获取一个，用完后，再放回空闲连接链表里面。</p>
+<p> Worker_connections,表示每个worker所能建立连接的最大值，一个nginx能建立的最大连接数是：worker_connections * worker_processes.因此对于HTTP请求本地资源，最大并发可以是 worker_connections * worker_processes.而如果是HTTP作为反向代理来说，最大并发数是 worker_connections * worker_processes/2.因为作为反向代理服务器，每个并发会建立与客户端的连接和与后端服务器的连接，占用2个连接。</p>
+<blockquote>
+<p>如何保证worker进程竞争处理连接的公平呢？</p>
+</blockquote>
+<p> 如果某个进程得到accept的机会比较多，它的空闲连接会很快用完，如果不提前做一些控制，当accept到一个新的tcp连接后，因为无法得到空闲连接，而且无法将此连接转交其他进程，最终导致此tcp连接得不到处理。而其他进程有空余连接，却没有处理机会。如何解决这个问题呢？</p>
+<p> Nginx的处理得先打开accept_mutex，此时只有获得了accept_mutex的进程才会去添加accept事件，nginx会控制进程是否添加accept事件。Nginx使用一个叫ngx_accept_disabled变量控制是否竞争accept_mutex锁。这个变量与worker进程的剩余连接数有关，当该变量大于0时，就不去尝试获取锁，等于让出获取连接的机会。这样就可以<strong>控制多进程间连接的平衡了。</strong></p>
+<h4 id="Keep-alive"><a href="#Keep-alive" class="headerlink" title="Keep alive"></a>Keep alive</h4><blockquote>
+<p>http请求是请求应答式的，如果我们知道每个请求头与相应体的长度，那么我们可以在一个连接上面执行多个请求。<strong>即长连接</strong>。如果当前请求需要有body，那么nginx就需要客户端在请求头中指定content-length来表面body的大小，否则返回400错误。那么响应体的长度呢？http协议中关于响应body长度的确定：</p>
+</blockquote>
+<p> 对于http1.0 协议来说，如果响应头中有content-length头，则以content-length的长度就可以知道body的长度，客户端在接收body时，可以依照这个长度接收数据，接收完后，就表示该请求完成。如果没有content-length，客户端会一直接收数据，直到服务端主动端口连接，才表示body接收完</p>
+<p> 对于http1.1 协议，如果响应头中transfer-encoding为chunked传输，表示body是流式输出，body被分成多个块，每块的开始会标示出当前块的长度，此时，body不需要指定长度。如果是非chunked传输，而且有Content-length，则按照content-length来接收数据。否则，非chunked且没有content-length，则客户端接收数据，知道服务器主动断开。</p>
+<p> 客户端请求头中connection为close，表示客户端要关掉长连接，如果是keep-alive,则客户端需要打开长连接。客户端的请求中没有connection这个头，根据协议，如果是http1.0,默认是close，如果是http1.1，默认是keep-alive。如果要keep-alive，nginx在输出完响应体后，会设置当前连接的keepalive属性，然后等待客户端下一次请求，nginx设置了keepalive的等待最大时间。一般来说，当客户端需要多次访问同一个server时，打开keepalive的优势非常大。</p>
+<h4 id="Pipe"><a href="#Pipe" class="headerlink" title="Pipe"></a>Pipe</h4><p> http1.1中引入Pipeline，就是流水线作业，可以看做是keepalive的升华。Pipeline也是基于长连接的。目前就是利用一个连接做多次请求，如果客户端要提交多个请求，对于keepalive，第二个请求，必须要等到第一个请求的响应接收完后，才能发起。得到两个响应的时间至少是2RTT。而对于pipeline，客户端不必等到第一个请求处理完，就可以发起第二个请求。得到两个响应的时间可能能够达到1RTT。Nginx是直接支持pipeline的。Nginx对pipeline中的多个请求的处理不是并行的，而是一个接一个的处理，只是在处理第一个请求的时候，客户端就可以发起第二个请求。这样，nginx利用pipeline可以减少从处理完一个请求后到等待第二个请求的请求头数据的时间。</p>
+<h3 id="Nginx架构综览"><a href="#Nginx架构综览" class="headerlink" title="Nginx架构综览"></a>Nginx架构综览</h3><p> 传统基于进程或线程的模型使用单独的进程或线程处理并发连接，因而会阻塞于网络或I/O操作。根据不同的应用，就内存和CPU而言，这是非常低效的。派生进程或线程需要准备新的运行环境，包括在内存上分配堆和栈、生成一个新的运行上下文。创建这些东西还需要额外的CPU时间，而且过度的上下文切换引起的线程抖动最终会导致性能低下。所有这些复杂性在如Apache web服务器的老架构上一览无遗。在提供丰富的通用应用功能和优化服务器资源使用之间需要做一个权衡。</p>
+<p> 最早的时候，nginx希望为动态增长的网站获得更好的性能，并且密集高效的使用服务器资源，所以其使用了另外一个模型。受不断发展的在不同操作系统上开发基于事件模型的技术驱动，<strong>最终一个模块化，事件驱动，异步，单线程，非阻塞架构成为nginx代码的基础。</strong></p>
+<p><strong>Nginx大量使用多路复用和事件通知，并且给不同的进程分配不同的任务。数量有限的工作进程（Worker）使用高效的单线程循环处理连接。每个worker进程每秒可以处理数千个并发连接、请求。</strong></p>
+<h4 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h4><p> Nginx worker的代码包含核心和功能模块。核心负责维护一个紧凑的事件处理循环，并且在请求处理的每个阶段执行对应的模块代码段。模块完成了大部分展现和应用层功能。包括从网络和存储设备读取、写入，转换内容，进行输出过滤，SSI(server-side include)处理，或者如果启用代理则转发请求给后端服务器。</p>
+<p> nginx模块化的架构允许开发者扩展web服务器的功能，而不需要修改nginx核心。<strong>Nginx模块可分为：核心、事件模块，阶段处理器，协议、变量处理器，过滤器，上游和负载均衡器等。</strong>目前，nginx不支持动态加载模块，即模块代码是和nginx核心代码一起编译的。模块动态加载和ABI已经计划在将来的某个版本开发。更多关于不同模块角色的详细信息可在14.4章找到。</p>
+<p> Nginx在BSD、Linux和Solaris系统上使用kqueue、epoll和event ports等技术，通过事件通知机制来处理网络连接和内容获取，包括接受、处理和管理连接，并且大大增强了磁盘IO性能。目的在于尽可能的提供操作系统建议的手段，用于从网络进出流量，磁盘操作，套接字读取和写入，超时等事件中及时异步地获取反馈。Nginx为每个基于Unix的操作系统大量优化了这些多路复用和高级I/O操作的方法。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202203170943686.png" alt="img"></p>
+<p> 前面提到过，<strong>nginx不为每个连接派生进程或线程，而是由worker进程通过监听共享套接字接受新请求，并且使用高效的循环来处理数千个连接。Nginx不使用仲裁器或分发器来分发连接，这个工作由操作系统内核机制完成。</strong>监听套接字在启动时就完成初始化，worker进程通过这些套接字接受、读取请求和输出响应。</p>
+<p> 事件处理循环是nginx worker代码中最复杂的部分，它包含复杂的内部调用，并且严重依赖异步任务处理的思想。异步操作通过模块化、事件通知、大量回调函数以及微调定时器等实现。总的来说，<strong>基本原则就是尽可能做到非阻塞。Nginx worker进程唯一会被阻塞的情形是磁盘性能不足。</strong></p>
+<p> 由于nginx不为每个连接派生进程或线程，所以内存使用在大多数情况下是很节约并且高效的。同时由于不用频繁的生成和销毁进程或线程，所以nginx也很节省CPU时间。Nginx所做的就是检查网络和存储的状态，初始化新连接并添加到主循环，异步处理直到请求结束才从主循环中释放并删除。兼具精心设计的系统调用和诸如内存池等支持接口的精确实现，nginx在极端负载的情况下通常能做到中低CPU使用率。</p>
+<p> nginx派生多个worker进程处理连接，所以能够很好的利用多核CPU。<strong>通常一个单独的worker进程使用一个处理器核，这样能完全利用多核体系结构，并且避免线程抖动和锁。在一个单线程的worker进程内部不存在资源匮乏，并且资源控制机制是隔离的。</strong>这个模型也允许在物理存储设备之间进行扩展，提高磁盘利用率以避免磁盘I/O导致的阻塞。将工作负载分布到多个worker进程上最终能使服务器资源被更高效的利用。</p>
+<p> 针对某些磁盘使用和CPU负载的模式，nginx worker进程数应该进行调整。这里的规则比较基本，系统管理员应根据负载多尝试几种配置。通常推荐：<strong>如果负载模式是CPU密集型，</strong>例如处理大量TCP/IP协议，使用SSL，或者压缩数据等，nginx worker进程应该和CPU核心数相匹配；<strong>如果是磁盘密集型，</strong>例如从存储中提供多种内容服务，或者是大量的代理服务，worker的进程数应该是1.5到2倍的CPU核心数。一些工程师基于独立存储单元的数目来决定worker进程数，虽然这个方法的有效性取决于磁盘存储配置的类型，。</p>
+<p> Nginx开发者在下个版本中要解决的一个主要问题是怎么避免磁盘I/O引起的阻塞。目前，如果没有足够的存储性能为一个worker进程的磁盘操作提供服务，这个进程就会阻塞在磁盘读写操作上。<strong>一些机制和配置指令用于缓解这个磁盘I/O阻塞的场景，最显著的是sendfile和AIO指令，这通常可以大幅提升磁盘性能。</strong>应该根据数据集（data set），可用内存数，以及底层存储架构等来规划安装nginx。</p>
+<p> 当前的worker模型的另一个问题是对嵌入脚本的支持有限。举例来说，标准的nginx发布版只支持Perl作为嵌入脚本语言。这个原因很简单：嵌入脚本很可能会在任何操作上阻塞或者异常退出，这两个行为都会导致worker进程挂住而同时影响数千个连接。将脚本更简单，更可靠地嵌入nginx，并且更适合广泛应用的工作已经列入计划。</p>
+<h3 id="nginx-进程角色"><a href="#nginx-进程角色" class="headerlink" title="nginx 进程角色"></a>nginx 进程角色</h3><blockquote>
+<p>Nginx在内存中运行多个进程，一个master进程和多个worker进程。同时还有一些特殊用途的进程，例如缓存加载和缓存管理进程。<strong>在nginx 1.x版本，所有进程都是单线程的，使用共享内存作为进程间通信机制。Master进程使用root用户权限运行，其他进程使用非特权用户权限运行。</strong></p>
+</blockquote>
+<h4 id="master-1"><a href="#master-1" class="headerlink" title="master"></a>master</h4><blockquote>
+<p>master进程负责下列工作：</p>
+</blockquote>
+<ul>
+<li>读取和校验配置文件</li>
+<li>创建、绑定、关闭套接字</li>
+<li>启动、终止、维护所配置的worker进程数目</li>
+<li>不中断服务刷新配置文件</li>
+<li>不中断服务升级程序（启动新程序或在需要时回滚）</li>
+<li>重新打开日志文件</li>
+<li>编译嵌入Perl脚本</li>
+</ul>
+<h4 id="Worker"><a href="#Worker" class="headerlink" title="Worker"></a>Worker</h4><blockquote>
+<p><strong>Worker进程接受、处理来自客户端的连接，提供反向代理和过滤功能以及其他nginx所具有的所有功能。</strong></p>
+</blockquote>
+<ul>
+<li>接收、传入并处理来自客户端的连接；</li>
+<li>提供反向代理及过滤功能；</li>
+<li>nginx任何能完成的其它任务；</li>
+</ul>
+<p> 由于worker进程是web服务器每日操作的实际执行者，所以对于监控nginx实例行为，系统管理员应该保持关注worker进程。</p>
+<p> 缓存加载进程负责检查磁盘上的缓存数据并且在内存中维护缓存元数据的数据库。基本上，缓存加载进程使用特定分配好的目录结构来管理已经存储在磁盘上的文件，为nginx提供准备，它会遍历目录，检查缓存内容元数据，当所有数据可用时就更新相关的共享内存项。</p>
+<p> 缓存管理进程主要负责缓存过期和失效。它在nginx正常工作时常驻内存中，当有异常则由master进程重启。</p>
+<h3 id="Nginx缓存简介"><a href="#Nginx缓存简介" class="headerlink" title="Nginx缓存简介"></a>Nginx缓存简介</h3><p><strong>Nginx在文件系统上使用分层数据存储实现缓存。缓存主键可配置，并且可使用不同特定请求参数来控制缓存内容。</strong>缓存主键和元数据存储在共享内存段中，缓存加载进程、缓存管理进程和worker进程都能访问。目前不支持在内存中缓存文件，但可以用操作系统的虚拟文件系统机制进行优化。每个缓存的响应存储到文件系统上的不同文件，Nginx配置指令控制存储的层级（分几级和命名方式）。如果响应需要缓存到缓存目录，就从URL的MD5哈希值中获取缓存的路径和文件名。</p>
+<p> 将响应内容缓存到磁盘的过程如下：当nginx从后端服务器读取响应时，响应内容先写到缓存目录之外的一个临时文件。nginx完成请求处理后，就将这个临时文件重命名并移到缓存目录。如果用于代理功能的临时目录位于另外一个文件系统，则临时文件会被拷贝一次，所以<strong>建议将临时目录和缓存目录放到同一个文件系统上</strong>。如果需要清除缓存目录，也可以很安全地删除文件。一些第三方扩展可以远程控制缓存内容，而且整合这些功能到主发布版的工作已经列入计划。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">YangShen</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://lvxueyang.vip/post/8eebb21.html">https://lvxueyang.vip/post/8eebb21.html</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">YangShen</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/Nginx/">
+                                    <span class="chip bg-color">Nginx</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
+    }
+
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
+    }
+
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("/medias/comment_bg.png") 100% 100% no-repeat;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div id="vcomments" class="card-content" style="display: grid">
+    </div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'kkTHtgDEUlqRlsbgP6vMWDxa-gzGzoHsz',
+        appKey: 'EX0XjX0GwgIgm38pW1RuybHn',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go'
+    });
+</script>
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/post/27a0e22b.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082159.jpg" class="responsive-img" alt="EM算法">
+                        
+                        <span class="card-title">EM算法</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-03-17
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                    机器学习
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/EM%E7%AE%97%E6%B3%95/">
+                        <span class="chip bg-color">EM算法</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/post/cc1b6e67.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082041.jpg" class="responsive-img" alt="Nginx简介">
+                        
+                        <span class="card-title">Nginx简介</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-16
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Nginx/" class="post-category">
+                                    Nginx
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Nginx/">
+                        <span class="chip bg-color">Nginx</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: 牧马人的忧伤<br />'
+            + '文章作者: YangShen<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="330695641"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2018-2022</span>
+            
+            <span id="year">2018</span>
+            <a href="/about" target="_blank">YangShen</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">3956k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2018";
+                    var startMonth = "6";
+                    var startDate = "28";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/LVXUEYANGTiger" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1191432275@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1191432275" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1191432275" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    <script type="text/javascript">
+        window.onload = function(){
+            //屏蔽键盘事件
+            document.onkeydown = function (){
+                var e = window.event || arguments[0];
+                //F12
+                if(e.keyCode == 123){
+                    return false;
+                //Ctrl+Shift+I
+                }else if((e.ctrlKey) && (e.shiftKey) && (e.keyCode == 73)){
+                    return false;
+                //Shift+F10
+                }else if((e.shiftKey) && (e.keyCode == 121)){
+                    return false;
+                //Ctrl+U
+                }else if((e.ctrlKey) && (e.keyCode == 85)){
+                    return false;
+                }
+            };
+            //屏蔽鼠标右键
+            document.oncontextmenu = function (){
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,2445 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="聚类算法, 牧马人的忧伤">
+    <meta name="description" content="主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>聚类算法 | 牧马人的忧伤</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.2">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span diyFont">牧马人的忧伤</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>找文章</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/categories">
+          
+          <i class="fas fa-bookmark" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>分类</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tags">
+          
+          <i class="fas fa-tags" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>标签</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/archives">
+          
+          <i class="fas fa-archive" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>归档</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>生活</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/timeline">
+          
+          <i class="fas fa-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>时间轴</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/contact">
+          
+          <i class="fas fa-music" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>留言板</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/friends">
+          
+          <i class="fas fa-address-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>友人帐</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于笔者</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">牧马人的忧伤</div>
+        <div class="logo-desc">
+            
+            主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			找文章
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/categories " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-bookmark" style="position: absolute;left:50px" ></i>
+			      
+		          <span>分类</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/tags " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-tags" style="position: absolute;left:50px" ></i>
+			      
+		          <span>标签</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/archives " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-archive" style="position: absolute;left:50px" ></i>
+			      
+		          <span>归档</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			生活
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/timeline " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>时间轴</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/contact " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-music" style="position: absolute;left:50px" ></i>
+			      
+		          <span>留言板</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/friends " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-address-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>友人帐</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于笔者
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
+        }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082121.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">聚类算法</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">
+                                <span class="chip bg-color">机器学习</span>
+                            </a>
+                        
+                            <a href="/tags/%E8%81%9A%E7%B1%BB/">
+                                <span class="chip bg-color">聚类</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                机器学习
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-08-10
+                </div>
+                
+
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
+                    2022-08-13
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    7.1k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    28 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="聚类算法简介"><a href="#聚类算法简介" class="headerlink" title="聚类算法简介"></a>聚类算法简介</h1><h2 id="认识聚类算法"><a href="#认识聚类算法" class="headerlink" title="认识聚类算法"></a>认识聚类算法</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130843315.jpeg" alt="image-20190219161521139"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130843639.jpeg" alt="image-20190219161600630"></p>
+<p><strong>使用不同的聚类准则，产生的聚类结果不同</strong>。</p>
+<h3 id="聚类算法在现实中的应用"><a href="#聚类算法在现实中的应用" class="headerlink" title="聚类算法在现实中的应用"></a>聚类算法在现实中的应用</h3><ul>
+<li>用户画像，广告推荐，Data Segmentation，搜索引擎的流量推荐，恶意流量识别</li>
+<li>基于位置信息的商业推送，新闻聚类，筛选排序</li>
+<li>图像分割，降维，识别；离群点检测；信用卡异常消费；发掘相同功能的基因片段</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130843197.jpeg" alt="img"></p>
+<h3 id="聚类算法的概念"><a href="#聚类算法的概念" class="headerlink" title="聚类算法的概念"></a>聚类算法的概念</h3><p><strong>聚类算法</strong>：</p>
+<p>一种典型的<strong>无监督</strong>学习算法，主要用于将相似的样本自动归到一个类别中。</p>
+<p>在聚类算法中根据样本之间的相似性，将样本划分到不同的类别中，对于不同的相似度计算方法，会得到不同的聚类结果，常用的相似度计算方法有欧式距离法。</p>
+<h3 id="聚类算法与分类算法最大的区别"><a href="#聚类算法与分类算法最大的区别" class="headerlink" title="聚类算法与分类算法最大的区别"></a>聚类算法与分类算法最大的区别</h3><p>聚类算法是无监督的学习算法，而分类算法属于监督的学习算法。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ul>
+<li>聚类算法分类【了解】<ul>
+<li>粗聚类</li>
+<li>细聚类</li>
+</ul>
+</li>
+<li>聚类的定义【了解】<ul>
+<li>一种典型的无监督学习算法，</li>
+<li>主要用于将相似的样本自动归到一个类别中</li>
+<li>计算样本和样本之间的相似性，一般使用欧式距离</li>
+</ul>
+</li>
+</ul>
+<h1 id="聚类算法api初步使用"><a href="#聚类算法api初步使用" class="headerlink" title="聚类算法api初步使用"></a>聚类算法api初步使用</h1><h2 id="api介绍"><a href="#api介绍" class="headerlink" title="api介绍"></a>api介绍</h2><ul>
+<li>sklearn.cluster.KMeans(n_clusters=8)<ul>
+<li>参数:<ul>
+<li>n_clusters:开始的聚类中心数量<ul>
+<li>整型，缺省值=8，生成的聚类数，即产生的质心（centroids）数。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>方法:<ul>
+<li>estimator.fit(x)</li>
+<li>estimator.predict(x)</li>
+<li>estimator.fit_predict(x)<ul>
+<li>计算聚类中心并预测每个样本属于哪个类别,相当于先调用fit(x),然后再调用predict(x)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h2><p>随机创建不同二维数据集作为训练集，并结合k-means算法将其聚类，你可以尝试分别聚类不同数量的簇，并观察聚类效果：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130844608.jpeg" alt="image-20190219163451509"></p>
+<p>聚类参数n_cluster传值不同，得到的聚类结果不同</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130844778.jpeg" alt="image-20190219163505530"></p>
+<h3 id="流程分析"><a href="#流程分析" class="headerlink" title="流程分析"></a>流程分析</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130844580.jpeg" alt="image-20190219163649472"></p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><p>1.创建数据集</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> matplotlib<span class="token punctuation">.</span>pyplot <span class="token keyword">as</span> plt
+<span class="token keyword">from</span> sklearn<span class="token punctuation">.</span>datasets<span class="token punctuation">.</span>samples_generator <span class="token keyword">import</span> make_blobs
+<span class="token keyword">from</span> sklearn<span class="token punctuation">.</span>cluster <span class="token keyword">import</span> KMeans
+<span class="token keyword">from</span> sklearn<span class="token punctuation">.</span>metrics <span class="token keyword">import</span> calinski_harabaz_score
+
+<span class="token comment"># 创建数据集</span>
+<span class="token comment"># X为样本特征，Y为样本簇类别， 共1000个样本，每个样本2个特征，共4个簇，</span>
+<span class="token comment"># 簇中心在[-1,-1], [0,0],[1,1], [2,2]， 簇方差分别为[0.4, 0.2, 0.2, 0.2]</span>
+X<span class="token punctuation">,</span> y <span class="token operator">=</span> make_blobs<span class="token punctuation">(</span>n_samples<span class="token operator">=</span><span class="token number">1000</span><span class="token punctuation">,</span> n_features<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> centers<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                  cluster_std<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                  random_state<span class="token operator">=</span><span class="token number">9</span><span class="token punctuation">)</span>
+
+<span class="token comment"># 数据集可视化</span>
+plt<span class="token punctuation">.</span>scatter<span class="token punctuation">(</span>X<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> X<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> marker<span class="token operator">=</span><span class="token string">'o'</span><span class="token punctuation">)</span>
+plt<span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>2.使用k-means进行聚类,并使用CH方法评估</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">y_pred <span class="token operator">=</span> KMeans<span class="token punctuation">(</span>n_clusters<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> random_state<span class="token operator">=</span><span class="token number">9</span><span class="token punctuation">)</span><span class="token punctuation">.</span>fit_predict<span class="token punctuation">(</span>X<span class="token punctuation">)</span>
+<span class="token comment"># 分别尝试n_cluses=2\3\4,然后查看聚类效果</span>
+plt<span class="token punctuation">.</span>scatter<span class="token punctuation">(</span>X<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> X<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> c<span class="token operator">=</span>y_pred<span class="token punctuation">)</span>
+plt<span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment"># 用Calinski-Harabasz Index评估的聚类分数</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>calinski_harabaz_score<span class="token punctuation">(</span>X<span class="token punctuation">,</span> y_pred<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h2><ul>
+<li>api：sklearn.cluster.KMeans(n_clusters=8)【知道】<ul>
+<li>参数:<ul>
+<li>n_clusters:开始的聚类中心数量</li>
+</ul>
+</li>
+<li>方法：<ul>
+<li>estimator.fit_predict(x)<ul>
+<li>计算聚类中心并预测每个样本属于哪个类别,相当于先调用fit(x),然后再调用predict(x)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="聚类算法实现流程"><a href="#聚类算法实现流程" class="headerlink" title="聚类算法实现流程"></a>聚类算法实现流程</h1><ul>
+<li>k-means其实包含两层内容：<ul>
+<li> K : 初始中心点个数（计划聚类数）</li>
+<li> means：求中心点到其他数据点距离的平均值</li>
+</ul>
+</li>
+</ul>
+<h2 id="k-means聚类步骤"><a href="#k-means聚类步骤" class="headerlink" title="k-means聚类步骤"></a>k-means聚类步骤</h2><ul>
+<li>1、随机设置K个特征空间内的点作为初始的聚类中心</li>
+<li>2、对于其他每个点计算到K个中心的距离，未知的点选择最近的一个聚类中心点作为标记类别</li>
+<li>3、接着对着标记的聚类中心之后，重新计算出每个聚类的新中心点（平均值）</li>
+<li>4、如果计算得出的新中心点与原中心点一样（质心不再移动），那么结束，否则重新进行第二步过程</li>
+</ul>
+<p>通过下图解释实现流程：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130846063.jpeg" alt="K-meansè¿‡ç¨‹åˆ†æž"></p>
+<p>k聚类动态效果图</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130846361.jpeg" alt="img"></p>
+<h2 id="案例练习"><a href="#案例练习" class="headerlink" title="案例练习"></a>案例练习</h2><ul>
+<li>案例：</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130847085.jpeg" alt="image-20190219171158984"></p>
+<ul>
+<li>1、随机设置K个特征空间内的点作为初始的聚类中心（本案例中设置p1和p2）</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130847296.jpeg" alt="image-20190219171244828"></p>
+<p>2、对于其他每个点计算到K个中心的距离，未知的点选择最近的一个聚类中心点作为标记类别</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130847792.jpeg" alt="image-20190219171326923"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130847388.jpeg" alt="image-20190219171338441"></p>
+<p>3、接着对着标记的聚类中心之后，重新计算出每个聚类的新中心点（平均值）</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130848675.jpeg" alt="image-20190219171727035"></p>
+<p>4、如果计算得出的新中心点与原中心点一样（质心不再移动），那么结束，否则重新进行第二步过程【经过判断，需要重复上述步骤，开始新一轮迭代】</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130848769.jpeg" alt="image-20190219171951607"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130849940.jpeg" alt="image-20190219172011618"></p>
+<p>5、当每次迭代结果不变时，认为算法收敛，聚类完成，<strong>K-Means一定会停下，不可能陷入一直选质心的过程。</strong></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130849864.jpeg" alt="image-20190219172125388"></p>
+<h2 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h2><ul>
+<li><p>K-means聚类实现流程</p>
+<p>  【掌握】</p>
+<ul>
+<li>事先<strong>确定常数K</strong>，常数K意味着最终的聚类类别数;</li>
+<li>随机<strong>选定初始点为质心</strong>，并通过计算每一个样本与质心之间的相似度(这里为欧式距离)，将样本点归到最相似的类中，</li>
+<li>接着，<strong>重新计算</strong>每个类的质心(即为类中心)，重复这样的过程，直到<strong>质心不再改变</strong>，</li>
+<li>最终就确定了每个样本所属的类别以及每个类的质心。</li>
+<li>注意<ul>
+<li>由于每次都要计算所有的样本与每一个质心之间的相似度，故在大规模的数据集上，K-Means算法的收敛速度比较慢。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="模型评估"><a href="#模型评估" class="headerlink" title="模型评估"></a>模型评估</h1><h2 id="误差平方和-SSE-The-sum-of-squares-due-to-error-："><a href="#误差平方和-SSE-The-sum-of-squares-due-to-error-：" class="headerlink" title="误差平方和(SSE \The sum of squares due to error)："></a>误差平方和(SSE \The sum of squares due to error)：</h2><p>举例:(下图中数据-0.2, 0.4, -0.8, 1.3, -0.7, 均为真实值和预测值的差)</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130850268.jpeg" alt="image-20190308211436382"></p>
+<p>在k-means中的应用:</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130850554.jpeg" alt="image-20200110002026198">公式各部分内容:</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130851421.jpeg" alt="image-20200110002123645"></p>
+<p>上图中: k=2</p>
+<ul>
+<li><p><strong>SSE图最终的结果,对图松散度的衡量.</strong>(eg: <strong>SSE(左图)&lt;SSE(右图)</strong>)</p>
+</li>
+<li><p>SSE随着聚类迭代,其值会越来越小,直到最后趋于稳定:</p>
+</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130851925.png" alt="2019-02-19 17.38.11"></p>
+<ul>
+<li>如果质心的初始值选择不好,SSE只会达到一个不怎么好的局部最优解.</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130851877.png" alt="2019-02-19 17.39.29"></p>
+<h2 id="“肘”方法-Elbow-method-—-K值确定"><a href="#“肘”方法-Elbow-method-—-K值确定" class="headerlink" title="“肘”方法 (Elbow method) — K值确定"></a><strong>“肘”方法 (Elbow method)</strong> — K值确定</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130852697.jpeg" alt="image-20190219174520309"></p>
+<p>（1）对于n个点的数据集，迭代计算k from 1 to n，每次聚类完成后计算每个点到其所属的簇中心的距离的平方和；</p>
+<p>（2）平方和是会逐渐变小的，直到k==n时平方和为0，因为每个点都是它所在的簇中心本身。</p>
+<p>（3）在这个平方和变化过程中，会出现一个拐点也即“肘”点，<strong>下降率突然变缓时即认为是最佳的k值</strong>。</p>
+<p>在决定什么时候停止训练时，肘形判据同样有效，数据通常有更多的噪音，在<strong>增加分类无法带来更多回报时，我们停止增加类别</strong>。</p>
+<h2 id="轮廓系数法（Silhouette-Coefficient）"><a href="#轮廓系数法（Silhouette-Coefficient）" class="headerlink" title="轮廓系数法（Silhouette Coefficient）"></a>轮廓系数法（Silhouette Coefficient）</h2><p>结合了聚类的凝聚度（Cohesion）和分离度（Separation），用于评估聚类的效果：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130852572.jpeg" alt="image-20200110002237068"></p>
+<p><strong>目的：</strong></p>
+<p> 内部距离最小化，外部距离最大化</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130852578.jpeg" alt="image-20190219175813875"></p>
+<p>计算样本i到同簇其他样本的平均距离ai，ai 越小样本i的簇内不相似度越小，说明样本i越应该被聚类到该簇。</p>
+<p>计算样本i到最近簇Cj 的所有样本的平均距离bij，称样本i与最近簇Cj 的不相似度，定义为样本i的簇间不相似度：bi =min{bi1, bi2, …, bik}，bi越大，说明样本i越不属于其他簇。</p>
+<p>求出所有样本的轮廓系数后再求平均值就得到了<strong>平均轮廓系数</strong>。</p>
+<p>平均轮廓系数的取值范围为[-1,1]，系数越大，聚类效果越好。</p>
+<p>簇内样本的距离越近，簇间样本距离越远</p>
+<p><strong>案例：</strong></p>
+<p>下图是500个样本含有2个feature的数据分布情况，我们对它进行SC系数效果衡量：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130853621.jpeg" alt="image-20190219175321181"></p>
+<p><strong>n_clusters = 2 The average silhouette_score is : 0.7049787496083262</strong></p>
+<p>n_clusters = 3 The average silhouette_score is : 0.5882004012129721</p>
+<p><strong>n_clusters = 4 The average silhouette_score is : 0.6505186632729437</strong></p>
+<p>n_clusters = 5 The average silhouette_score is : 0.56376469026194</p>
+<p>n_clusters = 6 The average silhouette_score is : 0.4504666294372765</p>
+<p>n_clusters 分别为 2，3，4，5，6时，SC系数如下，是介于[-1,1]之间的度量指标：</p>
+<p><strong>每次聚类后，每个样本都会得到一个轮廓系数，当它为1时，说明这个点与周围簇距离较远，结果非常好，当它为0，说明这个点可能处在两个簇的边界上，当值为负时，暗含该点可能被误分了。</strong></p>
+<p>从平均SC系数结果来看，K取3，5，6是不好的，那么2和4呢？</p>
+<p>k=2的情况：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130853452.jpeg" alt="image-20190219175529440"></p>
+<p>k=4的情况：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130853631.jpeg" alt="image-20190219175611967"></p>
+<p>n_clusters = 2时，第0簇的宽度远宽于第1簇；</p>
+<p>n_clusters = 4时，所聚的簇宽度相差不大，因此选择K=4，作为最终聚类个数。</p>
+<h2 id="CH系数（Calinski-Harabasz-Index）"><a href="#CH系数（Calinski-Harabasz-Index）" class="headerlink" title="CH系数（Calinski-Harabasz Index）"></a>CH系数（Calinski-Harabasz Index）</h2><p><strong>Calinski-Harabasz：</strong></p>
+<p>类别内部数据的协方差越小越好，类别之间的协方差越大越好（换句话说：类别内部数据的距离平方和越小越好，类别之间的距离平方和越大越好），</p>
+<p>这样的Calinski-Harabasz分数s会高，分数s高则聚类效果越好。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130853545.jpeg" alt="image-20190219182033877"></p>
+<p>tr为<strong>矩阵的迹</strong>, Bk为类别之间的协方差矩阵，Wk为类别内部数据的协方差矩阵;</p>
+<p>m为训练集样本数，k为类别数。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130854451.jpeg" alt="image-20190219182615777"></p>
+<p>使用矩阵的迹进行求解的理解：</p>
+<p>矩阵的对角线可以表示一个物体的相似性</p>
+<p>在机器学习里，主要为了获取数据的特征值，那么就是说，在任何一个矩阵计算出来之后，都可以简单化，只要获取矩阵的迹，就可以表示这一块数据的最重要的特征了，这样就可以把很多无关紧要的数据删除掉，达到简化数据，提高处理速度。</p>
+<p>CH需要达到的目的：</p>
+<p> <strong>用尽量少的类别聚类尽量多的样本，同时获得较好的聚类效果。</strong></p>
+<h2 id="小结-3"><a href="#小结-3" class="headerlink" title="小结"></a>小结</h2><ul>
+<li>sse【知道】<ul>
+<li>误差平方和的值越小越好</li>
+</ul>
+</li>
+<li>肘部法【知道】<ul>
+<li>下降率突然变缓时即认为是最佳的k值</li>
+</ul>
+</li>
+<li>SC系数【知道】<ul>
+<li>取值为[-1, 1]，其值越大越好</li>
+</ul>
+</li>
+<li>CH系数【知道】<ul>
+<li>分数s高则聚类效果越好</li>
+<li>CH需要达到的目的：<strong>用尽量少的类别聚类尽量多的样本，同时获得较好的聚类效果。</strong></li>
+</ul>
+</li>
+</ul>
+<h1 id="算法优化"><a href="#算法优化" class="headerlink" title="算法优化"></a>算法优化</h1><p><strong>k-means算法小结</strong></p>
+<p><strong>优点：</strong></p>
+<p> 1.原理简单（靠近中心点），实现容易</p>
+<p> 2.聚类效果中上（依赖K的选择）</p>
+<p> 3.空间复杂度o(N)，时间复杂度o(I<em>K</em>N)</p>
+<pre class="line-numbers language-none"><code class="language-none">N为样本点个数，K为中心点个数，I为迭代次数<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><strong>缺点：</strong></p>
+<p> 1.对离群点，噪声敏感 （中心点易偏移）</p>
+<p> 2.很难发现大小差别很大的簇及进行增量计算</p>
+<p> 3.结果不一定是全局最优，只能保证局部最优（与K的个数及初值选取有关）</p>
+<h2 id="Canopy算法配合初始聚类"><a href="#Canopy算法配合初始聚类" class="headerlink" title="Canopy算法配合初始聚类"></a>Canopy算法配合初始聚类</h2><h3 id="Canopy算法配合初始聚类实现流程"><a href="#Canopy算法配合初始聚类实现流程" class="headerlink" title="Canopy算法配合初始聚类实现流程"></a>Canopy算法配合初始聚类实现流程</h3><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130855600.jpeg" alt="image-20190219190832599"></p>
+<h3 id="Canopy算法的优缺点"><a href="#Canopy算法的优缺点" class="headerlink" title="Canopy算法的优缺点"></a>Canopy算法的优缺点</h3><p>优点：</p>
+<p> 1.Kmeans对噪声抗干扰较弱，通过Canopy对比，将较小的NumPoint的Cluster直接去掉有利于抗干扰。</p>
+<p> 2.Canopy选择出来的每个Canopy的centerPoint作为K会更精确。</p>
+<p> 3.只是针对每个Canopy的内做Kmeans聚类，减少相似计算的数量。</p>
+<p>缺点：</p>
+<p> 1.算法中 T1、T2的确定问题 ，依旧可能落入局部最优解</p>
+<h2 id="K-means"><a href="#K-means" class="headerlink" title="K-means++"></a>K-means++</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130855728.jpeg" alt="image-20190219233830941"></p>
+<p>其中：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130855800.jpeg" alt="image-20190719205512954"></p>
+<p>为方便后面表示，把其记为A</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130855216.jpeg" alt="image-20190219233845360"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130855079.jpeg" alt="image-20190219233904862"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130856125.jpeg" alt="image-20190219233921494"></p>
+<p>kmeans++目的，让选择的质心尽可能的分散</p>
+<p>如下图中，如果第一个质心选择在圆心，那么最优可能选择到的下一个点在P(A)这个区域（根据颜色进行划分）</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130856866.jpeg" alt="image-20190219234135506"></p>
+<h2 id="二分k-means"><a href="#二分k-means" class="headerlink" title="二分k-means"></a>二分k-means</h2><p>实现流程:</p>
+<ul>
+<li>1.所有点作为一个簇</li>
+<li>2.将该簇一分为二</li>
+<li>3.选择能最大限度降低聚类代价函数（也就是误差平方和）的簇划分为两个簇。</li>
+<li>4.以此进行下去，直到簇的数目等于用户给定的数目k为止。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130856822.jpeg" alt="image-20190323000108301"></p>
+<p><strong>隐含的一个原则</strong></p>
+<p>因为聚类的误差平方和能够衡量聚类性能，该值越小表示数据点越接近于他们的质心，聚类效果就越好。所以需要对误差平方和最大的簇进行再一次划分，因为误差平方和越大，表示该簇聚类效果越不好，越有可能是多个簇被当成了一个簇，所以我们首先需要对这个簇进行划分。</p>
+<p>二分K均值算法可以加速K-means算法的执行速度，因为它的相似度计算少了并且不受初始化问题的影响，因为这里不存在随机点的选取，且每一步都保证了误差最小</p>
+<h2 id="k-medoids（k-中心聚类算法）"><a href="#k-medoids（k-中心聚类算法）" class="headerlink" title="k-medoids（k-中心聚类算法）"></a>k-medoids（k-中心聚类算法）</h2><p>K-medoids和K-means是有区别的，<strong>不一样的地方在于中心点的选取</strong></p>
+<ul>
+<li>K-means中，将中心点取为当前cluster中所有数据点的平均值，对异常点很敏感!</li>
+<li>K-medoids中，将从当前cluster 中选取到其他所有（当前cluster中的）点的距离之和最小的点作为中心点。</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130857108.jpeg" alt="image-20190220000002208"></p>
+<p>算法流程：</p>
+<p>　　 ( 1 )总体n个样本点中任意选取k个点作为medoids</p>
+<p>　　 ( 2 )按照与medoids最近的原则，将剩余的n-k个点分配到当前最佳的medoids代表的类中</p>
+<p>　　 ( 3 )对于第i个类中除对应medoids点外的所有其他点，按顺序计算当其为新的medoids时，代价函数的值，遍历所有可能，选取代价函数最小时对应的点作为新的medoids</p>
+<p>　　 ( 4 )重复2-3的过程，直到所有的medoids点不再发生变化或已达到设定的最大迭代次数</p>
+<p>　　 ( 5 )产出最终确定的k个类</p>
+<p><strong>k-medoids对噪声鲁棒性好。</strong></p>
+<p>例：当一个cluster样本点只有少数几个，如（1,1）（1,2）（2,1）（1000,1000）。其中（1000,1000）是噪声。如果按照k-means质心大致会处在（1,1）（1000,1000）中间，这显然不是我们想要的。这时k-medoids就可以避免这种情况，他会在（1,1）（1,2）（2,1）（1000,1000）中选出一个样本点使cluster的绝对误差最小，计算可知一定会在前三个点中选取。</p>
+<p>k-medoids只能对小样本起作用，样本大，速度就太慢了，当样本多的时候，少数几个噪音对k-means的质心影响也没有想象中的那么重，所以k-means的应用明显比k-medoids多。</p>
+<h2 id="Kernel-k-means（了解）"><a href="#Kernel-k-means（了解）" class="headerlink" title="Kernel k-means（了解）"></a>Kernel k-means（了解）</h2><p>kernel k-means实际上，就是将每个样本进行一个投射到高维空间的处理，然后再将处理后的数据使用普通的k-means算法思想进行聚类。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130857416.jpeg" alt="image-20190219235240810"></p>
+<h2 id="ISODATA（了解）"><a href="#ISODATA（了解）" class="headerlink" title="ISODATA（了解）"></a>ISODATA（了解）</h2><p>类别数目随着聚类过程而变化；</p>
+<p>对类别数会进行合并，分裂，</p>
+<p>“合并”：（当聚类结果某一类中样本数太少，或两个类间的距离太近时）</p>
+<p>“分裂”：（当聚类结果中某一类的类内方差太大，将该类进行分裂）</p>
+<h2 id="Mini-Batch-K-Means（了解）"><a href="#Mini-Batch-K-Means（了解）" class="headerlink" title="Mini Batch K-Means（了解）"></a>Mini Batch K-Means（了解）</h2><p>适合大数据的聚类算法</p>
+<p>大数据量是什么量级？通常当样本量大于1万做聚类时，就需要考虑选用Mini Batch K-Means算法。</p>
+<p>Mini Batch KMeans使用了Mini Batch（分批处理）的方法对数据点之间的距离进行计算。</p>
+<p>Mini Batch计算过程中不必使用所有的数据样本，而是从不同类别的样本中抽取一部分样本来代表各自类型进行计算。由于计算样本量少，所以会相应的减少运行时间，但另一方面抽样也必然会带来准确度的下降。</p>
+<p>该算法的迭代步骤有两步：</p>
+<p>(1)从数据集中随机抽取一些数据形成小批量，把他们分配给最近的质心</p>
+<p>(2)更新质心</p>
+<p> 与Kmeans相比，数据的更新在每一个小的样本集上。对于每一个小批量，通过计算平均值得到更新质心，并把小批量里的数据分配给该质心，随着迭代次数的增加，这些质心的变化是逐渐减小的，直到质心稳定或者达到指定的迭代次数，停止计算。</p>
+<h2 id="小结-4"><a href="#小结-4" class="headerlink" title="小结"></a>小结</h2><ul>
+<li><p>k-means算法优缺点总结</p>
+<p>  【知道】</p>
+<ul>
+<li>优点：<ul>
+<li> 1.原理简单（靠近中心点），实现容易</li>
+<li> 2.聚类效果中上（依赖K的选择）</li>
+<li> 3.空间复杂度o(N)，时间复杂度o(I<em>K</em>N)</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li> 1.对离群点，噪声敏感 （中心点易偏移）</li>
+<li> 2.很难发现大小差别很大的簇及进行增量计算</li>
+<li> 3.结果不一定是全局最优，只能保证局部最优（与K的个数及初值选取有关）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>优化方法【知道】</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>优化方法</strong></th>
+<th><strong>思路</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Canopy+kmeans</td>
+<td>Canopy粗聚类配合kmeans</td>
+</tr>
+<tr>
+<td>kmeans++</td>
+<td>距离越远越容易成为新的质心</td>
+</tr>
+<tr>
+<td>二分k-means</td>
+<td>拆除SSE最大的簇</td>
+</tr>
+<tr>
+<td>k-medoids</td>
+<td>和kmeans选取中心点的方式不同</td>
+</tr>
+<tr>
+<td>kernel kmeans</td>
+<td>映射到高维空间</td>
+</tr>
+<tr>
+<td>ISODATA</td>
+<td>动态聚类，可以更改K值大小</td>
+</tr>
+<tr>
+<td>Mini-batch K-Means</td>
+<td>大数据集分批聚类</td>
+</tr>
+</tbody></table>
+<h1 id="特征降维"><a href="#特征降维" class="headerlink" title="特征降维"></a>特征降维</h1><h2 id="降维"><a href="#降维" class="headerlink" title="降维"></a>降维</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p><strong>降维</strong>是指在某些限定条件下，<strong>降低随机变量(特征)个数</strong>，得到<strong>一组“不相关”主变量</strong>的过程</p>
+<ul>
+<li>降低随机变量的个数</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130858343.jpeg" alt="é™ç&quot;´"></p>
+<ul>
+<li>相关特征(correlated feature)<ul>
+<li>相对湿度与降雨量之间的相关</li>
+<li>等等</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>正是因为在进行训练的时候，我们都是使用特征进行学习。如果特征本身存在问题或者特征之间相关性较强，对于算法学习预测会影响较大</p>
+</blockquote>
+<h3 id="降维的两种方式"><a href="#降维的两种方式" class="headerlink" title="降维的两种方式"></a>降维的两种方式</h3><ul>
+<li><strong>特征选择</strong></li>
+<li><strong>主成分分析（可以理解一种特征提取的方式）</strong></li>
+</ul>
+<h2 id="特征选择"><a href="#特征选择" class="headerlink" title="特征选择"></a>特征选择</h2><h3 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h3><p>数据中包含<strong>冗余或无关变量（或称特征、属性、指标等）</strong>，旨在从<strong>原有特征中找出主要特征</strong>。</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130859646.jpeg" alt="é¸Ÿç±&quot;ç‰¹å¾é€‰æ‹©"></p>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><ul>
+<li>Filter(过滤式)：主要探究特征本身特点、特征与特征和目标值之间关联<ul>
+<li><strong>方差选择法：低方差特征过滤</strong></li>
+<li><strong>相关系数</strong></li>
+</ul>
+</li>
+<li>Embedded (嵌入式)：算法自动选择特征（特征与目标值之间的关联）<ul>
+<li><strong>决策树:信息熵、信息增益</strong></li>
+<li><strong>正则化：L1、L2</strong></li>
+<li><strong>深度学习：卷积等</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="低方差特征过滤"><a href="#低方差特征过滤" class="headerlink" title="低方差特征过滤"></a>低方差特征过滤</h3><p>删除低方差的一些特征，前面讲过方差的意义。再结合方差的大小来考虑这个方式的角度。</p>
+<ul>
+<li>特征方差小：某个特征大多样本的值比较相近</li>
+<li>特征方差大：某个特征很多样本的值都有差别</li>
+</ul>
+<h4 id="API"><a href="#API" class="headerlink" title="API"></a>API</h4><ul>
+<li>sklearn.feature_selection.VarianceThreshold(threshold = 0.0)<ul>
+<li>删除所有低方差特征</li>
+<li>Variance.fit_transform(X)<ul>
+<li>X:numpy array格式的数据[n_samples,n_features]</li>
+<li>返回值：训练集差异低于threshold的特征将被删除。默认值是保留所有非零方差特征，即删除所有样本中具有相同值的特征。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="数据计算"><a href="#数据计算" class="headerlink" title="数据计算"></a>数据计算</h4><p>我们对<strong>某些股票的指标特征之间进行一个筛选</strong>，除去’index,’date’,’return’列不考虑<strong>（这些类型不匹配，也不是所需要指标）</strong></p>
+<p>一共这些特征</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">pe_ratio<span class="token punctuation">,</span>pb_ratio<span class="token punctuation">,</span>market_cap<span class="token punctuation">,</span>return_on_asset_net_profit<span class="token punctuation">,</span>du_return_on_equity<span class="token punctuation">,</span>ev<span class="token punctuation">,</span>earnings_per_share<span class="token punctuation">,</span>revenue<span class="token punctuation">,</span>total_expense<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">index<span class="token punctuation">,</span>pe_ratio<span class="token punctuation">,</span>pb_ratio<span class="token punctuation">,</span>market_cap<span class="token punctuation">,</span>return_on_asset_net_profit<span class="token punctuation">,</span>du_return_on_equity<span class="token punctuation">,</span>ev<span class="token punctuation">,</span>earnings_per_share<span class="token punctuation">,</span>revenue<span class="token punctuation">,</span>total_expense<span class="token punctuation">,</span>date<span class="token punctuation">,</span><span class="token keyword">return</span>
+<span class="token number">0</span><span class="token punctuation">,</span><span class="token number">000001.</span>XSHE<span class="token punctuation">,</span><span class="token number">5.9572</span><span class="token punctuation">,</span><span class="token number">1.1818</span><span class="token punctuation">,</span><span class="token number">85252550922.0</span><span class="token punctuation">,</span><span class="token number">0.8008</span><span class="token punctuation">,</span><span class="token number">14.9403</span><span class="token punctuation">,</span><span class="token number">1211444855670.0</span><span class="token punctuation">,</span><span class="token number">2.01</span><span class="token punctuation">,</span><span class="token number">20701401000.0</span><span class="token punctuation">,</span><span class="token number">10882540000.0</span><span class="token punctuation">,</span><span class="token number">2012</span><span class="token operator">-</span><span class="token number">01</span><span class="token operator">-</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">0.027657228229937388</span>
+<span class="token number">1</span><span class="token punctuation">,</span><span class="token number">000002.</span>XSHE<span class="token punctuation">,</span><span class="token number">7.0289</span><span class="token punctuation">,</span><span class="token number">1.588</span><span class="token punctuation">,</span><span class="token number">84113358168.0</span><span class="token punctuation">,</span><span class="token number">1.6463</span><span class="token punctuation">,</span><span class="token number">7.8656</span><span class="token punctuation">,</span><span class="token number">300252061695.0</span><span class="token punctuation">,</span><span class="token number">0.326</span><span class="token punctuation">,</span><span class="token number">29308369223.2</span><span class="token punctuation">,</span><span class="token number">23783476901.2</span><span class="token punctuation">,</span><span class="token number">2012</span><span class="token operator">-</span><span class="token number">01</span><span class="token operator">-</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">0.08235182370820669</span>
+<span class="token number">2</span><span class="token punctuation">,</span><span class="token number">000008.</span>XSHE<span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">262.7461</span><span class="token punctuation">,</span><span class="token number">7.0003</span><span class="token punctuation">,</span><span class="token number">517045520.0</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">0.5678</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">0.5943</span><span class="token punctuation">,</span><span class="token number">770517752.56</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">0.006</span><span class="token punctuation">,</span><span class="token number">11679829.03</span><span class="token punctuation">,</span><span class="token number">12030080.04</span><span class="token punctuation">,</span><span class="token number">2012</span><span class="token operator">-</span><span class="token number">01</span><span class="token operator">-</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">0.09978900335112327</span>
+<span class="token number">3</span><span class="token punctuation">,</span><span class="token number">000060.</span>XSHE<span class="token punctuation">,</span><span class="token number">16.476</span><span class="token punctuation">,</span><span class="token number">3.7146</span><span class="token punctuation">,</span><span class="token number">19680455995.0</span><span class="token punctuation">,</span><span class="token number">5.6036</span><span class="token punctuation">,</span><span class="token number">14.617</span><span class="token punctuation">,</span><span class="token number">28009159184.6</span><span class="token punctuation">,</span><span class="token number">0.35</span><span class="token punctuation">,</span><span class="token number">9189386877.65</span><span class="token punctuation">,</span><span class="token number">7935542726.05</span><span class="token punctuation">,</span><span class="token number">2012</span><span class="token operator">-</span><span class="token number">01</span><span class="token operator">-</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">0.12159482758620697</span>
+<span class="token number">4</span><span class="token punctuation">,</span><span class="token number">000069.</span>XSHE<span class="token punctuation">,</span><span class="token number">12.5878</span><span class="token punctuation">,</span><span class="token number">2.5616</span><span class="token punctuation">,</span><span class="token number">41727214853.0</span><span class="token punctuation">,</span><span class="token number">2.8729</span><span class="token punctuation">,</span><span class="token number">10.9097</span><span class="token punctuation">,</span><span class="token number">81247380359.0</span><span class="token punctuation">,</span><span class="token number">0.271</span><span class="token punctuation">,</span><span class="token number">8951453490.28</span><span class="token punctuation">,</span><span class="token number">7091397989.13</span><span class="token punctuation">,</span><span class="token number">2012</span><span class="token operator">-</span><span class="token number">01</span><span class="token operator">-</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">0.0026808154146886697</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>分析</li>
+</ul>
+<p>1、初始化VarianceThreshold,指定阀值方差</p>
+<p>2、调用fit_transform</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">variance_demo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""
+    删除低方差特征——特征选择
+    :return: None
+    """</span>
+    data <span class="token operator">=</span> pd<span class="token punctuation">.</span>read_csv<span class="token punctuation">(</span><span class="token string">"factor_returns.csv"</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+    <span class="token comment"># 1、实例化一个转换器类</span>
+    transfer <span class="token operator">=</span> VarianceThreshold<span class="token punctuation">(</span>threshold<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token comment"># 2、调用fit_transform</span>
+    data <span class="token operator">=</span> transfer<span class="token punctuation">.</span>fit_transform<span class="token punctuation">(</span>data<span class="token punctuation">.</span>iloc<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">:</span><span class="token number">10</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"删除低方差特征的结果：\n"</span><span class="token punctuation">,</span> data<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"形状：\n"</span><span class="token punctuation">,</span> data<span class="token punctuation">.</span>shape<span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> <span class="token boolean">None</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>返回结果：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">  index  pe_ratio  pb_ratio    market_cap  \
+<span class="token number">0</span>     <span class="token number">000001.</span>XSHE    <span class="token number">5.9572</span>    <span class="token number">1.1818</span>  <span class="token number">8.525255e+10</span>   
+<span class="token number">1</span>     <span class="token number">000002.</span>XSHE    <span class="token number">7.0289</span>    <span class="token number">1.5880</span>  <span class="token number">8.411336e+10</span>    
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>           <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>       <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>       <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>           <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>   
+<span class="token number">2316</span>  <span class="token number">601958.</span>XSHG   <span class="token number">52.5408</span>    <span class="token number">2.4646</span>  <span class="token number">3.287910e+10</span>   
+<span class="token number">2317</span>  <span class="token number">601989.</span>XSHG   <span class="token number">14.2203</span>    <span class="token number">1.4103</span>  <span class="token number">5.911086e+10</span>   
+
+      return_on_asset_net_profit  du_return_on_equity            ev  \
+<span class="token number">0</span>                         <span class="token number">0.8008</span>              <span class="token number">14.9403</span>  <span class="token number">1.211445e+12</span>   
+<span class="token number">1</span>                         <span class="token number">1.6463</span>               <span class="token number">7.8656</span>  <span class="token number">3.002521e+11</span>    
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>                          <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>                  <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>           <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>   
+<span class="token number">2316</span>                      <span class="token number">2.7444</span>               <span class="token number">2.9202</span>  <span class="token number">3.883803e+10</span>   
+<span class="token number">2317</span>                      <span class="token number">2.0383</span>               <span class="token number">8.6179</span>  <span class="token number">2.020661e+11</span>   
+
+      earnings_per_share       revenue  total_expense        date    <span class="token keyword">return</span>  
+<span class="token number">0</span>                 <span class="token number">2.0100</span>  <span class="token number">2.070140e+10</span>   <span class="token number">1.088254e+10</span>  <span class="token number">2012</span><span class="token operator">-</span><span class="token number">01</span><span class="token operator">-</span><span class="token number">31</span>  <span class="token number">0.027657</span>  
+<span class="token number">1</span>                 <span class="token number">0.3260</span>  <span class="token number">2.930837e+10</span>   <span class="token number">2.378348e+10</span>  <span class="token number">2012</span><span class="token operator">-</span><span class="token number">01</span><span class="token operator">-</span><span class="token number">31</span>  <span class="token number">0.082352</span>  
+<span class="token number">2</span>                <span class="token operator">-</span><span class="token number">0.0060</span>  <span class="token number">1.167983e+07</span>   <span class="token number">1.203008e+07</span>  <span class="token number">2012</span><span class="token operator">-</span><span class="token number">01</span><span class="token operator">-</span><span class="token number">31</span>  <span class="token number">0.099789</span>   
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>                  <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>           <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>            <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>       <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>  
+<span class="token number">2315</span>              <span class="token number">0.2200</span>  <span class="token number">1.789082e+10</span>   <span class="token number">1.749295e+10</span>  <span class="token number">2012</span><span class="token operator">-</span><span class="token number">11</span><span class="token operator">-</span><span class="token number">30</span>  <span class="token number">0.137134</span>  
+<span class="token number">2316</span>              <span class="token number">0.1210</span>  <span class="token number">6.465392e+09</span>   <span class="token number">6.009007e+09</span>  <span class="token number">2012</span><span class="token operator">-</span><span class="token number">11</span><span class="token operator">-</span><span class="token number">30</span>  <span class="token number">0.149167</span>  
+<span class="token number">2317</span>              <span class="token number">0.2470</span>  <span class="token number">4.509872e+10</span>   <span class="token number">4.132842e+10</span>  <span class="token number">2012</span><span class="token operator">-</span><span class="token number">11</span><span class="token operator">-</span><span class="token number">30</span>  <span class="token number">0.183629</span>  
+
+<span class="token punctuation">[</span><span class="token number">2318</span> rows x <span class="token number">12</span> columns<span class="token punctuation">]</span>
+删除低方差特征的结果：
+ <span class="token punctuation">[</span><span class="token punctuation">[</span>  <span class="token number">5.95720000e+00</span>   <span class="token number">1.18180000e+00</span>   <span class="token number">8.52525509e+10</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span>   <span class="token number">1.21144486e+12</span>
+    <span class="token number">2.07014010e+10</span>   <span class="token number">1.08825400e+10</span><span class="token punctuation">]</span>
+ <span class="token punctuation">[</span>  <span class="token number">7.02890000e+00</span>   <span class="token number">1.58800000e+00</span>   <span class="token number">8.41133582e+10</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span>   <span class="token number">3.00252062e+11</span>
+    <span class="token number">2.93083692e+10</span>   <span class="token number">2.37834769e+10</span><span class="token punctuation">]</span>
+ <span class="token punctuation">[</span> <span class="token operator">-</span><span class="token number">2.62746100e+02</span>   <span class="token number">7.00030000e+00</span>   <span class="token number">5.17045520e+08</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span>   <span class="token number">7.70517753e+08</span>
+    <span class="token number">1.16798290e+07</span>   <span class="token number">1.20300800e+07</span><span class="token punctuation">]</span>
+ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span> 
+ <span class="token punctuation">[</span>  <span class="token number">3.95523000e+01</span>   <span class="token number">4.00520000e+00</span>   <span class="token number">1.70243430e+10</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span>   <span class="token number">2.42081699e+10</span>
+    <span class="token number">1.78908166e+10</span>   <span class="token number">1.74929478e+10</span><span class="token punctuation">]</span>
+ <span class="token punctuation">[</span>  <span class="token number">5.25408000e+01</span>   <span class="token number">2.46460000e+00</span>   <span class="token number">3.28790988e+10</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span>   <span class="token number">3.88380258e+10</span>
+    <span class="token number">6.46539204e+09</span>   <span class="token number">6.00900728e+09</span><span class="token punctuation">]</span>
+ <span class="token punctuation">[</span>  <span class="token number">1.42203000e+01</span>   <span class="token number">1.41030000e+00</span>   <span class="token number">5.91108572e+10</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span>   <span class="token number">2.02066110e+11</span>
+    <span class="token number">4.50987171e+10</span>   <span class="token number">4.13284212e+10</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+形状：
+ <span class="token punctuation">(</span><span class="token number">2318</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="相关系数"><a href="#相关系数" class="headerlink" title="相关系数"></a><strong>相关系数</strong></h3><ul>
+<li>主要实现方式：<ul>
+<li>皮尔逊相关系数</li>
+<li>斯皮尔曼相关系数</li>
+</ul>
+</li>
+</ul>
+<h4 id="皮尔逊相关系数-Pearson-Correlation-Coefficient"><a href="#皮尔逊相关系数-Pearson-Correlation-Coefficient" class="headerlink" title="皮尔逊相关系数(Pearson Correlation Coefficient)"></a>皮尔逊相关系数(Pearson Correlation Coefficient)</h4><p><strong>1.作用</strong></p>
+<p>反映变量之间相关关系密切程度的统计指标</p>
+<p><strong>2.公式计算案例(了解，不用记忆)</strong></p>
+<p>公式</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130900302.jpeg" alt="img"></p>
+<p>举例</p>
+<ul>
+<li>比如说我们计算年广告费投入与月均销售额</li>
+</ul>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130901552.jpeg" alt="img"></p>
+<p>那么之间的相关系数怎么计算</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130901652.jpeg" alt="img"></p>
+<p>最终计算：</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130901932.jpeg" alt="img"></p>
+<p><strong>所以我们最终得出结论是广告投入费与月平均销售额之间有高度的正相关关系。</strong></p>
+<p><strong>3.特点</strong></p>
+<p><strong>相关系数的值介于–1与+1之间，即–1≤ r ≤+1</strong>。其性质如下：</p>
+<ul>
+<li><strong>当r&gt;0时，表示两变量正相关，r&lt;0时，两变量为负相关</strong></li>
+<li>当|r|=1时，表示两变量为完全相关，当r=0时，表示两变量间无相关关系</li>
+<li><strong>当0&lt;|r|&lt;1时，表示两变量存在一定程度的相关。且|r|越接近1，两变量间线性关系越密切；|r|越接近于0，表示两变量的线性相关越弱</strong></li>
+<li><strong>一般可按三级划分：|r|&lt;0.4为低度相关；0.4≤|r|&lt;0.7为显著性相关；0.7≤|r|&lt;1为高度线性相关</strong></li>
+</ul>
+<p><strong>4.api</strong></p>
+<ul>
+<li>from scipy.stats import pearsonr<ul>
+<li>x : (N,) array_like</li>
+<li>y : (N,) array_like Returns: (Pearson’s correlation coefficient, p-value)</li>
+</ul>
+</li>
+</ul>
+<p><strong>5.案例</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> scipy<span class="token punctuation">.</span>stats <span class="token keyword">import</span> pearsonr
+
+x1 <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">12.5</span><span class="token punctuation">,</span> <span class="token number">15.3</span><span class="token punctuation">,</span> <span class="token number">23.2</span><span class="token punctuation">,</span> <span class="token number">26.4</span><span class="token punctuation">,</span> <span class="token number">33.5</span><span class="token punctuation">,</span> <span class="token number">34.4</span><span class="token punctuation">,</span> <span class="token number">39.4</span><span class="token punctuation">,</span> <span class="token number">45.2</span><span class="token punctuation">,</span> <span class="token number">55.4</span><span class="token punctuation">,</span> <span class="token number">60.9</span><span class="token punctuation">]</span>
+x2 <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">21.2</span><span class="token punctuation">,</span> <span class="token number">23.9</span><span class="token punctuation">,</span> <span class="token number">32.9</span><span class="token punctuation">,</span> <span class="token number">34.1</span><span class="token punctuation">,</span> <span class="token number">42.5</span><span class="token punctuation">,</span> <span class="token number">43.2</span><span class="token punctuation">,</span> <span class="token number">49.0</span><span class="token punctuation">,</span> <span class="token number">52.8</span><span class="token punctuation">,</span> <span class="token number">59.4</span><span class="token punctuation">,</span> <span class="token number">63.5</span><span class="token punctuation">]</span>
+
+pearsonr<span class="token punctuation">(</span>x1<span class="token punctuation">,</span> x2<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>结果</p>
+<pre class="line-numbers language-none"><code class="language-none">(0.9941983762371883, 4.9220899554573455e-09)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="斯皮尔曼相关系数-Rank-IC"><a href="#斯皮尔曼相关系数-Rank-IC" class="headerlink" title="斯皮尔曼相关系数(Rank IC)"></a>斯皮尔曼相关系数(Rank IC)</h4><p><strong>1.作用：</strong></p>
+<p>反映变量之间相关关系密切程度的统计指标</p>
+<p><strong>2.公式计算案例(了解，不用记忆)</strong></p>
+<p>公式:</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130902428.jpeg" alt="image-20190323091742351"></p>
+<blockquote>
+<p>n为等级个数，d为二列成对变量的等级差数</p>
+</blockquote>
+<p>举例:</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130902120.jpeg" alt="image-20190323091956121"></p>
+<p><strong>3.特点</strong></p>
+<ul>
+<li>斯皮尔曼相关系数表明 X (自变量) 和 Y (因变量)的相关方向。 如果当X增加时， Y 趋向于增加, 斯皮尔曼相关系数则为正</li>
+<li>与之前的皮尔逊相关系数大小性质一样，取值 [-1, 1]之间</li>
+</ul>
+<blockquote>
+<p>斯皮尔曼相关系数比皮尔逊相关系数应用更加广泛</p>
+</blockquote>
+<p><strong>4.api</strong></p>
+<ul>
+<li>from scipy.stats import spearmanr</li>
+</ul>
+<p><strong>5.案例</strong></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> scipy<span class="token punctuation">.</span>stats <span class="token keyword">import</span> spearmanr
+
+x1 <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">12.5</span><span class="token punctuation">,</span> <span class="token number">15.3</span><span class="token punctuation">,</span> <span class="token number">23.2</span><span class="token punctuation">,</span> <span class="token number">26.4</span><span class="token punctuation">,</span> <span class="token number">33.5</span><span class="token punctuation">,</span> <span class="token number">34.4</span><span class="token punctuation">,</span> <span class="token number">39.4</span><span class="token punctuation">,</span> <span class="token number">45.2</span><span class="token punctuation">,</span> <span class="token number">55.4</span><span class="token punctuation">,</span> <span class="token number">60.9</span><span class="token punctuation">]</span>
+x2 <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">21.2</span><span class="token punctuation">,</span> <span class="token number">23.9</span><span class="token punctuation">,</span> <span class="token number">32.9</span><span class="token punctuation">,</span> <span class="token number">34.1</span><span class="token punctuation">,</span> <span class="token number">42.5</span><span class="token punctuation">,</span> <span class="token number">43.2</span><span class="token punctuation">,</span> <span class="token number">49.0</span><span class="token punctuation">,</span> <span class="token number">52.8</span><span class="token punctuation">,</span> <span class="token number">59.4</span><span class="token punctuation">,</span> <span class="token number">63.5</span><span class="token punctuation">]</span>
+
+spearmanr<span class="token punctuation">(</span>x1<span class="token punctuation">,</span> x2<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>结果</p>
+<pre class="line-numbers language-none"><code class="language-none">SpearmanrResult(correlation=0.9999999999999999, pvalue=6.646897422032013e-64)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="主成分分析"><a href="#主成分分析" class="headerlink" title="主成分分析"></a>主成分分析</h2><h3 id="什么是主成分分析-PCA"><a href="#什么是主成分分析-PCA" class="headerlink" title="什么是主成分分析(PCA)"></a>什么是主成分分析(PCA)</h3><ul>
+<li>定义：<strong>高维数据转化为低维数据的过程</strong>，在此过程中<strong>可能会舍弃原有数据、创造新的变量</strong></li>
+<li>作用：<strong>是数据维数压缩，尽可能降低原数据的维数（复杂度），损失少量信息。</strong></li>
+<li>应用：回归分析或者聚类分析当中</li>
+</ul>
+<blockquote>
+<p>对于信息一词，在决策树中会进行介绍</p>
+</blockquote>
+<p>那么更好的理解这个过程呢？我们来看一张图</p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130902302.jpeg" alt="PCAè§£é‡Šå›¾"></p>
+<h3 id="API-1"><a href="#API-1" class="headerlink" title="API"></a>API</h3><ul>
+<li>sklearn.decomposition.PCA(n_components=None)<ul>
+<li>将数据分解为较低维数空间</li>
+<li>n_components:<ul>
+<li><strong>小数：表示保留百分之多少的信息</strong></li>
+<li><strong>整数：减少到多少特征</strong></li>
+</ul>
+</li>
+<li>PCA.fit_transform(X) X:numpy array格式的数据[n_samples,n_features]</li>
+<li>返回值：转换后指定维度的array</li>
+</ul>
+</li>
+</ul>
+<h3 id="数据计算-1"><a href="#数据计算-1" class="headerlink" title="数据计算"></a>数据计算</h3><p>先拿个简单的数据计算一下</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">9</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+<span class="token keyword">from</span> sklearn<span class="token punctuation">.</span>decomposition <span class="token keyword">import</span> PCA
+
+<span class="token keyword">def</span> <span class="token function">pca_demo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""
+    对数据进行PCA降维
+    :return: None
+    """</span>
+    data <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">9</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+
+    <span class="token comment"># 1、实例化PCA, 小数——保留多少信息</span>
+    transfer <span class="token operator">=</span> PCA<span class="token punctuation">(</span>n_components<span class="token operator">=</span><span class="token number">0.9</span><span class="token punctuation">)</span>
+    <span class="token comment"># 2、调用fit_transform</span>
+    data1 <span class="token operator">=</span> transfer<span class="token punctuation">.</span>fit_transform<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"保留90%的信息，降维结果为：\n"</span><span class="token punctuation">,</span> data1<span class="token punctuation">)</span>
+
+    <span class="token comment"># 1、实例化PCA, 整数——指定降维到的维数</span>
+    transfer2 <span class="token operator">=</span> PCA<span class="token punctuation">(</span>n_components<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">)</span>
+    <span class="token comment"># 2、调用fit_transform</span>
+    data2 <span class="token operator">=</span> transfer2<span class="token punctuation">.</span>fit_transform<span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"降维到3维的结果：\n"</span><span class="token punctuation">,</span> data2<span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> <span class="token boolean">None</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>返回结果：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">保留<span class="token number">90</span><span class="token operator">%</span>的信息，降维结果为：
+ <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token operator">-</span><span class="token number">3.13587302e-16</span>   <span class="token number">3.82970843e+00</span><span class="token punctuation">]</span>
+ <span class="token punctuation">[</span> <span class="token operator">-</span><span class="token number">5.74456265e+00</span>  <span class="token operator">-</span><span class="token number">1.91485422e+00</span><span class="token punctuation">]</span>
+ <span class="token punctuation">[</span>  <span class="token number">5.74456265e+00</span>  <span class="token operator">-</span><span class="token number">1.91485422e+00</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+降维到<span class="token number">3</span>维的结果：
+ <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token operator">-</span><span class="token number">3.13587302e-16</span>   <span class="token number">3.82970843e+00</span>   <span class="token number">4.59544715e-16</span><span class="token punctuation">]</span>
+ <span class="token punctuation">[</span> <span class="token operator">-</span><span class="token number">5.74456265e+00</span>  <span class="token operator">-</span><span class="token number">1.91485422e+00</span>   <span class="token number">4.59544715e-16</span><span class="token punctuation">]</span>
+ <span class="token punctuation">[</span>  <span class="token number">5.74456265e+00</span>  <span class="token operator">-</span><span class="token number">1.91485422e+00</span>   <span class="token number">4.59544715e-16</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="小结-5"><a href="#小结-5" class="headerlink" title="小结"></a>小结</h2><ul>
+<li>降维的定义【了解】<ul>
+<li>就是改变特征值，选择哪列保留，哪列删除</li>
+<li>目标是得到一组”不相关“的主变量</li>
+</ul>
+</li>
+<li>降维的两种方式【了解】<ul>
+<li>特征选择</li>
+<li>主成分分析（可以理解一种特征提取的方式）</li>
+</ul>
+</li>
+<li>特征选择【知道】<ul>
+<li>定义：提出数据中的冗余变量</li>
+<li>方法：<ul>
+<li>Filter(过滤式)：主要探究特征本身特点、特征与特征和目标值之间关联<ul>
+<li>方差选择法：低方差特征过滤</li>
+<li>相关系数</li>
+</ul>
+</li>
+<li>Embedded (嵌入式)：算法自动选择特征（特征与目标值之间的关联）<ul>
+<li>决策树:信息熵、信息增益</li>
+<li>正则化：L1、L2</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>低方差特征过滤【知道】<ul>
+<li>把方差比较小的某一列进行剔除</li>
+<li>api:sklearn.feature_selection.VarianceThreshold(threshold = 0.0)<ul>
+<li>删除所有低方差特征</li>
+<li>注意，参数threshold一定要进行值的指定</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>相关系数【掌握】<ul>
+<li>主要实现方式：<ul>
+<li>皮尔逊相关系数</li>
+<li>斯皮尔曼相关系数</li>
+</ul>
+</li>
+<li>皮尔逊相关系数<ul>
+<li>通过具体值的大小进行计算</li>
+<li>相对复杂</li>
+<li>api:from scipy.stats import pearsonr<ul>
+<li>返回值，越接近|1|，相关性越强；越接近0，相关性越弱</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>斯皮尔曼相关系数<ul>
+<li>通过等级差进行计算</li>
+<li>比上一个简单</li>
+<li>api:from scipy.stats import spearmanr</li>
+<li>返回值，越接近|1|，相关性越强；越接近0，相关性越弱</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>pca【知道】<ul>
+<li>定义：高维数据转换为低维数据，然后产生了新的变量</li>
+<li>api:sklearn.decomposition.PCA(n_components=None)<ul>
+<li>n_components<ul>
+<li>整数 – 表示降低到几维</li>
+<li>小数 – 保留百分之多少的信息</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="案例：探究用户对物品类别的喜好细分"><a href="#案例：探究用户对物品类别的喜好细分" class="headerlink" title="案例：探究用户对物品类别的喜好细分"></a>案例：探究用户对物品类别的喜好细分</h1><p>数据如下：</p>
+<ul>
+<li>order_products__prior.csv：订单与商品信息<ul>
+<li>字段：<strong>order_id</strong>, <strong>product_id</strong>, add_to_cart_order, reordered</li>
+</ul>
+</li>
+<li>products.csv：商品信息<ul>
+<li>字段：<strong>product_id</strong>, product_name, <strong>aisle_id</strong>, department_id</li>
+</ul>
+</li>
+<li>orders.csv：用户的订单信息<ul>
+<li>字段：<strong>order_id</strong>,<strong>user_id</strong>,eval_set,order_number,….</li>
+</ul>
+</li>
+<li>aisles.csv：商品所属具体物品类别<ul>
+<li>字段： <strong>aisle_id</strong>, <strong>aisle</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130904997.jpeg" alt="instacartæ•ˆæžœ"></p>
+<p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130904655.jpeg" alt="instacartPCAç&quot;“æžœ"></p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><ul>
+<li>1.获取数据</li>
+<li>2.数据基本处理<ul>
+<li>2.1 合并表格</li>
+<li>2.2 交叉表合并</li>
+<li>2.3 数据截取</li>
+</ul>
+</li>
+<li>3.特征工程 — pca</li>
+<li>4.机器学习（k-means）</li>
+<li>5.模型评估<ul>
+<li>sklearn.metrics.silhouette_score(X, labels)<ul>
+<li>计算所有样本的平均轮廓系数</li>
+<li>X：特征值</li>
+<li>labels：被聚类标记的目标值</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h2><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> pandas <span class="token keyword">as</span> pd
+<span class="token keyword">from</span> sklearn<span class="token punctuation">.</span>decomposition <span class="token keyword">import</span> PCA
+<span class="token keyword">from</span> sklearn<span class="token punctuation">.</span>cluster <span class="token keyword">import</span> KMeans
+<span class="token keyword">from</span> sklearn<span class="token punctuation">.</span>metrics <span class="token keyword">import</span> silhouette_score<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>1.获取数据</li>
+</ul>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">order_product <span class="token operator">=</span> pd<span class="token punctuation">.</span>read_csv<span class="token punctuation">(</span><span class="token string">"./data/instacart/order_products__prior.csv"</span><span class="token punctuation">)</span>
+products <span class="token operator">=</span> pd<span class="token punctuation">.</span>read_csv<span class="token punctuation">(</span><span class="token string">"./data/instacart/products.csv"</span><span class="token punctuation">)</span>
+orders <span class="token operator">=</span> pd<span class="token punctuation">.</span>read_csv<span class="token punctuation">(</span><span class="token string">"./data/instacart/orders.csv"</span><span class="token punctuation">)</span>
+aisles <span class="token operator">=</span> pd<span class="token punctuation">.</span>read_csv<span class="token punctuation">(</span><span class="token string">"./data/instacart/aisles.csv"</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li><p>2.数据基本处理</p>
+<ul>
+<li>2.1 合并表格</li>
+</ul>
+  <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># 2.1 合并表格</span>
+table1 <span class="token operator">=</span> pd<span class="token punctuation">.</span>merge<span class="token punctuation">(</span>order_product<span class="token punctuation">,</span> products<span class="token punctuation">,</span> on<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"product_id"</span><span class="token punctuation">,</span> <span class="token string">"product_id"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+table2 <span class="token operator">=</span> pd<span class="token punctuation">.</span>merge<span class="token punctuation">(</span>table1<span class="token punctuation">,</span> orders<span class="token punctuation">,</span> on<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"order_id"</span><span class="token punctuation">,</span> <span class="token string">"order_id"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+table <span class="token operator">=</span> pd<span class="token punctuation">.</span>merge<span class="token punctuation">(</span>table2<span class="token punctuation">,</span> aisles<span class="token punctuation">,</span> on<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"aisle_id"</span><span class="token punctuation">,</span> <span class="token string">"aisle_id"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>2.2 交叉表合并</li>
+</ul>
+  <pre class="line-numbers language-py" data-language="py"><code class="language-py">table <span class="token operator">=</span> pd<span class="token punctuation">.</span>crosstab<span class="token punctuation">(</span>table<span class="token punctuation">[</span><span class="token string">"user_id"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> table<span class="token punctuation">[</span><span class="token string">"aisle"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>2.3 数据截取</li>
+</ul>
+  <pre class="line-numbers language-py" data-language="py"><code class="language-py">table <span class="token operator">=</span> table<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token number">1000</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+<li><p>3.特征工程 — pca</p>
+</li>
+</ul>
+<pre class="line-numbers language-py" data-language="py"><code class="language-py">transfer <span class="token operator">=</span> PCA<span class="token punctuation">(</span>n_components<span class="token operator">=</span><span class="token number">0.9</span><span class="token punctuation">)</span>
+data <span class="token operator">=</span> transfer<span class="token punctuation">.</span>fit_transform<span class="token punctuation">(</span>table<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<ul>
+<li>4.机器学习（k-means）</li>
+</ul>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">estimator <span class="token operator">=</span> KMeans<span class="token punctuation">(</span>n_clusters<span class="token operator">=</span><span class="token number">8</span><span class="token punctuation">,</span> random_state<span class="token operator">=</span><span class="token number">22</span><span class="token punctuation">)</span>
+estimator<span class="token punctuation">.</span>fit_predict<span class="token punctuation">(</span>data<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<ul>
+<li>5.模型评估</li>
+</ul>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">silhouette_score<span class="token punctuation">(</span>data<span class="token punctuation">,</span> y_predict<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h1 id="算法选择指导"><a href="#算法选择指导" class="headerlink" title="算法选择指导"></a>算法选择指导</h1><h4 id="关于在计算的过程中，如何选择合适的算法进行计算，可以参考scikit-learn官方给的指导意见："><a href="#关于在计算的过程中，如何选择合适的算法进行计算，可以参考scikit-learn官方给的指导意见：" class="headerlink" title="关于在计算的过程中，如何选择合适的算法进行计算，可以参考scikit learn官方给的指导意见："></a><strong>关于在计算的过程中，如何选择合适的算法进行计算，可以参考scikit learn官方给的指导意见：</strong></h4><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202208130905187.jpeg" alt="scikit-learn算法选择路径图"></p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">YangShen</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://lvxueyang.vip/post/35f08535.html">https://lvxueyang.vip/post/35f08535.html</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">YangShen</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">
+                                    <span class="chip bg-color">机器学习</span>
+                                </a>
+                            
+                                <a href="/tags/%E8%81%9A%E7%B1%BB/">
+                                    <span class="chip bg-color">聚类</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
+    }
+
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
+    }
+
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("/medias/comment_bg.png") 100% 100% no-repeat;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div id="vcomments" class="card-content" style="display: grid">
+    </div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'kkTHtgDEUlqRlsbgP6vMWDxa-gzGzoHsz',
+        appKey: 'EX0XjX0GwgIgm38pW1RuybHn',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go'
+    });
+</script>
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/post/50ff5478.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082121.jpg" class="responsive-img" alt="Groovy">
+                        
+                        <span class="card-title">Groovy</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-08-13
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/java%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                    java学习
+                                </a>
+                            
+                            <a href="/categories/java%E5%AD%A6%E4%B9%A0/gradle/" class="post-category">
+                                    gradle
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E6%9E%84%E5%BB%BA%E5%B7%A5%E5%85%B7/">
+                        <span class="chip bg-color">构建工具</span>
+                    </a>
+                    
+                    <a href="/tags/gradle/">
+                        <span class="chip bg-color">gradle</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/post/72fab9d8.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082121.jpg" class="responsive-img" alt="集成学习">
+                        
+                        <span class="card-title">集成学习</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-07-11
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                    机器学习
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">
+                        <span class="chip bg-color">机器学习</span>
+                    </a>
+                    
+                    <a href="/tags/%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0/">
+                        <span class="chip bg-color">集成学习</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: 牧马人的忧伤<br />'
+            + '文章作者: YangShen<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="330695641"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2018-2022</span>
+            
+            <span id="year">2018</span>
+            <a href="/about" target="_blank">YangShen</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">3956k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2018";
+                    var startMonth = "6";
+                    var startDate = "28";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/LVXUEYANGTiger" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1191432275@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1191432275" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1191432275" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    <script type="text/javascript">
+        window.onload = function(){
+            //屏蔽键盘事件
+            document.onkeydown = function (){
+                var e = window.event || arguments[0];
+                //F12
+                if(e.keyCode == 123){
+                    return false;
+                //Ctrl+Shift+I
+                }else if((e.ctrlKey) && (e.shiftKey) && (e.keyCode == 73)){
+                    return false;
+                //Shift+F10
+                }else if((e.shiftKey) && (e.keyCode == 121)){
+                    return false;
+                //Ctrl+U
+                }else if((e.ctrlKey) && (e.keyCode == 85)){
+                    return false;
+                }
+            };
+            //屏蔽鼠标右键
+            document.oncontextmenu = function (){
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

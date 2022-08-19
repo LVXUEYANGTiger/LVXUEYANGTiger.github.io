@@ -1,159 +1,530 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MySQL8其它新特性 | 牧马人的忧伤</title><meta name="keywords" content="mysql"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="MySQL8其它新特性 1. MySQL8新特性概述MySQL从5.7版本直接跳跃发布了8.0版本，可见这是一个令人兴奋的里程碑版本。MySQL 8版本在功能上做了显著的改进与增强，开发者对MySQL的源代码进行了重构，最突出的一点是多MySQL Optimizer优化器进行了改进。不仅在速度上得到了改善，还为用户带来了更好的性能和更棒的体验。 1.1 MySQL8.0 新增特性1. 更简便的No">
-<meta property="og:type" content="article">
-<meta property="og:title" content="MySQL8其它新特性">
-<meta property="og:url" content="http://www.lvxueyang.vip/post/2e4d969f.html">
-<meta property="og:site_name" content="牧马人的忧伤">
-<meta property="og:description" content="MySQL8其它新特性 1. MySQL8新特性概述MySQL从5.7版本直接跳跃发布了8.0版本，可见这是一个令人兴奋的里程碑版本。MySQL 8版本在功能上做了显著的改进与增强，开发者对MySQL的源代码进行了重构，最突出的一点是多MySQL Optimizer优化器进行了改进。不仅在速度上得到了改善，还为用户带来了更好的性能和更棒的体验。 1.1 MySQL8.0 新增特性1. 更简便的No">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg">
-<meta property="article:published_time" content="2021-08-06T10:07:00.000Z">
-<meta property="article:modified_time" content="2022-01-04T11:46:17.872Z">
-<meta property="article:author" content="YangShen">
-<meta property="article:tag" content="mysql">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/2e4d969f"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
-  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '天',
-  date_suffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  source: {
-    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
-    justifiedGallery: {
-      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
-    },
-    fancybox: {
-      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
-    }
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isanchor: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'MySQL8其它新特性',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2022-01-04 19:46:17'
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
+<!DOCTYPE HTML>
+<html lang="zh-CN">
 
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-    win.saveToLocal = {
-      set: function setWithExpiry(key, value, ttl) {
-        if (ttl === 0) return
-        const now = new Date()
-        const expiryDay = ttl * 86400000
-        const item = {
-          value: value,
-          expiry: now.getTime() + expiryDay,
-        }
-        localStorage.setItem(key, JSON.stringify(item))
-      },
 
-      get: function getWithExpiry(key) {
-        const itemStr = localStorage.getItem(key)
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="MySQL8其它新特性, 牧马人的忧伤">
+    <meta name="description" content="主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
-        if (!itemStr) {
-          return undefined
-        }
-        const item = JSON.parse(itemStr)
-        const now = new Date()
 
-        if (now.getTime() > item.expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return item.value
-      }
-    }
+    <title>MySQL8其它新特性 | 牧马人的忧伤</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.2">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span diyFont">牧马人的忧伤</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
   
-    win.getScript = url => new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = url
-      script.async = true
-      script.onerror = reject
-      script.onload = script.onreadystatechange = function() {
-        const loadState = this.readyState
-        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-        script.onload = script.onreadystatechange = null
-        resolve()
-      }
-      document.head.appendChild(script)
-    })
-  
-      win.activateDarkMode = function () {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = function () {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
+  <li class="hide-on-med-and-down nav-item">
     
-          if (t === 'dark') activateDarkMode()
-          else if (t === 'light') activateLightMode()
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>找文章</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/categories">
+          
+          <i class="fas fa-bookmark" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>分类</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tags">
+          
+          <i class="fas fa-tags" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>标签</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/archives">
+          
+          <i class="fas fa-archive" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>归档</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>生活</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/timeline">
+          
+          <i class="fas fa-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>时间轴</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/contact">
+          
+          <i class="fas fa-music" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>留言板</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/friends">
+          
+          <i class="fas fa-address-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>友人帐</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于笔者</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
         
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">牧马人的忧伤</div>
+        <div class="logo-desc">
+            
+            主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			找文章
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/categories " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-bookmark" style="position: absolute;left:50px" ></i>
+			      
+		          <span>分类</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/tags " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-tags" style="position: absolute;left:50px" ></i>
+			      
+		          <span>标签</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/archives " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-archive" style="position: absolute;left:50px" ></i>
+			      
+		          <span>归档</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			生活
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/timeline " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>时间轴</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/contact " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-music" style="position: absolute;left:50px" ></i>
+			      
+		          <span>留言板</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/friends " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-address-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>友人帐</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于笔者
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
         }
-      }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082249.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">MySQL8其它新特性</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
     
-    const fontSizeVal = saveToLocal.get('global-font-size')
-    if (fontSizeVal !== undefined) {
-      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
     }
-    
-    const detectApple = () => {
-      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-        document.documentElement.classList.add('apple')
-      }
+
+    #articleContent :focus {
+        outline: none;
     }
-    detectApple()
-    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
-</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">MySQL8其它新特性</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-06T10:07:00.000Z" title="发表于 2021-08-06 18:07:00">2021-08-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-04T11:46:17.872Z" title="更新于 2022-01-04 19:46:17">2022-01-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/mysql/">mysql</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">9.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>36分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="MySQL8其它新特性"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="MySQL8其它新特性"><a href="#MySQL8其它新特性" class="headerlink" title="MySQL8其它新特性"></a>MySQL8其它新特性</h1><hr>
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/mysql/">
+                                <span class="chip bg-color">mysql</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/mysql/" class="post-category">
+                                mysql
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2021-08-06
+                </div>
+                
+
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
+                    2022-08-13
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    9.6k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    39 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="MySQL8其它新特性"><a href="#MySQL8其它新特性" class="headerlink" title="MySQL8其它新特性"></a>MySQL8其它新特性</h1><hr>
 <h2 id="1-MySQL8新特性概述"><a href="#1-MySQL8新特性概述" class="headerlink" title="1. MySQL8新特性概述"></a>1. MySQL8新特性概述</h2><p><code>MySQL从5.7版本直接跳跃发布了8.0版本</code>，可见这是一个令人兴奋的里程碑版本。MySQL 8版本在功能上做了显著的改进与增强，开发者对MySQL的源代码进行了重构，最突出的一点是多MySQL Optimizer优化器进行了改进。不仅在速度上得到了改善，还为用户带来了更好的性能和更棒的体验。</p>
 <h3 id="1-1-MySQL8-0-新增特性"><a href="#1-1-MySQL8-0-新增特性" class="headerlink" title="1.1 MySQL8.0 新增特性"></a>1.1 MySQL8.0 新增特性</h3><p><strong>1. 更简便的NoSQL支持</strong><br>NoSQL泛指非关系型数据库和数据存储。随着互联网平台的规模飞速发展，传统的关系型数据库已经越来越不能满足需求。从5.6版本开始，MySQL就开始支持简单的NoSQL存储功能。MySQL 8对这一功能做了优化，以更灵活的方式实现NoSQL功能，不再依赖模式（schema）。</p>
 <p><strong>2. 更好的索引</strong><br>在查询中，正确地使用索引可以提高查询的效率。MySQL 8中新增了<code>隐藏索引</code>和<code>降序索引</code>。隐藏索引可以用来测试去掉索引对查询性能的影响。在查询中混合存在多列索引时，使用降序索引可以提高查询的性能。</p>
@@ -167,7 +538,8 @@
 <p><strong>10.优化器增强</strong><br>MySQL优化器开始支持隐藏索引和降序索引。隐藏索引不会被优化器使用，验证索引的必要性时不需要删除索引，先将索引隐藏，如果优化器性能无影响就可以真正地删除索引。降序索引允许优化器对多个列进行排序，并且允许排序顺序不一致。</p>
 <p><strong>11.公用表表达式</strong><br>公用表表达式（Common Table Expressions）简称为CTE，MySQL现在支持递归和非递归两种形式的CTE。CTE通过在SELECT语句或其他特定语句前<code>使用WITH语句对临时结果集</code>进行命名。</p>
 <p>基础语法如下：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">WITH</span> cte_name (col_name1,col_name2 ...) <span class="keyword">AS</span> (Subquery)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> cte_name;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">WITH</span> cte_name <span class="token punctuation">(</span>col_name1<span class="token punctuation">,</span>col_name2 <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span> <span class="token keyword">AS</span> <span class="token punctuation">(</span>Subquery<span class="token punctuation">)</span>
+<span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> cte_name<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 
 <p>Subquery代表子查询，子查询前使用WITH语句将结果集命名为cte_name，在后续的查询中即可使用cte_name进行查询。</p>
@@ -186,38 +558,108 @@
 <p><strong>7.系统和状态变量信息</strong><br>在INFORMATION_SCHEMA数据库中，对系统和状态变量信息不再进行维护。GLOBAL_VARIABLES、SESSION_VARIABLES、GLOBAL_STATUS、SESSION_STATUS表都已被删除。另外，系统变量show_compatibility_56也已被删除。被删除的状态变量有Slave_heartbeat_period、Slave_last_heartbeat,Slave_received_heartbeats、Slave_retried_transactions、Slave_running。以上被删除的内容都可使用性能模式中对应的内容进行替代。</p>
 <p><strong>8.mysql_plugin工具</strong><br>mysql_plugin工具用来配置MySQL服务器插件，现已被删除，可使用–plugin-load或–plugin-load-add选项在服务器启动时加载插件或者在运行时使用INSTALL PLUGIN语句加载插件来替代该工具。</p>
 <h2 id="2-新特性1：窗口函数"><a href="#2-新特性1：窗口函数" class="headerlink" title="2. 新特性1：窗口函数"></a>2. 新特性1：窗口函数</h2><h3 id="2-1-使用窗口函数前后对比"><a href="#2-1-使用窗口函数前后对比" class="headerlink" title="2.1 使用窗口函数前后对比"></a>2.1 使用窗口函数前后对比</h3><p>假设我现在有这样一个数据表，它显示了某购物网站在每个城市每个区的销售额：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CREATE TABLE sales(</span><br><span class="line">id INT PRIMARY KEY AUTO_INCREMENT,</span><br><span class="line">city VARCHAR(15),</span><br><span class="line">county VARCHAR(15),</span><br><span class="line">sales_value DECIMAL</span><br><span class="line"></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT INTO sales(city,county,sales_value)</span><br><span class="line">VALUES</span><br><span class="line">(&#x27;北京&#x27;,&#x27;海淀&#x27;,10.00),</span><br><span class="line">(&#x27;北京&#x27;,&#x27;朝阳&#x27;,20.00),</span><br><span class="line">(&#x27;上海&#x27;,&#x27;黄埔&#x27;,30.00),</span><br><span class="line">(&#x27;上海&#x27;,&#x27;长宁&#x27;,10.00);</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">CREATE TABLE sales(
+id INT PRIMARY KEY AUTO_INCREMENT,
+city VARCHAR(15),
+county VARCHAR(15),
+sales_value DECIMAL
+
+);
+
+INSERT INTO sales(city,county,sales_value)
+VALUES
+('北京','海淀',10.00),
+('北京','朝阳',20.00),
+('上海','黄埔',30.00),
+('上海','长宁',10.00);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>查询：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM sales;</span><br><span class="line">+----+------+--------+-------------+</span><br><span class="line">| id | city | county | sales_value |</span><br><span class="line">+----+------+--------+-------------+</span><br><span class="line">|  1 | 北京 | 海淀    |          10 |</span><br><span class="line">|  2 | 北京 | 朝阳    |          20 |</span><br><span class="line">|  3 | 上海 | 黄埔    |          30 |</span><br><span class="line">|  4 | 上海 | 长宁    |          10 |</span><br><span class="line">+----+------+--------+-------------+</span><br><span class="line">4 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT * FROM sales;
++----+------+--------+-------------+
+| id | city | county | sales_value |
++----+------+--------+-------------+
+|  1 | 北京 | 海淀    |          10 |
+|  2 | 北京 | 朝阳    |          20 |
+|  3 | 上海 | 黄埔    |          30 |
+|  4 | 上海 | 长宁    |          10 |
++----+------+--------+-------------+
+4 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p><strong>需求：</strong>现在计算这个网站在每个城市的销售总额、在全国的销售总额、每个区的销售额占所在城市销售额中的比率，以及占总销售额中的比率。</p>
 <p>如果用分组和聚合函数，就需要分好几步来计算。</p>
 <p>第一步，计算总销售金额，并存入临时表 a：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CREATE TEMPORARY TABLE a       -- 创建临时表</span><br><span class="line">SELECT SUM(sales_value) AS sales_value -- 计算总计金额</span><br><span class="line">FROM sales;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">CREATE TEMPORARY TABLE a       -- 创建临时表
+SELECT SUM(sales_value) AS sales_value -- 计算总计金额
+FROM sales;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 
 <p>查看一下临时表 a ：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM a;</span><br><span class="line">+-------------+</span><br><span class="line">| sales_value |</span><br><span class="line">+-------------+</span><br><span class="line">|          70 |</span><br><span class="line">+-------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT * FROM a;
++-------------+
+| sales_value |
++-------------+
+|          70 |
++-------------+
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>第二步，计算每个城市的销售总额并存入临时表 b：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CREATE TEMPORARY TABLE b    -- 创建临时表</span><br><span class="line">SELECT city,SUM(sales_value) AS sales_value  -- 计算城市销售合计</span><br><span class="line">FROM sales</span><br><span class="line">GROUP BY city;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">CREATE TEMPORARY TABLE b    -- 创建临时表
+SELECT city,SUM(sales_value) AS sales_value  -- 计算城市销售合计
+FROM sales
+GROUP BY city;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>查看临时表 b ：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM b;</span><br><span class="line">+------+-------------+</span><br><span class="line">| city | sales_value |</span><br><span class="line">+------+-------------+</span><br><span class="line">| 北京 |          30 |</span><br><span class="line">| 上海 |          40 |</span><br><span class="line">+------+-------------+</span><br><span class="line">2 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT * FROM b;
++------+-------------+
+| city | sales_value |
++------+-------------+
+| 北京 |          30 |
+| 上海 |          40 |
++------+-------------+
+2 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>第三步，计算各区的销售占所在城市的总计金额的比例，和占全部销售总计金额的比例。我们可以通过下面的连接查询获得需要的结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT s.city AS 城市,s.county AS 区,s.sales_value AS 区销售额,</span><br><span class="line">    -&gt; b.sales_value AS 市销售额,s.sales_value/b.sales_value AS 市比率,</span><br><span class="line">    -&gt; a.sales_value AS 总销售额,s.sales_value/a.sales_value AS 总比率</span><br><span class="line">    -&gt; FROM sales s</span><br><span class="line">    -&gt; JOIN b ON (s.city=b.city) -- 连接市统计结果临时表</span><br><span class="line">    -&gt; JOIN a                   -- 连接总计金额临时表</span><br><span class="line">    -&gt; ORDER BY s.city,s.county;</span><br><span class="line">+------+------+----------+----------+--------+----------+--------+</span><br><span class="line">| 城市  | 区   | 区销售额  | 市销售额   | 市比率  | 总销售额  | 总比率  |</span><br><span class="line">+------+------+----------+----------+--------+----------+--------+</span><br><span class="line">| 上海  | 长宁 |       10 |       40 | 0.2500 |       70 | 0.1429 |</span><br><span class="line">| 上海  | 黄埔 |       30 |       40 | 0.7500 |       70 | 0.4286 |</span><br><span class="line">| 北京  | 朝阳 |       20 |       30 | 0.6667 |       70 | 0.2857 |</span><br><span class="line">| 北京  | 海淀 |       10 |       30 | 0.3333 |       70 | 0.1429 |</span><br><span class="line">+------+------+----------+----------+--------+----------+--------+</span><br><span class="line">4 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT s.city AS 城市,s.county AS 区,s.sales_value AS 区销售额,
+    -&gt; b.sales_value AS 市销售额,s.sales_value/b.sales_value AS 市比率,
+    -&gt; a.sales_value AS 总销售额,s.sales_value/a.sales_value AS 总比率
+    -&gt; FROM sales s
+    -&gt; JOIN b ON (s.city=b.city) -- 连接市统计结果临时表
+    -&gt; JOIN a                   -- 连接总计金额临时表
+    -&gt; ORDER BY s.city,s.county;
++------+------+----------+----------+--------+----------+--------+
+| 城市  | 区   | 区销售额  | 市销售额   | 市比率  | 总销售额  | 总比率  |
++------+------+----------+----------+--------+----------+--------+
+| 上海  | 长宁 |       10 |       40 | 0.2500 |       70 | 0.1429 |
+| 上海  | 黄埔 |       30 |       40 | 0.7500 |       70 | 0.4286 |
+| 北京  | 朝阳 |       20 |       30 | 0.6667 |       70 | 0.2857 |
+| 北京  | 海淀 |       10 |       30 | 0.3333 |       70 | 0.1429 |
++------+------+----------+----------+--------+----------+--------+
+4 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>结果显示：市销售金额、市销售占比、总销售金额、总销售占比都计算出来了。</p>
 <p>同样的查询，如果用窗口函数，就简单多了。我们可以用下面的代码来实现：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT city AS 城市,county AS 区,sales_value AS 区销售额,</span><br><span class="line">    -&gt; SUM(sales_value) OVER(PARTITION BY city) AS 市销售额,  -- 计算市销售额</span><br><span class="line">    -&gt; sales_value/SUM(sales_value) OVER(PARTITION BY city) AS 市比率,</span><br><span class="line">    -&gt; SUM(sales_value) OVER() AS 总销售额,   -- 计算总销售额</span><br><span class="line">    -&gt; sales_value/SUM(sales_value) OVER() AS 总比率</span><br><span class="line">    -&gt; FROM sales</span><br><span class="line">    -&gt; ORDER BY city,county;</span><br><span class="line">+------+------+----------+----------+--------+----------+--------+</span><br><span class="line">| 城市  | 区   | 区销售额  | 市销售额   | 市比率  | 总销售额  | 总比率  |</span><br><span class="line">+------+------+----------+----------+--------+----------+--------+</span><br><span class="line">| 上海  | 长宁 |       10 |       40  | 0.2500 |       70 | 0.1429 |</span><br><span class="line">| 上海  | 黄埔 |       30 |       40  | 0.7500 |       70 | 0.4286 |</span><br><span class="line">| 北京  | 朝阳 |       20 |       30  | 0.6667 |       70 | 0.2857 |</span><br><span class="line">| 北京  | 海淀 |       10 |       30  | 0.3333 |       70 | 0.1429 |</span><br><span class="line">+------+------+----------+-----------+--------+----------+--------+</span><br><span class="line">4 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT city AS 城市,county AS 区,sales_value AS 区销售额,
+    -&gt; SUM(sales_value) OVER(PARTITION BY city) AS 市销售额,  -- 计算市销售额
+    -&gt; sales_value/SUM(sales_value) OVER(PARTITION BY city) AS 市比率,
+    -&gt; SUM(sales_value) OVER() AS 总销售额,   -- 计算总销售额
+    -&gt; sales_value/SUM(sales_value) OVER() AS 总比率
+    -&gt; FROM sales
+    -&gt; ORDER BY city,county;
++------+------+----------+----------+--------+----------+--------+
+| 城市  | 区   | 区销售额  | 市销售额   | 市比率  | 总销售额  | 总比率  |
++------+------+----------+----------+--------+----------+--------+
+| 上海  | 长宁 |       10 |       40  | 0.2500 |       70 | 0.1429 |
+| 上海  | 黄埔 |       30 |       40  | 0.7500 |       70 | 0.4286 |
+| 北京  | 朝阳 |       20 |       30  | 0.6667 |       70 | 0.2857 |
+| 北京  | 海淀 |       10 |       30  | 0.3333 |       70 | 0.1429 |
++------+------+----------+-----------+--------+----------+--------+
+4 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>结果显示，我们得到了与上面那种查询同样的结果。</p>
@@ -231,11 +673,11 @@
 <p>MySQL官方网站窗口函数的网址为<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/window-function-descriptions.html#function_row-number%E3%80%82">https://dev.mysql.com/doc/refman/8.0/en/window-function-descriptions.html#function_row-number。</a></p>
 <p>窗口函数总体上可以分为序号函数、分布函数、前后函数、首尾函数和其他函数，如下表：<br><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/202201041625592.png" alt="image.png"></p>
 <h3 id="2-3-语法结构"><a href="#2-3-语法结构" class="headerlink" title="2.3 语法结构"></a>2.3 语法结构</h3><p>窗口函数的语法结构是：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">函数 OVER（[PARTITION BY 字段名 ORDER BY 字段名 ASC|DESC]）</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">函数 OVER（[PARTITION BY 字段名 ORDER BY 字段名 ASC|DESC]）<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 
 <p>或者是：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">函数 OVER 窗口名 … WINDOW 窗口名 AS （[PARTITION BY 字段名 ORDER BY 字段名 ASC|DESC]）</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">函数 OVER 窗口名 … WINDOW 窗口名 AS （[PARTITION BY 字段名 ORDER BY 字段名 ASC|DESC]）<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 
 <ul>
@@ -250,118 +692,441 @@
 <li>FRAME子句：为分区中的某个子集定义规则，可以用来作为滑动窗口使用。</li>
 </ul>
 <h3 id="2-4-分类讲解"><a href="#2-4-分类讲解" class="headerlink" title="2.4 分类讲解"></a>2.4 分类讲解</h3><p>创建表：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CREATE TABLE goods(</span><br><span class="line">id INT PRIMARY KEY AUTO_INCREMENT,</span><br><span class="line">category_id INT,</span><br><span class="line">category VARCHAR(15),</span><br><span class="line">NAME VARCHAR(30),</span><br><span class="line">price DECIMAL(10,2),</span><br><span class="line">stock INT,</span><br><span class="line">upper_time DATETIME</span><br><span class="line"></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">CREATE TABLE goods(
+id INT PRIMARY KEY AUTO_INCREMENT,
+category_id INT,
+category VARCHAR(15),
+NAME VARCHAR(30),
+price DECIMAL(10,2),
+stock INT,
+upper_time DATETIME
+
+);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>添加数据：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">INSERT INTO goods(category_id,category,NAME,price,stock,upper_time)</span><br><span class="line">VALUES</span><br><span class="line">(1, &#x27;女装/女士精品&#x27;, &#x27;T恤&#x27;, 39.90, 1000, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(1, &#x27;女装/女士精品&#x27;, &#x27;连衣裙&#x27;, 79.90, 2500, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(1, &#x27;女装/女士精品&#x27;, &#x27;卫衣&#x27;, 89.90, 1500, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(1, &#x27;女装/女士精品&#x27;, &#x27;牛仔裤&#x27;, 89.90, 3500, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(1, &#x27;女装/女士精品&#x27;, &#x27;百褶裙&#x27;, 29.90, 500, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(1, &#x27;女装/女士精品&#x27;, &#x27;呢绒外套&#x27;, 399.90, 1200, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(2, &#x27;户外运动&#x27;, &#x27;自行车&#x27;, 399.90, 1000, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(2, &#x27;户外运动&#x27;, &#x27;山地自行车&#x27;, 1399.90, 2500, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(2, &#x27;户外运动&#x27;, &#x27;登山杖&#x27;, 59.90, 1500, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(2, &#x27;户外运动&#x27;, &#x27;骑行装备&#x27;, 399.90, 3500, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(2, &#x27;户外运动&#x27;, &#x27;运动外套&#x27;, 799.90, 500, &#x27;2020-11-10 00:00:00&#x27;),</span><br><span class="line">(2, &#x27;户外运动&#x27;, &#x27;滑板&#x27;, 499.90, 1200, &#x27;2020-11-10 00:00:00&#x27;);</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">INSERT INTO goods(category_id,category,NAME,price,stock,upper_time)
+VALUES
+(1, '女装/女士精品', 'T恤', 39.90, 1000, '2020-11-10 00:00:00'),
+(1, '女装/女士精品', '连衣裙', 79.90, 2500, '2020-11-10 00:00:00'),
+(1, '女装/女士精品', '卫衣', 89.90, 1500, '2020-11-10 00:00:00'),
+(1, '女装/女士精品', '牛仔裤', 89.90, 3500, '2020-11-10 00:00:00'),
+(1, '女装/女士精品', '百褶裙', 29.90, 500, '2020-11-10 00:00:00'),
+(1, '女装/女士精品', '呢绒外套', 399.90, 1200, '2020-11-10 00:00:00'),
+(2, '户外运动', '自行车', 399.90, 1000, '2020-11-10 00:00:00'),
+(2, '户外运动', '山地自行车', 1399.90, 2500, '2020-11-10 00:00:00'),
+(2, '户外运动', '登山杖', 59.90, 1500, '2020-11-10 00:00:00'),
+(2, '户外运动', '骑行装备', 399.90, 3500, '2020-11-10 00:00:00'),
+(2, '户外运动', '运动外套', 799.90, 500, '2020-11-10 00:00:00'),
+(2, '户外运动', '滑板', 499.90, 1200, '2020-11-10 00:00:00');<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>下面针对goods表中的数据来验证每个窗口函数的功能。</p>
 <h4 id="1-序号函数"><a href="#1-序号函数" class="headerlink" title="1. 序号函数"></a>1. 序号函数</h4><p><strong>1．ROW_NUMBER()函数</strong></p>
 <p>ROW_NUMBER()函数能够对数据中的序号进行顺序显示。</p>
 <p>举例：查询 goods 数据表中每个商品分类下价格降序排列的各个商品信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT ROW_NUMBER() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,</span><br><span class="line">    -&gt; id, category_id, category, NAME, price, stock</span><br><span class="line">    -&gt; FROM goods;</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">| row_num | id | category_id | category      | NAME       | price   | stock |</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套    |  399.90 |  1200 |</span><br><span class="line">|       2 |  3 |           1 | 女装/女士精品   | 卫衣        |   89.90 |  1500 |</span><br><span class="line">|       3 |  4 |           1 | 女装/女士精品   | 牛仔裤      |   89.90 |  3500 |</span><br><span class="line">|       4 |  2 |           1 | 女装/女士精品   | 连衣裙      |   79.90 |  2500 |</span><br><span class="line">|       5 |  1 |           1 | 女装/女士精品   | T恤        |   39.90 |  1000 |</span><br><span class="line">|       6 |  5 |           1 | 女装/女士精品   | 百褶裙      |   29.90 |   500 |</span><br><span class="line">|       1 |  8 |           2 | 户外运动       | 山地自行车   | 1399.90 |  2500 |</span><br><span class="line">|       2 | 11 |           2 | 户外运动       | 运动外套     |  799.90 |   500 |</span><br><span class="line">|       3 | 12 |           2 | 户外运动       | 滑板        |  499.90 |  1200 |</span><br><span class="line">|       4 |  7 |           2 | 户外运动       | 自行车      |  399.90 |  1000 |</span><br><span class="line">|       5 | 10 |           2 | 户外运动       | 骑行装备    |  399.90 |  3500 |</span><br><span class="line">|       6 |  9 |           2 | 户外运动       | 登山杖      |   59.90 |  1500 |</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT ROW_NUMBER() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,
+    -&gt; id, category_id, category, NAME, price, stock
+    -&gt; FROM goods;
++---------+----+-------------+---------------+------------+---------+-------+
+| row_num | id | category_id | category      | NAME       | price   | stock |
++---------+----+-------------+---------------+------------+---------+-------+
+|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套    |  399.90 |  1200 |
+|       2 |  3 |           1 | 女装/女士精品   | 卫衣        |   89.90 |  1500 |
+|       3 |  4 |           1 | 女装/女士精品   | 牛仔裤      |   89.90 |  3500 |
+|       4 |  2 |           1 | 女装/女士精品   | 连衣裙      |   79.90 |  2500 |
+|       5 |  1 |           1 | 女装/女士精品   | T恤        |   39.90 |  1000 |
+|       6 |  5 |           1 | 女装/女士精品   | 百褶裙      |   29.90 |   500 |
+|       1 |  8 |           2 | 户外运动       | 山地自行车   | 1399.90 |  2500 |
+|       2 | 11 |           2 | 户外运动       | 运动外套     |  799.90 |   500 |
+|       3 | 12 |           2 | 户外运动       | 滑板        |  499.90 |  1200 |
+|       4 |  7 |           2 | 户外运动       | 自行车      |  399.90 |  1000 |
+|       5 | 10 |           2 | 户外运动       | 骑行装备    |  399.90 |  3500 |
+|       6 |  9 |           2 | 户外运动       | 登山杖      |   59.90 |  1500 |
++---------+----+-------------+---------------+------------+---------+-------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>举例：查询 goods 数据表中每个商品分类下价格最高的3种商品信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT *</span><br><span class="line">    -&gt; FROM (</span><br><span class="line">    -&gt;  SELECT ROW_NUMBER() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,</span><br><span class="line">    -&gt;  id, category_id, category, NAME, price, stock</span><br><span class="line">    -&gt;  FROM goods) t</span><br><span class="line">    -&gt; WHERE row_num &lt;= 3;</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">| row_num | id | category_id | category      | NAME       | price   | stock |</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套    |  399.90  |  1200 |</span><br><span class="line">|       2 |  3 |           1 | 女装/女士精品   | 卫衣        |   89.90 |  1500 |</span><br><span class="line">|       3 |  4 |           1 | 女装/女士精品   | 牛仔裤      |   89.90  |  3500 |</span><br><span class="line">|       1 |  8 |           2 | 户外运动       | 山地自行车   | 1399.90  |  2500 |</span><br><span class="line">|       2 | 11 |           2 | 户外运动       | 运动外套     |  799.90  |   500 |</span><br><span class="line">|       3 | 12 |           2 | 户外运动       | 滑板        |  499.90  |  1200 |</span><br><span class="line">+---------+----+-------------+---------------+------------+----------+-------+</span><br><span class="line">6 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT *
+    -&gt; FROM (
+    -&gt;  SELECT ROW_NUMBER() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,
+    -&gt;  id, category_id, category, NAME, price, stock
+    -&gt;  FROM goods) t
+    -&gt; WHERE row_num &lt;= 3;
++---------+----+-------------+---------------+------------+---------+-------+
+| row_num | id | category_id | category      | NAME       | price   | stock |
++---------+----+-------------+---------------+------------+---------+-------+
+|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套    |  399.90  |  1200 |
+|       2 |  3 |           1 | 女装/女士精品   | 卫衣        |   89.90 |  1500 |
+|       3 |  4 |           1 | 女装/女士精品   | 牛仔裤      |   89.90  |  3500 |
+|       1 |  8 |           2 | 户外运动       | 山地自行车   | 1399.90  |  2500 |
+|       2 | 11 |           2 | 户外运动       | 运动外套     |  799.90  |   500 |
+|       3 | 12 |           2 | 户外运动       | 滑板        |  499.90  |  1200 |
++---------+----+-------------+---------------+------------+----------+-------+
+6 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>在名称为“女装/女士精品”的商品类别中，有两款商品的价格为89.90元，分别是卫衣和牛仔裤。两款商品的序号都应该为2，而不是一个为2，另一个为3。此时，可以使用RANK()函数和DENSE_RANK()函数解决。</p>
 <p><strong>2．RANK()函数</strong></p>
 <p>使用RANK()函数能够对序号进行并列排序，并且会跳过重复的序号，比如序号为1、1、3。</p>
 <p>举例：使用RANK()函数获取 goods 数据表中各类别的价格从高到低排序的各商品信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,</span><br><span class="line">    -&gt; id, category_id, category, NAME, price, stock</span><br><span class="line">    -&gt; FROM goods;</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">| row_num | id | category_id | category      | NAME       | price   | stock |</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套    |  399.90 |  1200 |</span><br><span class="line">|       2 |  3 |           1 | 女装/女士精品   | 卫衣        |   89.90 |  1500 |</span><br><span class="line">|       2 |  4 |           1 | 女装/女士精品   | 牛仔裤      |   89.90 |  3500 |</span><br><span class="line">|       4 |  2 |           1 | 女装/女士精品   | 连衣裙      |   79.90 |  2500 |</span><br><span class="line">|       5 |  1 |           1 | 女装/女士精品   | T恤         |   39.90 |  1000 |</span><br><span class="line">|       6 |  5 |           1 | 女装/女士精品   | 百褶裙      |   29.90 |   500 |</span><br><span class="line">|       1 |  8 |           2 | 户外运动       | 山地自行车   | 1399.90 |  2500 |</span><br><span class="line">|       2 | 11 |           2 | 户外运动       | 运动外套     |  799.90 |   500 |</span><br><span class="line">|       3 | 12 |           2 | 户外运动       | 滑板        |  499.90 |  1200 |</span><br><span class="line">|       4 |  7 |           2 | 户外运动       | 自行车      |  399.90 |  1000 |</span><br><span class="line">|       4 | 10 |           2 | 户外运动       | 骑行装备    |  399.90 |  3500 |</span><br><span class="line">|       6 |  9 |           2 | 户外运动       | 登山杖      |   59.90 |  1500 |</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; SELECT RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,
+    -&gt; id, category_id, category, NAME, price, stock
+    -&gt; FROM goods;
++---------+----+-------------+---------------+------------+---------+-------+
+| row_num | id | category_id | category      | NAME       | price   | stock |
++---------+----+-------------+---------------+------------+---------+-------+
+|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套    |  399.90 |  1200 |
+|       2 |  3 |           1 | 女装/女士精品   | 卫衣        |   89.90 |  1500 |
+|       2 |  4 |           1 | 女装/女士精品   | 牛仔裤      |   89.90 |  3500 |
+|       4 |  2 |           1 | 女装/女士精品   | 连衣裙      |   79.90 |  2500 |
+|       5 |  1 |           1 | 女装/女士精品   | T恤         |   39.90 |  1000 |
+|       6 |  5 |           1 | 女装/女士精品   | 百褶裙      |   29.90 |   500 |
+|       1 |  8 |           2 | 户外运动       | 山地自行车   | 1399.90 |  2500 |
+|       2 | 11 |           2 | 户外运动       | 运动外套     |  799.90 |   500 |
+|       3 | 12 |           2 | 户外运动       | 滑板        |  499.90 |  1200 |
+|       4 |  7 |           2 | 户外运动       | 自行车      |  399.90 |  1000 |
+|       4 | 10 |           2 | 户外运动       | 骑行装备    |  399.90 |  3500 |
+|       6 |  9 |           2 | 户外运动       | 登山杖      |   59.90 |  1500 |
++---------+----+-------------+---------------+------------+---------+-------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>举例：使用RANK()函数获取 goods 数据表中类别为“女装/女士精品”的价格最高的4款商品信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT *</span><br><span class="line">    -&gt; FROM(</span><br><span class="line">    -&gt;  SELECT RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,</span><br><span class="line">    -&gt;  id, category_id, category, NAME, price, stock</span><br><span class="line">    -&gt;  FROM goods) t</span><br><span class="line">    -&gt; WHERE category_id = 1 AND row_num &lt;= 4;</span><br><span class="line">+---------+----+-------------+---------------+----------+--------+-------+</span><br><span class="line">| row_num | id | category_id | category      | NAME     | price  | stock |</span><br><span class="line">+---------+----+-------------+---------------+----------+--------+-------+</span><br><span class="line">|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套  | 399.90 |  1200 |</span><br><span class="line">|       2 |  3 |           1 | 女装/女士精品   | 卫衣      |  89.90 |  1500 |</span><br><span class="line">|       2 |  4 |           1 | 女装/女士精品   | 牛仔裤    |  89.90 |  3500 |</span><br><span class="line">|       4 |  2 |           1 | 女装/女士精品   | 连衣裙    |  79.90 |  2500 |</span><br><span class="line">+---------+----+-------------+---------------+----------+--------+-------+</span><br><span class="line">4 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT *
+    -&gt; FROM(
+    -&gt;  SELECT RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,
+    -&gt;  id, category_id, category, NAME, price, stock
+    -&gt;  FROM goods) t
+    -&gt; WHERE category_id = 1 AND row_num &lt;= 4;
++---------+----+-------------+---------------+----------+--------+-------+
+| row_num | id | category_id | category      | NAME     | price  | stock |
++---------+----+-------------+---------------+----------+--------+-------+
+|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套  | 399.90 |  1200 |
+|       2 |  3 |           1 | 女装/女士精品   | 卫衣      |  89.90 |  1500 |
+|       2 |  4 |           1 | 女装/女士精品   | 牛仔裤    |  89.90 |  3500 |
+|       4 |  2 |           1 | 女装/女士精品   | 连衣裙    |  79.90 |  2500 |
++---------+----+-------------+---------------+----------+--------+-------+
+4 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>可以看到，使用RANK()函数得出的序号为1、2、2、4，相同价格的商品序号相同，后面的商品序号是不连续的，跳过了重复的序号。</p>
 <p><strong>3．DENSE_RANK()函数</strong></p>
 <p>DENSE_RANK()函数对序号进行并列排序，并且不会跳过重复的序号，比如序号为1、1、2。</p>
 <p>举例：使用DENSE_RANK()函数获取 goods 数据表中各类别的价格从高到低排序的各商品信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT DENSE_RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,</span><br><span class="line">    -&gt; id, category_id, category, NAME, price, stock</span><br><span class="line">    -&gt; FROM goods;</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">| row_num | id | category_id | category      | NAME       | price   | stock |</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套    |  399.90 |  1200 |</span><br><span class="line">|       2 |  3 |           1 | 女装/女士精品   | 卫衣        |   89.90 |  1500 |</span><br><span class="line">|       2 |  4 |           1 | 女装/女士精品   | 牛仔裤      |   89.90 |  3500 |</span><br><span class="line">|       3 |  2 |           1 | 女装/女士精品   | 连衣裙      |   79.90 |  2500 |</span><br><span class="line">|       4 |  1 |           1 | 女装/女士精品   | T恤        |   39.90 |  1000 |</span><br><span class="line">|       5 |  5 |           1 | 女装/女士精品   | 百褶裙      |   29.90 |   500 |</span><br><span class="line">|       1 |  8 |           2 | 户外运动       | 山地自行车   | 1399.90 |  2500 |</span><br><span class="line">|       2 | 11 |           2 | 户外运动       | 运动外套     |  799.90 |   500 |</span><br><span class="line">|       3 | 12 |           2 | 户外运动       | 滑板        |  499.90 |  1200 |</span><br><span class="line">|       4 |  7 |           2 | 户外运动       | 自行车       |  399.90 |  1000 |</span><br><span class="line">|       4 | 10 |           2 | 户外运动       | 骑行装备     |  399.90 |  3500 |</span><br><span class="line">|       5 |  9 |           2 | 户外运动       | 登山杖       |   59.90 |  1500 |</span><br><span class="line">+---------+----+-------------+---------------+------------+---------+-------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; SELECT DENSE_RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,
+    -&gt; id, category_id, category, NAME, price, stock
+    -&gt; FROM goods;
++---------+----+-------------+---------------+------------+---------+-------+
+| row_num | id | category_id | category      | NAME       | price   | stock |
++---------+----+-------------+---------------+------------+---------+-------+
+|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套    |  399.90 |  1200 |
+|       2 |  3 |           1 | 女装/女士精品   | 卫衣        |   89.90 |  1500 |
+|       2 |  4 |           1 | 女装/女士精品   | 牛仔裤      |   89.90 |  3500 |
+|       3 |  2 |           1 | 女装/女士精品   | 连衣裙      |   79.90 |  2500 |
+|       4 |  1 |           1 | 女装/女士精品   | T恤        |   39.90 |  1000 |
+|       5 |  5 |           1 | 女装/女士精品   | 百褶裙      |   29.90 |   500 |
+|       1 |  8 |           2 | 户外运动       | 山地自行车   | 1399.90 |  2500 |
+|       2 | 11 |           2 | 户外运动       | 运动外套     |  799.90 |   500 |
+|       3 | 12 |           2 | 户外运动       | 滑板        |  499.90 |  1200 |
+|       4 |  7 |           2 | 户外运动       | 自行车       |  399.90 |  1000 |
+|       4 | 10 |           2 | 户外运动       | 骑行装备     |  399.90 |  3500 |
+|       5 |  9 |           2 | 户外运动       | 登山杖       |   59.90 |  1500 |
++---------+----+-------------+---------------+------------+---------+-------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>举例：使用DENSE_RANK()函数获取 goods 数据表中类别为“女装/女士精品”的价格最高的4款商品信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT *</span><br><span class="line">    -&gt; FROM(</span><br><span class="line">    -&gt;  SELECT DENSE_RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,</span><br><span class="line">    -&gt;  id, category_id, category, NAME, price, stock</span><br><span class="line">    -&gt;  FROM goods) t</span><br><span class="line">    -&gt; WHERE category_id = 1 AND row_num &lt;= 3;</span><br><span class="line">+---------+----+-------------+---------------+----------+--------+-------+</span><br><span class="line">| row_num | id | category_id | category      | NAME     | price  | stock |</span><br><span class="line">+---------+----+-------------+---------------+----------+--------+-------+</span><br><span class="line">|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套  | 399.90 |  1200 |</span><br><span class="line">|       2 |  3 |           1 | 女装/女士精品   | 卫衣     |  89.90  |  1500 |</span><br><span class="line">|       2 |  4 |           1 | 女装/女士精品   | 牛仔裤    |  89.90 |  3500 |</span><br><span class="line">|       3 |  2 |           1 | 女装/女士精品   | 连衣裙    |  79.90 |  2500 |</span><br><span class="line">+---------+----+-------------+---------------+----------+--------+-------+</span><br><span class="line">4 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT *
+    -&gt; FROM(
+    -&gt;  SELECT DENSE_RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,
+    -&gt;  id, category_id, category, NAME, price, stock
+    -&gt;  FROM goods) t
+    -&gt; WHERE category_id = 1 AND row_num &lt;= 3;
++---------+----+-------------+---------------+----------+--------+-------+
+| row_num | id | category_id | category      | NAME     | price  | stock |
++---------+----+-------------+---------------+----------+--------+-------+
+|       1 |  6 |           1 | 女装/女士精品   | 呢绒外套  | 399.90 |  1200 |
+|       2 |  3 |           1 | 女装/女士精品   | 卫衣     |  89.90  |  1500 |
+|       2 |  4 |           1 | 女装/女士精品   | 牛仔裤    |  89.90 |  3500 |
+|       3 |  2 |           1 | 女装/女士精品   | 连衣裙    |  79.90 |  2500 |
++---------+----+-------------+---------------+----------+--------+-------+
+4 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>可以看到，使用DENSE_RANK()函数得出的行号为1、2、2、3，相同价格的商品序号相同，后面的商品序号是连续的，并且没有跳过重复的序号。</p>
 <h4 id="2-分布函数"><a href="#2-分布函数" class="headerlink" title="2. 分布函数"></a>2. 分布函数</h4><p><strong>1．PERCENT_RANK()函数</strong></p>
 <p>PERCENT_RANK()函数是等级值百分比函数。按照如下方式进行计算。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">(rank - 1) / (rows - 1)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">(rank - 1) / (rows - 1)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 
 <p>其中，rank的值为使用RANK()函数产生的序号，rows的值为当前窗口的总记录数。</p>
 <p>举例：计算 goods 数据表中名称为“女装/女士精品”的类别下的商品的PERCENT_RANK值。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#写法一：</span><br><span class="line">SELECT RANK() OVER (PARTITION BY category_id ORDER BY price DESC) AS r,</span><br><span class="line">PERCENT_RANK() OVER (PARTITION BY category_id ORDER BY price DESC) AS pr,</span><br><span class="line">id, category_id, category, NAME, price, stock</span><br><span class="line">FROM goods</span><br><span class="line">WHERE category_id = 1;</span><br><span class="line"></span><br><span class="line">#写法二：</span><br><span class="line">mysql&gt; SELECT RANK() OVER w AS r,</span><br><span class="line">    -&gt; PERCENT_RANK() OVER w AS pr,</span><br><span class="line">    -&gt; id, category_id, category, NAME, price, stock</span><br><span class="line">    -&gt; FROM goods</span><br><span class="line">    -&gt; WHERE category_id = 1 WINDOW w AS (PARTITION BY category_id ORDER BY price DESC);</span><br><span class="line">+---+-----+----+-------------+---------------+----------+--------+-------+</span><br><span class="line">| r | pr  | id | category_id | category      | NAME     | price  | stock |</span><br><span class="line">+---+-----+----+-------------+---------------+----------+--------+-------+</span><br><span class="line">| 1 |   0 |  6 |           1 | 女装/女士精品   | 呢绒外套  | 399.90 |  1200 |</span><br><span class="line">| 2 | 0.2 |  3 |           1 | 女装/女士精品   | 卫衣     |  89.90 |  1500 |</span><br><span class="line">| 2 | 0.2 |  4 |           1 | 女装/女士精品   | 牛仔裤   |  89.90 |  3500  |</span><br><span class="line">| 4 | 0.6 |  2 |           1 | 女装/女士精品   | 连衣裙   |  79.90 |  2500  |</span><br><span class="line">| 5 | 0.8 |  1 |           1 | 女装/女士精品   | T恤      |  39.90 |  1000 |</span><br><span class="line">| 6 |   1 |  5 |           1 | 女装/女士精品   | 百褶裙   |  29.90  |   500 |</span><br><span class="line">+---+-----+----+-------------+---------------+----------+--------+-------+</span><br><span class="line">6 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">#写法一：
+SELECT RANK() OVER (PARTITION BY category_id ORDER BY price DESC) AS r,
+PERCENT_RANK() OVER (PARTITION BY category_id ORDER BY price DESC) AS pr,
+id, category_id, category, NAME, price, stock
+FROM goods
+WHERE category_id = 1;
+
+#写法二：
+mysql&gt; SELECT RANK() OVER w AS r,
+    -&gt; PERCENT_RANK() OVER w AS pr,
+    -&gt; id, category_id, category, NAME, price, stock
+    -&gt; FROM goods
+    -&gt; WHERE category_id = 1 WINDOW w AS (PARTITION BY category_id ORDER BY price DESC);
++---+-----+----+-------------+---------------+----------+--------+-------+
+| r | pr  | id | category_id | category      | NAME     | price  | stock |
++---+-----+----+-------------+---------------+----------+--------+-------+
+| 1 |   0 |  6 |           1 | 女装/女士精品   | 呢绒外套  | 399.90 |  1200 |
+| 2 | 0.2 |  3 |           1 | 女装/女士精品   | 卫衣     |  89.90 |  1500 |
+| 2 | 0.2 |  4 |           1 | 女装/女士精品   | 牛仔裤   |  89.90 |  3500  |
+| 4 | 0.6 |  2 |           1 | 女装/女士精品   | 连衣裙   |  79.90 |  2500  |
+| 5 | 0.8 |  1 |           1 | 女装/女士精品   | T恤      |  39.90 |  1000 |
+| 6 |   1 |  5 |           1 | 女装/女士精品   | 百褶裙   |  29.90  |   500 |
++---+-----+----+-------------+---------------+----------+--------+-------+
+6 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p><strong>2．CUME_DIST()函数</strong></p>
 <p>CUME_DIST()函数主要用于查询小于或等于某个值的比例。</p>
 <p>举例：查询goods数据表中小于或等于当前价格的比例。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT CUME_DIST() OVER(PARTITION BY category_id ORDER BY price ASC) AS cd,</span><br><span class="line">    -&gt; id, category, NAME, price</span><br><span class="line">    -&gt; FROM goods;</span><br><span class="line">+---------------------+----+---------------+------------+---------+</span><br><span class="line">| cd                  | id | category      | NAME       | price   |</span><br><span class="line">+---------------------+----+---------------+------------+---------+</span><br><span class="line">| 0.16666666666666666 |  5 | 女装/女士精品   | 百褶裙      |   29.90 |</span><br><span class="line">|  0.3333333333333333 |  1 | 女装/女士精品   | T恤        |   39.90 |</span><br><span class="line">|                 0.5 |  2 | 女装/女士精品   | 连衣裙      |   79.90 |</span><br><span class="line">|  0.8333333333333334 |  3 | 女装/女士精品   | 卫衣        |   89.90 |</span><br><span class="line">|  0.8333333333333334 |  4 | 女装/女士精品   | 牛仔裤      |   89.90 |</span><br><span class="line">|                   1 |  6 | 女装/女士精品   | 呢绒外套    |  399.90 |</span><br><span class="line">| 0.16666666666666666 |  9 | 户外运动       | 登山杖      |   59.90 |</span><br><span class="line">|                 0.5 |  7 | 户外运动       | 自行车      |  399.90 |</span><br><span class="line">|                 0.5 | 10 | 户外运动       | 骑行装备     |  399.90 |</span><br><span class="line">|  0.6666666666666666 | 12 | 户外运动       | 滑板        |  499.90 |</span><br><span class="line">|  0.8333333333333334 | 11 | 户外运动       | 运动外套    |  799.90 |</span><br><span class="line">|                   1 |  8 | 户外运动       | 山地自行车   | 1399.90 |</span><br><span class="line">+---------------------+----+---------------+------------+---------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT CUME_DIST() OVER(PARTITION BY category_id ORDER BY price ASC) AS cd,
+    -&gt; id, category, NAME, price
+    -&gt; FROM goods;
++---------------------+----+---------------+------------+---------+
+| cd                  | id | category      | NAME       | price   |
++---------------------+----+---------------+------------+---------+
+| 0.16666666666666666 |  5 | 女装/女士精品   | 百褶裙      |   29.90 |
+|  0.3333333333333333 |  1 | 女装/女士精品   | T恤        |   39.90 |
+|                 0.5 |  2 | 女装/女士精品   | 连衣裙      |   79.90 |
+|  0.8333333333333334 |  3 | 女装/女士精品   | 卫衣        |   89.90 |
+|  0.8333333333333334 |  4 | 女装/女士精品   | 牛仔裤      |   89.90 |
+|                   1 |  6 | 女装/女士精品   | 呢绒外套    |  399.90 |
+| 0.16666666666666666 |  9 | 户外运动       | 登山杖      |   59.90 |
+|                 0.5 |  7 | 户外运动       | 自行车      |  399.90 |
+|                 0.5 | 10 | 户外运动       | 骑行装备     |  399.90 |
+|  0.6666666666666666 | 12 | 户外运动       | 滑板        |  499.90 |
+|  0.8333333333333334 | 11 | 户外运动       | 运动外套    |  799.90 |
+|                   1 |  8 | 户外运动       | 山地自行车   | 1399.90 |
++---------------------+----+---------------+------------+---------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <h4 id="3-前后函数"><a href="#3-前后函数" class="headerlink" title="3. 前后函数"></a>3. 前后函数</h4><p><strong>1．LAG(expr,n)函数</strong></p>
 <p>LAG(expr,n)函数返回当前行的前n行的expr的值。</p>
 <p>举例：查询goods数据表中前一个商品价格与当前商品价格的差值。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT id, category, NAME, price, pre_price, price - pre_price AS diff_price</span><br><span class="line">    -&gt; FROM (</span><br><span class="line">    -&gt;  SELECT  id, category, NAME, price,LAG(price,1) OVER w AS pre_price</span><br><span class="line">    -&gt;  FROM goods</span><br><span class="line">    -&gt;  WINDOW w AS (PARTITION BY category_id ORDER BY price)) t;</span><br><span class="line">+----+---------------+------------+---------+-----------+------------+</span><br><span class="line">| id | category      | NAME       | price   | pre_price | diff_price |</span><br><span class="line">+----+---------------+------------+---------+-----------+------------+</span><br><span class="line">|  5 | 女装/女士精品   | 百褶裙      |   29.90 |      NULL |       NULL |</span><br><span class="line">|  1 | 女装/女士精品   | T恤        |   39.90 |     29.90 |      10.00 |</span><br><span class="line">|  2 | 女装/女士精品   | 连衣裙      |   79.90 |     39.90 |      40.00 |</span><br><span class="line">|  3 | 女装/女士精品   | 卫衣       |   89.90 |     79.90 |      10.00 |</span><br><span class="line">|  4 | 女装/女士精品   | 牛仔裤      |   89.90 |     89.90 |       0.00 |</span><br><span class="line">|  6 | 女装/女士精品   | 呢绒外套    |  399.90 |     89.90 |     310.00 |</span><br><span class="line">|  9 | 户外运动       | 登山杖      |   59.90 |      NULL |       NULL |</span><br><span class="line">|  7 | 户外运动       | 自行车      |  399.90 |     59.90 |     340.00 |</span><br><span class="line">| 10 | 户外运动       | 骑行装备    |  399.90 |    399.90 |       0.00 |</span><br><span class="line">| 12 | 户外运动       | 滑板       |  499.90 |    399.90 |     100.00 |</span><br><span class="line">| 11 | 户外运动       | 运动外套    |  799.90 |    499.90 |     300.00 |</span><br><span class="line">|  8 | 户外运动       | 山地自行车  | 1399.90 |    799.90 |     600.00 |</span><br><span class="line">+----+---------------+------------+---------+-----------+------------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT id, category, NAME, price, pre_price, price - pre_price AS diff_price
+    -&gt; FROM (
+    -&gt;  SELECT  id, category, NAME, price,LAG(price,1) OVER w AS pre_price
+    -&gt;  FROM goods
+    -&gt;  WINDOW w AS (PARTITION BY category_id ORDER BY price)) t;
++----+---------------+------------+---------+-----------+------------+
+| id | category      | NAME       | price   | pre_price | diff_price |
++----+---------------+------------+---------+-----------+------------+
+|  5 | 女装/女士精品   | 百褶裙      |   29.90 |      NULL |       NULL |
+|  1 | 女装/女士精品   | T恤        |   39.90 |     29.90 |      10.00 |
+|  2 | 女装/女士精品   | 连衣裙      |   79.90 |     39.90 |      40.00 |
+|  3 | 女装/女士精品   | 卫衣       |   89.90 |     79.90 |      10.00 |
+|  4 | 女装/女士精品   | 牛仔裤      |   89.90 |     89.90 |       0.00 |
+|  6 | 女装/女士精品   | 呢绒外套    |  399.90 |     89.90 |     310.00 |
+|  9 | 户外运动       | 登山杖      |   59.90 |      NULL |       NULL |
+|  7 | 户外运动       | 自行车      |  399.90 |     59.90 |     340.00 |
+| 10 | 户外运动       | 骑行装备    |  399.90 |    399.90 |       0.00 |
+| 12 | 户外运动       | 滑板       |  499.90 |    399.90 |     100.00 |
+| 11 | 户外运动       | 运动外套    |  799.90 |    499.90 |     300.00 |
+|  8 | 户外运动       | 山地自行车  | 1399.90 |    799.90 |     600.00 |
++----+---------------+------------+---------+-----------+------------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p><strong>2．LEAD(expr,n)函数</strong></p>
 <p>LEAD(expr,n)函数返回当前行的后n行的expr的值。</p>
 <p>举例：查询goods数据表中后一个商品价格与当前商品价格的差值。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT id, category, NAME, behind_price, price,behind_price - price AS diff_price</span><br><span class="line">    -&gt; FROM(</span><br><span class="line">    -&gt;  SELECT id, category, NAME, price,LEAD(price, 1) OVER w AS behind_price</span><br><span class="line">    -&gt;  FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price)) t;</span><br><span class="line">+----+---------------+------------+--------------+---------+------------+</span><br><span class="line">| id | category      | NAME       | behind_price | price   | diff_price |</span><br><span class="line">+----+---------------+------------+--------------+---------+------------+</span><br><span class="line">|  5 | 女装/女士精品   | 百褶裙      |        39.90 |   29.90 |      10.00 |</span><br><span class="line">|  1 | 女装/女士精品   | T恤        |        79.90 |   39.90 |      40.00 |</span><br><span class="line">|  2 | 女装/女士精品   | 连衣裙      |        89.90 |   79.90 |      10.00 |</span><br><span class="line">|  3 | 女装/女士精品   | 卫衣        |        89.90 |   89.90 |       0.00 |</span><br><span class="line">|  4 | 女装/女士精品   | 牛仔裤      |       399.90 |   89.90 |     310.00 |</span><br><span class="line">|  6 | 女装/女士精品   | 呢绒外套     |         NULL |  399.90 |       NULL |</span><br><span class="line">|  9 | 户外运动       | 登山杖       |       399.90 |   59.90 |     340.00 |</span><br><span class="line">|  7 | 户外运动       | 自行车       |       399.90 |  399.90 |       0.00 |</span><br><span class="line">| 10 | 户外运动       | 骑行装备     |       499.90 |  399.90 |     100.00 |</span><br><span class="line">| 12 | 户外运动       | 滑板        |       799.90 |  499.90 |     300.00 |</span><br><span class="line">| 11 | 户外运动       | 运动外套     |      1399.90 |  799.90 |     600.00 |</span><br><span class="line">|  8 | 户外运动       | 山地自行车   |         NULL | 1399.90 |       NULL |</span><br><span class="line">+----+---------------+------------+--------------+---------+------------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT id, category, NAME, behind_price, price,behind_price - price AS diff_price
+    -&gt; FROM(
+    -&gt;  SELECT id, category, NAME, price,LEAD(price, 1) OVER w AS behind_price
+    -&gt;  FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price)) t;
++----+---------------+------------+--------------+---------+------------+
+| id | category      | NAME       | behind_price | price   | diff_price |
++----+---------------+------------+--------------+---------+------------+
+|  5 | 女装/女士精品   | 百褶裙      |        39.90 |   29.90 |      10.00 |
+|  1 | 女装/女士精品   | T恤        |        79.90 |   39.90 |      40.00 |
+|  2 | 女装/女士精品   | 连衣裙      |        89.90 |   79.90 |      10.00 |
+|  3 | 女装/女士精品   | 卫衣        |        89.90 |   89.90 |       0.00 |
+|  4 | 女装/女士精品   | 牛仔裤      |       399.90 |   89.90 |     310.00 |
+|  6 | 女装/女士精品   | 呢绒外套     |         NULL |  399.90 |       NULL |
+|  9 | 户外运动       | 登山杖       |       399.90 |   59.90 |     340.00 |
+|  7 | 户外运动       | 自行车       |       399.90 |  399.90 |       0.00 |
+| 10 | 户外运动       | 骑行装备     |       499.90 |  399.90 |     100.00 |
+| 12 | 户外运动       | 滑板        |       799.90 |  499.90 |     300.00 |
+| 11 | 户外运动       | 运动外套     |      1399.90 |  799.90 |     600.00 |
+|  8 | 户外运动       | 山地自行车   |         NULL | 1399.90 |       NULL |
++----+---------------+------------+--------------+---------+------------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <h4 id="4-首尾函数"><a href="#4-首尾函数" class="headerlink" title="4. 首尾函数"></a>4. 首尾函数</h4><p><strong>1．FIRST_VALUE(expr)函数</strong></p>
 <p>FIRST_VALUE(expr)函数返回第一个expr的值。</p>
 <p>举例：按照价格排序，查询第1个商品的价格信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT id, category, NAME, price, stock,FIRST_VALUE(price) OVER w AS first_price</span><br><span class="line">    -&gt; FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price);</span><br><span class="line">+----+---------------+------------+---------+-------+-------------+</span><br><span class="line">| id | category      | NAME       | price   | stock | first_price |</span><br><span class="line">+----+---------------+------------+---------+-------+-------------+</span><br><span class="line">|  5 | 女装/女士精品   | 百褶裙      |   29.90 |   500 |       29.90 |</span><br><span class="line">|  1 | 女装/女士精品   | T恤        |   39.90 |  1000 |       29.90 |</span><br><span class="line">|  2 | 女装/女士精品   | 连衣裙      |   79.90 |  2500 |       29.90 |</span><br><span class="line">|  3 | 女装/女士精品   | 卫衣       |   89.90 |  1500 |       29.90 |</span><br><span class="line">|  4 | 女装/女士精品   | 牛仔裤      |   89.90 |  3500 |       29.90 |</span><br><span class="line">|  6 | 女装/女士精品   | 呢绒外套    |  399.90 |  1200 |       29.90 |</span><br><span class="line">|  9 | 户外运动       | 登山杖      |   59.90 |  1500 |       59.90 |</span><br><span class="line">|  7 | 户外运动       | 自行车      |  399.90 |  1000 |       59.90 |</span><br><span class="line">| 10 | 户外运动       | 骑行装备    |  399.90 |  3500 |       59.90 |</span><br><span class="line">| 12 | 户外运动       | 滑板       |  499.90 |  1200 |       59.90 |</span><br><span class="line">| 11 | 户外运动       | 运动外套    |  799.90 |   500 |       59.90 |</span><br><span class="line">|  8 | 户外运动       | 山地自行车  | 1399.90 |  2500 |       59.90 |</span><br><span class="line">+----+---------------+------------+---------+-------+-------------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT id, category, NAME, price, stock,FIRST_VALUE(price) OVER w AS first_price
+    -&gt; FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price);
++----+---------------+------------+---------+-------+-------------+
+| id | category      | NAME       | price   | stock | first_price |
++----+---------------+------------+---------+-------+-------------+
+|  5 | 女装/女士精品   | 百褶裙      |   29.90 |   500 |       29.90 |
+|  1 | 女装/女士精品   | T恤        |   39.90 |  1000 |       29.90 |
+|  2 | 女装/女士精品   | 连衣裙      |   79.90 |  2500 |       29.90 |
+|  3 | 女装/女士精品   | 卫衣       |   89.90 |  1500 |       29.90 |
+|  4 | 女装/女士精品   | 牛仔裤      |   89.90 |  3500 |       29.90 |
+|  6 | 女装/女士精品   | 呢绒外套    |  399.90 |  1200 |       29.90 |
+|  9 | 户外运动       | 登山杖      |   59.90 |  1500 |       59.90 |
+|  7 | 户外运动       | 自行车      |  399.90 |  1000 |       59.90 |
+| 10 | 户外运动       | 骑行装备    |  399.90 |  3500 |       59.90 |
+| 12 | 户外运动       | 滑板       |  499.90 |  1200 |       59.90 |
+| 11 | 户外运动       | 运动外套    |  799.90 |   500 |       59.90 |
+|  8 | 户外运动       | 山地自行车  | 1399.90 |  2500 |       59.90 |
++----+---------------+------------+---------+-------+-------------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p><strong>2．LAST_VALUE(expr)函数</strong></p>
 <p>LAST_VALUE(expr)函数返回最后一个expr的值。</p>
 <p>举例：按照价格排序，查询最后一个商品的价格信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT id, category, NAME, price, stock,LAST_VALUE(price) OVER w AS last_price</span><br><span class="line">    -&gt; FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price);</span><br><span class="line">+----+---------------+------------+---------+-------+------------+</span><br><span class="line">| id | category      | NAME       | price   | stock | last_price |</span><br><span class="line">+----+---------------+------------+---------+-------+------------+</span><br><span class="line">|  5 | 女装/女士精品   | 百褶裙     |   29.90 |   500 |      29.90 |</span><br><span class="line">|  1 | 女装/女士精品   | T恤        |   39.90 |  1000 |      39.90 |</span><br><span class="line">|  2 | 女装/女士精品   | 连衣裙     |   79.90 |  2500 |      79.90 |</span><br><span class="line">|  3 | 女装/女士精品   | 卫衣       |   89.90 |  1500 |      89.90 |</span><br><span class="line">|  4 | 女装/女士精品   | 牛仔裤     |   89.90 |  3500 |      89.90 |</span><br><span class="line">|  6 | 女装/女士精品   | 呢绒外套   |  399.90 |  1200 |     399.90 |</span><br><span class="line">|  9 | 户外运动       | 登山杖     |   59.90 |  1500 |      59.90 |</span><br><span class="line">|  7 | 户外运动       | 自行车     |  399.90 |  1000 |     399.90 |</span><br><span class="line">| 10 | 户外运动       | 骑行装备   |  399.90 |  3500 |     399.90 |</span><br><span class="line">| 12 | 户外运动       | 滑板       |  499.90 |  1200 |     499.90 |</span><br><span class="line">| 11 | 户外运动       | 运动外套   |  799.90 |   500 |     799.90 |</span><br><span class="line">|  8 | 户外运动       | 山地自行车 | 1399.90 |  2500 |    1399.90 |</span><br><span class="line">+----+---------------+------------+---------+-------+------------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT id, category, NAME, price, stock,LAST_VALUE(price) OVER w AS last_price
+    -&gt; FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price);
++----+---------------+------------+---------+-------+------------+
+| id | category      | NAME       | price   | stock | last_price |
++----+---------------+------------+---------+-------+------------+
+|  5 | 女装/女士精品   | 百褶裙     |   29.90 |   500 |      29.90 |
+|  1 | 女装/女士精品   | T恤        |   39.90 |  1000 |      39.90 |
+|  2 | 女装/女士精品   | 连衣裙     |   79.90 |  2500 |      79.90 |
+|  3 | 女装/女士精品   | 卫衣       |   89.90 |  1500 |      89.90 |
+|  4 | 女装/女士精品   | 牛仔裤     |   89.90 |  3500 |      89.90 |
+|  6 | 女装/女士精品   | 呢绒外套   |  399.90 |  1200 |     399.90 |
+|  9 | 户外运动       | 登山杖     |   59.90 |  1500 |      59.90 |
+|  7 | 户外运动       | 自行车     |  399.90 |  1000 |     399.90 |
+| 10 | 户外运动       | 骑行装备   |  399.90 |  3500 |     399.90 |
+| 12 | 户外运动       | 滑板       |  499.90 |  1200 |     499.90 |
+| 11 | 户外运动       | 运动外套   |  799.90 |   500 |     799.90 |
+|  8 | 户外运动       | 山地自行车 | 1399.90 |  2500 |    1399.90 |
++----+---------------+------------+---------+-------+------------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <h4 id="5-其他函数"><a href="#5-其他函数" class="headerlink" title="5. 其他函数"></a>5. 其他函数</h4><p><strong>1．NTH_VALUE(expr,n)函数</strong></p>
 <p>NTH_VALUE(expr,n)函数返回第n个expr的值。</p>
 <p>举例：查询goods数据表中排名第2和第3的价格信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT id, category, NAME, price,NTH_VALUE(price,2) OVER w AS second_price,</span><br><span class="line">    -&gt; NTH_VALUE(price,3) OVER w AS third_price</span><br><span class="line">    -&gt; FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price);</span><br><span class="line">+----+---------------+------------+---------+--------------+-------------+</span><br><span class="line">| id | category      | NAME       | price   | second_price | third_price |</span><br><span class="line">+----+---------------+------------+---------+--------------+-------------+</span><br><span class="line">|  5 | 女装/女士精品   | 百褶裙     |   29.90 |         NULL |        NULL |</span><br><span class="line">|  1 | 女装/女士精品   | T恤        |   39.90 |        39.90 |        NULL |</span><br><span class="line">|  2 | 女装/女士精品   | 连衣裙     |   79.90 |        39.90 |       79.90 |</span><br><span class="line">|  3 | 女装/女士精品   | 卫衣       |   89.90 |        39.90 |       79.90 |</span><br><span class="line">|  4 | 女装/女士精品   | 牛仔裤     |   89.90 |        39.90 |       79.90 |</span><br><span class="line">|  6 | 女装/女士精品   | 呢绒外套   |  399.90 |        39.90 |       79.90 |</span><br><span class="line">|  9 | 户外运动       | 登山杖     |   59.90 |         NULL |        NULL |</span><br><span class="line">|  7 | 户外运动       | 自行车     |  399.90 |       399.90 |      399.90 |</span><br><span class="line">| 10 | 户外运动       | 骑行装备   |  399.90 |       399.90 |      399.90 |</span><br><span class="line">| 12 | 户外运动       | 滑板       |  499.90 |       399.90 |      399.90 |</span><br><span class="line">| 11 | 户外运动       | 运动外套   |  799.90 |       399.90 |      399.90 |</span><br><span class="line">|  8 | 户外运动       | 山地自行车 | 1399.90 |       399.90 |      399.90 |</span><br><span class="line">+----+---------------+------------+---------+--------------+-------------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT id, category, NAME, price,NTH_VALUE(price,2) OVER w AS second_price,
+    -&gt; NTH_VALUE(price,3) OVER w AS third_price
+    -&gt; FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price);
++----+---------------+------------+---------+--------------+-------------+
+| id | category      | NAME       | price   | second_price | third_price |
++----+---------------+------------+---------+--------------+-------------+
+|  5 | 女装/女士精品   | 百褶裙     |   29.90 |         NULL |        NULL |
+|  1 | 女装/女士精品   | T恤        |   39.90 |        39.90 |        NULL |
+|  2 | 女装/女士精品   | 连衣裙     |   79.90 |        39.90 |       79.90 |
+|  3 | 女装/女士精品   | 卫衣       |   89.90 |        39.90 |       79.90 |
+|  4 | 女装/女士精品   | 牛仔裤     |   89.90 |        39.90 |       79.90 |
+|  6 | 女装/女士精品   | 呢绒外套   |  399.90 |        39.90 |       79.90 |
+|  9 | 户外运动       | 登山杖     |   59.90 |         NULL |        NULL |
+|  7 | 户外运动       | 自行车     |  399.90 |       399.90 |      399.90 |
+| 10 | 户外运动       | 骑行装备   |  399.90 |       399.90 |      399.90 |
+| 12 | 户外运动       | 滑板       |  499.90 |       399.90 |      399.90 |
+| 11 | 户外运动       | 运动外套   |  799.90 |       399.90 |      399.90 |
+|  8 | 户外运动       | 山地自行车 | 1399.90 |       399.90 |      399.90 |
++----+---------------+------------+---------+--------------+-------------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p><strong>2．NTILE(n)函数</strong></p>
 <p>NTILE(n)函数将分区中的有序数据分为n个桶，记录桶编号。</p>
 <p>举例：将goods表中的商品按照价格分为3组。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT NTILE(3) OVER w AS nt,id, category, NAME, price</span><br><span class="line">    -&gt; FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price);</span><br><span class="line">+----+----+---------------+------------+---------+</span><br><span class="line">| nt | id | category      | NAME       | price   |</span><br><span class="line">+----+----+---------------+------------+---------+</span><br><span class="line">|  1 |  5 | 女装/女士精品 | 百褶裙     |   29.90 |</span><br><span class="line">|  1 |  1 | 女装/女士精品 | T恤        |   39.90 |</span><br><span class="line">|  2 |  2 | 女装/女士精品 | 连衣裙     |   79.90 |</span><br><span class="line">|  2 |  3 | 女装/女士精品 | 卫衣       |   89.90 |</span><br><span class="line">|  3 |  4 | 女装/女士精品 | 牛仔裤     |   89.90 |</span><br><span class="line">|  3 |  6 | 女装/女士精品 | 呢绒外套   |  399.90 |</span><br><span class="line">|  1 |  9 | 户外运动      | 登山杖     |   59.90 |</span><br><span class="line">|  1 |  7 | 户外运动      | 自行车     |  399.90 |</span><br><span class="line">|  2 | 10 | 户外运动      | 骑行装备   |  399.90 |</span><br><span class="line">|  2 | 12 | 户外运动      | 滑板       |  499.90 |</span><br><span class="line">|  3 | 11 | 户外运动      | 运动外套   |  799.90 |</span><br><span class="line">|  3 |  8 | 户外运动      | 山地自行车 | 1399.90 |</span><br><span class="line">+----+----+---------------+------------+---------+</span><br><span class="line">12 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT NTILE(3) OVER w AS nt,id, category, NAME, price
+    -&gt; FROM goods WINDOW w AS (PARTITION BY category_id ORDER BY price);
++----+----+---------------+------------+---------+
+| nt | id | category      | NAME       | price   |
++----+----+---------------+------------+---------+
+|  1 |  5 | 女装/女士精品 | 百褶裙     |   29.90 |
+|  1 |  1 | 女装/女士精品 | T恤        |   39.90 |
+|  2 |  2 | 女装/女士精品 | 连衣裙     |   79.90 |
+|  2 |  3 | 女装/女士精品 | 卫衣       |   89.90 |
+|  3 |  4 | 女装/女士精品 | 牛仔裤     |   89.90 |
+|  3 |  6 | 女装/女士精品 | 呢绒外套   |  399.90 |
+|  1 |  9 | 户外运动      | 登山杖     |   59.90 |
+|  1 |  7 | 户外运动      | 自行车     |  399.90 |
+|  2 | 10 | 户外运动      | 骑行装备   |  399.90 |
+|  2 | 12 | 户外运动      | 滑板       |  499.90 |
+|  3 | 11 | 户外运动      | 运动外套   |  799.90 |
+|  3 |  8 | 户外运动      | 山地自行车 | 1399.90 |
++----+----+---------------+------------+---------+
+12 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <h3 id="2-5-小-结"><a href="#2-5-小-结" class="headerlink" title="2.5 小 结"></a>2.5 小 结</h3><p>窗口函数的特点是可以分组，而且可以在分组内排序。另外，窗口函数不会因为分组而减少原表中的行数，这对我们在原表数据的基础上进行统计和排序非常有用。</p>
 <h2 id="3-新特性2：公用表表达式"><a href="#3-新特性2：公用表表达式" class="headerlink" title="3. 新特性2：公用表表达式"></a>3. 新特性2：公用表表达式</h2><p>公用表表达式（或通用表表达式）简称为CTE（Common Table Expressions）。CTE是一个命名的临时结果集，作用范围是当前语句。CTE可以理解成一个可以复用的子查询，当然跟子查询还是有点区别的，CTE可以引用其他CTE，但子查询不能引用其他子查询。所以，可以考虑代替子查询。</p>
 <p>依据语法结构和执行方式的不同，公用表表达式分为<code>普通公用表表达式</code>和<code>递归公用表表达式</code> 2 种。</p>
 <h3 id="3-1-普通公用表表达式"><a href="#3-1-普通公用表表达式" class="headerlink" title="3.1 普通公用表表达式"></a>3.1 普通公用表表达式</h3><p>普通公用表表达式的语法结构是：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">WITH CTE名称 </span><br><span class="line">AS （子查询）</span><br><span class="line">SELECT|DELETE|UPDATE 语句;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">WITH CTE名称 
+AS （子查询）
+SELECT|DELETE|UPDATE 语句;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 
 <p>普通公用表表达式类似于子查询，不过，跟子查询不同的是，它可以被多次引用，而且可以被其他的普通公用表表达式所引用。</p>
 <p>举例：查询员工所在的部门的详细信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM departments</span><br><span class="line">    -&gt; WHERE department_id IN (</span><br><span class="line">    -&gt;                  SELECT DISTINCT department_id</span><br><span class="line">    -&gt;                  FROM employees</span><br><span class="line">    -&gt;                  );</span><br><span class="line">+---------------+------------------+------------+-------------+</span><br><span class="line">| department_id | department_name  | manager_id | location_id |</span><br><span class="line">+---------------+------------------+------------+-------------+</span><br><span class="line">|            10 | Administration   |        200 |        1700 |</span><br><span class="line">|            20 | Marketing        |        201 |        1800 |</span><br><span class="line">|            30 | Purchasing       |        114 |        1700 |</span><br><span class="line">|            40 | Human Resources  |        203 |        2400 |</span><br><span class="line">|            50 | Shipping         |        121 |        1500 |</span><br><span class="line">|            60 | IT               |        103 |        1400 |</span><br><span class="line">|            70 | Public Relations |        204 |        2700 |</span><br><span class="line">|            80 | Sales            |        145 |        2500 |</span><br><span class="line">|            90 | Executive        |        100 |        1700 |</span><br><span class="line">|           100 | Finance          |        108 |        1700 |</span><br><span class="line">|           110 | Accounting       |        205 |        1700 |</span><br><span class="line">+---------------+------------------+------------+-------------+</span><br><span class="line">11 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; SELECT * FROM departments
+    -&gt; WHERE department_id IN (
+    -&gt;                  SELECT DISTINCT department_id
+    -&gt;                  FROM employees
+    -&gt;                  );
++---------------+------------------+------------+-------------+
+| department_id | department_name  | manager_id | location_id |
++---------------+------------------+------------+-------------+
+|            10 | Administration   |        200 |        1700 |
+|            20 | Marketing        |        201 |        1800 |
+|            30 | Purchasing       |        114 |        1700 |
+|            40 | Human Resources  |        203 |        2400 |
+|            50 | Shipping         |        121 |        1500 |
+|            60 | IT               |        103 |        1400 |
+|            70 | Public Relations |        204 |        2700 |
+|            80 | Sales            |        145 |        2500 |
+|            90 | Executive        |        100 |        1700 |
+|           100 | Finance          |        108 |        1700 |
+|           110 | Accounting       |        205 |        1700 |
++---------------+------------------+------------+-------------+
+11 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>这个查询也可以用普通公用表表达式的方式完成：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; WITH emp_dept_id</span><br><span class="line">    -&gt; AS (SELECT DISTINCT department_id FROM employees)</span><br><span class="line">    -&gt; SELECT *</span><br><span class="line">    -&gt; FROM departments d JOIN emp_dept_id e</span><br><span class="line">    -&gt; ON d.department_id = e.department_id;</span><br><span class="line">+---------------+------------------+------------+-------------+---------------+</span><br><span class="line">| department_id | department_name  | manager_id | location_id | department_id |</span><br><span class="line">+---------------+------------------+------------+-------------+---------------+</span><br><span class="line">|            90 | Executive        |        100 |        1700 |            90 |</span><br><span class="line">|            60 | IT               |        103 |        1400 |            60 |</span><br><span class="line">|           100 | Finance          |        108 |        1700 |           100 |</span><br><span class="line">|            30 | Purchasing       |        114 |        1700 |            30 |</span><br><span class="line">|            50 | Shipping         |        121 |        1500 |            50 |</span><br><span class="line">|            80 | Sales            |        145 |        2500 |            80 |</span><br><span class="line">|            10 | Administration   |        200 |        1700 |            10 |</span><br><span class="line">|            20 | Marketing        |        201 |        1800 |            20 |</span><br><span class="line">|            40 | Human Resources  |        203 |        2400 |            40 |</span><br><span class="line">|            70 | Public Relations |        204 |        2700 |            70 |</span><br><span class="line">|           110 | Accounting       |        205 |        1700 |           110 |</span><br><span class="line">+---------------+------------------+------------+-------------+---------------+</span><br><span class="line">11 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">mysql&gt; WITH emp_dept_id
+    -&gt; AS (SELECT DISTINCT department_id FROM employees)
+    -&gt; SELECT *
+    -&gt; FROM departments d JOIN emp_dept_id e
+    -&gt; ON d.department_id = e.department_id;
++---------------+------------------+------------+-------------+---------------+
+| department_id | department_name  | manager_id | location_id | department_id |
++---------------+------------------+------------+-------------+---------------+
+|            90 | Executive        |        100 |        1700 |            90 |
+|            60 | IT               |        103 |        1400 |            60 |
+|           100 | Finance          |        108 |        1700 |           100 |
+|            30 | Purchasing       |        114 |        1700 |            30 |
+|            50 | Shipping         |        121 |        1500 |            50 |
+|            80 | Sales            |        145 |        2500 |            80 |
+|            10 | Administration   |        200 |        1700 |            10 |
+|            20 | Marketing        |        201 |        1800 |            20 |
+|            40 | Human Resources  |        203 |        2400 |            40 |
+|            70 | Public Relations |        204 |        2700 |            70 |
+|           110 | Accounting       |        205 |        1700 |           110 |
++---------------+------------------+------------+-------------+---------------+
+11 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>例子说明，公用表表达式可以起到子查询的作用。以后如果遇到需要使用子查询的场景，你可以在查询之前，先定义公用表表达式，然后在查询中用它来代替子查询。而且，跟子查询相比，公用表表达式有一个优点，就是定义过公用表表达式之后的查询，可以像一个表一样多次引用公用表表达式，而子查询则不能。</p>
 <h3 id="3-2-递归公用表表达式"><a href="#3-2-递归公用表表达式" class="headerlink" title="3.2 递归公用表表达式"></a>3.2 递归公用表表达式</h3><p>递归公用表表达式也是一种公用表表达式，只不过，除了普通公用表表达式的特点以外，它还有自己的特点，就是<strong>可以调用自己</strong>。它的语法结构是：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">WITH RECURSIVE</span><br><span class="line">CTE名称 AS （子查询）</span><br><span class="line">SELECT|DELETE|UPDATE 语句;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">WITH RECURSIVE
+CTE名称 AS （子查询）
+SELECT|DELETE|UPDATE 语句;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 
 <p>递归公用表表达式由 2 部分组成，分别是种子查询和递归查询，中间通过关键字 UNION  [ALL]进行连接。这里的<strong>种子查询，意思就是获得递归的初始值</strong>。这个查询只会运行一次，以创建初始数据集，之后递归查询会一直执行，直到没有任何新的查询数据产生，递归返回。</p>
@@ -383,82 +1148,1134 @@
 </ul>
 <p>这里看似也是 3 步，实际上是一个查询的 3 个部分，只需要执行一次就可以了。而且也不需要用临时表保存中间结果，比刚刚的方法简单多了。</p>
 <p><strong>代码实现：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">WITH RECURSIVE cte </span><br><span class="line">AS </span><br><span class="line">(</span><br><span class="line">SELECT employee_id,last_name,manager_id,1 AS n FROM employees WHERE employee_id = 100 -- 种子查询，找到第一代领导</span><br><span class="line">UNION ALL</span><br><span class="line">SELECT a.employee_id,a.last_name,a.manager_id,n+1 FROM employees AS a JOIN cte</span><br><span class="line">ON (a.manager_id = cte.employee_id) -- 递归查询，找出以递归公用表表达式的人为领导的人</span><br><span class="line">)</span><br><span class="line">SELECT employee_id,last_name FROM cte WHERE n &gt;= 3;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-mysql" data-language="mysql"><code class="language-mysql">WITH RECURSIVE cte 
+AS 
+(
+SELECT employee_id,last_name,manager_id,1 AS n FROM employees WHERE employee_id = 100 -- 种子查询，找到第一代领导
+UNION ALL
+SELECT a.employee_id,a.last_name,a.manager_id,n+1 FROM employees AS a JOIN cte
+ON (a.manager_id = cte.employee_id) -- 递归查询，找出以递归公用表表达式的人为领导的人
+)
+SELECT employee_id,last_name FROM cte WHERE n &gt;= 3;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 <p>总之，递归公用表表达式对于查询一个有共同的根节点的树形结构数据，非常有用。它可以不受层级的限制，轻松查出所有节点的数据。如果用其他的查询方式，就比较复杂了。</p>
 <h3 id="3-3-小-结"><a href="#3-3-小-结" class="headerlink" title="3.3 小 结"></a>3.3 小 结</h3><p>公用表表达式的作用是可以替代子查询，而且可以被多次引用。递归公用表表达式对查询有一个共同根节点的树形结构数据非常高效，可以轻松搞定其他查询方式难以处理的查询。</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/2e4d969f.html">http://www.lvxueyang.vip/post/2e4d969f.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/mysql/">mysql</a></div><div class="post_share"><div class="social-share" data-image="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/2fd63cc0.html"><img class="prev-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165211.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">MySQL集群架构设计</div></div></a></div><div class="next-post pull-right"><a href="/post/a5cc1cf3.html"><img class="next-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">MySQL单行函数</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/4d69c88c.html" title="MySQL-运维和第三方工具"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165241.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">MySQL-运维和第三方工具</div></div></a></div><div><a href="/post/263da724.html" title="MySQL-基础"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165215.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">MySQL-基础</div></div></a></div><div><a href="/post/5e688f23.html" title="MySQL事务和锁"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">MySQL事务和锁</div></div></a></div><div><a href="/post/a5cc1cf3.html" title="MySQL单行函数"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">MySQL单行函数</div></div></a></div><div><a href="/post/d045bdb9.html" title="Mysql数据结构精讲"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">Mysql数据结构精讲</div></div></a></div><div><a href="/post/18d8d4e.html" title="MySQL性能优化"><img class="cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165215.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-06</div><div class="title">MySQL性能优化</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL8%E5%85%B6%E5%AE%83%E6%96%B0%E7%89%B9%E6%80%A7"><span class="toc-text">MySQL8其它新特性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-MySQL8%E6%96%B0%E7%89%B9%E6%80%A7%E6%A6%82%E8%BF%B0"><span class="toc-text">1. MySQL8新特性概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-MySQL8-0-%E6%96%B0%E5%A2%9E%E7%89%B9%E6%80%A7"><span class="toc-text">1.1 MySQL8.0 新增特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-MySQL8-0%E7%A7%BB%E9%99%A4%E7%9A%84%E6%97%A7%E7%89%B9%E6%80%A7"><span class="toc-text">1.2 MySQL8.0移除的旧特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%B0%E7%89%B9%E6%80%A71%EF%BC%9A%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0"><span class="toc-text">2. 新特性1：窗口函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E4%BD%BF%E7%94%A8%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0%E5%89%8D%E5%90%8E%E5%AF%B9%E6%AF%94"><span class="toc-text">2.1 使用窗口函数前后对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0%E5%88%86%E7%B1%BB"><span class="toc-text">2.2 窗口函数分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E8%AF%AD%E6%B3%95%E7%BB%93%E6%9E%84"><span class="toc-text">2.3 语法结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E5%88%86%E7%B1%BB%E8%AE%B2%E8%A7%A3"><span class="toc-text">2.4 分类讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%BA%8F%E5%8F%B7%E5%87%BD%E6%95%B0"><span class="toc-text">1. 序号函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%88%86%E5%B8%83%E5%87%BD%E6%95%B0"><span class="toc-text">2. 分布函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%89%8D%E5%90%8E%E5%87%BD%E6%95%B0"><span class="toc-text">3. 前后函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E9%A6%96%E5%B0%BE%E5%87%BD%E6%95%B0"><span class="toc-text">4. 首尾函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E5%85%B6%E4%BB%96%E5%87%BD%E6%95%B0"><span class="toc-text">5. 其他函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E5%B0%8F-%E7%BB%93"><span class="toc-text">2.5 小 结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%96%B0%E7%89%B9%E6%80%A72%EF%BC%9A%E5%85%AC%E7%94%A8%E8%A1%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-text">3. 新特性2：公用表表达式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%99%AE%E9%80%9A%E5%85%AC%E7%94%A8%E8%A1%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-text">3.1 普通公用表表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E9%80%92%E5%BD%92%E5%85%AC%E7%94%A8%E8%A1%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-text">3.2 递归公用表表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%B0%8F-%E7%BB%93"><span class="toc-text">3.3 小 结</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
-  endLoading: () => {
-    document.body.style.overflow = 'auto';
-    document.getElementById('loading-box').classList.add("loaded")
-  },
-  initLoading: () => {
-    document.body.style.overflow = '';
-    document.getElementById('loading-box').classList.remove("loaded")
 
-  }
-}
-window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
-  const $countDom = document.getElementById('twikoo-count')
-  const init = () => {
-    twikoo.init(Object.assign({
-      el: '#twikoo-wrap',
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: ''
-    }, null))
-  }
+                
+            </div>
+            <hr/>
 
-  const getCount = () => {
-    twikoo.getCommentsCount({
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: '',
-      urls: [window.location.pathname],
-      includeReply: false
-    }).then(function (res) {
-      $countDom.innerText = res[0].count
-    }).catch(function (err) {
-      console.error(err);
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">YangShen</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://lvxueyang.vip/post/2e4d969f.html">https://lvxueyang.vip/post/2e4d969f.html</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">YangShen</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/mysql/">
+                                    <span class="chip bg-color">mysql</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
     });
-  }
+</script>
 
-  const loadTwikoo = (bool = false) => {
-    if (typeof twikoo === 'object') {
-      init()
-      bool && $countDom && setTimeout(getCount,0)
-    } else {
-      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
-        init()
-        bool && $countDom && setTimeout(getCount,0)
-      })
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
     }
-  }
 
-  if ('Twikoo' === 'Twikoo' || !false) {
-    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
-    else loadTwikoo(true)
-  } else {
-    window.loadOtherComment = () => {
-      loadTwikoo()
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
     }
-  }
-})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
-  window.tidioChatApi.hide();
-  window.tidioChatApi.on("close", function() {
-    window.tidioChatApi.hide();
-  });
-}
-if (window.tidioChatApi) {
-  window.tidioChatApi.on("ready", onTidioChatApiReady);
-} else {
-  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
-}
 
-var chatBtnFn = () => {
-  document.getElementById("chat_btn").addEventListener("click", function(){
-    window.tidioChatApi.show();
-    window.tidioChatApi.open();
-  });
-}
-chatBtnFn()
-</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("/medias/comment_bg.png") 100% 100% no-repeat;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div id="vcomments" class="card-content" style="display: grid">
+    </div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'kkTHtgDEUlqRlsbgP6vMWDxa-gzGzoHsz',
+        appKey: 'EX0XjX0GwgIgm38pW1RuybHn',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go'
+    });
+</script>
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/post/2fd63cc0.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212050.jpg" class="responsive-img" alt="MySQL集群架构设计">
+                        
+                        <span class="card-title">MySQL集群架构设计</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2021-08-06
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/mysql/" class="post-category">
+                                    mysql
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/msyql/">
+                        <span class="chip bg-color">msyql</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/post/a5cc1cf3.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212055.jpg" class="responsive-img" alt="MySQL单行函数">
+                        
+                        <span class="card-title">MySQL单行函数</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-08-06
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/mysql/" class="post-category">
+                                    mysql
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/mysql/">
+                        <span class="chip bg-color">mysql</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: 牧马人的忧伤<br />'
+            + '文章作者: YangShen<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="330695641"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2018-2022</span>
+            
+            <span id="year">2018</span>
+            <a href="/about" target="_blank">YangShen</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">3956k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2018";
+                    var startMonth = "6";
+                    var startDate = "28";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/LVXUEYANGTiger" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1191432275@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1191432275" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1191432275" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    <script type="text/javascript">
+        window.onload = function(){
+            //屏蔽键盘事件
+            document.onkeydown = function (){
+                var e = window.event || arguments[0];
+                //F12
+                if(e.keyCode == 123){
+                    return false;
+                //Ctrl+Shift+I
+                }else if((e.ctrlKey) && (e.shiftKey) && (e.keyCode == 73)){
+                    return false;
+                //Shift+F10
+                }else if((e.shiftKey) && (e.keyCode == 121)){
+                    return false;
+                //Ctrl+U
+                }else if((e.ctrlKey) && (e.keyCode == 85)){
+                    return false;
+                }
+            };
+            //屏蔽鼠标右键
+            document.oncontextmenu = function (){
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

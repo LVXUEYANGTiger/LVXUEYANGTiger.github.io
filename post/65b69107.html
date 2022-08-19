@@ -1,159 +1,530 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nginx | 牧马人的忧伤</title><meta name="keywords" content="Nginx"><meta name="author" content="YangShen"><meta name="copyright" content="YangShen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Nginx基础回顾  nginx 到底是什么？  Nginx 是⼀个⾼性能的HTTP和反向代理web服务器，核⼼特点是占有内存少，并发能⼒强   Nginx ⼜能做什么事情（应⽤场景）  Http服务器（Web服务器）  性能⾮常⾼，⾮常注重效率，能够经受⾼负载的考验。  ⽀持50000个并发连接数，不仅如此， CPU和内存的占⽤也⾮常的低， 10000个没有活动的连  接才占⽤2.5M的内存。">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Nginx">
-<meta property="og:url" content="http://www.lvxueyang.vip/post/65b69107.html">
-<meta property="og:site_name" content="牧马人的忧伤">
-<meta property="og:description" content="Nginx基础回顾  nginx 到底是什么？  Nginx 是⼀个⾼性能的HTTP和反向代理web服务器，核⼼特点是占有内存少，并发能⼒强   Nginx ⼜能做什么事情（应⽤场景）  Http服务器（Web服务器）  性能⾮常⾼，⾮常注重效率，能够经受⾼负载的考验。  ⽀持50000个并发连接数，不仅如此， CPU和内存的占⽤也⾮常的低， 10000个没有活动的连  接才占⽤2.5M的内存。">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg">
-<meta property="article:published_time" content="2021-08-07T08:14:00.000Z">
-<meta property="article:modified_time" content="2021-09-09T01:38:37.815Z">
-<meta property="article:author" content="YangShen">
-<meta property="article:tag" content="Nginx">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg"><link rel="shortcut icon" href="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805191028.png"><link rel="canonical" href="http://www.lvxueyang.vip/post/65b69107"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
-  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '天',
-  date_suffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  source: {
-    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
-    justifiedGallery: {
-      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
-    },
-    fancybox: {
-      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
-    }
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isanchor: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'Nginx',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2021-09-09 09:38:37'
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
+<!DOCTYPE HTML>
+<html lang="zh-CN">
 
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-    win.saveToLocal = {
-      set: function setWithExpiry(key, value, ttl) {
-        if (ttl === 0) return
-        const now = new Date()
-        const expiryDay = ttl * 86400000
-        const item = {
-          value: value,
-          expiry: now.getTime() + expiryDay,
-        }
-        localStorage.setItem(key, JSON.stringify(item))
-      },
 
-      get: function getWithExpiry(key) {
-        const itemStr = localStorage.getItem(key)
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Nginx, 牧马人的忧伤">
+    <meta name="description" content="主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
-        if (!itemStr) {
-          return undefined
-        }
-        const item = JSON.parse(itemStr)
-        const now = new Date()
 
-        if (now.getTime() > item.expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return item.value
-      }
-    }
+    <title>Nginx | 牧马人的忧伤</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.2">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
+</head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span diyFont">牧马人的忧伤</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
   
-    win.getScript = url => new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = url
-      script.async = true
-      script.onerror = reject
-      script.onload = script.onreadystatechange = function() {
-        const loadState = this.readyState
-        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-        script.onload = script.onreadystatechange = null
-        resolve()
-      }
-      document.head.appendChild(script)
-    })
-  
-      win.activateDarkMode = function () {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = function () {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
+  <li class="hide-on-med-and-down nav-item">
     
-          if (t === 'dark') activateDarkMode()
-          else if (t === 'light') activateLightMode()
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>找文章</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/categories">
+          
+          <i class="fas fa-bookmark" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>分类</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tags">
+          
+          <i class="fas fa-tags" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>标签</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/archives">
+          
+          <i class="fas fa-archive" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>归档</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="" class="waves-effect waves-light">
+
+      
+      <i class="fas fa-list" style="zoom: 0.6;"></i>
+      
+      <span>生活</span>
+      <i class="fas fa-chevron-down" aria-hidden="true" style="zoom: 0.6;"></i>
+    </a>
+    <ul class="sub-nav menus_item_child ">
+      
+      <li>
+        <a href="/timeline">
+          
+          <i class="fas fa-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>时间轴</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/contact">
+          
+          <i class="fas fa-music" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>留言板</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/friends">
+          
+          <i class="fas fa-address-book" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>友人帐</span>
+        </a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于笔者</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
         
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">牧马人的忧伤</div>
+        <div class="logo-desc">
+            
+            主要是自己学习的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			找文章
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/categories " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-bookmark" style="position: absolute;left:50px" ></i>
+			      
+		          <span>分类</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/tags " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-tags" style="position: absolute;left:50px" ></i>
+			      
+		          <span>标签</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/archives " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-archive" style="position: absolute;left:50px" ></i>
+			      
+		          <span>归档</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="javascript:;">
+			
+				<i class="fa-fw fas fa-list"></i>
+			
+			生活
+			<span class="m-icon"><i class="fas fa-chevron-right"></i></span>
+		</a>
+            <ul  style="background:  ;" >
+              
+                <li>
+
+                  <a href="/timeline " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>时间轴</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/contact " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-music" style="position: absolute;left:50px" ></i>
+			      
+		          <span>留言板</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/friends " style="margin-left:75px">
+				  
+				   <i class="fa fas fa-address-book" style="position: absolute;left:50px" ></i>
+			      
+		          <span>友人帐</span>
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于笔者
+		</a>
+          
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+    
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
         }
-      }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212050.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Nginx</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
     
-    const fontSizeVal = saveToLocal.get('global-font-size')
-    if (fontSizeVal !== undefined) {
-      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
     }
-    
-    const detectApple = () => {
-      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-        document.documentElement.classList.add('apple')
-      }
+
+    #articleContent :focus {
+        outline: none;
     }
-    detectApple()
-    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/ali_icon.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mogai.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><script defer src="/live2d-widget/autoload.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="牧马人的忧伤" type="application/atom+xml">
-</head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="wizard-scene"><div class="wizard-objects"><div class="wizard-square"></div><div class="wizard-circle"></div><div class="wizard-triangle"></div></div><div class="wizard"><div class="wizard-body"></div><div class="wizard-right-arm"><div class="wizard-right-hand"></div></div><div class="wizard-left-arm"><div class="wizard-left-hand"></div></div><div class="wizard-head"><div class="wizard-beard"></div><div class="wizard-face"><div class="wizard-adds"></div></div><div class="wizard-hat"><div class="wizard-hat-of-the-hat"></div><div class="wizard-four-point-star --first"></div><div class="wizard-four-point-star --second"></div><div class="wizard-four-point-star --third"></div></div></div></div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">牧马人的忧伤</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw iconfont icon-shouyex"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-zuixinwenzhang_huaban"></i><span> 找文章</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw iconfont icon-fenlei1"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw iconfont icon-biaoqian1"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw iconfont icon-shenghuo"></i><span> 生活</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/timeline/"><i class="fa-fw iconfont icon-shijianzhou"></i><span> 时间轴</span></a></li><li><a class="site-page child" href="/comments/"><i class="fa-fw iconfont icon-liaotian-04"></i><span> 留言板</span></a></li><li><a class="site-page child" href="/link/"><i class="fa-fw iconfont icon-lianjie"></i><span> 友人帐</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw iconfont icon-gerenzhongxin"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Nginx</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-07T08:14:00.000Z" title="发表于 2021-08-07 16:14:00">2021-08-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-09-09T01:38:37.815Z" title="更新于 2021-09-09 09:38:37">2021-09-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Nginx/">Nginx</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">11k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>39分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Nginx"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="Nginx基础回顾"><a href="#Nginx基础回顾" class="headerlink" title="Nginx基础回顾"></a>Nginx基础回顾</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203645.png" alt="img"></p>
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/Nginx/">
+                                <span class="chip bg-color">Nginx</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/Nginx/" class="post-category">
+                                Nginx
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2021-08-07
+                </div>
+                
+
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
+                    2021-09-09
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    10.8k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    42 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h2 id="Nginx基础回顾"><a href="#Nginx基础回顾" class="headerlink" title="Nginx基础回顾"></a>Nginx基础回顾</h2><p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203645.png" alt="img"></p>
 <ul>
 <li><p><strong>nginx 到底是什么？</strong><br>  Nginx 是⼀个⾼性能的HTTP和反向代理web服务器，核⼼特点是占有内存少，并发能⼒强 </p>
 </li>
@@ -205,7 +576,8 @@
 </li>
 </ul>
 <p>进⼊sbin⽬录中，执⾏启动nginx命令 </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd nginx/sbin</span><br><span class="line">./nginx</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">cd nginx/sbin
+./nginx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p>然后访问服务器的80端⼝（nginx默认监听80端⼝） </p>
 <p> <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203628.png" alt="img"></p>
@@ -220,17 +592,147 @@
 </li>
 </ul>
 <h2 id="Nginx核⼼配置⽂件解读"><a href="#Nginx核⼼配置⽂件解读" class="headerlink" title="Nginx核⼼配置⽂件解读"></a>Nginx核⼼配置⽂件解读</h2><p>Nginx的核⼼配置⽂件conf/nginx.conf包含三块内容：全局块、 events块、 http块<br> <strong>全局块</strong><br>从配置⽂件开始到events块之间的内容，此处的配置影响nginx服务器整体的运⾏，⽐如worker进<br>程的数量、错误⽇志的位置等 </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 运行用户</span><br><span class="line">#user  nobody;</span><br><span class="line"># worker进程数量通常设置为和cpu数量相等</span><br><span class="line">worker_processes  1;</span><br><span class="line"># 全局错误日志以及pid文件位置</span><br><span class="line">#error_log  logs/error.log;</span><br><span class="line">#error_log  logs/error.log  notice;</span><br><span class="line">#error_log  logs/error.log  info;</span><br><span class="line"></span><br><span class="line">#pid        logs/nginx.pid;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none"># 运行用户
+#user  nobody;
+# worker进程数量通常设置为和cpu数量相等
+worker_processes  1;
+# 全局错误日志以及pid文件位置
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p><strong>events块</strong><br>events块主要影响nginx服务器与⽤户的⽹络连接，⽐如worker_connections 1024，标识每个<br>workderprocess⽀持的最⼤连接数为1024 </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">events &#123;</span><br><span class="line">   # 使用epoll的I/O模型(如果你不知道Nginx该使用哪种轮询方法，会自动选择一个最适合你操作系统的)</span><br><span class="line">    use epoll;</span><br><span class="line">   # 每个进程允许最大并发数</span><br><span class="line">    worker_connections  1024;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">events {
+   # 使用epoll的I/O模型(如果你不知道Nginx该使用哪种轮询方法，会自动选择一个最适合你操作系统的)
+    use epoll;
+   # 每个进程允许最大并发数
+    worker_connections  1024;
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p><strong>http块</strong><br>http块是配置最频繁的部分，虚拟主机的配置，监听端⼝的配置，请求转发、反向代理、负载均衡<br>等 </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http &#123;</span><br><span class="line">  	# 引入mime类型定义文件</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line">		# 设置日志格式</span><br><span class="line">    #log_format  main  &#x27;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#x27;</span><br><span class="line">    #                  &#x27;$status $body_bytes_sent &quot;$http_referer&quot; &#x27;</span><br><span class="line">    #                  &#x27;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#x27;;</span><br><span class="line">		 # Nginx访问日志存放位置</span><br><span class="line">    #access_log  logs/access.log  main;</span><br><span class="line"></span><br><span class="line">    sendfile        on;</span><br><span class="line">    #tcp_nopush     on;</span><br><span class="line">		# 设置连接超时时间</span><br><span class="line">    #keepalive_timeout  0;</span><br><span class="line">    keepalive_timeout  65;</span><br><span class="line">		# 开启gzip压缩</span><br><span class="line">    #gzip  on;</span><br><span class="line"></span><br><span class="line">    server &#123;</span><br><span class="line">    		# 监听端口</span><br><span class="line">        listen       80;</span><br><span class="line">    		# 定义使用localhost访问</span><br><span class="line">        server_name  localhost;</span><br><span class="line"></span><br><span class="line">        #charset koi8-r;</span><br><span class="line"></span><br><span class="line">        #access_log  logs/host.access.log  main;</span><br><span class="line">				# 默认请求</span><br><span class="line">        location / &#123;</span><br><span class="line">            root   html; # 默认的网站根目录</span><br><span class="line">            index  index.html index.htm; # 索引页欢迎页</span><br><span class="line">      			deny 172.168.22.11;   # 禁止访问的ip地址，可以为all</span><br><span class="line">    				allow 172.168.33.44； # 允许访问的ip地址，可以为all</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        #error_page  404              /404.html;</span><br><span class="line"></span><br><span class="line">        # redirect server error pages to the static page /50x.html</span><br><span class="line">        #</span><br><span class="line">    		# 错误提示页面</span><br><span class="line">        error_page   500 502 503 504  /50x.html;</span><br><span class="line">        location = /50x.html &#123;</span><br><span class="line">            root   html;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        # proxy the PHP scripts to Apache listening on 127.0.0.1:80</span><br><span class="line">        #</span><br><span class="line">        #location ~ \.php$ &#123;</span><br><span class="line">        #    proxy_pass   http://127.0.0.1;</span><br><span class="line">        #&#125;</span><br><span class="line"></span><br><span class="line">        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000</span><br><span class="line">        #</span><br><span class="line">        #location ~ \.php$ &#123;</span><br><span class="line">        #    root           html;</span><br><span class="line">        #    fastcgi_pass   127.0.0.1:9000;</span><br><span class="line">        #    fastcgi_index  index.php;</span><br><span class="line">        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;</span><br><span class="line">        #    include        fastcgi_params;</span><br><span class="line">        #&#125;</span><br><span class="line"></span><br><span class="line">        # deny access to .htaccess files, if Apache&#x27;s document root</span><br><span class="line">        # concurs with nginx&#x27;s one</span><br><span class="line">        #</span><br><span class="line">        #location ~ /\.ht &#123;</span><br><span class="line">        #    deny  all;</span><br><span class="line">        #&#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    # another virtual host using mix of IP-, name-, and port-based configuration</span><br><span class="line">    #</span><br><span class="line">    #server &#123;</span><br><span class="line">    #    listen       8000;</span><br><span class="line">    #    listen       somename:8080;</span><br><span class="line">    #    server_name  somename  alias  another.alias;</span><br><span class="line"></span><br><span class="line">    #    location / &#123;</span><br><span class="line">    #        root   html;</span><br><span class="line">    #        index  index.html index.htm;</span><br><span class="line">    #    &#125;</span><br><span class="line">    #&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    # HTTPS server</span><br><span class="line">    #</span><br><span class="line">    #server &#123;</span><br><span class="line">    #    listen       443 ssl;</span><br><span class="line">    #    server_name  localhost;</span><br><span class="line"></span><br><span class="line">    #    ssl_certificate      cert.pem;</span><br><span class="line">    #    ssl_certificate_key  cert.key;</span><br><span class="line"></span><br><span class="line">    #    ssl_session_cache    shared:SSL:1m;</span><br><span class="line">    #    ssl_session_timeout  5m;</span><br><span class="line"></span><br><span class="line">    #    ssl_ciphers  HIGH:!aNULL:!MD5;</span><br><span class="line">    #    ssl_prefer_server_ciphers  on;</span><br><span class="line"></span><br><span class="line">    #    location / &#123;</span><br><span class="line">    #        root   html;</span><br><span class="line">    #        index  index.html index.htm;</span><br><span class="line">    #    &#125;</span><br><span class="line">    #&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">http {
+  	# 引入mime类型定义文件
+    include       mime.types;
+    default_type  application/octet-stream;
+		# 设置日志格式
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+		 # Nginx访问日志存放位置
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+		# 设置连接超时时间
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+		# 开启gzip压缩
+    #gzip  on;
+
+    server {
+    		# 监听端口
+        listen       80;
+    		# 定义使用localhost访问
+        server_name  localhost;
+
+        #charset koi8-r;
+
+        #access_log  logs/host.access.log  main;
+				# 默认请求
+        location / {
+            root   html; # 默认的网站根目录
+            index  index.html index.htm; # 索引页欢迎页
+      			deny 172.168.22.11;   # 禁止访问的ip地址，可以为all
+    				allow 172.168.33.44； # 允许访问的ip地址，可以为all
+        }
+
+        #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+    		# 错误提示页面
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        #
+        #location ~ \.php$ {
+        #    proxy_pass   http://127.0.0.1;
+        #}
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        #location ~ \.php$ {
+        #    root           html;
+        #    fastcgi_pass   127.0.0.1:9000;
+        #    fastcgi_index  index.php;
+        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        #    include        fastcgi_params;
+        #}
+
+        # deny access to .htaccess files, if Apache's document root
+        # concurs with nginx's one
+        #
+        #location ~ /\.ht {
+        #    deny  all;
+        #}
+    }
+
+
+    # another virtual host using mix of IP-, name-, and port-based configuration
+    #
+    #server {
+    #    listen       8000;
+    #    listen       somename:8080;
+    #    server_name  somename  alias  another.alias;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+
+    # HTTPS server
+    #
+    #server {
+    #    listen       443 ssl;
+    #    server_name  localhost;
+
+    #    ssl_certificate      cert.pem;
+    #    ssl_certificate_key  cert.key;
+
+    #    ssl_session_cache    shared:SSL:1m;
+    #    ssl_session_timeout  5m;
+
+    #    ssl_ciphers  HIGH:!aNULL:!MD5;
+    #    ssl_prefer_server_ciphers  on;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="Nginx配置语法"><a href="#Nginx配置语法" class="headerlink" title="Nginx配置语法"></a>Nginx配置语法</h2><p>就跟前面文件作用讲解的图所示，Nginx 的主配置文件是 /etc/nginx/nginx.conf，你可以使用 cat -n nginx.conf 来查看配置。</p>
 <p>nginx.conf 结构图可以这样概括：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">main        # 全局配置，对全局生效</span><br><span class="line">├── events  # 配置影响 Nginx 服务器或与用户的网络连接</span><br><span class="line">├── http    # 配置代理，缓存，日志定义等绝大多数功能和第三方模块的配置</span><br><span class="line">│   ├── upstream # 配置后端服务器具体地址，负载均衡配置不可或缺的部分</span><br><span class="line">│   ├── server   # 配置虚拟主机的相关参数，一个 http 块中可以有多个 server 块</span><br><span class="line">│   ├── server</span><br><span class="line">│   │   ├── location  # server 块可以包含多个 location 块，location 指令用于匹配 uri</span><br><span class="line">│   │   ├── location</span><br><span class="line">│   │   └── ...</span><br><span class="line">│   └── ...</span><br><span class="line">└── ...</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">main        # 全局配置，对全局生效
+├── events  # 配置影响 Nginx 服务器或与用户的网络连接
+├── http    # 配置代理，缓存，日志定义等绝大多数功能和第三方模块的配置
+│   ├── upstream # 配置后端服务器具体地址，负载均衡配置不可或缺的部分
+│   ├── server   # 配置虚拟主机的相关参数，一个 http 块中可以有多个 server 块
+│   ├── server
+│   │   ├── location  # server 块可以包含多个 location 块，location 指令用于匹配 uri
+│   │   ├── location
+│   │   └── ...
+│   └── ...
+└── ...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>一个 Nginx 配置文件的结构就像 nginx.conf 显示的那样，配置文件的语法规则：</p>
 <ol>
@@ -326,7 +828,19 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203701.png" alt="img"></p>
 <p>使用 gzip 不仅需要 Nginx 配置，浏览器端也需要配合，需要在请求消息头中包含 Accept-Encoding: gzip（IE5 之后所有的浏览器都支持了，是现代浏览器的默认设置）。一般在请求 html 和 css 等静态资源的时候，支持的浏览器在 request 请求静态资源的时候，会加上 Accept-Encoding: gzip 这个 header，表示自己支持 gzip 的压缩方式，Nginx 在拿到这个请求的时候，如果有相应配置，就会返回经过 gzip 压缩过的文件给浏览器，并在 response 相应的时候加上 content-encoding: gzip 来告诉浏览器自己采用的压缩方式（因为浏览器在传给服务器的时候一般还告诉服务器自己支持好几种压缩方式），浏览器拿到压缩的文件后，根据自己的解压方式进行解析。</p>
 <p>先来看看 Nginx 怎么进行 gzip 配置，和之前的配置一样，为了方便管理，还是在 /etc/nginx/conf.d/ 文件夹中新建配置文件 gzip.conf。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># /etc/nginx/conf.d/gzip.conf</span><br><span class="line"></span><br><span class="line">gzip on; # 默认off，是否开启gzip</span><br><span class="line">gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;</span><br><span class="line"></span><br><span class="line"># 上面两个开启基本就能跑起了，下面的愿意折腾就了解一下</span><br><span class="line">gzip_static on;</span><br><span class="line">gzip_proxied any;</span><br><span class="line">gzip_vary on;</span><br><span class="line">gzip_comp_level 6;</span><br><span class="line">gzip_buffers 16 8k;</span><br><span class="line"># gzip_min_length 1k;</span><br><span class="line">gzip_http_version 1.1;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none"># /etc/nginx/conf.d/gzip.conf
+
+gzip on; # 默认off，是否开启gzip
+gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+# 上面两个开启基本就能跑起了，下面的愿意折腾就了解一下
+gzip_static on;
+gzip_proxied any;
+gzip_vary on;
+gzip_comp_level 6;
+gzip_buffers 16 8k;
+# gzip_min_length 1k;
+gzip_http_version 1.1;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <ul>
 <li><p><strong>gzip_types</strong>：要采用 gzip 压缩的 MIME 文件类型，其中 text/html 被系统强制启用；</p>
@@ -347,7 +861,22 @@
 </li>
 </ul>
 <h2 id="配置负载均衡"><a href="#配置负载均衡" class="headerlink" title="配置负载均衡"></a>配置负载均衡</h2><p>主要配置如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http &#123;</span><br><span class="line">  upstream myserver &#123;</span><br><span class="line">  	# ip_hash;  # ip_hash 方式</span><br><span class="line">    # fair;   # fair 方式</span><br><span class="line">    server 127.0.0.1:8081;  # 负载均衡目的服务地址</span><br><span class="line">    server 127.0.0.1:8080;</span><br><span class="line">    server 127.0.0.1:8082 weight=10;  # weight 方式，不写默认为 1</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  server &#123;</span><br><span class="line">    location / &#123;</span><br><span class="line">    	proxy_pass http://myserver;</span><br><span class="line">      proxy_connect_timeout 10;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">http {
+  upstream myserver {
+  	# ip_hash;  # ip_hash 方式
+    # fair;   # fair 方式
+    server 127.0.0.1:8081;  # 负载均衡目的服务地址
+    server 127.0.0.1:8080;
+    server 127.0.0.1:8082 weight=10;  # weight 方式，不写默认为 1
+  }
+ 
+  server {
+    location / {
+    	proxy_pass http://myserver;
+      proxy_connect_timeout 10;
+    }
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>Nginx 提供了好几种分配方式，默认为<strong>轮询</strong>，就是轮流来。有以下几种分配方式：</p>
 <ol>
@@ -362,7 +891,17 @@
 </ol>
 <h2 id="配置动静分离"><a href="#配置动静分离" class="headerlink" title="配置动静分离"></a>配置动静分离</h2><p>动静分离在之前也介绍过了，就是把动态和静态的请求分开。方式主要有两种，一种 是纯粹把静态文件独立成单独的域名，放在独立的服务器上，也是目前主流推崇的方案。另外一种方法就是动态跟静态文件混合在一起发布， 通过 Nginx 配置来分开。</p>
 <p>通过 location 指定不同的后缀名实现不同的请求转发。通过 expires 参数设置，可以使浏览器缓存过期时间，减少与服务器之前的请求和流量。具体 expires 定义：是给一个资源设定一个过期时间，也就是说无需去服务端验证，直接通过浏览器自身确认是否过期即可，所以不会产生额外的流量。此种方法非常适合不经常变动的资源。（如果经常更新的文件，不建议使用 expires 来缓存），我这里设置 3d，表示在这 3 天之内访问这个URL，发送一个请求，比对服务器该文件最后更新时间没有变化。则不会从服务器抓取，返回状态码 304，如果有修改，则直接从服务器重新下载，返回状态码 200。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  location /www/ &#123;</span><br><span class="line">  	root /data/;</span><br><span class="line">    index index.html index.htm;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  location /image/ &#123;</span><br><span class="line">  	root /data/;</span><br><span class="line">    autoindex on;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server {
+  location /www/ {
+  	root /data/;
+    index index.html index.htm;
+  }
+  
+  location /image/ {
+  	root /data/;
+    autoindex on;
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="设置二级域名虚拟主机"><a href="#设置二级域名虚拟主机" class="headerlink" title="设置二级域名虚拟主机"></a>设置二级域名虚拟主机</h2><p>在某某云 ☁️ 上购买了域名之后，就可以配置虚拟主机了，一般配置的路径在 域名管理 -&gt; 解析 -&gt; 添加记录 中添加二级域名，配置后某某云会把二级域名也解析到我们配置的服务器 IP 上，然后我们在 Nginx 上配置一下虚拟主机的访问监听，就可以拿到从这个二级域名过来的请求了。</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203707.png" alt="img"></p>
@@ -371,7 +910,13 @@
 <h2 id="配置反向代理"><a href="#配置反向代理" class="headerlink" title="配置反向代理"></a>配置反向代理</h2><p>反向代理是工作中最常用的服务器功能，经常被用来解决跨域问题，下面简单介绍一下如何实现反向代理。</p>
 <p>首先进入 Nginx 的主配置文件：</p>
 <p>然后我们去 http 模块的 server 块中的 location /，增加一行将默认网址重定向到最大学习网站 Bilibili 的 proxy_pass 配置  ：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">	listen:80;</span><br><span class="line">  server_name:lvxueyang.vip;</span><br><span class="line">  location / &#123;</span><br><span class="line">  	proxy_pass http://www.bilibili.com;	</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server {
+	listen:80;
+  server_name:lvxueyang.vip;
+  location / {
+  	proxy_pass http://www.bilibili.com;	
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>比如我们监听 9001 端口，然后把访问不同路径的请求进行反向代理：</p>
 <ol>
@@ -379,7 +924,18 @@
 <li>把访问 <a target="_blank" rel="noopener" href="http://127.0.0.1:9001/vod">http://127.0.0.1:9001/vod</a> 的请求转发到 <a target="_blank" rel="noopener" href="http://127.0.0.1:8081/">http://127.0.0.1:8081</a></li>
 </ol>
 <p>这种要怎么配置呢，首先同样打开主配置文件，然后在 http 模块下增加一个 server 块：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen 9001;</span><br><span class="line">  server_name *.sherlocked93.club;</span><br><span class="line"></span><br><span class="line">  location ~ /edu/ &#123;</span><br><span class="line">    proxy_pass http://127.0.0.1:8080;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  location ~ /vod/ &#123;</span><br><span class="line">    proxy_pass http://127.0.0.1:8081;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server {
+  listen 9001;
+  server_name *.sherlocked93.club;
+
+  location ~ /edu/ {
+    proxy_pass http://127.0.0.1:8080;
+  }
+  
+  location ~ /vod/ {
+    proxy_pass http://127.0.0.1:8081;
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>反向代理还有一些其他的指令，可以了解一下：</p>
 <ol>
@@ -398,100 +954,329 @@
 <h4 id="同源的定义"><a href="#同源的定义" class="headerlink" title="同源的定义"></a>同源的定义</h4><p>如果两个页面的协议，端口（如果有指定）和域名都相同，则两个页面具有相同的源。</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203719.png" alt="img"></p>
 <h3 id="使用反向代理解决跨域"><a href="#使用反向代理解决跨域" class="headerlink" title="使用反向代理解决跨域"></a>使用反向代理解决跨域</h3><p>在前端服务地址为 abc.lvxueyang.vip 的页面请求 def.lvxueyang.vip 的后端服务导致的跨域，可以这样配置：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen 9001;</span><br><span class="line">  server_name abc.lvxueyang.vip;</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_pass def.lvxueyang.vip;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server {
+  listen 9001;
+  server_name abc.lvxueyang.vip;
+
+  location / {
+    proxy_pass def.lvxueyang.vip;
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>这样就将对前一个域名 abc.lvxueyang.vip的请求全都代理到了 def.lvxueyang.vip，前端的请求都被我们用服务器代理到了后端地址下，绕过了跨域。</p>
 <p>这里对静态文件的请求和后端服务的请求都以 abc.lvxueyang.vip开始，不易区分，所以为了实现对后端服务请求的统一转发，通常我们会约定对后端服务的请求加上 /apis/ 前缀或者其他的 path 来和对静态资源的请求加以区分，此时我们可以这样配置：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 请求跨域，约定代理后端服务请求path以/apis/开头</span><br><span class="line">location ^~/apis/ &#123;</span><br><span class="line">    # 这里重写了请求，将正则匹配中的第一个分组的path拼接到真正的请求后面，并用break停止后续匹配</span><br><span class="line">    rewrite ^/apis/(.*)$ /$1 break;</span><br><span class="line">    proxy_pass def.lvxueyang.vip;</span><br><span class="line">  </span><br><span class="line">    # 两个域名之间cookie的传递与回写</span><br><span class="line">    proxy_cookie_domain abc.lvxueyang.vip def.lvxueyang.vip;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none"># 请求跨域，约定代理后端服务请求path以/apis/开头
+location ^~/apis/ {
+    # 这里重写了请求，将正则匹配中的第一个分组的path拼接到真正的请求后面，并用break停止后续匹配
+    rewrite ^/apis/(.*)$ /$1 break;
+    proxy_pass def.lvxueyang.vip;
+  
+    # 两个域名之间cookie的传递与回写
+    proxy_cookie_domain abc.lvxueyang.vip def.lvxueyang.vip;
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>这样，静态资源我们使用 abc.lvxueyang.vip/xx.html，动态资源我们使用 abc.lvxueyang.vip/apis/getAwo，浏览器页面看起来仍然访问的前端服务器，绕过了浏览器的同源策略，毕竟我们看起来并没有跨域。</p>
 <h3 id="配置-header-解决跨域"><a href="#配置-header-解决跨域" class="headerlink" title="配置 header 解决跨域"></a>配置 header 解决跨域</h3><p>当浏览器在访问跨源的服务器时，也可以在跨域的服务器上直接设置 Nginx，从而前端就可以无感地开发，不用把实际上访问后端的地址改成前端服务的地址，这样可适性更高。</p>
 <p>比如前端站点是 abc.lvxueyang.vip，这个地址下的前端页面请求def.lvxueyang.vip下的资源，比如前者的 abc.lvxueyang.vip/index.html 内容是这样的：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;h1&gt;welcome fe.sherlocked93.club!!&lt;h1&gt;</span><br><span class="line">    &lt;script type=&#x27;text/javascript&#x27;&gt;</span><br><span class="line">    var xmlhttp = new XMLHttpRequest()</span><br><span class="line">    xmlhttp.open(&quot;GET&quot;, &quot;http://def.lvxueyang.vip/index.html&quot;, true);</span><br><span class="line">    xmlhttp.send();</span><br><span class="line">    &lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">&lt;html&gt;
+&lt;body&gt;
+    &lt;h1&gt;welcome fe.sherlocked93.club!!&lt;h1&gt;
+    &lt;script type='text/javascript'&gt;
+    var xmlhttp = new XMLHttpRequest()
+    xmlhttp.open("GET", "http://def.lvxueyang.vip/index.html", true);
+    xmlhttp.send();
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>很明显这里是跨域请求，在浏览器中直接访问 <a target="_blank" rel="noopener" href="http://abc.lvxueyang.vip/index.html">http://abc.lvxueyang.vip/index.html</a> 是可以访问到的，但是在 def.lvxueyang.vip 的 html 页面访问就会出现跨域。</p>
 <p>在 /etc/nginx/conf.d/ 文件夹中新建一个配置文件，对应二级域名 def.lvxueyang.vip ：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># /etc/nginx/conf.d/def.lvxueyang.vip.conf</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">  listen       80;</span><br><span class="line">  server_name  def.lvxueyang.vip;</span><br><span class="line">  </span><br><span class="line">	add_header &#x27;Access-Control-Allow-Origin&#x27; $http_origin;   # 全局变量获得当前请求origin，带cookie的请求不支持*</span><br><span class="line">	add_header &#x27;Access-Control-Allow-Credentials&#x27; &#x27;true&#x27;;    # 为 true 可带上 cookie</span><br><span class="line">	add_header &#x27;Access-Control-Allow-Methods&#x27; &#x27;GET, POST, OPTIONS&#x27;;  # 允许请求方法</span><br><span class="line">	add_header &#x27;Access-Control-Allow-Headers&#x27; $http_access_control_request_headers;  # 允许请求的 header，可以为 *</span><br><span class="line">	add_header &#x27;Access-Control-Expose-Headers&#x27; &#x27;Content-Length,Content-Range&#x27;;</span><br><span class="line">	</span><br><span class="line">  if ($request_method = &#x27;OPTIONS&#x27;) &#123;</span><br><span class="line">		add_header &#x27;Access-Control-Max-Age&#x27; 1728000;   # OPTIONS 请求的有效期，在有效期内不用发出另一条预检请求</span><br><span class="line">		add_header &#x27;Content-Type&#x27; &#x27;text/plain; charset=utf-8&#x27;;</span><br><span class="line">		add_header &#x27;Content-Length&#x27; 0;</span><br><span class="line">    </span><br><span class="line">		return 204;                  # 200 也可以</span><br><span class="line">	&#125;</span><br><span class="line">  </span><br><span class="line">	location / &#123;</span><br><span class="line">		root  /usr/share/nginx/html/def;</span><br><span class="line">		index index.html;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none"># /etc/nginx/conf.d/def.lvxueyang.vip.conf
+
+server {
+  listen       80;
+  server_name  def.lvxueyang.vip;
+  
+	add_header 'Access-Control-Allow-Origin' $http_origin;   # 全局变量获得当前请求origin，带cookie的请求不支持*
+	add_header 'Access-Control-Allow-Credentials' 'true';    # 为 true 可带上 cookie
+	add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';  # 允许请求方法
+	add_header 'Access-Control-Allow-Headers' $http_access_control_request_headers;  # 允许请求的 header，可以为 *
+	add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+	
+  if ($request_method = 'OPTIONS') {
+		add_header 'Access-Control-Max-Age' 1728000;   # OPTIONS 请求的有效期，在有效期内不用发出另一条预检请求
+		add_header 'Content-Type' 'text/plain; charset=utf-8';
+		add_header 'Content-Length' 0;
+    
+		return 204;                  # 200 也可以
+	}
+  
+	location / {
+		root  /usr/share/nginx/html/def;
+		index index.html;
+	}
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>然后 nginx -s reload 重新加载配置。这时再访问 fe.sherlocked93.club/index.html 结果如下，请求中出现了我们刚刚配置的 Header。</p>
 <h2 id="地址重写"><a href="#地址重写" class="headerlink" title="地址重写"></a>地址重写</h2><p>有的时候我们的网站更换了域名，但还有用户在使用老的域名访问，这时可以通过nginx的地址重写来让用户跳转到新的域名进行访问。</p>
 <p>比如说原来我们用的<a target="_blank" rel="noopener" href="http://www.lvxueyang.com这个域名不用了,现在改成www.lvxueyang.vip了来访问文档项目了;/">www.lvxueyang.com这个域名不用了，现在改成www.lvxueyang.vip了来访问文档项目了；</a></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80;</span><br><span class="line">    server_name  www.lvxueyang.com; </span><br><span class="line">    </span><br><span class="line">    rewrite &quot;^/(.*)$&quot; http://www.lvxueyang.vip/$1; #地址重写到新地址</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        root   /usr/share/nginx/html/docs; </span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    error_page   500 502 503 504  /50x.html;</span><br><span class="line">    location = /50x.html &#123;</span><br><span class="line">        root   /usr/share/nginx/html;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server {
+    listen       80;
+    server_name  www.lvxueyang.com; 
+    
+    rewrite "^/(.*)$" http://www.lvxueyang.vip/$1; #地址重写到新地址
+
+    location / {
+        root   /usr/share/nginx/html/docs; 
+        index  index.html index.htm;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>此时访问旧域名<a target="_blank" rel="noopener" href="http://www.lvxueyang.com会直接跳转到www.lvxueyang.vip去./">www.lvxueyang.com会直接跳转到www.lvxueyang.vip去。</a></p>
 <h2 id="适配PC或移动设备"><a href="#适配PC或移动设备" class="headerlink" title="适配PC或移动设备"></a>适配PC或移动设备</h2><p>现在很多网站都是有了PC端和H5站点的，因为这样就可以根据客户设备的不同，显示出体验更好的，不同的页面了。</p>
 <p>这样的需求有人说拿自适应就可以搞定，比如我们常说的bootstrap和24格布局法，这些确实是非常好的方案，但是无论是复杂性和易用性上面还是不如分开编写的好，比如我们常见的淘宝、京东……这些大型网站就都没有采用自适应，而是用分开制作的方式。</p>
 <p><strong>$http_user_agent的使用：</strong></p>
 <p>Nginx通过内置变量$http_user_agent，可以获取到请求客户端的userAgent，就可以用户目前处于移动端还是PC端，进而展示不同的页面给用户。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server&#123;</span><br><span class="line">        listen 80;</span><br><span class="line">        server_name nginx2.jspang.com;</span><br><span class="line">        location / &#123;</span><br><span class="line">         root /usr/share/nginx/pc;</span><br><span class="line">         if ($http_user_agent ~* &#x27;(Android|webOS|iPhone|iPod|BlackBerry)&#x27;) &#123;</span><br><span class="line">            root /usr/share/nginx/mobile;</span><br><span class="line">         &#125;</span><br><span class="line">         index index.html;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server{
+        listen 80;
+        server_name nginx2.jspang.com;
+        location / {
+         root /usr/share/nginx/pc;
+         if ($http_user_agent ~* '(Android|webOS|iPhone|iPod|BlackBerry)') {
+            root /usr/share/nginx/mobile;
+         }
+         index index.html;
+        }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="配置高可用集群（双机热备）"><a href="#配置高可用集群（双机热备）" class="headerlink" title="配置高可用集群（双机热备）"></a>配置高可用集群（双机热备）</h2><p>当主 Nginx 服务器宕机之后，切换到备份 Nginx 服务器</p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203728.png" alt="img"></p>
 <p>首先安装 keepalived，</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">yum install keepalived -y</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">yum install keepalived -y<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>然后编辑 /etc/keepalived/keepalived.conf 配置文件，并在配置文件中增加 vrrp_script 定义一个外围检测机制，并在 vrrp_instance 中通过定义 track_script 来追踪脚本执行过程，实现节点转移：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">global_defs&#123;</span><br><span class="line">   notification_email &#123;</span><br><span class="line">        acassen@firewall.loc</span><br><span class="line">   &#125;</span><br><span class="line">   notification_email_from Alexandre@firewall.loc</span><br><span class="line">   smtp_server 127.0.0.1</span><br><span class="line">   smtp_connect_timeout 30 // 上面都是邮件配置，没卵用</span><br><span class="line">   router_id LVS_DEVEL     // 当前服务器名字，用hostname命令来查看</span><br><span class="line">&#125;</span><br><span class="line">vrrp_script chk_maintainace &#123; // 检测机制的脚本名称为chk_maintainace</span><br><span class="line">    script &quot;[[ -e/etc/keepalived/down ]] &amp;&amp; exit 1 || exit 0&quot; // 可以是脚本路径或脚本命令</span><br><span class="line">    // script &quot;/etc/keepalived/nginx_check.sh&quot;    // 比如这样的脚本路径</span><br><span class="line">    interval 2  // 每隔2秒检测一次</span><br><span class="line">    weight -20  // 当脚本执行成立，那么把当前服务器优先级改为-20</span><br><span class="line">&#125;</span><br><span class="line">vrrp_instanceVI_1 &#123;   // 每一个vrrp_instance就是定义一个虚拟路由器</span><br><span class="line">    state MASTER      // 主机为MASTER，备用机为BACKUP</span><br><span class="line">    interface eth0    // 网卡名字，可以从ifconfig中查找</span><br><span class="line">    virtual_router_id 51 // 虚拟路由的id号，一般小于255，主备机id需要一样</span><br><span class="line">    priority 100      // 优先级，master的优先级比backup的大</span><br><span class="line">    advert_int 1      // 默认心跳间隔</span><br><span class="line">    authentication &#123;  // 认证机制</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass 1111   // 密码</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;  // 虚拟地址vip</span><br><span class="line">       172.16.2.8</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">global_defs{
+   notification_email {
+        acassen@firewall.loc
+   }
+   notification_email_from Alexandre@firewall.loc
+   smtp_server 127.0.0.1
+   smtp_connect_timeout 30 // 上面都是邮件配置，没卵用
+   router_id LVS_DEVEL     // 当前服务器名字，用hostname命令来查看
+}
+vrrp_script chk_maintainace { // 检测机制的脚本名称为chk_maintainace
+    script "[[ -e/etc/keepalived/down ]] &amp;&amp; exit 1 || exit 0" // 可以是脚本路径或脚本命令
+    // script "/etc/keepalived/nginx_check.sh"    // 比如这样的脚本路径
+    interval 2  // 每隔2秒检测一次
+    weight -20  // 当脚本执行成立，那么把当前服务器优先级改为-20
+}
+vrrp_instanceVI_1 {   // 每一个vrrp_instance就是定义一个虚拟路由器
+    state MASTER      // 主机为MASTER，备用机为BACKUP
+    interface eth0    // 网卡名字，可以从ifconfig中查找
+    virtual_router_id 51 // 虚拟路由的id号，一般小于255，主备机id需要一样
+    priority 100      // 优先级，master的优先级比backup的大
+    advert_int 1      // 默认心跳间隔
+    authentication {  // 认证机制
+        auth_type PASS
+        auth_pass 1111   // 密码
+    }
+    virtual_ipaddress {  // 虚拟地址vip
+       172.16.2.8
+    }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>其中检测脚本 nginx_check.sh，这里提供一个：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">A=`ps -C nginx --no-header | wc -l`</span><br><span class="line">if [ $A -eq 0 ];then</span><br><span class="line">    /usr/sbin/nginx # 尝试重新启动nginx</span><br><span class="line">    sleep 2         # 睡眠2秒</span><br><span class="line">    if [ `ps -C nginx --no-header | wc -l` -eq 0 ];then</span><br><span class="line">        killall keepalived # 启动失败，将keepalived服务杀死。将vip漂移到其它备份节点</span><br><span class="line">    fi</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">#!/bin/bash
+A=`ps -C nginx --no-header | wc -l`
+if [ $A -eq 0 ];then
+    /usr/sbin/nginx # 尝试重新启动nginx
+    sleep 2         # 睡眠2秒
+    if [ `ps -C nginx --no-header | wc -l` -eq 0 ];then
+        killall keepalived # 启动失败，将keepalived服务杀死。将vip漂移到其它备份节点
+    fi
+fi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>复制一份到备份服务器，备份 Nginx 的配置要将 state 后改为 BACKUP，priority 改为比主机小。</p>
 <p>设置完毕后各自 service keepalived start 启动，经过访问成功之后，可以把 Master 机的 keepalived 停掉，此时 Master 机就不再是主机了 service keepalived stop，看访问虚拟 IP 时是否能够自动切换到备机 ip addr。</p>
 <p>再次启动 Master 的 keepalived，此时 vip 又变到了主机上。</p>
 <h2 id="配置-HTTPS"><a href="#配置-HTTPS" class="headerlink" title="配置 HTTPS"></a>配置 HTTPS</h2><p>下载证书的压缩文件，里面有个 nginx 文件夹，把 xxx.crt 和 xxx.key 文件拷贝到服务器目录，再配置下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen 443 ssl http2 default_server;   # SSL 访问端口号为 443</span><br><span class="line">  server_name lvxueyang.vip;         # 填写绑定证书的域名</span><br><span class="line"></span><br><span class="line">  ssl_certificate /etc/nginx/https/1_lvxueyang.vip_bundle.crt;   # 证书文件地址</span><br><span class="line">  ssl_certificate_key /etc/nginx/https/2_lvxueyang.vip.key;      # 私钥文件地址</span><br><span class="line">  ssl_session_timeout 10m;</span><br><span class="line"></span><br><span class="line">  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;      #请按照以下协议配置</span><br><span class="line">  ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE; </span><br><span class="line">  ssl_prefer_server_ciphers on;</span><br><span class="line">  </span><br><span class="line">  location / &#123;</span><br><span class="line">    root         /usr/share/nginx/html;</span><br><span class="line">    index        index.html index.htm;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server {
+  listen 443 ssl http2 default_server;   # SSL 访问端口号为 443
+  server_name lvxueyang.vip;         # 填写绑定证书的域名
 
-<p>写完 nginx -t -q 校验一下，没问题就 nginx -s reload，现在去访问 <a target="_blank" rel="noopener" href="https://lvxueyang.vip/">https://lvxueyang.vip/</a> 就能访问 HTTPS 版的网站了。</p>
+  ssl_certificate /etc/nginx/https/1_lvxueyang.vip_bundle.crt;   # 证书文件地址
+  ssl_certificate_key /etc/nginx/https/2_lvxueyang.vip.key;      # 私钥文件地址
+  ssl_session_timeout 10m;
+
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;      #请按照以下协议配置
+  ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE; 
+  ssl_prefer_server_ciphers on;
+  
+  location / {
+    root         /usr/share/nginx/html;
+    index        index.html index.htm;
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>写完 nginx -t -q 校验一下，没问题就 nginx -s reload，现在去访问 <a href="https://lvxueyang.vip/">https://lvxueyang.vip/</a> 就能访问 HTTPS 版的网站了。</p>
 <p>一般还可以加上几个增强安全性的命令：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">add_header X-Frame-Options DENY;           # 减少点击劫持</span><br><span class="line">add_header X-Content-Type-Options nosniff; # 禁止服务器自动解析资源类型</span><br><span class="line">add_header X-Xss-Protection 1;             # 防XSS攻击</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">add_header X-Frame-Options DENY;           # 减少点击劫持
+add_header X-Content-Type-Options nosniff; # 禁止服务器自动解析资源类型
+add_header X-Xss-Protection 1;             # 防XSS攻击<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
-<h2 id="静态服务"><a href="#静态服务" class="headerlink" title="静态服务"></a>静态服务</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen       80;</span><br><span class="line">  server_name  static.lvxueyang.vip;</span><br><span class="line">  charset utf-8;    # 防止中文文件名乱码</span><br><span class="line"></span><br><span class="line">  location /download &#123;</span><br><span class="line">    alias	          /usr/share/nginx/html/static;  # 静态资源目录</span><br><span class="line">    </span><br><span class="line">    autoindex               on;    # 开启静态资源列目录</span><br><span class="line">    autoindex_exact_size    off;   # on(默认)显示文件的确切大小，单位是byte；off显示文件大概大小，单位KB、MB、GB</span><br><span class="line">    autoindex_localtime     off;   # off(默认)时显示的文件时间为GMT时间；on显示的文件时间为服务器时间</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="静态服务"><a href="#静态服务" class="headerlink" title="静态服务"></a>静态服务</h2><pre class="line-numbers language-none"><code class="language-none">server {
+  listen       80;
+  server_name  static.lvxueyang.vip;
+  charset utf-8;    # 防止中文文件名乱码
 
-<h2 id="图片防盗链"><a href="#图片防盗链" class="headerlink" title="图片防盗链"></a>图片防盗链</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen       80;        </span><br><span class="line">  server_name  *.lvxueyang.vip;</span><br><span class="line">  </span><br><span class="line">  # 图片防盗链</span><br><span class="line">  location ~* \.(gif|jpg|jpeg|png|bmp|swf)$ &#123;</span><br><span class="line">    valid_referers none blocked server_names ~\.google\. ~\.baidu\. *.qq.com;  # 只允许本机 IP 外链引用，感谢 @木法传 的提醒，将百度和谷歌也加入白名单</span><br><span class="line">    if ($invalid_referer)&#123;</span><br><span class="line">      return 403;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  location /download {
+    alias	          /usr/share/nginx/html/static;  # 静态资源目录
+    
+    autoindex               on;    # 开启静态资源列目录
+    autoindex_exact_size    off;   # on(默认)显示文件的确切大小，单位是byte；off显示文件大概大小，单位KB、MB、GB
+    autoindex_localtime     off;   # off(默认)时显示的文件时间为GMT时间；on显示的文件时间为服务器时间
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<h2 id="请求过滤"><a href="#请求过滤" class="headerlink" title="请求过滤"></a>请求过滤</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 非指定请求全返回 403</span><br><span class="line">if ( $request_method !~ ^(GET|POST|HEAD)$ ) &#123;</span><br><span class="line">  return 403;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">location / &#123;</span><br><span class="line">  # IP访问限制（只允许IP是 192.168.0.2 机器访问）</span><br><span class="line">  allow 192.168.0.2;</span><br><span class="line">  deny all;</span><br><span class="line">  # 限制用户通过某一个连接向Nginx服务器发起请求的次数</span><br><span class="line">  keepalive_requests 5；</span><br><span class="line">  root   html;</span><br><span class="line">  index  index.html index.htm;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="图片防盗链"><a href="#图片防盗链" class="headerlink" title="图片防盗链"></a>图片防盗链</h2><pre class="line-numbers language-none"><code class="language-none">server {
+  listen       80;        
+  server_name  *.lvxueyang.vip;
+  
+  # 图片防盗链
+  location ~* \.(gif|jpg|jpeg|png|bmp|swf)$ {
+    valid_referers none blocked server_names ~\.google\. ~\.baidu\. *.qq.com;  # 只允许本机 IP 外链引用，感谢 @木法传 的提醒，将百度和谷歌也加入白名单
+    if ($invalid_referer){
+      return 403;
+    }
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<h2 id="单页面项目-history-路由配置"><a href="#单页面项目-history-路由配置" class="headerlink" title="单页面项目 history 路由配置"></a>单页面项目 history 路由配置</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen       80;</span><br><span class="line">  server_name  lvxueyang.vip;</span><br><span class="line">  </span><br><span class="line">  location / &#123;</span><br><span class="line">    root       /usr/share/nginx/html/dist;  # vue 打包后的文件夹</span><br><span class="line">    index      index.html index.htm;</span><br><span class="line">    try_files  $uri $uri/ /index.html @rewrites;  </span><br><span class="line">    </span><br><span class="line">    expires -1;                          # 首页一般没有强制缓存</span><br><span class="line">    add_header Cache-Control no-cache;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  location @rewrites &#123;</span><br><span class="line">    rewrite ^(.+)$ /index.html break;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="请求过滤"><a href="#请求过滤" class="headerlink" title="请求过滤"></a>请求过滤</h2><pre class="line-numbers language-none"><code class="language-none"># 非指定请求全返回 403
+if ( $request_method !~ ^(GET|POST|HEAD)$ ) {
+  return 403;
+}
 
-<h2 id="HTTP-请求转发到-HTTPS"><a href="#HTTP-请求转发到-HTTPS" class="headerlink" title="HTTP 请求转发到 HTTPS"></a>HTTP 请求转发到 HTTPS</h2><p>配置完 HTTPS 后，浏览器还是可以访问 HTTP 的地址 <a href="http://www.lvxueyang.vip/">http://www.lvxueyang.vip/</a> 的，可以做一个 301 跳转，把对应域名的 HTTP 请求重定向到 HTTPS 上</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen      80;</span><br><span class="line">    server_name www.lvxueyang.vip;</span><br><span class="line"></span><br><span class="line">    # 单域名重定向</span><br><span class="line">    if ($host = &#x27;lvxueyang.vip&#x27;)&#123;</span><br><span class="line">        return 301 https://www.lvxueyang.vip;</span><br><span class="line">    &#125;</span><br><span class="line">    # 全局非 https 协议时重定向</span><br><span class="line">    if ($scheme != &#x27;https&#x27;) &#123;</span><br><span class="line">        return 301 https://$server_name$request_uri;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # 或者全部重定向</span><br><span class="line">    return 301 https://$server_name$request_uri;</span><br><span class="line"></span><br><span class="line">    # 以上配置选择自己需要的即可，不用全部加</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+location / {
+  # IP访问限制（只允许IP是 192.168.0.2 机器访问）
+  allow 192.168.0.2;
+  deny all;
+  # 限制用户通过某一个连接向Nginx服务器发起请求的次数
+  keepalive_requests 5；
+  root   html;
+  index  index.html index.htm;
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="单页面项目-history-路由配置"><a href="#单页面项目-history-路由配置" class="headerlink" title="单页面项目 history 路由配置"></a>单页面项目 history 路由配置</h2><pre class="line-numbers language-none"><code class="language-none">server {
+  listen       80;
+  server_name  lvxueyang.vip;
+  
+  location / {
+    root       /usr/share/nginx/html/dist;  # vue 打包后的文件夹
+    index      index.html index.htm;
+    try_files  $uri $uri/ /index.html @rewrites;  
+    
+    expires -1;                          # 首页一般没有强制缓存
+    add_header Cache-Control no-cache;
+  }
+  
+  
+  location @rewrites {
+    rewrite ^(.+)$ /index.html break;
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="HTTP-请求转发到-HTTPS"><a href="#HTTP-请求转发到-HTTPS" class="headerlink" title="HTTP 请求转发到 HTTPS"></a>HTTP 请求转发到 HTTPS</h2><p>配置完 HTTPS 后，浏览器还是可以访问 HTTP 的地址 <a target="_blank" rel="noopener" href="http://www.lvxueyang.vip/">http://www.lvxueyang.vip/</a> 的，可以做一个 301 跳转，把对应域名的 HTTP 请求重定向到 HTTPS 上</p>
+<pre class="line-numbers language-none"><code class="language-none">server {
+    listen      80;
+    server_name www.lvxueyang.vip;
+
+    # 单域名重定向
+    if ($host = 'lvxueyang.vip'){
+        return 301 https://www.lvxueyang.vip;
+    }
+    # 全局非 https 协议时重定向
+    if ($scheme != 'https') {
+        return 301 https://$server_name$request_uri;
+    }
+
+    # 或者全部重定向
+    return 301 https://$server_name$request_uri;
+
+    # 以上配置选择自己需要的即可，不用全部加
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="泛域名路径分离"><a href="#泛域名路径分离" class="headerlink" title="泛域名路径分离"></a>泛域名路径分离</h2><p>这是一个非常实用的技能，经常有时候我们可能需要配置一些二级或者三级域名，希望通过 Nginx 自动指向对应目录，比如：</p>
 <ol>
 <li>test1.lvxueyang.vip 自动指向 /usr/share/nginx/html/doc/test1 服务器地址；</li>
 <li>test2.lvxueyang.vip 自动指向 /usr/share/nginx/html/doc/test2 服务器地址；</li>
 </ol>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80;</span><br><span class="line">    server_name  ~^([\w-]+)\.lvxueyang\.vip$;</span><br><span class="line"></span><br><span class="line">    root /usr/share/nginx/html/doc/$1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server {
+    listen       80;
+    server_name  ~^([\w-]+)\.lvxueyang\.vip$;
+
+    root /usr/share/nginx/html/doc/$1;
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="泛域名转发"><a href="#泛域名转发" class="headerlink" title="泛域名转发"></a>泛域名转发</h2><p>和之前的功能类似，有时候我们希望把二级或者三级域名链接重写到我们希望的路径，让后端就可以根据路由解析不同的规则：</p>
 <ul>
 <li>test1.lvxueyang.vip/api?name=a 自动转发到 127.0.0.1:8080/test1/api?name=a ；</li>
 <li>test2.lvxueyang.vip/api?name=a 自动转发到 127.0.0.1:8080/test2/api?name=a ；</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80;</span><br><span class="line">    server_name ~^([\w-]+)\.lvxueyang\.vip$;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        proxy_set_header        X-Real-IP $remote_addr;</span><br><span class="line">        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">        proxy_set_header        Host $http_host;</span><br><span class="line">        proxy_set_header        X-NginX-Proxy true;</span><br><span class="line">        proxy_pass              http://127.0.0.1:8080/$1$request_uri;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server {
+    listen       80;
+    server_name ~^([\w-]+)\.lvxueyang\.vip$;
+
+    location / {
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        Host $http_host;
+        proxy_set_header        X-NginX-Proxy true;
+        proxy_pass              http://127.0.0.1:8080/$1$request_uri;
+    }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="Nginx缓存"><a href="#Nginx缓存" class="headerlink" title="Nginx缓存"></a>Nginx缓存</h2><p> 为了提升网站的整体性能，我们一般会采用缓存，从宏观层面来说，会采用浏览器缓存和后端缓存，Nginx处于Web 网站的服务最外层，而且支持浏览器缓存配置和后端数据缓存，用它来做部分数据缓存，效率更高。 Web缓存是可以自动保存常见文档副本的HTTP 设备。当Web请求抵达缓存时，如果本地有“已缓存的”副本，就可以 从本地设备而不是服务器中提取这个文 档。  </p>
 <h3 id="OpenRestry安装"><a href="#OpenRestry安装" class="headerlink" title="OpenRestry安装"></a>OpenRestry安装</h3><p> OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及 大多数的依赖项。用于方便地搭建能够处理超高并发、扩展性极高的动态 Web 应用、 Web 服务和动态网关。 OpenResty 通过lua脚本扩展 nginx 功能，可提供负载均衡、请求路由、安全认证、服务鉴权、流量控制与日志监 控等服务。 OpenResty® 通过汇聚各种设计精良的 Nginx 模块（主要由 OpenResty 团队自主开发），从而将 Nginx 有效地 变成一个强大的通用 Web 应用平台。这样， Web 开发人员和系统工程师可以使用 Lua 脚本语言调动 Nginx 支持 的各种 C 以及 Lua 模块，快速构造出足以胜任 10K 乃至 1000K 以上单机并发连接的高性能 Web 应用系统。  </p>
 <p> <strong>安装依赖库</strong>  </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">yum install wget libtermcap-devel ncurses-devel libevent-devel readline-devel pcre-devel gcc</span><br><span class="line">openssl openssl-devel per</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">yum install wget libtermcap-devel ncurses-devel libevent-devel readline-devel pcre-devel gcc
+openssl openssl-devel per<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p> <strong>下载安装包</strong>  </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">wget https://openresty.org/download/openresty-1.11.2.5.tar.gz</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">wget https://openresty.org/download/openresty-1.11.2.5.tar.gz<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p> <strong>解压安装</strong>  </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">tar -xf openresty-1.11.2.5.tar.gz</span><br><span class="line">cd openresty-1.11.2.5</span><br><span class="line">./configure --prefix=/usr/local/openresty --with-luajit --without-http_redis2_module --withhttp_stub_status_module --with-http_v2_module --with-http_gzip_static_module --withhttp_sub_module --add-module=/usr/local/server/ngx_cache_purge-2.3/</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">tar -xf openresty-1.11.2.5.tar.gz
+cd openresty-1.11.2.5
+./configure --prefix=/usr/local/openresty --with-luajit --without-http_redis2_module --withhttp_stub_status_module --with-http_v2_module --with-http_gzip_static_module --withhttp_sub_module --add-module=/usr/local/server/ngx_cache_purge-2.3/
+make &amp;&amp; make install<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p> 安装完成后，在 /usr/local/openrestry/nginx 目录下是安装好的nginx。  </p>
 <h3 id="浏览器缓存"><a href="#浏览器缓存" class="headerlink" title="浏览器缓存"></a>浏览器缓存</h3><p> 客户端侧缓存一般指的是浏览器缓存、app缓存等等，目的就是加速各种静态资源的访问，降低服务器压力。 我们通过配置Nginx设置网页缓存信息，从而降低用户对服务器频繁访问造成的巨大压力。我们先配置一个案例，再 基于案例去讲解Nginx缓存。  </p>
 <p> <strong>Nginx Web缓存配置</strong>  </p>
 <p> nginx 提供了 expires 、 etag 、 if-modified-since 指令来进行浏览器缓存控制。我们使用 expires 来配置 Nginx对网页的缓存。  </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">语法: expires [modified] time;</span><br><span class="line">默认值: expires off;</span><br><span class="line">上下文: http, server, location, if in location</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">语法: expires [modified] time;
+默认值: expires off;
+上下文: http, server, location, if in location<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <p> 1)上传html </p>
 <p>将1.html上传到服务器的 /usr/local/server/html 目录下。 </p>
 <p> 2)配置nginx 修改 /usr/local/openrestry/nginx/conf/nginx.conf 文件，配置如下：  </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen 80;</span><br><span class="line">  server_name localhost;</span><br><span class="line">  location / &#123;</span><br><span class="line">    #静态文件路径</span><br><span class="line">    root /usr/local/server/html;</span><br><span class="line">    #缓存10秒</span><br><span class="line">    expires 10s;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">server {
+  listen 80;
+  server_name localhost;
+  location / {
+    #静态文件路径
+    root /usr/local/server/html;
+    #缓存10秒
+    expires 10s;
+  }
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p> 第一次请求 <a target="_blank" rel="noopener" href="http://192.168.211.141/1.html">http://192.168.211.141/1.html</a></p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203736.png" alt="img"></p>
@@ -499,17 +1284,94 @@
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203742.png" alt="img"></p>
 <p><strong>Http缓存控制头</strong> </p>
 <p><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203746.png" alt="img"><br> <strong>参数说明：</strong> </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">HTTP 中最基本的缓存机制，涉及到的 HTTP 头字段，包括 Cache-Control, Last-Modified, </span><br><span class="line">If-ModifiedSince, Etag,If-None-Match 等。</span><br><span class="line"></span><br><span class="line">Last-Modified/If-Modified-Since</span><br><span class="line">Etag是服务端的一个资源的标识，在 HTTP 响应头中将其传送到客户端。所谓的服务端资源可以是一个Web页面，也可以是</span><br><span class="line">JSON或XML等。服务器单独负责判断记号是什么及其含义，并在HTTP响应头中将其传送到客户端。比如，浏览器第一次请求一</span><br><span class="line">个资源的时候，服务端给予返回，并且返回了ETag: &quot;50b1c1d4f775c61:df3&quot; 这样的字样给浏览器，当浏览器再次请求这</span><br><span class="line">个资源的时候，浏览器会将If-None-Match: W/&quot;50b1c1d4f775c61:df3&quot; 传输给服务端，服务端拿到该ETAG，对比资源</span><br><span class="line">是否发生变化，如果资源未发生改变，则返回304HTTP状态码，不返回具体的资源。</span><br><span class="line"></span><br><span class="line">Last-Modified ：标示这个响应资源的最后修改时间。web服务器在响应请求时，告诉浏览器资源的最后修改时间。</span><br><span class="line">If-Modified-Since ：当资源过期时（使用Cache-Control标识的max-age），发现资源具有 Last-Modified 声明，</span><br><span class="line">则再次向web服务器请求时带上头。</span><br><span class="line"></span><br><span class="line">If-Modified-Since ，表示请求时间。web服务器收到请求后发现有头 If-Modified-Since 则与被请求资源的最后修</span><br><span class="line">改时间进行比对。若最后修改时间较新，说明资源有被改动过，则响应整片资源内容（写在响应消息包体内），HTTP 200；若</span><br><span class="line">最后修改时间较旧，说明资源无新修改，则响应 HTTP 304 (无需包体，节省浏览)，告知浏览器继续使用所保存的 cache</span><br><span class="line">。</span><br><span class="line"></span><br><span class="line">Pragma行是为了兼容 HTTP1.0 ，作用与 Cache-Control: no-cache 是一样的</span><br><span class="line">Etag/If-None-Match</span><br><span class="line">Etag ：web服务器响应请求时，告诉浏览器当前资源在服务器的唯一标识（生成规则由服务器决定),如果给定URL中的资源修</span><br><span class="line">改，则一定要生成新的Etag值。</span><br><span class="line"></span><br><span class="line">If-None-Match ：当资源过期时（使用Cache-Control标识的max-age），发现资源具有Etage声明，则再次向web服务</span><br><span class="line">器请求时带上头 If-None-Match （Etag的值）。web服务器收到请求后发现有头 If-None-Match 则与被请求资源的相</span><br><span class="line">应校验串进行比对，决定返回200或304。</span><br><span class="line"></span><br><span class="line">Etag：</span><br><span class="line">Last-Modified 标注的最后修改只能精确到秒级，如果某些文件在1秒钟以内，被修改多次的话，它将不能准确标注文件的</span><br><span class="line">修改时间，如果某些文件会被定期生成，当有时内容并没有任何变化，但 Last-Modified 却改变了，导致文件没法使用缓</span><br><span class="line">存有可能存在服务器没有准确获取文件修改时间，或者与代理服务器时间不一致等情形 Etag是服务器自动生成或者由开发者</span><br><span class="line">生成的对应资源在服务器端的唯一标识符，能够更加准确的控制缓存。 Last-Modified 与 ETag 是可以一起使用的，服务</span><br><span class="line">器会优先验证 ETag ，一致的情况下，才会继续比对 Last-Modified ，最后才决定是否返回304。</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">HTTP 中最基本的缓存机制，涉及到的 HTTP 头字段，包括 Cache-Control, Last-Modified, 
+If-ModifiedSince, Etag,If-None-Match 等。
+
+Last-Modified/If-Modified-Since
+Etag是服务端的一个资源的标识，在 HTTP 响应头中将其传送到客户端。所谓的服务端资源可以是一个Web页面，也可以是
+JSON或XML等。服务器单独负责判断记号是什么及其含义，并在HTTP响应头中将其传送到客户端。比如，浏览器第一次请求一
+个资源的时候，服务端给予返回，并且返回了ETag: "50b1c1d4f775c61:df3" 这样的字样给浏览器，当浏览器再次请求这
+个资源的时候，浏览器会将If-None-Match: W/"50b1c1d4f775c61:df3" 传输给服务端，服务端拿到该ETAG，对比资源
+是否发生变化，如果资源未发生改变，则返回304HTTP状态码，不返回具体的资源。
+
+Last-Modified ：标示这个响应资源的最后修改时间。web服务器在响应请求时，告诉浏览器资源的最后修改时间。
+If-Modified-Since ：当资源过期时（使用Cache-Control标识的max-age），发现资源具有 Last-Modified 声明，
+则再次向web服务器请求时带上头。
+
+If-Modified-Since ，表示请求时间。web服务器收到请求后发现有头 If-Modified-Since 则与被请求资源的最后修
+改时间进行比对。若最后修改时间较新，说明资源有被改动过，则响应整片资源内容（写在响应消息包体内），HTTP 200；若
+最后修改时间较旧，说明资源无新修改，则响应 HTTP 304 (无需包体，节省浏览)，告知浏览器继续使用所保存的 cache
+。
+
+Pragma行是为了兼容 HTTP1.0 ，作用与 Cache-Control: no-cache 是一样的
+Etag/If-None-Match
+Etag ：web服务器响应请求时，告诉浏览器当前资源在服务器的唯一标识（生成规则由服务器决定),如果给定URL中的资源修
+改，则一定要生成新的Etag值。
+
+If-None-Match ：当资源过期时（使用Cache-Control标识的max-age），发现资源具有Etage声明，则再次向web服务
+器请求时带上头 If-None-Match （Etag的值）。web服务器收到请求后发现有头 If-None-Match 则与被请求资源的相
+应校验串进行比对，决定返回200或304。
+
+Etag：
+Last-Modified 标注的最后修改只能精确到秒级，如果某些文件在1秒钟以内，被修改多次的话，它将不能准确标注文件的
+修改时间，如果某些文件会被定期生成，当有时内容并没有任何变化，但 Last-Modified 却改变了，导致文件没法使用缓
+存有可能存在服务器没有准确获取文件修改时间，或者与代理服务器时间不一致等情形 Etag是服务器自动生成或者由开发者
+生成的对应资源在服务器端的唯一标识符，能够更加准确的控制缓存。 Last-Modified 与 ETag 是可以一起使用的，服务
+器会优先验证 ETag ，一致的情况下，才会继续比对 Last-Modified ，最后才决定是否返回304。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h3 id="代理缓存"><a href="#代理缓存" class="headerlink" title="代理缓存"></a>代理缓存</h3><p>用户如果请求获取的数据不是需要后端服务器处理返回，如果我们需要对数据做缓存来提高服务器的处理能力，我们<br>可以按照如下步骤实现：<br>1、请求Nginx，Nginx将请求路由给后端服务<br>2、后端服务查询Redis或者MySQL，再将返回结果给Nginx<br>3、Nginx将结果存入到Nginx缓存，并将结果返回给用户<br>4、用户下次执行同样请求，直接在Nginx中获取缓存数据 </p>
 <h4 id="proxy-cache"><a href="#proxy-cache" class="headerlink" title="proxy_cache"></a>proxy_cache</h4><p> proxy_cache 是用于 proxy 模式（一般也可称为反代）的缓存功能，proxy_cache 在 Nginx 配置的 http 段、server段（location 段）中分别写入不同的配置。http 段中的配置用于定义 proxy_cache 空间，server 段中的配置用于调用 http 段中的定义，启用对 server 的缓存功能。<br> 属性使用说明<br><strong>proxy_cache_path：</strong> </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">proxy_cache_path /usr/local/openresty/nginx/cache levels=1:2</span><br><span class="line">keys_zone=openresty_cache:10m max_size=10g inactive=60m use_temp_path=off;</span><br><span class="line">【作用】指定缓存存储的路径，缓存存储在/usr/local/openresty/nginx/cache目录</span><br><span class="line">【levels=1:2】设置一个两级目录层次结构存储缓存，在单个目录中包含大量文件会降低文件访问速度，因此我们建议对大</span><br><span class="line">多数部署使用两级目录层次结构。如果 levels 未包含该参数，Nginx 会将所有文件放在同一目录中。</span><br><span class="line">【keys_zone=openresty_cache:10m】设置共享内存区域，用于存储缓存键和元数据，例如使用计时器。拥有内存中的密</span><br><span class="line">钥副本，Nginx 可以快速确定请求是否是一个 HIT 或 MISS 不必转到磁盘，从而大大加快了检查速度。1 MB 区域可以存</span><br><span class="line">储大约 8,000 个密钥的数据，因此示例中配置的 10 MB 区域可以存储大约 80,000 个密钥的数据。</span><br><span class="line">【max_size=10g】设置缓存大小的上限。它是可选的; 不指定值允许缓存增长以使用所有可用磁盘空间。当缓存大小达到限</span><br><span class="line">制时，一个称为缓存管理器的进程将删除最近最少使用的缓存，将大小恢复到限制之下的文件。</span><br><span class="line">【inactive=60m】指定项目在未被访问的情况下可以保留在缓存中的时间长度。在此示例中，缓存管理器进程会自动从缓存</span><br><span class="line">中删除 60 分钟未请求的文件，无论其是否已过期。默认值为 10 分钟（10m）。非活动内容与过期内容不同。Nginx 不会</span><br><span class="line">自动删除缓存 header 定义为已过期内容（例如 Cache-Control:max-age=120）。过期（陈旧）内容仅在指定时间内未</span><br><span class="line">被访问时被删除。访问过期内容时，Nginx 会从原始服务器刷新它并重置 inactive 计时器。</span><br><span class="line">【use_temp_path=off】表示NGINX会将临时文件保存在缓存数据的同一目录中。这是为了避免在更新缓存时，磁盘之间互</span><br><span class="line">相复制响应数据，我们一般关闭该功能。</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">proxy_cache_path /usr/local/openresty/nginx/cache levels=1:2
+keys_zone=openresty_cache:10m max_size=10g inactive=60m use_temp_path=off;
+【作用】指定缓存存储的路径，缓存存储在/usr/local/openresty/nginx/cache目录
+【levels=1:2】设置一个两级目录层次结构存储缓存，在单个目录中包含大量文件会降低文件访问速度，因此我们建议对大
+多数部署使用两级目录层次结构。如果 levels 未包含该参数，Nginx 会将所有文件放在同一目录中。
+【keys_zone=openresty_cache:10m】设置共享内存区域，用于存储缓存键和元数据，例如使用计时器。拥有内存中的密
+钥副本，Nginx 可以快速确定请求是否是一个 HIT 或 MISS 不必转到磁盘，从而大大加快了检查速度。1 MB 区域可以存
+储大约 8,000 个密钥的数据，因此示例中配置的 10 MB 区域可以存储大约 80,000 个密钥的数据。
+【max_size=10g】设置缓存大小的上限。它是可选的; 不指定值允许缓存增长以使用所有可用磁盘空间。当缓存大小达到限
+制时，一个称为缓存管理器的进程将删除最近最少使用的缓存，将大小恢复到限制之下的文件。
+【inactive=60m】指定项目在未被访问的情况下可以保留在缓存中的时间长度。在此示例中，缓存管理器进程会自动从缓存
+中删除 60 分钟未请求的文件，无论其是否已过期。默认值为 10 分钟（10m）。非活动内容与过期内容不同。Nginx 不会
+自动删除缓存 header 定义为已过期内容（例如 Cache-Control:max-age=120）。过期（陈旧）内容仅在指定时间内未
+被访问时被删除。访问过期内容时，Nginx 会从原始服务器刷新它并重置 inactive 计时器。
+【use_temp_path=off】表示NGINX会将临时文件保存在缓存数据的同一目录中。这是为了避免在更新缓存时，磁盘之间互
+相复制响应数据，我们一般关闭该功能。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p><strong>proxy_cache：</strong> </p>
 <p>设置是否开启对后端响应的缓存，如果开启的话，参数值就是zone的名称，比如:proxy_cache openresty_cache;<br> <strong>proxy_cache_valid：</strong> </p>
 <p>对不同的response code设定不同的缓存时间，如果不设置code，默认为200,301,302,也可以用any指定所有code<br>【proxy_cache_valid 200 304 10s;】所有200/304响应的数据都缓存10秒。<br>【proxy_cache_valid any 1m;】所有请求响应的值都缓存1分钟<br> <strong>proxy_cache_min_uses：</strong><br> 指定在多少次请求之后才缓存响应内容,这里表示将缓存内容写入到磁盘。<br>【proxy_cache_min_uses 3;】同一个请求达到了3次，才将缓存写入磁盘。<br> <strong>proxy_cache_lock：</strong><br> 默认不开启，开启的话则每次只能有一个请求更新相同的缓存，其他请求要么等待缓存有数据要么限时等待锁释放;nginx1.1.12才开始有。<br> <strong>proxy_cache_key：</strong><br> 缓存文件的唯一key，可以根据它实现对缓存文件的清理操作 </p>
 <h4 id="缓存操作"><a href="#缓存操作" class="headerlink" title="缓存操作"></a>缓存操作</h4><p>我们在 nginx.conf 中添加如下配置： </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#缓存配置</span><br><span class="line">proxy_cache_path /usr/local/openresty/nginx/cache levels=1:2 keys_zone=openresty_cache:10m</span><br><span class="line">max_size=10g inactive=60m use_temp_path=off;</span><br><span class="line">server &#123;</span><br><span class="line">	listen 80;</span><br><span class="line">	server_name localhost;</span><br><span class="line">	#html配置</span><br><span class="line">	location ~ \.html &#123;</span><br><span class="line">	# 静态文件路径</span><br><span class="line">	root /usr/local/server/html;</span><br><span class="line">	#缓存10秒</span><br><span class="line">	expires 10s;</span><br><span class="line">&#125; </span><br><span class="line">  #非html配置</span><br><span class="line">location / &#123;</span><br><span class="line">  #启用缓存openresty_cache</span><br><span class="line">  proxy_cache openresty_cache;</span><br><span class="line">  #针对指定请求缓存</span><br><span class="line">  #proxy_cache_methods GET;</span><br><span class="line">  #设置指定请求会缓存</span><br><span class="line">  proxy_cache_valid 200 304 10s;</span><br><span class="line">  #最少请求1次才会缓存</span><br><span class="line">  proxy_cache_min_uses 3;</span><br><span class="line">  #如果并发请求，只有第1个请求会去服务器获取数据</span><br><span class="line">  #proxy_cache_lock on;</span><br><span class="line">      #唯一的key</span><br><span class="line">  proxy_cache_key $host$uri$is_args$args;</span><br><span class="line">  proxy_pass http://myip:18081;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">#缓存配置
+proxy_cache_path /usr/local/openresty/nginx/cache levels=1:2 keys_zone=openresty_cache:10m
+max_size=10g inactive=60m use_temp_path=off;
+server {
+	listen 80;
+	server_name localhost;
+	#html配置
+	location ~ \.html {
+	# 静态文件路径
+	root /usr/local/server/html;
+	#缓存10秒
+	expires 10s;
+} 
+  #非html配置
+location / {
+  #启用缓存openresty_cache
+  proxy_cache openresty_cache;
+  #针对指定请求缓存
+  #proxy_cache_methods GET;
+  #设置指定请求会缓存
+  proxy_cache_valid 200 304 10s;
+  #最少请求1次才会缓存
+  proxy_cache_min_uses 3;
+  #如果并发请求，只有第1个请求会去服务器获取数据
+  #proxy_cache_lock on;
+      #唯一的key
+  proxy_cache_key $host$uri$is_args$args;
+  proxy_pass http://myip:18081;
+	}
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>此时 /usr/local/openresty/nginx/cache 目录下只有1个temp文件夹。<br>我们执行3次请求 <a target="_blank" rel="noopener" href="http://192.168.211.141/user/wangwu%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%8F%91%E7%8E%B0%E6%AD%A4%E6%97%B6%E5%A4%9A%E4%BA%86%E4%B8%80%E4%BA%9B%E5%85%B6%E4%BB%96%E7%9B%AE%E5%BD%95%EF%BC%8C%E8%BF%99%E4%BA%9B%E7%9B%AE%E5%BD%95%E5%B0%B1%E6%98%AF%E5%AD%98">http://192.168.211.141/user/wangwu，可以发现此时多了一些其他目录，这些目录就是存</a><br>储每个请求对应的缓存。<br> <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203756.png" alt="img"></p>
 <h2 id="Nginx底层进程机制剖析"><a href="#Nginx底层进程机制剖析" class="headerlink" title="Nginx底层进程机制剖析"></a>Nginx底层进程机制剖析</h2><p>Nginx启动后，以daemon多进程⽅式在后台运⾏，包括⼀个Master进程和多个Worker进程， Master<br>进程是领导，是⽼⼤， Worker进程是⼲活的⼩弟。<br> <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210628203801.png" alt="img"></p>
@@ -552,7 +1414,18 @@
 <li>限制一个用户发送的请求，我Nginx多久接收一个请求。</li>
 <li>Nginx中使用ngx_http_limit_req_module模块来限制的访问频率，限制的原理实质是基于漏桶算法原理来实现的。在nginx.conf配置文件中可以使用limit_req_zone命令及limit_req命令限制单个IP的请求处理频率。</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#定义限流维度，一个用户一分钟一个请求进来，多余的全部漏掉</span><br><span class="line">limit_req_zone $binary_remote_addr zone=one:10m rate=1r/m;</span><br><span class="line"></span><br><span class="line">#绑定限流维度</span><br><span class="line">server&#123;</span><br><span class="line">	</span><br><span class="line">	location/seckill.html&#123;</span><br><span class="line">		limit_req zone=zone;	</span><br><span class="line">		proxy_pass http://lj_seckill;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">#定义限流维度，一个用户一分钟一个请求进来，多余的全部漏掉
+limit_req_zone $binary_remote_addr zone=one:10m rate=1r/m;
+
+#绑定限流维度
+server{
+	
+	location/seckill.html{
+		limit_req zone=zone;	
+		proxy_pass http://lj_seckill;
+	}
+
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <ul>
 <li>1r/s代表1秒一个请求，1r/m一分钟接收一个请求， 如果Nginx这时还有别人的请求没有处理完，Nginx就会拒绝处理该用户请求。</li>
@@ -561,7 +1434,18 @@
 <li>限制一个用户发送的请求，我Nginx多久接收一个。</li>
 <li>上面的配置一定程度可以限制访问频率，但是也存在着一个问题：如果突发流量超出请求被拒绝处理，无法处理活动时候的突发流量，这时候应该如何进一步处理呢？Nginx提供burst参数结合nodelay参数可以解决流量突发的问题，可以设置能处理的超过设置的请求数外能额外处理的请求数。我们可以将之前的例子添加burst参数以及nodelay参数：</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#定义限流维度，一个用户一分钟一个请求进来，多余的全部漏掉</span><br><span class="line">limit_req_zone $binary_remote_addr zone=one:10m rate=1r/m;</span><br><span class="line"></span><br><span class="line">#绑定限流维度</span><br><span class="line">server&#123;</span><br><span class="line">	</span><br><span class="line">	location/seckill.html&#123;</span><br><span class="line">		limit_req zone=zone burst=5 nodelay;</span><br><span class="line">		proxy_pass http://lj_seckill;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-none"><code class="language-none">#定义限流维度，一个用户一分钟一个请求进来，多余的全部漏掉
+limit_req_zone $binary_remote_addr zone=one:10m rate=1r/m;
+
+#绑定限流维度
+server{
+	
+	location/seckill.html{
+		limit_req zone=zone burst=5 nodelay;
+		proxy_pass http://lj_seckill;
+	}
+
+}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <ul>
 <li>为什么就多了一个 burst=5 nodelay; 呢，多了这个可以代表Nginx对于一个用户的请求会立即处理前五个，多余的就慢慢来落，没有其他用户的请求我就处理你的，有其他的请求的话我Nginx就漏掉不接受你的请求</li>
@@ -570,77 +1454,1121 @@
 <li>Nginx中的ngx_http_limit_conn_module模块提供了限制并发连接数的功能，可以使用limit_conn_zone指令以及limit_conn执行进行配置。接下来我们可以通过一个简单的例子来看下：</li>
 </ul>
 <p>上面配置了单个IP同时并发连接数最多只能10个连接，并且设置了整个虚拟服务器同时最大并发数最多只能100个链接。当然，只有当请求的header被服务器处理后，虚拟服务器的连接数才会计数。刚才有提到过Nginx是基于漏桶算法原理实现的，实际上限流一般都是基于漏桶算法和令牌桶算法实现的。</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YangShen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.lvxueyang.vip/post/65b69107.html">http://www.lvxueyang.vip/post/65b69107.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.lvxueyang.vip" target="_blank">牧马人的忧伤</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Nginx/">Nginx</a></div><div class="post_share"><div class="social-share" data-image="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165212.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" target="_blank"><img class="post-qr-code-img" src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/fc007800.html"><img class="prev-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165213.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">互联网电商系统的演进过程</div></div></a></div><div class="next-post pull-right"><a href="/post/7b97cc4c.html"><img class="next-cover" src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20210806165209.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">SpringBoot之Test</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lvxueyangboke.oss-cn-beijing.aliyuncs.com/images/20210805201008.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">YangShen</div><div class="author-info__description">主要是Java技术栈的文章，涉及到了面试和源码、原理的知识，同时有一些生活类博文。</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">414</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">128</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">116</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/"><i class="fab fa-github"></i><span>我的Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://gitee.com/lvxueyang" target="_blank" title="我的Gitee"><i class="iconfont icon-gitee-fill-round"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_44797965" target="_blank" title="我的CSDN"><i class="iconfont icon-csdn"></i></a><a class="social-icon" href="https://www.yuque.com/mumaren-av3td" target="_blank" title="我的语雀"><i class="iconfont icon-tubiaozhizuomoban"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><p>1、笔者的更多信息可以点击右上方的<a target="_blank" rel="noopener" href="https://www.lvxueyang/about/">关于作者</a></p><p>2、本博客的技术文章均已上传至<a target="_blank" rel="noopener" href="https://github.com/LVXUEYANGTiger/">个人项目</a> </p> <p>3、更多公告，更新日志，写作计划 请点开<a href="https://www.lvxueyang.vip/timeline/">时间轴【8月2号更新】</a>。以后公告，更新日志，写作计划均在这里发布</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx%E5%9F%BA%E7%A1%80%E5%9B%9E%E9%A1%BE"><span class="toc-text">Nginx基础回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx%E6%A0%B8%E2%BC%BC%E9%85%8D%E7%BD%AE%E2%BD%82%E4%BB%B6%E8%A7%A3%E8%AF%BB"><span class="toc-text">Nginx核⼼配置⽂件解读</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx%E9%85%8D%E7%BD%AE%E8%AF%AD%E6%B3%95"><span class="toc-text">Nginx配置语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-text">全局变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gzip%E5%8E%8B%E7%BC%A9"><span class="toc-text">gzip压缩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-text">配置负载均衡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB"><span class="toc-text">配置动静分离</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E4%BA%8C%E7%BA%A7%E5%9F%9F%E5%90%8D%E8%99%9A%E6%8B%9F%E4%B8%BB%E6%9C%BA"><span class="toc-text">设置二级域名虚拟主机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-text">配置反向代理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B7%A8%E5%9F%9F-CORS-%E9%85%8D%E7%BD%AE"><span class="toc-text">跨域 CORS 配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B7%A8%E5%9F%9F%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-text">跨域的定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-text">同源的定义</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F"><span class="toc-text">使用反向代理解决跨域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-header-%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F"><span class="toc-text">配置 header 解决跨域</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%B0%E5%9D%80%E9%87%8D%E5%86%99"><span class="toc-text">地址重写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%82%E9%85%8DPC%E6%88%96%E7%A7%BB%E5%8A%A8%E8%AE%BE%E5%A4%87"><span class="toc-text">适配PC或移动设备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4%EF%BC%88%E5%8F%8C%E6%9C%BA%E7%83%AD%E5%A4%87%EF%BC%89"><span class="toc-text">配置高可用集群（双机热备）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-HTTPS"><span class="toc-text">配置 HTTPS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E6%9C%8D%E5%8A%A1"><span class="toc-text">静态服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BE%E7%89%87%E9%98%B2%E7%9B%97%E9%93%BE"><span class="toc-text">图片防盗链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E8%BF%87%E6%BB%A4"><span class="toc-text">请求过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E9%A1%B5%E9%9D%A2%E9%A1%B9%E7%9B%AE-history-%E8%B7%AF%E7%94%B1%E9%85%8D%E7%BD%AE"><span class="toc-text">单页面项目 history 路由配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP-%E8%AF%B7%E6%B1%82%E8%BD%AC%E5%8F%91%E5%88%B0-HTTPS"><span class="toc-text">HTTP 请求转发到 HTTPS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%9F%9F%E5%90%8D%E8%B7%AF%E5%BE%84%E5%88%86%E7%A6%BB"><span class="toc-text">泛域名路径分离</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%9B%E5%9F%9F%E5%90%8D%E8%BD%AC%E5%8F%91"><span class="toc-text">泛域名转发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx%E7%BC%93%E5%AD%98"><span class="toc-text">Nginx缓存</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#OpenRestry%E5%AE%89%E8%A3%85"><span class="toc-text">OpenRestry安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98"><span class="toc-text">浏览器缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E7%BC%93%E5%AD%98"><span class="toc-text">代理缓存</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#proxy-cache"><span class="toc-text">proxy_cache</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E6%93%8D%E4%BD%9C"><span class="toc-text">缓存操作</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx%E5%BA%95%E5%B1%82%E8%BF%9B%E7%A8%8B%E6%9C%BA%E5%88%B6%E5%89%96%E6%9E%90"><span class="toc-text">Nginx底层进程机制剖析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94"><span class="toc-text">惊群效应</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%90%E6%B5%81"><span class="toc-text">限流</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%AD%A3%E5%B8%B8%E9%99%90%E5%88%B6%E8%AE%BF%E9%97%AE%E9%A2%91%E7%8E%87%EF%BC%88%E6%AD%A3%E5%B8%B8%E6%B5%81%E9%87%8F%EF%BC%89%EF%BC%9A"><span class="toc-text">正常限制访问频率（正常流量）：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%AA%81%E5%8F%91%E9%99%90%E5%88%B6%E8%AE%BF%E9%97%AE%E9%A2%91%E7%8E%87%EF%BC%88%E7%AA%81%E5%8F%91%E6%B5%81%E9%87%8F%EF%BC%89%EF%BC%9A"><span class="toc-text">突发限制访问频率（突发流量）：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%99%90%E5%88%B6%E5%B9%B6%E5%8F%91%E8%BF%9E%E6%8E%A5%E6%95%B0"><span class="toc-text">限制并发连接数</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/8ee0298.html" title="MapReduce高阶编程"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082231.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce高阶编程"/></a><div class="content"><a class="title" href="/post/8ee0298.html" title="MapReduce高阶编程">MapReduce高阶编程</a><time datetime="2022-02-26T01:32:25.198Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/286e9c8d.html" title="YARN框架概述与集群部署"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212035.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YARN框架概述与集群部署"/></a><div class="content"><a class="title" href="/post/286e9c8d.html" title="YARN框架概述与集群部署">YARN框架概述与集群部署</a><time datetime="2022-02-26T01:32:25.195Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211108212110.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce整体流程与核心源码解读"/></a><div class="content"><a class="title" href="/post/47be7482.html" title="MapReduce整体流程与核心源码解读">MapReduce整体流程与核心源码解读</a><time datetime="2022-02-26T01:32:25.192Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/89a5f1a0.html" title="MapReduce性能调优"><img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082319.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce性能调优"/></a><div class="content"><a class="title" href="/post/89a5f1a0.html" title="MapReduce性能调优">MapReduce性能调优</a><time datetime="2022-02-26T01:32:25.188Z" title="发表于 2022-02-26 09:32:25">2022-02-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/470ca7c6.html" title="MapReduce基础编程"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MapReduce基础编程"/></a><div class="content"><a class="title" href="/post/470ca7c6.html" title="MapReduce基础编程">MapReduce基础编程</a><time datetime="2022-02-23T12:38:37.465Z" title="发表于 2022-02-23 20:38:37">2022-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d3d58562.html" title="运行维护"><img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/20210805201206.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行维护"/></a><div class="content"><a class="title" href="/post/d3d58562.html" title="运行维护">运行维护</a><time datetime="2022-02-03T03:22:18.512Z" title="发表于 2022-02-03 11:22:18">2022-02-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YangShen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
-  endLoading: () => {
-    document.body.style.overflow = 'auto';
-    document.getElementById('loading-box').classList.add("loaded")
-  },
-  initLoading: () => {
-    document.body.style.overflow = '';
-    document.getElementById('loading-box').classList.remove("loaded")
 
-  }
-}
-window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
-  const $countDom = document.getElementById('twikoo-count')
-  const init = () => {
-    twikoo.init(Object.assign({
-      el: '#twikoo-wrap',
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: ''
-    }, null))
-  }
+                
+            </div>
+            <hr/>
 
-  const getCount = () => {
-    twikoo.getCommentsCount({
-      envId: 'pinglun-9gh2lmcnd8587831',
-      region: '',
-      urls: [window.location.pathname],
-      includeReply: false
-    }).then(function (res) {
-      $countDom.innerText = res[0].count
-    }).catch(function (err) {
-      console.error(err);
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">YangShen</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://lvxueyang.vip/post/65b69107.html">https://lvxueyang.vip/post/65b69107.html</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">YangShen</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/Nginx/">
+                                    <span class="chip bg-color">Nginx</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/1628169797.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="https://cdn.jsdelivr.net/gh/LVXUEYANGTiger/blog@main/mm_facetoface_collect_qrcode_1628169825807.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
     });
-  }
+</script>
 
-  const loadTwikoo = (bool = false) => {
-    if (typeof twikoo === 'object') {
-      init()
-      bool && $countDom && setTimeout(getCount,0)
-    } else {
-      getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(()=> {
-        init()
-        bool && $countDom && setTimeout(getCount,0)
-      })
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
     }
-  }
 
-  if ('Twikoo' === 'Twikoo' || !false) {
-    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
-    else loadTwikoo(true)
-  } else {
-    window.loadOtherComment = () => {
-      loadTwikoo()
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
     }
-  }
-})()</script></div><script defer src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@latest/source/js/issues.min.js"></script><script src="//code.tidio.co/smwivpnwumemac2wohardi3d3gpud1ag.js" async="async"></script><script>function onTidioChatApiReady() {
-  window.tidioChatApi.hide();
-  window.tidioChatApi.on("close", function() {
-    window.tidioChatApi.hide();
-  });
-}
-if (window.tidioChatApi) {
-  window.tidioChatApi.on("ready", onTidioChatApiReady);
-} else {
-  document.addEventListener("tidioChat-ready", onTidioChatApiReady);
-}
 
-var chatBtnFn = () => {
-  document.getElementById("chat_btn").addEventListener("click", function(){
-    window.tidioChatApi.show();
-    window.tidioChatApi.open();
-  });
-}
-chatBtnFn()
-</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("/medias/comment_bg.png") 100% 100% no-repeat;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div id="vcomments" class="card-content" style="display: grid">
+    </div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'kkTHtgDEUlqRlsbgP6vMWDxa-gzGzoHsz',
+        appKey: 'EX0XjX0GwgIgm38pW1RuybHn',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go'
+    });
+</script>
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/post/fc007800.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082159.jpg" class="responsive-img" alt="互联网电商系统的演进过程">
+                        
+                        <span class="card-title">互联网电商系统的演进过程</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2021-08-07
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%9E%B6%E6%9E%84/" class="post-category">
+                                    架构
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E6%9E%B6%E6%9E%84/">
+                        <span class="chip bg-color">架构</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/post/7b97cc4c.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://blog-1259153703.cos.ap-nanjing.myqcloud.com/images/20211004082041.jpg" class="responsive-img" alt="SpringBoot之Test">
+                        
+                        <span class="card-title">SpringBoot之Test</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-08-07
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/SpringBoot/" class="post-category">
+                                    SpringBoot
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/SpringBoot/">
+                        <span class="chip bg-color">SpringBoot</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: 牧马人的忧伤<br />'
+            + '文章作者: YangShen<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h1, h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="330695641"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2018-2022</span>
+            
+            <span id="year">2018</span>
+            <a href="/about" target="_blank">YangShen</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">3956k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <span id="sitetime">载入运行时间...</span>
+            <script>
+                function siteTime() {
+                    var seconds = 1000;
+                    var minutes = seconds * 60;
+                    var hours = minutes * 60;
+                    var days = hours * 24;
+                    var years = days * 365;
+                    var today = new Date();
+                    var startYear = "2018";
+                    var startMonth = "6";
+                    var startDate = "28";
+                    var startHour = "0";
+                    var startMinute = "0";
+                    var startSecond = "0";
+                    var todayYear = today.getFullYear();
+                    var todayMonth = today.getMonth() + 1;
+                    var todayDate = today.getDate();
+                    var todayHour = today.getHours();
+                    var todayMinute = today.getMinutes();
+                    var todaySecond = today.getSeconds();
+                    var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                    var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                    var diff = t2 - t1;
+                    var diffYears = Math.floor(diff / years);
+                    var diffDays = Math.floor((diff / days) - diffYears * 365);
+                    var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+                    var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) /
+                        minutes);
+                    var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours -
+                        diffMinutes * minutes) / seconds);
+                    if (startYear == todayYear) {
+                        document.getElementById("year").innerHTML = todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffDays + " 天 " + diffHours +
+                            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    } else {
+                        document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                        document.getElementById("sitetime").innerHTML = "本站已安全运行 " + diffYears + " 年 " + diffDays +
+                            " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+                    }
+                }
+                setInterval(siteTime, 1000);
+            </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/LVXUEYANGTiger" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1191432275@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1191432275" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1191432275" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+    <script type="text/javascript">
+        window.onload = function(){
+            //屏蔽键盘事件
+            document.onkeydown = function (){
+                var e = window.event || arguments[0];
+                //F12
+                if(e.keyCode == 123){
+                    return false;
+                //Ctrl+Shift+I
+                }else if((e.ctrlKey) && (e.shiftKey) && (e.keyCode == 73)){
+                    return false;
+                //Shift+F10
+                }else if((e.shiftKey) && (e.keyCode == 121)){
+                    return false;
+                //Ctrl+U
+                }else if((e.ctrlKey) && (e.keyCode == 85)){
+                    return false;
+                }
+            };
+            //屏蔽鼠标右键
+            document.oncontextmenu = function (){
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
